@@ -540,7 +540,7 @@ Se ejecutaron comprobaciones deterministas sobre el texto recuperado de GitHub d
 | A | Asistente — revisión de consistencia interna | 36 casos + 10 fronteras | COMPLETADA; no cuenta como revisión humana independiente | Recorrido normativo descrito en §6 |
 | B | Mismo asistente — revisión adversarial separada | 36 casos + 10 fronteras | COMPLETADA; no cuenta como revisión humana independiente ni es independiente de A | Recorrido adversarial descrito en §6 |
 | H-OWNER | Propietario — revisión humana | 36 casos + 10 fronteras | PENDIENTE | Debe registrar decisión, evidencia, fecha, SHA y discrepancias por ID |
-| AI-ADVERSARIAL | Asistente — revisión adversarial asistida | 36 casos + 10 fronteras | PENDIENTE para versión final; A/B históricas conservadas | No es revisión humana ni independiente |
+| AI-ADVERSARIAL | Asistente — revisión adversarial asistida | 36 casos + 10 fronteras | COMPLETADA para SHA `60e66f919b88148c05348a27f185b64eba2c6c77`; no independiente | Revisadas cobertura, contratos, exclusiones, indeterminación, temporalidad, clasificación y gobernanza; A/B históricas conservadas |
 | AUTO-VALIDATION | Scripts deterministas versionados | Cobertura, contratos, estructura y enlaces | PENDIENTE de ejecución reproducible | Registrar commit, versión Python, comandos, salida y código de retorno |
 | ADVERSARIAL-TEST | Tests de mutación M-01…M-12 | Fixtures aislados | PENDIENTE de ejecución | Cada mutación requiere oráculo y resultado; manual review si no automatizable |
 
@@ -601,7 +601,7 @@ Este registro está deliberadamente pendiente. Debe completarlo el propietario t
 
 ### 7.2 Registro AI-ADVERSARIAL y AUTO-VALIDATION
 
-Se aplica el modelo **SINGLE-HUMAN REVIEW WITH COMPENSATING CONTROLS**, aprobado por el propietario e integrado mediante PR #31. Este modelo compensatorio no equivale a dos revisiones humanas independientes. La revisión A/B histórica se conserva como evidencia asistida ya realizada, no independiente. La revisión adversarial final contra el SHA exacto de esta rama debe registrar fecha, alcance (46/46), clases de defecto buscadas, hallazgos por ID, correcciones y pendientes. Estado de la revisión final: **PENDIENTE**.
+Se aplica el modelo **SINGLE-HUMAN REVIEW WITH COMPENSATING CONTROLS**, aprobado por el propietario e integrado mediante PR #31. Este modelo compensatorio no equivale a dos revisiones humanas independientes. La revisión A/B histórica se conserva como evidencia asistida ya realizada, no independiente. La revisión adversarial final se registró el 2026-11-14 contra el SHA `60e66f919b88148c05348a27f185b64eba2c6c77`, con alcance de 46/46 casos. Se comprobaron cobertura, contratos, salidas, categorías NINGUNA en negativos, INDETERMINADO, evidencia, no-inferencias, temporalidad, etiquetado transversal y prohibición de falsa independencia. Resultado: no se detectaron defectos bloqueantes adicionales en la revisión documental. Esta revisión es asistida por el mismo asistente; no es humana ni independiente y no valida la verdad de fuentes externas. Estado: **COMPLETADA — ASSISTED, NOT INDEPENDENT**.
 
 Se incorporan el validador `scripts/news_and_events/validate_taxonomy_test_cases.py` y su suite `tests/news_and_events/test_taxonomy_test_cases_validation.py`, bajo la [política de revisión de participante único](../governance/single-human-review-control.md). Requieren Python 3.10 o superior y utilizan exclusivamente la biblioteca estándar. Comandos canónicos:
 
