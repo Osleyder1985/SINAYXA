@@ -167,3 +167,86 @@ Esta política no cierra el Issue #29 ni declara sus controles completados. El I
 - [ISO 9001:2026 — página oficial](https://www.iso.org/standard/9001)
 - [ISO 31000:2018 — página oficial](https://www.iso.org/standard/31000)
 - [ISO guidance on documented information for ISO 9001:2015 — antecedente, no norma vigente](https://www.iso.org/files/live/sites/isoorg/files/standards/docs/en/iso_9001_2015_guidance_documented_information.pdf)
+
+## 9. Matriz de riesgos y eficacia de los controles
+
+La revisión independiente pretende reducir el riesgo de que un error de interpretación compartido por el autor y su proceso de elaboración pase inadvertido. La independencia reduce ciertos sesgos de confirmación y errores comunes, pero no garantiza por sí sola la corrección. El modelo de participante único no reproduce esa independencia: reduce riesgos distintos mediante controles heterogéneos y deja explícito el riesgo residual de sesgo humano común.
+
+| Riesgo | Defecto que puede escapar a una sola lectura | Control compensatorio | Evidencia exigida | Riesgo residual |
+|---|---|---|---|---|
+| R-01 Sesgo de confirmación | Un escenario induce la clasificación esperada por el autor. | H-OWNER por ID + AI-ADVERSARIAL contra falsos positivos/negativos + mutaciones. | Decisiones por ID; hallazgos; mutaciones detectadas. | El asistente puede compartir premisas o errores del autor. |
+| R-02 Omisión de cobertura | Falta un ID, familia o fila de trazabilidad. | Validación determinista de conjuntos exactos y cardinalidades. | Salida reproducible con IDs esperados y observados. | El oráculo de cobertura puede estar mal definido. |
+| R-03 Contradicción estructural | Resultado, categoría, objeto o estado no concuerdan. | Reglas automáticas explícitas y pruebas negativas. | Resultado por regla y fixture de detección. | Contradicciones semánticas requieren juicio humano. |
+| R-04 Evidencia insuficiente | Falta de corroboración se convierte en falsedad o exclusión. | Checklist adversarial y mutaciones de INDETERMINADO. | Justificación por ID y prueba de sensibilidad. | El validador no demuestra calidad de fuentes externas. |
+| R-05 Confusión temporal/ontológica | Se colapsan publicación, afirmación, acontecimiento e hito; conocimiento posterior contamina el pasado. | Campos temporales separados, reglas de precedencia y mutaciones. | Fixtures de regresión y tiempo de corte. | Puede persistir una interpretación contextual incorrecta. |
+| R-06 Falsa independencia | Dos pasadas de una IA se presentan como dos revisores. | Roles obligatorios y prohibición de declarar independencia sin dos personas acreditadas. | Identidades humanas y registros separados, o declaración de ausencia. | No hay segunda perspectiva humana mientras el proyecto sea unipersonal. |
+| R-07 Falsa reproducibilidad | Se declaran pruebas sin script, versión o salida. | Scripts versionados, comandos exactos y artefactos. | Commit, intérprete, comando, salida y código de retorno. | Entornos distintos pueden producir diferencias no cubiertas. |
+
+### 9.1 Evaluación de alternativas
+
+| Alternativa | Cobertura del riesgo | Limitación | Decisión para SINAYXA |
+|---|---|---|---|
+| Dos revisores humanos independientes | Segunda interpretación humana y posible detección de sesgos comunes. | No disponible en el modelo actual; no se puede simular ni inventar. | Exigible si una obligación externa o el riesgo lo requiere; bloquear ese uso si no está disponible. |
+| Dos pasadas del mismo asistente | Puede generar críticas adicionales e inconsistencias detectables. | No es independiente ni aporta una segunda persona. | Complementaria, etiquetada ASSISTED — NOT INDEPENDENT. |
+| Revisión completa del propietario | Responsabilidad y juicio humano sobre cada caso. | Persiste el sesgo propio y la falta de separación autor/revisor. | Obligatoria, con decisión por ID y SHA. |
+| Validación determinista versionada | Detecta omisiones y contradicciones formalizadas repetiblemente. | No prueba verdad ni semántica abierta. | Obligatoria para controles estructurales automatizables. |
+| Pruebas de mutación | Demuestran que validaciones detectan defectos deliberados concretos. | No prueban detección de todas las clases de defecto. | Obligatorias para reglas automatizadas críticas; documentar límites. |
+| Revisión externa especializada | Añade perspectiva humana distinta y experiencia específica. | Coste/disponibilidad; depende de competencia y alcance. | Obligatoria por mandato o riesgo no aceptable; recomendada en usos de alto impacto; no requerida para documentación interna de bajo riesgo si los controles pasan. |
+
+**Conclusión:** para los 46 casos documentales internos del Issue #29, el modelo compensatorio es aceptable si todos los controles obligatorios se ejecutan y registran. No equivale a independencia humana ni elimina el riesgo residual de sesgo compartido. Si el uso cambia a cumplimiento regulatorio, control crítico o decisiones financieras automatizadas que afecten a terceros, debe reabrirse la evaluación y exigir revisión externa cuando corresponda.
+
+## 10. Protocolo adversarial verificable
+
+Las pruebas de mutación se ejecutarán sobre fixtures aislados y versionados. Cada mutación debe ser detectada por una aserción concreta; ejecutar el validador sin demostrar el fallo esperado no cuenta como PASS.
+
+| ID | Mutación deliberada | Resultado obligatorio del validador | Criterio PASS |
+|---|---|---|---|
+| M-01 | Duplicar un ID. | FAIL por duplicidad y mostrar ID. | Código de salida no cero y diagnóstico de duplicado. |
+| M-02 | Eliminar uno de los 36 IDs. | FAIL por cobertura incompleta. | Identifica el ID ausente. |
+| M-03 | Añadir un ID principal desconocido. | FAIL por ID inesperado. | Identifica el ID adicional. |
+| M-04 | Alterar el balance positivo/negativo de una fila. | FAIL por par no conforme. | Identifica fila y polaridad ausente. |
+| M-05 | Quitar NINGUNA a un escenario negativo. | FAIL por contrato de negativos. | Identifica caso y valor esperado. |
+| M-06 | Eliminar un campo obligatorio. | FAIL por campo ausente. | Identifica ID y campo. |
+| M-07 | Marcar una filtración como confirmada sin evidencia. | FAIL o INDETERMINADO, nunca confirmada. | No promueve la afirmación a hecho confirmado. |
+| M-08 | Convertir falta de corroboración en EXCLUIR por falsedad. | FAIL o MANUAL_REVIEW_REQUIRED. | Nunca PASS automático para una regla semántica no automatizada. |
+| M-09 | Omitir una familia transversal requerida. | FAIL por etiqueta ausente. | Identifica ID y familia esperada. |
+| M-10 | Romper un enlace Markdown local. | FAIL por destino inexistente. | Identifica archivo y destino. |
+| M-11 | Colapsar fecha de publicación y fecha del acontecimiento. | FAIL si el contrato las exige separadas; si no es automatizable, revisión manual. | Nunca acepta silenciosamente una fecha inferida. |
+| M-12 | Marcar AI-ADVERSARIAL como revisión humana independiente. | FAIL por rol inválido. | Rechaza INDEPENDENT HUMAN REVIEW VERIFIED sin dos identidades humanas distintas. |
+
+### 10.1 Condiciones de ejecución y reporte
+
+- Las mutaciones se generan en directorios temporales o fixtures; no se modifica el documento aprobado ni main.
+- Cada test registra ID, fixture, comando, código de salida, diagnóstico esperado y observado.
+- PASS: el validador acepta el fixture íntegro y rechaza cada mutación automatizable con el diagnóstico esperado.
+- FAIL: acepta una mutación que debía rechazar, rechaza el fixture íntegro, no identifica el defecto o no produce evidencia reproducible.
+- MANUAL_REVIEW_REQUIRED: el defecto es semántico y no se afirma que la automatización lo detecte; debe existir revisión humana explícita.
+- Una prueba acredita únicamente la detección de esa mutación concreta.
+- No se fija un porcentaje arbitrario de cobertura. Cada M-01…M-12 debe tener resultado registrado o justificación técnica de no automatización y control manual sustituto.
+
+## 11. Cambios definitivos requeridos para el Issue #29
+
+Tras aprobarse e integrarse esta política, el Issue #29 y catalyst-taxonomy-test-cases.md deben actualizarse mediante cambios trazables para:
+
+1. Retirar el requisito imposible de dos revisiones humanas independientes para este alcance interno, conservando su origen y sin reescribir A/B.
+2. Sustituirlo por H-OWNER obligatorio para los 46 casos, con decisión individual, evidencia y SHA revisado.
+3. Conservar A/B como ASSISTED — NOT INDEPENDENT; no contabilizarlas como revisiones humanas.
+4. Incorporar checklist AI-ADVERSARIAL y registro de hallazgos/discrepancias.
+5. Añadir validadores deterministas versionados para IDs, pares, contratos, matriz, etiquetas, enlaces y consistencia estructural; registrar límites semánticos.
+6. Añadir fixtures y pruebas M-01…M-12, con salida reproducible y MANUAL_REVIEW_REQUIRED donde corresponda.
+7. Incorporar registro de riesgo residual R-01…R-07 y su estado.
+8. Definir aceptación final como PASS — SINGLE-HUMAN COMPENSATING CONTROLS solo cuando H-OWNER, AI-ADVERSARIAL, validaciones y pruebas adversariales estén ejecutados y no existan defectos bloqueantes.
+9. Reservar INDEPENDENT HUMAN REVIEW VERIFIED a dos personas distintas con evidencia verificable. Si aparece un requisito externo obligatorio, bloquear el uso afectado hasta obtener esa revisión.
+
+Estos cambios no se adelantan a la aprobación de la política en el PR #31. Tras aprobarse e integrarse la política, se aplicarán al Issue #29 en su propia rama/PR, preservando el historial.
+
+## 12. Criterio de cierre del Issue #30
+
+El Issue #30 podrá cerrarse cuando la política aprobada esté integrada en main, sus preguntas y criterios de aceptación estén respondidos con referencias concretas y la descripción del Issue registre expresamente que el modelo adoptado es compensatorio, no independiente. La mera creación o actualización de esta PR no satisface por sí sola el criterio de integración.
+
+## 13. Registro de cambios
+
+| Versión | Fecha | Cambio |
+|---|---|---|
+| 1.0-proposal | 2026-11-14 | Primera propuesta para revisión mediante PR vinculada al Issue #30. |
+| 1.1-approved-by-owner-pending-merge | 2026-11-14 | Añadidas matriz R-01…R-07, evaluación comparativa, protocolo M-01…M-12 con oráculos PASS/FAIL, cambios definitivos para Issue #29 y condición de cierre del Issue #30. La aprobación del propietario se registra en la conversación; integración y ejecución siguen pendientes. |
