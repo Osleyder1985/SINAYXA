@@ -66,7 +66,7 @@ def validate_text(text: str, root: Path | None = None) -> list[str]:
         if not match:
             continue
         block = match.group(0)
-        missing = [field for field in REQUIRED_CASE_FIELDS if field not in block]
+        missing = [field for field in REQUIRED_CASE_FIELDS if field not in block and not (field == "**Salida:**" and "**Salida A:**" in block and "**Salida B:**" in block)]
         if missing:
             errors.append(f"CASE_CONTRACT: {case_id} carece de {', '.join(missing)}")
 
