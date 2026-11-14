@@ -69,6 +69,9 @@ def validate_text(text: str, root: Path | None = None) -> list[str]:
         missing = [field for field in REQUIRED_CASE_FIELDS if field not in block and not (field == "**Salida:**" and "**Salida A:**" in block and "**Salida B:**" in block)]
         if missing:
             errors.append(f"CASE_CONTRACT: {case_id} carece de {', '.join(missing)}")
+        owner_marker = f"**Requisitos H-OWNER consolidados — {case_id}:**"
+        if block.count(owner_marker) != 1:
+            errors.append(f"H_OWNER_CONSOLIDATION: {case_id} debe conservar exactamente una mejora H-OWNER dentro de su ficha original")
 
     for case_id in sorted(item for item in MAIN_IDS if item.endswith("-N")):
         match = re.search(rf"^#### {re.escape(case_id)} —.*?(?=^#### |^## |\Z)", text, re.MULTILINE | re.DOTALL)
