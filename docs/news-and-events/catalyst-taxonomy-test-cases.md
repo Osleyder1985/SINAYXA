@@ -451,6 +451,8 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 - **INDETERMINADO si:** solo falta corroboración, la fuente es anónima o no se ha probado falsedad.
 - **No inferir:** que una filtración es fabricada por ser anónima o no corroborada.
 
+**Requisitos H-OWNER consolidados — Filtraciones-N:** Decisión H-OWNER: aprobar el escenario negativo destinado a evitar clasificar como filtración cualquier rumor, movimiento de mercado o publicación anterior a un acontecimiento oficial. Mejora aprobada: distinguir documentos auténticos, manipulados, incompletos y de autenticidad desconocida; separar fechas de creación, modificación, publicación, descubrimiento y verificación; investigar suplantación, cuentas falsas, coordinación y contenido generado artificialmente; no contar publicaciones que replican una fuente como corroboraciones independientes; comprobar si la información ya era pública o deducible; separar coincidencia entre afirmación y anuncio posterior de prueba de conocimiento de información no pública; mantener hipótesis alternativas y evidencia contraria; utilizar INDETERMINADO cuando no se establezcan origen o autenticidad; preservar evidencia para revisión posterior. Investigar cronología, origen, corroboración, contradicciones, explicaciones alternativas de mercado y atribución sin presumir acceso privilegiado, manipulación o conducta ilícita.
+
 ## 3.3 Registro explícito de aplicación del contrato a los 36 escenarios
 
 Este registro complementa las fichas de §3.1 y §3.2. En todos los casos los escenarios son sintéticos: no se inventan nombres propios, fechas concretas, jurisdicciones, cantidades ni activos. «DESCONOCIDO» identifica un campo aplicable que el supuesto no concreta; «NO APLICA» identifica un campo que no corresponde al objeto. La evidencia mínima, el mecanismo, la decisión y las alternativas se desarrollan en la ficha individual del ID.
@@ -499,8 +501,6 @@ Este registro complementa las fichas de §3.1 y §3.2. En todos los casos los es
 Los casos de frontera son complementarios. Cada uno prueba una distinción normativa concreta y no altera la correspondencia 1:1 de los 36 casos principales.
 
 
-
-**Requisitos H-OWNER consolidados — Filtraciones-N:** Decisión H-OWNER: aprobar el escenario negativo destinado a evitar clasificar como filtración cualquier rumor, movimiento de mercado o publicación anterior a un acontecimiento oficial. Mejora aprobada: distinguir documentos auténticos, manipulados, incompletos y de autenticidad desconocida; separar fechas de creación, modificación, publicación, descubrimiento y verificación; investigar suplantación, cuentas falsas, coordinación y contenido generado artificialmente; no contar publicaciones que replican una fuente como corroboraciones independientes; comprobar si la información ya era pública o deducible; separar coincidencia entre afirmación y anuncio posterior de prueba de conocimiento de información no pública; mantener hipótesis alternativas y evidencia contraria; utilizar INDETERMINADO cuando no se establezcan origen o autenticidad; preservar evidencia para revisión posterior. Investigar cronología, origen, corroboración, contradicciones, explicaciones alternativas de mercado y atribución sin presumir acceso privilegiado, manipulación o conducta ilícita.
 #### BND-01 — Solicitud ETF registrada frente a especulación
 - **Entrada/objeto:** dos publicaciones: una enlaza expediente oficial de solicitud; otra especula sin expediente ni fuente.
 - **Salida:** INCLUIR el hito de solicitud si registro, producto y jurisdicción coinciden; conservar la especulación como afirmación, no como solicitud.
@@ -648,7 +648,7 @@ Pruebas adversariales aplicadas:
 - campos desconocidos rellenados implícitamente;
 - confusión entre repetición y corroboración.
 
-**Estado de ejecución de revisiones:** las revisiones A y B se ejecutaron sobre los 46 escenarios y sus resultados están resumidos arriba y en la tabla de registro. Son dos pasadas analíticas del mismo asistente, no dos revisores independientes. Por tanto, satisfacen únicamente la revisión asistida interna; la revisión humana del propietario H-OWNER sigue pendiente; no se exige ni se simula una segunda persona independiente para este alcance interno conforme a la política aprobada.
+**Estado de ejecución de revisiones:** las revisiones A y B se ejecutaron sobre los 46 escenarios y sus resultados están resumidos arriba y en la tabla de registro. Son dos pasadas analíticas del mismo asistente, no dos revisores independientes. Por tanto, satisfacen únicamente la revisión asistida interna. En el estado documental de aquella revisión, H-OWNER seguía pendiente; posteriormente, el propietario completó H-OWNER para los 46 casos el 2026-11-14, según el registro de §7.1. No se exige ni se simula una segunda persona independiente para este alcance interno conforme a la política aprobada.
 
 ### 6.3 Validaciones programáticas puntuales del documento
 
@@ -685,7 +685,7 @@ En el commit `e892fa11033703d8ea8dcb4ad7a0f78f6c3a1199` de la rama de trabajo se
 | Casos nuevos creados | PASS — 0 |
 | Decisiones H-OWNER sin ficha correspondiente | PASS — 0 |
 
-Esta verificación es estructural: confirma que las mejoras aprobadas están incorporadas en las fichas correctas. No sustituye la repetición de AI-ADVERSARIAL sobre el SHA actual, la ejecución del validador Python ni las pruebas de mutación M-01…M-12.
+Esta verificación es estructural: confirma que las mejoras aprobadas están incorporadas en las fichas correctas. No sustituye la repetición de AI-ADVERSARIAL sobre el SHA actual, la ejecución del validador Python ni las pruebas de mutación M-01…M-13.
 
 ## 7. Registro de revisión y discrepancias
 
@@ -696,7 +696,7 @@ Esta verificación es estructural: confirma que las mejoras aprobadas están inc
 | H-OWNER | Propietario — revisión humana | 36 casos + 10 fronteras | PENDIENTE | Debe registrar decisión, evidencia, fecha, SHA y discrepancias por ID |
 | AI-ADVERSARIAL | Asistente — revisión adversarial asistida | 36 casos + 10 fronteras | COMPLETADA para SHA `60e66f919b88148c05348a27f185b64eba2c6c77`; no independiente | Revisadas cobertura, contratos, exclusiones, indeterminación, temporalidad, clasificación y gobernanza; A/B históricas conservadas |
 | AUTO-VALIDATION | Scripts deterministas versionados | Cobertura, contratos, estructura y enlaces | PENDIENTE de ejecución reproducible | Registrar commit, versión Python, comandos, salida y código de retorno |
-| ADVERSARIAL-TEST | Tests de mutación M-01…M-12 | Fixtures aislados | PENDIENTE de ejecución | Cada mutación requiere oráculo y resultado; manual review si no automatizable |
+| ADVERSARIAL-TEST | Tests de mutación M-01…M-13 | Fixtures aislados | PENDIENTE de ejecución | Cada mutación requiere oráculo y resultado; manual review si no automatizable |
 
 Las discrepancias se registrarán por ID, decisión inicial, regla/evidencia en conflicto, resolución y cambio aplicado. No se forzará consenso cuando la salida correcta sea INDETERMINADO.
 
@@ -769,7 +769,9 @@ py -3.15 scripts/news_and_events/validate_taxonomy_test_cases.py
 
 La salida de la primera orden debe identificar Python 3.15.2. Si el launcher `py` no está disponible, usar el ejecutable de Python 3.15 instalado mediante su ruta completa; no sustituirlo silenciosamente por otra versión.
 
-Las pruebas de mutación M-01…M-12 deben demostrar que cada fixture defectuoso es rechazado por su oráculo. Un defecto semántico no automatizable se marca MANUAL_REVIEW_REQUIRED, nunca PASS automático. No se declara ejecutado ningún comando hasta registrar realmente su salida.
+Las pruebas de mutación M-01…M-13 deben demostrar que cada fixture defectuoso es rechazado por su oráculo. Un defecto semántico no automatizable se marca MANUAL_REVIEW_REQUIRED, nunca PASS automático. No se declara ejecutado ningún comando hasta registrar realmente su salida.
+
+M-13 comprueba que cada decisión H-OWNER permanezca dentro de la ficha original con el mismo ID; es un control de trazabilidad documental y no crea un escenario nuevo.
 
 Estados de conformidad permitidos:
 
@@ -817,7 +819,7 @@ La aprobación del propietario de la política no es una revisión de los 46 cas
 - [x] H-OWNER completada para los 46 casos (36 escenarios + 10 BND), con decisión y evidencia por ID.
 - [ ] AI-ADVERSARIAL repetida y registrada para el SHA candidato posterior a la consolidación.
 - [ ] AUTO-VALIDATION versionada ejecutada y con salida reproducible.
-- [ ] Pruebas adversariales M-01…M-12 ejecutadas o justificadas como MANUAL_REVIEW_REQUIRED.
+- [ ] Pruebas adversariales M-01…M-13 ejecutadas o justificadas como MANUAL_REVIEW_REQUIRED.
 - [x] Referencias internas a los dos documentos normativos comprobadas contra los archivos existentes en `main`.
 - [x] Comprobaciones programáticas puntuales de estructura y cobertura ejecutadas sobre el contenido recuperado de la rama; alcance y límites registrados en §6.3.
 - [ ] Markdown lint y validaciones CI del repositorio ejecutadas; no se declaran como realizadas.
