@@ -531,7 +531,7 @@ Se ejecutaron comprobaciones deterministas sobre el texto recuperado de GitHub d
 | Resolución de enlaces Markdown relativos a documentos locales | PASS — 4/4 |
 | Salidas separadas A/B en BND-09 | PASS |
 
-**Límites de esta validación:** son comprobaciones programáticas puntuales ejecutadas sobre el contenido descargado, no una suite de pruebas versionada ni una validación semántica completa de Markdown. No se ejecutó `markdownlint`, no se ejecutó `git diff --check` en un clon local y no se creó ni modificó workflow CI. La consulta de GitHub Actions para el commit de validación no devolvió ejecuciones asociadas. El Issue excluye expresamente implementar CI en este alcance.
+**Límites de esta validación histórica:** las 12 comprobaciones fueron puntuales sobre el contenido descargado y no equivalen a la suite versionada añadida ahora ni a una validación semántica completa de Markdown. La nueva suite y el validador todavía no se han ejecutado en un entorno Python disponible. No se ejecutó `markdownlint`, no se ejecutó `git diff --check` en un clon local y no se creó ni modificó workflow CI. La consulta de GitHub Actions para el commit de validación no devolvió ejecuciones asociadas. El Issue excluye expresamente implementar CI en este alcance.
 
 ## 7. Registro de revisión y discrepancias
 
@@ -603,7 +603,7 @@ Este registro está deliberadamente pendiente. Debe completarlo el propietario t
 
 Se aplica el modelo **SINGLE-HUMAN REVIEW WITH COMPENSATING CONTROLS**, aprobado por el propietario e integrado mediante PR #31. Este modelo compensatorio no equivale a dos revisiones humanas independientes. La revisión A/B histórica se conserva como evidencia asistida ya realizada, no independiente. La revisión adversarial final contra el SHA exacto de esta rama debe registrar fecha, alcance (46/46), clases de defecto buscadas, hallazgos por ID, correcciones y pendientes. Estado de la revisión final: **PENDIENTE**.
 
-Se incorporarán el validador `scripts/news_and_events/validate_taxonomy_test_cases.py` y su suite `tests/news_and_events/test_taxonomy_test_cases_validation.py`. Comandos canónicos:
+Se incorporan el validador `scripts/news_and_events/validate_taxonomy_test_cases.py` y su suite `tests/news_and_events/test_taxonomy_test_cases_validation.py`, bajo la [política de revisión de participante único](../governance/single-human-review-control.md). Requieren Python 3.10 o superior y utilizan exclusivamente la biblioteca estándar. Comandos canónicos:
 
 ```bash
 python -m unittest discover -s tests/news_and_events -v
