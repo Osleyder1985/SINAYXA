@@ -17,7 +17,7 @@ La unidad de evaluación se declara en cada caso: **publicación/fuente**, **afi
 - **INDETERMINADO:** falta evidencia necesaria para resolver existencia, atribución, alcance, clasificación o relevancia. Se identifica el dato exacto que falta.
 - **NO APLICA:** campo que no corresponde al escenario. **DESCONOCIDO:** dato aplicable que no está disponible. No se sustituyen por inferencias.
 
-**No corroborada no significa falsa; no confirmada no significa irrelevante; no observada no significa inexistente.** La falta de evidencia suficiente no justifica por sí sola EXCLUIR.
+**No corroborada no significa falsa; no confirmada no significa irrelevante; no observada no significa inexistente.** La falta de evidencia suficiente no justifica por sí sola EXCLUIR. Cuando se excluya el acontecimiento alegado pero la publicación o transacción sí exista, se conserva ese objeto y se identifica exactamente qué afirmación/hecho se excluye. **NINGUNA** significa que no se asigna categoría principal al supuesto catalizador no acreditado; no significa borrar la publicación, observación o evidencia de su circulación.
 
 ### 1.2 Contrato de entrada común
 
@@ -41,28 +41,50 @@ La evaluación debe registrar: decisión; objeto y estado; una categoría princi
 
 La familia transversal **no sustituye** la categoría principal. Un caso transversal debe devolver ambas etiquetas. Las categorías secundarias solo se asignan si existe una dimensión adicional material respaldada.
 
+### 1.4 Reglas normativas identificadas para trazabilidad
+
+Los siguientes identificadores se utilizan en la matriz de trazabilidad y en la revisión por escenario:
+
+| Regla | Exigencia verificable |
+|---|---|
+| R-OBJ | Separar PUBLICACIÓN, AFIRMACIÓN, ACONTECIMIENTO e HITO; no convertir una publicación en hecho por sí sola. |
+| R-DEC | Aplicar INCLUIR, EXCLUIR o INDETERMINADO según la evidencia; no convertir desconocimiento en exclusión. |
+| R-EVID | Identificar evidencia mínima, procedencia y estado de confirmación; conservar la diferencia entre fuente primaria y secundaria. |
+| R-CLASS | Asignar categoría principal por la naturaleza inmediata del hecho; usar NINGUNA cuando no exista acontecimiento catalizador clasificable. |
+| R-CROSS | Registrar la familia transversal separadamente; no sustituye ni duplica la categoría principal. |
+| R-MECH | Explicitar el mecanismo potencial y el vínculo directo, indirecto o condicional; no afirmar causalidad ni reacción no observada. |
+| R-TIME | Separar ocurrencia, publicación, primera detección, anuncio oficial y ejecución; preservar el conocimiento disponible en cada momento. |
+| R-UNK | Marcar campos aplicables sin datos como DESCONOCIDO y los no aplicables como NO APLICA; identificar qué evidencia resolvería la incertidumbre. |
+| R-NOINFER | No inferir venta, pérdida, explotación, adopción, ejecución, titularidad, reacción, dirección de precio ni causalidad sin evidencia específica. |
+| R-NEG | EXCLUIR requiere evidencia positiva del supuesto negativo y de la razón de exclusión; si falta información decisiva, usar INDETERMINADO. |
+| R-DUP | Varias publicaciones de una misma fuente o que repiten el mismo origen no crean corroboración ni acontecimientos independientes. |
+| R-ANT | Registrar información anticipatoria según lo que se sabía en la primera detección; no exigir confirmación posterior ni validarla retrospectivamente. |
+
+
 ## 2. Matriz de trazabilidad de los 36 escenarios
 
-| Fila | Cobertura de Issue #1 | Positivo | Negativo |
-|---:|---|---|---|
-| 1 | Política monetaria y bancos centrales | MAC-P | MAC-N |
-| 2 | Economía mundial y mercados financieros | ECO-P | ECO-N |
-| 3 | Regulación, legislación y política pública | REG-P | REG-N |
-| 4 | Productos de inversión y acceso regulado | ETF-P | ETF-N |
-| 5 | Adopción y actividad institucional o empresarial | INS-P | INS-N |
-| 6 | Acuerdos comerciales y financieros | COM-P | COM-N |
-| 7 | Exchanges, intermediarios e infraestructura de mercado | EXC-P | EXC-N |
-| 8 | Tecnología, protocolos e infraestructura blockchain | TEC-P | TEC-N |
-| 9 | Geopolítica y acontecimientos internacionales | GEO-P | GEO-N |
-| 10 | DeFi | DeFi-P | DeFi-N |
-| 11 | Stablecoins y dinero tokenizado | Stablecoins-P | Stablecoins-N |
-| 12 | Tokenomics y oferta | Tokenomics-P | Tokenomics-N |
-| 13 | Minería y validación | Minería-P | Minería-N |
-| 14 | Gobernanza y estructura de ecosistemas | Gobernanza-P | Gobernanza-N |
-| 15 | Custodia, pagos y adopción de infraestructura | Custodia-P | Custodia-N |
-| 16 | Ciberseguridad | Ciberseguridad-P | Ciberseguridad-N |
-| 17 | Materias primas, energía y tecnología fuera del sector | Materias primas/energía/tecnología-P | Materias primas/energía/tecnología-N |
-| 18 | Filtraciones e información anticipatoria | Filtraciones-P | Filtraciones-N |
+La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.4. Las referencias a §3.1 y §3.2 identifican la ficha operativa del escenario; §4 identifica los casos de frontera que ejercitan distinciones adicionales.
+
+| Fila | Cobertura de Issue #1 | Positivo | Negativo | Reglas normativas aplicables |
+|---:|---|---|---|---|
+| 1 | Política monetaria y bancos centrales | MAC-P | MAC-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-MECH, R-TIME, R-UNK, R-NOINFER, R-NEG, R-DUP |
+| 2 | Economía mundial y mercados financieros | ECO-P | ECO-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-MECH, R-TIME, R-UNK, R-NOINFER, R-NEG |
+| 3 | Regulación, legislación y política pública | REG-P | REG-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-MECH, R-TIME, R-UNK, R-NOINFER, R-NEG |
+| 4 | Productos de inversión y acceso regulado | ETF-P | ETF-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-MECH, R-TIME, R-UNK, R-NOINFER, R-NEG, R-DUP |
+| 5 | Adopción y actividad institucional o empresarial | INS-P | INS-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-MECH, R-TIME, R-UNK, R-NOINFER, R-NEG |
+| 6 | Acuerdos comerciales y financieros | COM-P | COM-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-MECH, R-TIME, R-UNK, R-NOINFER, R-NEG |
+| 7 | Exchanges, intermediarios e infraestructura de mercado | EXC-P | EXC-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-MECH, R-TIME, R-UNK, R-NOINFER, R-NEG |
+| 8 | Tecnología, protocolos e infraestructura blockchain | TEC-P | TEC-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-MECH, R-TIME, R-UNK, R-NOINFER, R-NEG |
+| 9 | Geopolítica y acontecimientos internacionales | GEO-P | GEO-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-MECH, R-TIME, R-UNK, R-NOINFER, R-NEG |
+| 10 | DeFi | DeFi-P | DeFi-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-CROSS, R-MECH, R-UNK, R-NOINFER, R-NEG |
+| 11 | Stablecoins y dinero tokenizado | Stablecoins-P | Stablecoins-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-CROSS, R-MECH, R-UNK, R-NOINFER, R-NEG |
+| 12 | Tokenomics y oferta | Tokenomics-P | Tokenomics-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-CROSS, R-MECH, R-TIME, R-UNK, R-NOINFER, R-NEG |
+| 13 | Minería y validación | Minería-P | Minería-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-CROSS, R-MECH, R-UNK, R-NOINFER, R-NEG |
+| 14 | Gobernanza y estructura de ecosistemas | Gobernanza-P | Gobernanza-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-CROSS, R-MECH, R-TIME, R-UNK, R-NOINFER, R-NEG |
+| 15 | Custodia, pagos y adopción de infraestructura | Custodia-P | Custodia-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-CROSS, R-MECH, R-TIME, R-UNK, R-NOINFER, R-NEG |
+| 16 | Ciberseguridad | Ciberseguridad-P | Ciberseguridad-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-CROSS, R-MECH, R-TIME, R-UNK, R-NOINFER, R-NEG |
+| 17 | Materias primas, energía y tecnología fuera del sector | Materias primas/energía/tecnología-P | Materias primas/energía/tecnología-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-CROSS, R-MECH, R-UNK, R-NOINFER, R-NEG |
+| 18 | Filtraciones e información anticipatoria | Filtraciones-P | Filtraciones-N | R-OBJ, R-DEC, R-EVID, R-CLASS, R-CROSS, R-TIME, R-ANT, R-UNK, R-NOINFER, R-NEG, R-DUP |
 
 ## 3. Escenarios principales
 
@@ -220,8 +242,8 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 - **No inferir:** insolvencia, pérdida definitiva ni alcance de contagio a partir de una cotización aislada.
 
 #### Stablecoins-N — Oscilación ordinaria sin disfunción probada
-- **Entrada/objeto:** acontecimiento/observación de mercado. Se observa oscilación transitoria sin evidencia de problema en reservas, redenciones, liquidez, solvencia o funcionamiento.
-- **Salida:** EXCLUIR como catalizador stablecoin en el supuesto delimitado; familia stablecoins.
+- **Entrada/objeto:** observación de mercado y publicación/datos asociados. Se observa oscilación transitoria sin evidencia de problema en reservas, redenciones, liquidez, solvencia o funcionamiento.
+- **Salida:** EXCLUIR como catalizador stablecoin en el supuesto delimitado; categoría principal NINGUNA para un acontecimiento de disfunción no acreditado; conservar la observación y sus publicaciones como registros de mercado/fuentes; familia transversal STABLECOINS.
 - **Evidencia mínima:** datos de mercado con fuente y período más evidencia disponible sobre funcionamiento normal de redenciones/reservas o ausencia de indicios de disfunción.
 - **INDETERMINADO si:** datos de paridad, reservas o redenciones son insuficientes.
 - **No inferir:** normalidad a partir de una sola cotización ni aplicar umbral numérico no aprobado.
@@ -234,8 +256,8 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 - **No inferir:** venta, distribución a mercado ni presión vendedora por desbloqueo o transferencia aislados.
 
 #### Tokenomics-N — Transferencia sin cambio económico demostrado
-- **Entrada/objeto:** acontecimiento/transferencia. Dirección transfiere tokens, sin evidencia de cambio de oferta, venta, distribución, desbloqueo o incentivos.
-- **Salida:** EXCLUIR como acontecimiento de tokenomics solo si evidencia suficiente permite establecer que no existe cambio material. Para afirmar movimiento interno, probar control común.
+- **Entrada/objeto:** observación de transacción on-chain. Una dirección transfiere tokens, sin evidencia de cambio de oferta, venta, distribución, desbloqueo o incentivos.
+- **Salida:** EXCLUIR como acontecimiento de tokenomics solo si evidencia suficiente permite establecer que no existe cambio material; categoría principal NINGUNA para una venta/cambio de oferta no acreditados; conservar la transacción como observación on-chain y la atribución como afirmación separada; familia transversal TOKENOMICS Y OFERTA.
 - **Evidencia mínima:** datos on-chain, atribución/control de direcciones y documentación de propósito cuando se afirme que es interno.
 - **INDETERMINADO si:** control, propósito o destino económico son desconocidos.
 - **No inferir:** venta, identidad del titular o cambio de oferta por el mero movimiento.
@@ -248,8 +270,8 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 - **No inferir:** variación global de hashrate, seguridad de red o impacto de precio desde una instalación aislada.
 
 #### Minería-N — Ajuste automático ordinario acreditado
-- **Entrada/objeto:** acontecimiento/observación de red. El ajuste de dificultad sigue el mecanismo automático previsto y no hay evidencia de cambio anómalo de operación, seguridad, costes o capacidad.
-- **Salida:** EXCLUIR como catalizador anómalo solo si la normalidad está acreditada; familia minería/validación.
+- **Entrada/objeto:** observación de red y documentación del protocolo. El ajuste de dificultad sigue el mecanismo automático previsto y no hay evidencia de cambio anómalo de operación, seguridad, costes o capacidad.
+- **Salida:** EXCLUIR como catalizador anómalo solo si la normalidad está acreditada; categoría principal NINGUNA para el supuesto de anomalía/catalizador no demostrado; conservar la observación técnica y su contexto; familia transversal MINERÍA Y VALIDACIÓN.
 - **Evidencia mínima:** reglas del protocolo y datos contextualizados de dificultad, hashrate, intervalo/producción de bloques y capacidad operativa.
 - **INDETERMINADO si:** falta contexto temporal/técnico u operativo. Hashrate es magnitud observada/estimada; no describirlo como parámetro que el protocolo ajusta automáticamente del mismo modo que la dificultad.
 - **No inferir:** normalidad ni anomalía a partir de una métrica aislada.
@@ -291,7 +313,7 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 
 #### Ciberseguridad-N — Falso positivo demostrado
 - **Entrada/objeto:** afirmación/alerta. Auditoría técnica identifica alerta inicial como falso positivo y demuestra que el componente/versión examinado no contiene la vulnerabilidad alegada ni estuvo expuesto.
-- **Salida:** EXCLUIR como incidente confirmado; conservar alerta y análisis como publicaciones relacionadas.
+- **Salida:** EXCLUIR como incidente confirmado; categoría principal NINGUNA para el incidente alegado que no existió en el componente/versión examinados; conservar alerta, informe y análisis como publicaciones/afirmaciones relacionadas; familia transversal CIBERSEGURIDAD.
 - **Evidencia mínima:** informe reproducible que identifique componente, versión, método y conclusión.
 - **INDETERMINADO si:** solo existe alerta sin análisis suficiente para confirmar o descartar.
 - **No inferir:** que todo el sistema está libre de vulnerabilidades distintas.
@@ -323,6 +345,49 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 - **Evidencia mínima:** publicación original y análisis del documento o rectificación fiable que demuestre manipulación/atribución falsa.
 - **INDETERMINADO si:** solo falta corroboración, la fuente es anónima o no se ha probado falsedad.
 - **No inferir:** que una filtración es fabricada por ser anónima o no corroborada.
+
+## 3.3 Registro explícito de aplicación del contrato a los 36 escenarios
+
+Este registro complementa las fichas de §3.1 y §3.2. En todos los casos los escenarios son sintéticos: no se inventan nombres propios, fechas concretas, jurisdicciones, cantidades ni activos. «DESCONOCIDO» identifica un campo aplicable que el supuesto no concreta; «NO APLICA» identifica un campo que no corresponde al objeto. La evidencia mínima, el mecanismo, la decisión y las alternativas se desarrollan en la ficha individual del ID.
+
+| ID | Objeto evaluado | Tiempo / jurisdicción | Fuente y procedencia | Estado de evidencia supuesto | Entidades / activos | Mecanismo y vínculo | Desconocidos / alternativas que no se presuponen |
+|---|---|---|---|---|---|---|---|
+| MAC-P | ACONTECIMIENTO + HITO | Fecha de decisión/publicación: identificable; jurisdicción: banco central competente | Documento y comunicado primarios | Confirmada por evidencia primaria | Banco central; activos concretos DESCONOCIDOS | Liquidez/coste de capital; indirecto o condicional | Magnitud/reacción cripto DESCONOCIDAS; no inferir causalidad |
+| MAC-N | PUBLICACIÓN + AFIRMACIÓN | Fecha original: debe verificarse; jurisdicción: NO APLICA si es opinión general | Publicación original y material anterior | Contenido repetido verificable | Comentarista; activos NO APLICA | Sin mecanismo nuevo acreditado | Decisión monetaria nueva DESCONOCIDA; si no puede descartarse, INDETERMINADO |
+| ECO-P | ACONTECIMIENTO + HITO | Fecha/hora y período de referencia; jurisdicción de la estadística | Publicación estadística oficial | Confirmada por evidencia primaria | Autoridad estadística; exposición cripto concreta DESCONOCIDA | Condiciones financieras/apetito por riesgo; indirecto o condicional | Reacción y cambio de expectativas DESCONOCIDOS |
+| ECO-N | ACONTECIMIENTO + PUBLICACIÓN | Fecha y jurisdicción identificables | Publicación oficial y análisis de exposición | Confirmada en cuanto al dato; relevancia excluida en contexto evaluado | Indicador/sector local; activos cripto DESCONOCIDOS | Canal plausible no acreditado | Exposición global DESCONOCIDA; si faltan datos decisivos, INDETERMINADO |
+| REG-P | ACONTECIMIENTO + HITO | Fecha de publicación/fase; jurisdicción identificada | Expediente o texto oficial | Confirmada como propuesta, no como norma vigente | Autoridad y sujetos regulados; activos según expediente | Obligaciones/acceso/costes; directo, indirecto o condicional | Aprobación y vigencia DESCONOCIDAS |
+| REG-N | PUBLICACIÓN + AFIRMACIÓN | Fecha y jurisdicción/autoridad a identificar | Declaración íntegra atribuida | Atribuida a fuente identificada | Funcionario; activos NO APLICA salvo mención | Ningún acto regulatorio acreditado | Procedimientos paralelos DESCONOCIDOS |
+| ETF-P | ACONTECIMIENTO + HITO | Fecha del registro/decisión; jurisdicción del regulador | Expediente o resolución oficial | Confirmada por evidencia primaria | Producto y solicitante identificables en expediente | Acceso/inversión regulada; condicional según fase | Aprobación, lanzamiento y flujos no se presuponen |
+| ETF-N | PUBLICACIÓN + AFIRMACIÓN | Fecha de publicación; jurisdicción/producto deben identificarse | Publicación original; registro competente consultado | Especulación trazable; expediente no acreditado en consulta | Producto alegado; solicitante DESCONOCIDO | No hay mecanismo de solicitud confirmado | Existencia de expediente fuera de consulta: INDETERMINADO |
+| INS-P | ACONTECIMIENTO | Fecha de ejecución/publicación según documento; jurisdicción de entidad | Documento regulatorio o comunicación corporativa | Confirmada si la ejecución está documentada | Empresa y activo solo según fuente | Flujos/exposición institucional; directo respecto de la operación, impacto precio no probado | Cantidad/precio si no publicados: DESCONOCIDOS |
+| INS-N | PUBLICACIÓN + AFIRMACIÓN | Fecha de declaración; jurisdicción de empresa DESCONOCIDA | Declaración íntegra y contexto | Atribuida; no acredita decisión/operación | Ejecutivo/empresa; activo DESCONOCIDO | Sin operación o adopción demostrada | Decisión separada no pública: DESCONOCIDA |
+| COM-P | ACONTECIMIENTO + HITO | Fecha de firma y fecha efectiva si distintas; jurisdicciones de las partes | Contrato/comunicado conjunto/confirmación de partes | Confirmada según evidencia del acuerdo | Empresas y servicio descritos por fuente | Acceso/capacidad del servicio; directo o condicional | Lanzamiento/uso/volumen no se presuponen |
+| COM-N | PUBLICACIÓN | Fecha del material; jurisdicción NO APLICA si no se identifica compromiso | Material promocional original | Publicación confirmada; acuerdo no acreditado | Empresas visibles; activos NO APLICA | Sin cambio operativo acreditado | Acuerdo externo DESCONOCIDO; si hay indicios, INDETERMINADO |
+| EXC-P | ACONTECIMIENTO + HITO | Intervalo del incidente; jurisdicción del operador | Aviso del operador/autoridad o análisis técnico | Confirmada según evidencia del incidente | Exchange/custodio y servicio; activos solo si identificados | Disponibilidad/solvencia/custodia; directo | Pérdidas/alcance/recuperación DESCONOCIDOS salvo prueba |
+| EXC-N | ACONTECIMIENTO + PUBLICACIÓN | Fecha de actualización; jurisdicción del intermediario | Notas oficiales de versión | Confirmada como actualización rutinaria | Intermediario y producto/servicio | Sin canal material de acceso/solvencia acreditado | Incidentes independientes NO APLICA a esta actualización |
+| TEC-P | ACONTECIMIENTO + HITOS | Fechas de anuncio y activación separadas; jurisdicción NO APLICA para protocolo descentralizado salvo entidad legal identificada | Propuesta, release y registro de activación | Confirmada por documentación técnica/registro | Protocolo, versión y red; activos afectados según evidencia | Consenso/seguridad/escalabilidad/economía; directo sobre funcionamiento | Resultados de mercado DESCONOCIDOS |
+| TEC-N | PUBLICACIÓN + ACONTECIMIENTO | Fecha de cambio; jurisdicción NO APLICA salvo entidad identificada | Versiones/documentación del sitio | Confirmada como cambio cosmético | Proyecto/sitio; activos NO APLICA | Sin mecanismo técnico/económico | Cambios técnicos separados DESCONOCIDOS |
+| GEO-P | ACONTECIMIENTO + HITO | Fecha de medida; jurisdicciones afectadas | Instrumento estatal/autoridad y datos del canal | Confirmada por evidencia primaria | Estados/sectores/activos solo si hay exposición | Comercio/energía/capital/acceso; indirecto o condicional | Alcance y efecto cripto no demostrado por defecto |
+| GEO-N | ACONTECIMIENTO + PUBLICACIÓN | Fecha y jurisdicciones del hecho | Fuente primaria del hecho y análisis de exposición | Hecho confirmado; canal relevante no acreditado | Estados/partes; activos DESCONOCIDOS | Sin transmisión demostrada en contexto | Consecuencias futuras DESCONOCIDAS |
+| DeFi-P | ACONTECIMIENTO | Fecha de explotación/detección; jurisdicción NO APLICA salvo entidad identificada | Informe técnico, protocolo y transacciones verificables | Confirmada por evidencia técnica/transaccional | Protocolo, contratos y activos solo según evidencia | Riesgo/colateral/liquidez/contagio; directo o condicional | Pérdidas y contagio no probados si no hay datos |
+| DeFi-N | ACONTECIMIENTO + HITO | Fecha del parámetro; jurisdicción NO APLICA salvo entidad | Propuesta/documentación y análisis técnico | Cambio confirmado; ausencia de efecto material sustentada | Protocolo y parámetro | Sin alteración material acreditada | Efectos no medidos: DESCONOCIDOS; si decisivos, INDETERMINADO |
+| Stablecoins-P | ACONTECIMIENTO + HITO | Fecha de suspensión/dato; jurisdicción del emisor/red si identificable | Emisor, reservas, redenciones o datos verificables | Según evidencia primaria/mercado corroborada | Stablecoin, emisor y redes identificables | Redenciones/reservas/paridad/liquidez; directo | Magnitud y duración DESCONOCIDAS salvo prueba |
+| Stablecoins-N | OBSERVACIÓN + PUBLICACIÓN | Período de cotización; mercado/plataforma de observación | Datos de mercado y evidencia de reservas/redenciones disponible | Oscilación observada; disfunción no acreditada | Stablecoin y mercado si identificados | No se acredita disfunción material | Reservas/redenciones incompletas => INDETERMINADO |
+| Tokenomics-P | ACONTECIMIENTO + HITO | Fechas de anuncio y ejecución/desbloqueo | Documentación de protocolo/contrato/datos on-chain | Confirmada según regla y ejecución | Token, contrato y protocolo | Emisión/quema/vesting/oferta/incentivos; directo | Venta posterior DESCONOCIDA y no inferida |
+| Tokenomics-N | OBSERVACIÓN DE TRANSACCIÓN | Fecha/bloque; red identificable | Datos on-chain y atribución si se afirma control común | Transacción confirmada; finalidad puede ser DESCONOCIDA | Direcciones/token; titular DESCONOCIDO si no atribuido | Cambio de oferta/venta no acreditados | Control/propósito desconocidos => INDETERMINADO |
+| Minería-P | ACONTECIMIENTO + DECISIÓN OPERATIVA | Fecha de cierre/expansión; jurisdicción/localización del operador | Confirmación del operador y evidencia de coste/regulación | Atribuida/confirmada según fuente | Operador, instalaciones y red; activos según exposición | Coste energético/rentabilidad/capacidad; directo o indirecto | Magnitud de capacidad/efecto precio DESCONOCIDA |
+| Minería-N | OBSERVACIÓN DE RED + DOCUMENTACIÓN | Ventana temporal de ajuste; red/protocolo identificable | Regla del protocolo y datos contextualizados | Ajuste ordinario confirmado si datos lo sustentan | Red y parámetros observados | No se acredita anomalía operativa | Hashrate/capacidad/causa DESCONOCIDOS si no hay contexto |
+| Gobernanza-P | ACONTECIMIENTO + HITOS | Fechas de propuesta, voto, resultado y ejecución | Propuesta y registro de votación/ejecución | Confirmada por registro oficial del proceso | DAO/protocolo y participantes solo si identificados | Reglas/recursos/hoja de ruta; directo | Efectos no ejecutados no se presuponen |
+| Gobernanza-N | PUBLICACIÓN + AFIRMACIÓN | Fecha del mensaje; foro/proceso consultado | Publicación original y contexto del foro | Atribuida; proceso formal no acreditado | Participante y proyecto | Sin decisión formal demostrada | Propuesta paralela DESCONOCIDA |
+| Custodia-P | ACONTECIMIENTO + HITO | Fechas de anuncio y disponibilidad efectiva separadas; jurisdicción del proveedor | Comunicación primaria y confirmación operativa | Confirmada solo al verificar estado efectivo | Banco/custodio/red y servicio | Acceso/custodia/pagos; directo | Uso/adopción/volumen DESCONOCIDOS |
+| Custodia-N | PUBLICACIÓN + AFIRMACIÓN | Fecha de publicación; jurisdicción del proveedor DESCONOCIDA | Publicación original; fuente atribuida si existe | No corroborada o atribuida según procedencia | Proveedor/contraparte alegados | Conversaciones no equivalen a integración | Proceso paralelo DESCONOCIDO; fuente identificada puede cambiar a INDETERMINADO/en desarrollo |
+| Ciberseguridad-P | ACONTECIMIENTO | Fecha de detección/explotación; sistema y jurisdicción si identificables | Informe técnico/aviso responsable/transacciones | Confirmada si explotación reproducible | Componente, versión y protocolo | Explotación/seguridad; directo | Pérdidas/usuarios/recuperación DESCONOCIDOS |
+| Ciberseguridad-N | AFIRMACIÓN/ALERTA + INFORME | Fechas de alerta e informe; componente/versión concretos | Alerta original y auditoría reproducible | Falso positivo demostrado solo para alcance examinado | Componente/versión; sistema completo no se presume | No existe vulnerabilidad/exposición en el alcance probado | Otras versiones/sistemas DESCONOCIDOS |
+| Materias primas/energía/tecnología-P | ACONTECIMIENTO + HITO | Fecha/ubicación de interrupción; jurisdicción/mercado energético | Fuente primaria/sectorial y datos de exposición | Confirmada según fuente y canal | Energía, operadores mineros o sectores expuestos | Costes/capacidad/condiciones macro; indirecto o condicional | Costes individuales/efecto cripto DESCONOCIDOS sin datos |
+| Materias primas/energía/tecnología-N | PUBLICACIÓN + ACONTECIMIENTO | Fecha del producto; jurisdicción/mercado DESCONOCIDOS si no especificados | Fuente original y especificaciones verificables | Producto/publicación confirmados; canal no acreditado | Dispositivo/sector; activos NO APLICA | Sin canal cripto demostrado | Uso futuro o aplicación minera DESCONOCIDOS |
+| Filtraciones-P | PUBLICACIÓN + AFIRMACIÓN ANTICIPATORIA | Primera detección, publicación y anuncio oficial separados; jurisdicción según hecho anticipado | Pieza original fechada y fuente identificada | Atribuida/no corroborada en primera detección; nunca elevar retrospectivamente | Entidades/activos según contenido; DESCONOCIDOS si no aparecen | Mecanismo según hecho anticipado; vínculo condicional hasta corroboración | Veracidad/confirmación oficial DESCONOCIDAS al primer registro |
+| Filtraciones-N | PUBLICACIÓN + AFIRMACIÓN | Fecha original y fecha de rectificación/análisis; jurisdicción según afirmación | Publicación original y prueba positiva de manipulación/atribución falsa | Posteriormente desmentida solo con evidencia positiva | Cuenta/documento/entidad alegada | Afirmación no sirve como evidencia del hecho alegado | Sin prueba positiva de falsedad => INDETERMINADO, no EXCLUIR como fabricada |
 
 ## 4. Casos de frontera BND-01 a BND-10
 
@@ -393,12 +458,13 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 - **No inferir:** reacción, cambio de expectativas ni causalidad.
 
 #### BND-09 — Alerta de vulnerabilidad frente a exploit confirmado
-- **Entrada/objeto:** caso A: alerta sin explotación demostrada; caso B: explotación respaldada por evidencia técnica/transaccional.
-- **Salida:** A registrar como alerta/vulnerabilidad con estado correspondiente, sin declarar exploit; B INCLUIR como exploit confirmado.
-- **Categoría/familia:** TEC principal + familia ciberseguridad; EXC secundaria si afecta a intermediario/infraestructura de mercado.
-- **Evidencia mínima:** aviso técnico para A; evidencia reproducible de explotación para B.
-- **INDETERMINADO si:** componente, versión, exposición o explotación no pueden resolverse.
-- **No inferir:** pérdidas, fondos robados o explotación desde la mera existencia de una vulnerabilidad.
+- **Entrada/objeto:** caso A: alerta de vulnerabilidad sin evidencia de explotación; caso B: explotación respaldada por evidencia técnica o transaccional reproducible.
+- **Salida A:** registrar la alerta como PUBLICACIÓN/AFIRMACIÓN de ciberseguridad, con el estado de evidencia disponible. **No declarar acontecimiento de explotación ni asignar estado EXPLOTADO.** Si la vulnerabilidad y el componente están verificados, conservar el acontecimiento «vulnerabilidad identificada» como tal; su explotación permanece NO DEMOSTRADA.
+- **Salida B:** **INCLUIR** el acontecimiento de explotación confirmada como catalizador de ciberseguridad.
+- **Categoría/familia:** TEC principal cuando el hecho inmediato sea una vulnerabilidad o explotación técnica; familia transversal CIBERSEGURIDAD. EXC secundaria únicamente si existe afectación material acreditada a un exchange, custodio o intermediario. Para A sin vulnerabilidad verificada, categoría principal NINGUNA y solo registro de la alerta como publicación/afirmación.
+- **Evidencia mínima:** A: aviso técnico original con componente/versión y procedencia identificables; para afirmar vulnerabilidad, análisis técnico verificable. B: evidencia reproducible de explotación, transacciones atribuibles o confirmación técnica del responsable.
+- **INDETERMINADO si:** no se puede resolver autenticidad de la alerta, componente/versión afectado, exposición o existencia de explotación. La ausencia de prueba de explotación no permite concluir que la alerta sea falsa.
+- **No inferir:** pérdidas, fondos robados, usuarios afectados, alcance, explotación o recuperación desde la mera existencia de una vulnerabilidad.
 
 #### BND-10 — Repetición mediática frente a hito posterior
 - **Entrada/objeto:** caso A: múltiples medios reproducen la misma fuente original; caso B: aparece una decisión/resultado posterior que cambia el estado del proceso.
