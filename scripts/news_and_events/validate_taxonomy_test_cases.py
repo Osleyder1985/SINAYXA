@@ -85,7 +85,6 @@ def validate_text(text: str, root: Path | None = None) -> list[str]:
     cross_contract = _section(text, "### 1.3 Contrato de salida común", "### 1.4 Reglas normativas identificadas para trazabilidad")
     if "La familia transversal **no sustituye** la categoría principal." not in cross_contract:
         errors.append("CROSS_LABEL: la familia transversal debe mantenerse separada de la categoría principal")
-        errors.append("CROSS_LABEL: la familia transversal debe mantenerse separada de la categoría principal")
     if "Fecha/hora de ocurrencia, publicación, primera detección, anuncio oficial y ejecución" not in text:
         errors.append("TIME_SEPARATION: faltan campos temporales diferenciados")
 
