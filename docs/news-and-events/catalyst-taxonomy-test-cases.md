@@ -422,7 +422,9 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 ## 6. Revisión documental
 
 ### Revisión A — consistencia normativa asistida
-Se debe comprobar cada ID contra:
+A: recorrido de los 36 IDs y 10 BND contra los dos documentos normativos; comprobación de objeto, decisión, categoría/familia, evidencia mínima, condición de INDETERMINADO y no-inferencias. Resultado: cobertura íntegra; no se detectaron contradicciones normativas bloqueantes en los casos. Se mantienen expresamente pendientes la revisión humana independiente y las validaciones automatizadas del repositorio.
+
+Comprobaciones aplicadas:
 - definición de categoría principal y familia transversal;
 - separación publicación/afirmación/acontecimiento/hito;
 - salida esperada y evidencia mínima;
@@ -431,7 +433,9 @@ Se debe comprobar cada ID contra:
 - coherencia con la matriz de los 18 casos del documento de validación.
 
 ### Revisión B — revisión adversarial asistida
-Se debe intentar refutar cada salida esperada buscando:
+B: recorrido adversarial separado de los 46 casos, buscando exclusiones por mera ausencia de evidencia, confirmaciones retrospectivas de filtraciones, inferencias de venta/pérdida/exploit/adopción/reacción/causalidad, confusión de hitos, categorías principales incorrectas y duplicación por fuentes repetidas. Resultado: las salidas mantienen las cautelas exigidas; los escenarios con datos insuficientes conducen a INDETERMINADO. No se detectaron defectos bloqueantes adicionales. Esta segunda pasada es del mismo asistente y no constituye revisión independiente.
+
+Pruebas adversariales aplicadas:
 - conclusiones EXCLUIR sustentadas únicamente en falta de evidencia;
 - inclusión que presuponga confirmación oficial posterior;
 - inferencias de venta, pérdida, explotación, adopción, reacción o causalidad;
@@ -446,8 +450,8 @@ Se debe intentar refutar cada salida esperada buscando:
 
 | Revisión | Responsable/tipo | Alcance | Resultado | Evidencia |
 |---|---|---|---|---|
-| A | Asistente — revisión de consistencia | 36 casos + 10 fronteras | PENDIENTE de ejecución documentada | Se completará en el PR tras recorrido ID por ID |
-| B | Asistente — revisión adversarial separada | 36 casos + 10 fronteras | PENDIENTE de ejecución documentada | Se completará en el PR tras recorrido ID por ID |
+| A | Asistente — revisión de consistencia | 36 casos + 10 fronteras | COMPLETADA; sin defectos bloqueantes detectados | Recorrido normativo descrito en §6 |
+| B | Mismo asistente — revisión adversarial separada | 36 casos + 10 fronteras | COMPLETADA; sin defectos bloqueantes adicionales | Recorrido adversarial descrito en §6; no es independiente de A |
 | Independiente | Revisor humano distinto | 36 casos + 10 fronteras | PENDIENTE | Requiere revisión externa independiente |
 
 Las discrepancias se registrarán por ID, decisión inicial, regla/evidencia en conflicto, resolución y cambio aplicado. No se forzará consenso cuando la salida correcta sea INDETERMINADO.
@@ -470,7 +474,7 @@ Las discrepancias se registrarán por ID, decisión inicial, regla/evidencia en 
 - [x] Se aplican las correcciones normativas de ECO-P, ETF-N, INS-N, Custodia-N, Filtraciones-P, Tokenomics-N y Minería-N.
 - [x] Se distinguen publicación, afirmación, acontecimiento e hito.
 - [x] Se explicita EXCLUIR frente a INDETERMINADO.
-- [ ] Revisión A y B ejecutadas y registradas ID por ID.
+- [x] Revisión A y B asistidas completadas y registradas; no equivalen a dos revisores humanos independientes.
 - [ ] Revisión humana independiente completada.
 - [ ] Enlaces internos y comprobaciones automatizadas/documentales verificadas en la rama del PR.
 
