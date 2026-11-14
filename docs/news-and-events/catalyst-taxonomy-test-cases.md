@@ -113,7 +113,7 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 
 #### ECO-N — Indicador local sin exposición
 - **Entrada/objeto:** acontecimiento/publicación. Un indicador local menor se publica, pero el expediente del caso no identifica exposición ni mecanismo razonable hacia financiación, comercio, energía, divisas o cripto.
-- **Salida:** EXCLUIR como catalizador cripto dentro del alcance evaluado.
+- **Salida:** EXCLUIR como catalizador cripto dentro del alcance evaluado; categoría principal NINGUNA para el supuesto catalizador no acreditado; conservar el indicador y su publicación como objetos económicos verificables.
 - **Evidencia mínima:** publicación y jurisdicción identificadas más análisis de exposición que sustente la ausencia de un canal plausible en el contexto disponible.
 - **INDETERMINADO si:** faltan datos de exposición o contexto económico que podrían cambiar esa conclusión.
 - **No inferir:** irrelevancia global a partir de que la noticia no mencione cripto.
@@ -127,7 +127,7 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 
 #### REG-N — Opinión sin acto regulatorio
 - **Entrada/objeto:** publicación/afirmación. Un funcionario expresa una opinión general sin propuesta, expediente, procedimiento ni decisión identificable.
-- **Salida:** EXCLUIR como acontecimiento o avance regulatorio; conservar la declaración atribuida si es trazable.
+- **Salida:** EXCLUIR como acontecimiento o avance regulatorio; categoría principal NINGUNA para el acto regulatorio no acreditado; conservar la declaración atribuida como publicación/afirmación si es trazable.
 - **Evidencia mínima:** declaración íntegra, identidad/cargo y contexto; comprobación del procedimiento al que se refiere, si alguno.
 - **INDETERMINADO si:** no se puede identificar jurisdicción, autoridad o posible procedimiento relacionado.
 - **No inferir:** inexistencia de iniciativas separadas no examinadas.
@@ -141,7 +141,7 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 
 #### ETF-N — Especulación sin expediente acreditado
 - **Entrada/objeto:** publicación/afirmación. Una publicación pregunta si podría existir un ETF, sin afirmar solicitud ni aportar dato nuevo de expediente.
-- **Salida:** EXCLUIR la publicación como acontecimiento ETF confirmado; conservarla como contenido especulativo trazable. No declarar falso un expediente que no se haya podido verificar.
+- **Salida:** EXCLUIR la publicación como acontecimiento ETF confirmado; categoría principal NINGUNA para la solicitud/decisión no acreditada; conservarla como contenido especulativo trazable. No declarar falso un expediente que no se haya podido verificar.
 - **Evidencia mínima:** publicación original y consulta del registro competente para producto, jurisdicción y período de la afirmación.
 - **INDETERMINADO si:** no se identifica o no se puede consultar el registro competente.
 - **No inferir:** que la ausencia de evidencia en una consulta incompleta prueba que no existe solicitud.
@@ -155,7 +155,7 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 
 #### INS-N — Opinión empresarial genérica
 - **Entrada/objeto:** publicación/afirmación. Un ejecutivo comenta el interés de blockchain sin decisión corporativa, activo, inversión, adopción ni cambio verificable.
-- **Salida:** EXCLUIR como compra, inversión o adopción ejecutada; conservar la declaración atribuida si es trazable.
+- **Salida:** EXCLUIR como compra, inversión o adopción ejecutada; categoría principal NINGUNA para la operación no acreditada; conservar la declaración atribuida como publicación/afirmación si es trazable.
 - **Evidencia mínima:** declaración íntegra y contexto suficiente para determinar qué se dijo y qué no se afirmó.
 - **INDETERMINADO si:** se desconoce si existe una decisión corporativa separada fuera del material examinado.
 - **No inferir:** inexistencia de decisiones internas no publicadas ni adopción efectiva.
@@ -183,7 +183,7 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 
 #### EXC-N — Actualización rutinaria sin afectación
 - **Entrada/objeto:** acontecimiento/publicación. Un intermediario anuncia actualización rutinaria de interfaz sin cambio de acceso, disponibilidad, riesgo, solvencia u operación.
-- **Salida:** EXCLUIR como catalizador EXC.
+- **Salida:** EXCLUIR como catalizador EXC; categoría principal NINGUNA para un incidente/afectación no acreditado; conservar la actualización y sus notas como publicación y cambio de interfaz verificable.
 - **Evidencia mínima:** notas oficiales de versión y descripción del alcance operativo que respalden que el cambio es cosmético/rutinario.
 - **INDETERMINADO si:** no se conoce el efecto real sobre acceso o servicio.
 - **No inferir:** ausencia de incidentes distintos no incluidos en la actualización.
@@ -197,7 +197,7 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 
 #### TEC-N — Cambio cosmético
 - **Entrada/objeto:** publicación/acontecimiento. Un proyecto cambia diseño o identidad visual del sitio sin cambio técnico, operativo o económico.
-- **Salida:** EXCLUIR como catalizador TEC.
+- **Salida:** EXCLUIR como catalizador TEC; categoría principal NINGUNA para un acontecimiento técnico/económico material no acreditado; conservar el cambio cosmético como publicación/actualización verificable.
 - **Evidencia mínima:** comparación de versiones y documentación disponible que delimite el cambio a la presentación visual.
 - **INDETERMINADO si:** no puede determinarse si el cambio visual acompaña una modificación funcional.
 - **No inferir:** que el proyecto no haya realizado otros cambios técnicos independientes.
@@ -211,7 +211,7 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 
 #### GEO-N — Notoriedad sin transmisión acreditada
 - **Entrada/objeto:** acontecimiento/publicación. Un hecho diplomático recibe cobertura amplia, pero el análisis del caso no identifica exposición económica, financiera, comercial, energética o regulatoria relevante para cripto.
-- **Salida:** EXCLUIR como catalizador GEO en el contexto evaluado.
+- **Salida:** EXCLUIR como catalizador GEO en el contexto evaluado; categoría principal NINGUNA para un catalizador cripto no acreditado; conservar el acontecimiento diplomático y las publicaciones como objetos independientes, sin atribuirles transmisión al mercado cripto.
 - **Evidencia mínima:** hecho y jurisdicciones identificados; análisis de exposición que sustente ausencia de canal.
 - **INDETERMINADO si:** no hay datos suficientes para evaluar exposición o posibles medidas derivadas.
 - **No inferir:** que un hecho internacional carece de consecuencias futuras por no tenerlas demostradas en el momento.
@@ -285,7 +285,7 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 
 #### Gobernanza-N — Sugerencia informal sin proceso decisorio
 - **Entrada/objeto:** publicación/afirmación. Participante publica sugerencia sin propuesta formal, respaldo, proceso de decisión ni efecto verificable.
-- **Salida:** EXCLUIR como hito de gobernanza; conservar publicación atribuida si es trazable.
+- **Salida:** EXCLUIR como hito de gobernanza; categoría principal NINGUNA para un proceso decisorio no acreditado; conservar la sugerencia como publicación/afirmación atribuida si es trazable; familia transversal GOBERNANZA solo si el contenido trata efectivamente del ecosistema.
 - **Evidencia mínima:** publicación original y contexto del foro/proceso consultado.
 - **INDETERMINADO si:** no puede descartarse una propuesta formal paralela.
 - **No inferir:** ausencia de debate o decisión fuera del ámbito consultado.
@@ -299,7 +299,7 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 
 #### Custodia-N — Material promocional o especulación sin procedencia
 - **Entrada/objeto:** publicación/afirmación. Se especula sobre integración futura sin fuente identificada ni evidencia verificable de conversaciones, acuerdo o lanzamiento.
-- **Salida:** EXCLUIR como integración efectiva; si la publicación es trazable, conservarla como afirmación no corroborada y no como servicio disponible.
+- **Salida:** EXCLUIR como integración efectiva; categoría principal NINGUNA para una integración/servicio no acreditado; si la publicación es trazable, conservarla como afirmación no corroborada y no como servicio disponible; familia transversal CUSTODIA/PAGOS solo cuando el contenido trate realmente de ese ámbito.
 - **Evidencia mínima:** publicación original y comprobación de que no atribuye conversaciones a fuente identificada ni aporta documentación del proceso.
 - **INDETERMINADO si:** existe fuente identificada que confirma conversaciones exploratorias o no puede verificarse si hay proceso paralelo.
 - **No inferir:** que una conversación confirmada es irrelevante; en ese caso se clasifica como proceso anticipatorio/en desarrollo, no como integración ejecutada.
@@ -327,7 +327,7 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 
 #### Materias primas/energía/tecnología-N — Producto sin canal cripto
 - **Entrada/objeto:** publicación/acontecimiento. Noticia sobre nuevo dispositivo de consumo sin relación demostrable con minería, infraestructura, costes, inflación, liquidez o adopción cripto.
-- **Salida:** EXCLUIR como catalizador de esa familia.
+- **Salida:** EXCLUIR como catalizador de esa familia; categoría principal NINGUNA para un canal cripto no acreditado; conservar el producto y la noticia como objetos tecnológicos/comerciales, sin atribuirles exposición cripto.
 - **Evidencia mínima:** fuente original y análisis de las características del producto y de los canales de exposición pertinentes.
 - **INDETERMINADO si:** faltan detalles técnicos o comerciales que podrían revelar exposición relevante.
 - **No inferir:** irrelevancia futura permanente.
@@ -341,7 +341,7 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 
 #### Filtraciones-N — Atribución falsa o material manipulado demostrados
 - **Entrada/objeto:** publicación/afirmación. Cuenta anónima difunde supuesta filtración y evidencia posterior verificable demuestra manipulación del documento o atribución falsa.
-- **Salida:** EXCLUIR la afirmación como evidencia del acontecimiento alegado; conservar la publicación y rectificación/análisis como objetos separados.
+- **Salida:** EXCLUIR la afirmación como evidencia del acontecimiento alegado; categoría principal NINGUNA para el hecho alegado que la evidencia desmiente; conservar la publicación, rectificación y análisis como objetos separados; familia transversal FILTRACIONES solo como clasificación de la afirmación anticipatoria examinada.
 - **Evidencia mínima:** publicación original y análisis del documento o rectificación fiable que demuestre manipulación/atribución falsa.
 - **INDETERMINADO si:** solo falta corroboración, la fuente es anónima o no se ha probado falsedad.
 - **No inferir:** que una filtración es fabricada por ser anónima o no corroborada.
