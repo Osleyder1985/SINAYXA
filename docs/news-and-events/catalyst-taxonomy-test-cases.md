@@ -757,12 +757,17 @@ H-OWNER está COMPLETADO: el propietario revisó los 36 escenarios principales y
 
 Se aplica el modelo **SINGLE-HUMAN REVIEW WITH COMPENSATING CONTROLS**, aprobado por el propietario e integrado mediante PR #31. Este modelo compensatorio no equivale a dos revisiones humanas independientes. La revisión A/B histórica se conserva como evidencia asistida ya realizada, no independiente. La revisión adversarial registrada anteriormente el 2026-11-14 contra el SHA `60e66f919b88148c05348a27f185b64eba2c6c77` cubrió 46/46 casos y comprobó cobertura, contratos, salidas, categorías NINGUNA en negativos, INDETERMINADO, evidencia, no-inferencias, temporalidad, etiquetado transversal y prohibición de falsa independencia. Se conserva como evidencia histórica de esa versión, no como revisión de la consolidación actual. Tras incorporar las 46 mejoras, debe repetirse AI-ADVERSARIAL contra el nuevo SHA candidato. La revisión histórica fue asistida por el mismo asistente; no es humana ni independiente y no valida la verdad de fuentes externas. Estado para el SHA actual: **PENDIENTE DE REPETICIÓN — ASSISTED, NOT INDEPENDENT**.
 
-Se incorporan el validador `scripts/news_and_events/validate_taxonomy_test_cases.py` y su suite `tests/news_and_events/test_taxonomy_test_cases_validation.py`, bajo la [política de revisión de participante único](../governance/single-human-review-control.md). Requieren Python 3.10 o superior y utilizan exclusivamente la biblioteca estándar. Comandos canónicos:
+Se incorporan el validador `scripts/news_and_events/validate_taxonomy_test_cases.py` y su suite `tests/news_and_events/test_taxonomy_test_cases_validation.py`, bajo la [política de revisión de participante único](../governance/single-human-review-control.md). Para esta entrega se fija **Python 3.15.2 (estable)** como versión de ejecución y verificación de referencia. Es la última versión estable publicada por Python.org al 2026-11-14; no se utiliza Python 3.10, cuyo soporte terminó el 2026-10-01. El validador y las pruebas utilizan exclusivamente la biblioteca estándar. No se declara compatibilidad probada con otras versiones hasta ejecutar la suite en ellas.
 
-```bash
-python -m unittest discover -s tests/news_and_events -v
-python scripts/news_and_events/validate_taxonomy_test_cases.py
+En Windows 11 de 64 bits, instalar el instalador oficial **Windows installer (64-bit)** de [Python 3.15.2](https://www.python.org/downloads/release/python-3152/). En PowerShell, verificar la versión y ejecutar los controles con el launcher:
+
+```powershell
+py -3.15 --version
+py -3.15 -m unittest discover -s tests/news_and_events -v
+py -3.15 scripts/news_and_events/validate_taxonomy_test_cases.py
 ```
+
+La salida de la primera orden debe identificar Python 3.15.2. Si el launcher `py` no está disponible, usar el ejecutable de Python 3.15 instalado mediante su ruta completa; no sustituirlo silenciosamente por otra versión.
 
 Las pruebas de mutación M-01…M-12 deben demostrar que cada fixture defectuoso es rechazado por su oráculo. Un defecto semántico no automatizable se marca MANUAL_REVIEW_REQUIRED, nunca PASS automático. No se declara ejecutado ningún comando hasta registrar realmente su salida.
 
