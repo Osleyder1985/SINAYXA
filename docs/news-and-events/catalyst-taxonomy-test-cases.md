@@ -671,6 +671,22 @@ Se ejecutaron comprobaciones deterministas sobre el texto recuperado de GitHub d
 
 **Límites de esta validación histórica:** las 12 comprobaciones fueron puntuales sobre el contenido descargado y no equivalen a la suite versionada añadida ahora ni a una validación semántica completa de Markdown. La nueva suite y el validador todavía no se han ejecutado en un entorno Python disponible. No se ejecutó `markdownlint`, no se ejecutó `git diff --check` en un clon local y no se creó ni modificó workflow CI. La consulta de GitHub Actions para el commit de validación no devolvió ejecuciones asociadas. El Issue excluye expresamente implementar CI en este alcance.
 
+### 6.4 Consolidación de las 46 mejoras H-OWNER
+
+En el commit `e892fa11033703d8ea8dcb4ad7a0f78f6c3a1199` de la rama de trabajo se trasladó el contenido aprobado de las 46 filas del registro H-OWNER a las fichas de sus escenarios originales. No se crearon escenarios ni casos nuevos: cada requisito quedó insertado en la ficha con el mismo ID, mientras el registro H-OWNER se conserva como evidencia de la decisión del propietario.
+
+| Verificación de consolidación | Resultado |
+|---|---|
+| Decisiones H-OWNER con ID único | PASS — 46/46 |
+| Fichas originales con requisitos H-OWNER consolidados | PASS — 46/46 |
+| Correspondencia exacta entre IDs de decisión e IDs de ficha | PASS — 46/46 |
+| Escenarios principales conservados | PASS — 36/36 |
+| Casos BND originales conservados | PASS — 10/10 |
+| Casos nuevos creados | PASS — 0 |
+| Decisiones H-OWNER sin ficha correspondiente | PASS — 0 |
+
+Esta verificación es estructural: confirma que las mejoras aprobadas están incorporadas en las fichas correctas. No sustituye la repetición de AI-ADVERSARIAL sobre el SHA actual, la ejecución del validador Python ni las pruebas de mutación M-01…M-12.
+
 ## 7. Registro de revisión y discrepancias
 
 | Revisión | Responsable/tipo | Alcance | Resultado | Evidencia |
@@ -686,7 +702,7 @@ Las discrepancias se registrarán por ID, decisión inicial, regla/evidencia en 
 
 ### 7.1 Registro H-OWNER — revisión humana del propietario
 
-Este registro está deliberadamente pendiente. Debe completarlo el propietario tras revisar personalmente cada caso. La aprobación de la política no equivale a haber revisado los 46 escenarios.
+H-OWNER está COMPLETADO: el propietario revisó los 36 escenarios principales y los 10 casos BND (46/46) el 2026-11-14. Las 46 decisiones fueron «APROBAR CON LA MEJORA PROPUESTA», sin observaciones adicionales. Este registro conserva la decisión y la evidencia de revisión por ID; la aprobación de la política no se utiliza como sustituto de estas decisiones.
 
 | ID | Decisión H-OWNER | Evidencia/observación | Discrepancia y resolución | Fecha | Estado |
 |---|---|---|---|---|---|
@@ -739,7 +755,7 @@ Este registro está deliberadamente pendiente. Debe completarlo el propietario t
 
 ### 7.2 Registro AI-ADVERSARIAL y AUTO-VALIDATION
 
-Se aplica el modelo **SINGLE-HUMAN REVIEW WITH COMPENSATING CONTROLS**, aprobado por el propietario e integrado mediante PR #31. Este modelo compensatorio no equivale a dos revisiones humanas independientes. La revisión A/B histórica se conserva como evidencia asistida ya realizada, no independiente. La revisión adversarial final se registró el 2026-11-14 contra el SHA `60e66f919b88148c05348a27f185b64eba2c6c77`, con alcance de 46/46 casos. Se comprobaron cobertura, contratos, salidas, categorías NINGUNA en negativos, INDETERMINADO, evidencia, no-inferencias, temporalidad, etiquetado transversal y prohibición de falsa independencia. Resultado: no se detectaron defectos bloqueantes adicionales en la revisión documental. Esta revisión es asistida por el mismo asistente; no es humana ni independiente y no valida la verdad de fuentes externas. Estado: **COMPLETADA — ASSISTED, NOT INDEPENDENT**.
+Se aplica el modelo **SINGLE-HUMAN REVIEW WITH COMPENSATING CONTROLS**, aprobado por el propietario e integrado mediante PR #31. Este modelo compensatorio no equivale a dos revisiones humanas independientes. La revisión A/B histórica se conserva como evidencia asistida ya realizada, no independiente. La revisión adversarial registrada anteriormente el 2026-11-14 contra el SHA `60e66f919b88148c05348a27f185b64eba2c6c77` cubrió 46/46 casos y comprobó cobertura, contratos, salidas, categorías NINGUNA en negativos, INDETERMINADO, evidencia, no-inferencias, temporalidad, etiquetado transversal y prohibición de falsa independencia. Se conserva como evidencia histórica de esa versión, no como revisión de la consolidación actual. Tras incorporar las 46 mejoras, debe repetirse AI-ADVERSARIAL contra el nuevo SHA candidato. La revisión histórica fue asistida por el mismo asistente; no es humana ni independiente y no valida la verdad de fuentes externas. Estado para el SHA actual: **PENDIENTE DE REPETICIÓN — ASSISTED, NOT INDEPENDENT**.
 
 Se incorporan el validador `scripts/news_and_events/validate_taxonomy_test_cases.py` y su suite `tests/news_and_events/test_taxonomy_test_cases_validation.py`, bajo la [política de revisión de participante único](../governance/single-human-review-control.md). Requieren Python 3.10 o superior y utilizan exclusivamente la biblioteca estándar. Comandos canónicos:
 
@@ -793,8 +809,8 @@ La aprobación del propietario de la política no es una revisión de los 46 cas
 - [x] Se explicita EXCLUIR frente a INDETERMINADO.
 - [x] Revisión A y B asistidas completadas y registradas históricamente; no equivalen a revisores humanos independientes.
 - [x] Política de participante único aprobada e integrada mediante PR #31; no se afirma independencia humana.
-- [ ] H-OWNER completada para los 46 casos con evidencia por ID.
-- [ ] AI-ADVERSARIAL final registrada para el SHA candidato.
+- [x] H-OWNER completada para los 46 casos (36 escenarios + 10 BND), con decisión y evidencia por ID.
+- [ ] AI-ADVERSARIAL repetida y registrada para el SHA candidato posterior a la consolidación.
 - [ ] AUTO-VALIDATION versionada ejecutada y con salida reproducible.
 - [ ] Pruebas adversariales M-01…M-12 ejecutadas o justificadas como MANUAL_REVIEW_REQUIRED.
 - [x] Referencias internas a los dos documentos normativos comprobadas contra los archivos existentes en `main`.
