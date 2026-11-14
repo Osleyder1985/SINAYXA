@@ -42,7 +42,7 @@ class TaxonomyMutationTests(unittest.TestCase):
         self.assert_mutation_rejected(BASE.replace("solo falta corroboración", "la falta de corroboración demuestra falsedad", 1), "LEAK_EVIDENCE")
 
     def test_m09_cross_family_label_removed(self):
-        self.assert_mutation_rejected(BASE.replace("La familia transversal no sustituye", "La familia transversal sustituye", 1), "CROSS_LABEL")
+        self.assert_mutation_rejected(BASE.replace("**no sustituye**", "**sustituye**", 1), "CROSS_LABEL")
 
     def test_m10_broken_local_link(self):
         self.assert_mutation_rejected(BASE.replace("(catalyst-taxonomy.md)", "(missing-taxonomy-file.md)", 1), "LOCAL_LINK")
