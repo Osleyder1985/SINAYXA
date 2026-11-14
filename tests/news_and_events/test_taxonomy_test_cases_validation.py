@@ -1,4 +1,4 @@
-"""Mutation tests for the taxonomy document validator (M-01…M-12)."""
+"""Mutation tests for the taxonomy document validator (M-01…M-13)."""
 from __future__ import annotations
 
 import unittest
@@ -52,6 +52,16 @@ class TaxonomyMutationTests(unittest.TestCase):
 
     def test_m12_false_independence_claim(self):
         self.assert_mutation_rejected(BASE.replace("no equivale a dos revisiones humanas independientes", "equivale a dos revisiones humanas independientes", 1), "REVIEW_GOVERNANCE")
+
+    def test_m13_h_owner_requirement_stays_in_original_case(self):
+        needle = "**Requisitos H-OWNER consolidados — Filtraciones-N:**"
+        self.assertIn(needle, BASE)
+        mutated = BASE.replace(
+            needle,
+            "**Requisitos H-OWNER consolidados — Filtraciones-N (desvinculado):**",
+            1,
+        )
+        self.assert_mutation_rejected(mutated, "H_OWNER_CONSOLIDATION")
 
 
 if __name__ == "__main__":
