@@ -444,7 +444,7 @@ Pruebas adversariales aplicadas:
 - campos desconocidos rellenados implícitamente;
 - confusión entre repetición y corroboración.
 
-**Estado de ejecución de revisiones:** estas secciones definen el protocolo. Las revisiones A y B deben registrarse como realizadas únicamente después de recorrer los 46 IDs y dejar constancia de hallazgos y correcciones. Dos pasadas del mismo asistente no equivalen a dos revisores humanos independientes. La revisión humana independiente requerida por el Issue permanece pendiente hasta que una segunda persona revise el documento sin ver previamente las decisiones de la primera.
+**Estado de ejecución de revisiones:** las revisiones A y B se ejecutaron sobre los 46 escenarios y sus resultados están resumidos arriba y en la tabla de registro. Son dos pasadas analíticas del mismo asistente, no dos revisores independientes. Por tanto, satisfacen únicamente la revisión asistida interna; la revisión humana independiente exigida por el Issue sigue pendiente.
 
 ## 7. Registro de revisión y discrepancias
 
@@ -476,7 +476,8 @@ Las discrepancias se registrarán por ID, decisión inicial, regla/evidencia en 
 - [x] Se explicita EXCLUIR frente a INDETERMINADO.
 - [x] Revisión A y B asistidas completadas y registradas; no equivalen a dos revisores humanos independientes.
 - [ ] Revisión humana independiente completada.
-- [ ] Enlaces internos y comprobaciones automatizadas/documentales verificadas en la rama del PR.
+- [x] Referencias internas a los dos documentos normativos comprobadas contra los archivos existentes en `main`.
+- [ ] Validaciones automatizadas/documentales del repositorio ejecutadas; no se declaran como realizadas.
 
 ## 10. Referencias
 
