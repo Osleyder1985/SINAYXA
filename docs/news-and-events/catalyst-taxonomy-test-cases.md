@@ -553,7 +553,7 @@ Este registro está deliberadamente pendiente. Debe completarlo el propietario t
 | ID | Decisión H-OWNER | Evidencia/observación | Discrepancia y resolución | Fecha | Estado |
 |---|---|---|---|---|---|
 | MAC-P | APROBAR CON LA MEJORA PROPUESTA | Decisión expresa del propietario: aprueba el escenario con la mejora recomendada de contemplar también decisiones de mantener tipos cuando la orientación o comunicación modifica expectativas. Observaciones: ninguna. | Mejora incorporada como requisito de redacción; no se registra discrepancia adicional. | 2026-11-14 | REGISTRADA; revisión realizada sobre commit `024de6ab1b23a2db6a4f2b390a44ce85c5b0a5df` |
-| MAC-N | PENDIENTE | — | — | — | PENDIENTE |
+| MAC-N | APROBAR CON LA MEJORA PROPUESTA | Decisión expresa del propietario: aprueba el escenario con la mejora recomendada de evaluar por separado la posible relevancia de una nueva difusión cuando aporte información material, cambie la atribución, el contexto o el alcance. Observaciones: ninguna. | Mejora incorporada como requisito de redacción; no se registra discrepancia adicional. | 2026-11-14 | REGISTRADA; revisión realizada sobre commit `024de6ab1b23a2db6a4f2b390a44ce85c5b0a5df` |
 | ECO-P | PENDIENTE | — | — | — | PENDIENTE |
 | ECO-N | PENDIENTE | — | — | — | PENDIENTE |
 | REG-P | PENDIENTE | — | — | — | PENDIENTE |
