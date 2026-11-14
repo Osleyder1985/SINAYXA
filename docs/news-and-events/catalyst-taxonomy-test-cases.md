@@ -612,6 +612,15 @@ python scripts/news_and_events/validate_taxonomy_test_cases.py
 
 Las pruebas de mutación M-01…M-12 deben demostrar que cada fixture defectuoso es rechazado por su oráculo. Un defecto semántico no automatizable se marca MANUAL_REVIEW_REQUIRED, nunca PASS automático. No se declara ejecutado ningún comando hasta registrar realmente su salida.
 
+Estados de conformidad permitidos:
+
+- `PASS — SINGLE-HUMAN COMPENSATING CONTROLS`: únicamente cuando H-OWNER, AI-ADVERSARIAL, AUTO-VALIDATION y ADVERSARIAL-TEST estén ejecutados, documentados y sin defectos bloqueantes.
+- `PASS WITH LIMITATION — EXTERNAL REVIEW PENDING`: controles compensatorios ejecutados, pero una revisión externa exigible o recomendada para el uso previsto sigue pendiente; el uso afectado no se autoriza si la revisión es obligatoria.
+- `NOT CONFORMANT`: falta un control obligatorio o existe un defecto bloqueante.
+- `INDEPENDENT HUMAN REVIEW VERIFIED`: reservado exclusivamente a dos personas humanas distintas, con identidades y evidencias separadas verificables. No se asigna en este proyecto mientras no existan esas dos revisiones.
+
+La aprobación del propietario de la política no es una revisión de los 46 casos ni una revisión externa. A/B son dos pasadas del mismo asistente y no equivalen a dos revisiones humanas independientes.
+
 ### 7.3 Registro de riesgo residual
 
 | Riesgo | Estado inicial | Control | Evidencia de cierre |
