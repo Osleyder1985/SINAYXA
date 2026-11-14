@@ -512,13 +512,35 @@ Pruebas adversariales aplicadas:
 
 **Estado de ejecución de revisiones:** las revisiones A y B se ejecutaron sobre los 46 escenarios y sus resultados están resumidos arriba y en la tabla de registro. Son dos pasadas analíticas del mismo asistente, no dos revisores independientes. Por tanto, satisfacen únicamente la revisión asistida interna; la revisión humana independiente exigida por el Issue sigue pendiente.
 
+### 6.3 Validaciones programáticas puntuales del documento
+
+Se ejecutaron comprobaciones deterministas sobre el texto recuperado de GitHub desde la rama de trabajo, sin modificar `main`. Resultado: **12/12 comprobaciones aprobadas**.
+
+| Comprobación | Resultado |
+|---|---|
+| Presencia exacta de los 36 IDs principales, sin duplicados | PASS — 36/36 |
+| Correspondencia de los 36 IDs en el registro de aplicación del contrato | PASS — 36/36 |
+| Filas de la matriz de trazabilidad | PASS — 18/18 |
+| Casos de frontera | PASS — 10/10 |
+| Campos obligatorios en las 46 fichas (entrada, salida, evidencia, indeterminación y no-inferencias) | PASS — 46/46 |
+| Categoría principal NINGUNA explícita en los 18 escenarios negativos | PASS — 18/18 |
+| Identificadores de reglas normativas definidos | PASS — 12/12 |
+| Delimitadores de bloques de código Markdown balanceados | PASS |
+| Consistencia del número de columnas en las tablas detectadas | PASS — 5 grupos de tablas |
+| Existencia de los dos documentos normativos enlazados en `main` | PASS — 2/2 |
+| Resolución de enlaces Markdown relativos a documentos locales | PASS — 4/4 |
+| Salidas separadas A/B en BND-09 | PASS |
+
+**Límites de esta validación:** son comprobaciones programáticas puntuales ejecutadas sobre el contenido descargado, no una suite de pruebas versionada ni una validación semántica completa de Markdown. No se ejecutó `markdownlint`, no se ejecutó `git diff --check` en un clon local y no se creó ni modificó workflow CI. La consulta de GitHub Actions para el commit de validación no devolvió ejecuciones asociadas. El Issue excluye expresamente implementar CI en este alcance.
+
 ## 7. Registro de revisión y discrepancias
 
 | Revisión | Responsable/tipo | Alcance | Resultado | Evidencia |
 |---|---|---|---|---|
-| A | Asistente — revisión de consistencia | 36 casos + 10 fronteras | COMPLETADA; sin defectos bloqueantes detectados | Recorrido normativo descrito en §6 |
-| B | Mismo asistente — revisión adversarial separada | 36 casos + 10 fronteras | COMPLETADA; sin defectos bloqueantes adicionales | Recorrido adversarial descrito en §6; no es independiente de A |
-| Independiente | Revisor humano distinto | 36 casos + 10 fronteras | PENDIENTE | Requiere revisión externa independiente |
+| A | Asistente — revisión de consistencia interna | 36 casos + 10 fronteras | COMPLETADA; no cuenta como revisión humana independiente | Recorrido normativo descrito en §6 |
+| B | Mismo asistente — revisión adversarial separada | 36 casos + 10 fronteras | COMPLETADA; no cuenta como revisión humana independiente ni es independiente de A | Recorrido adversarial descrito en §6 |
+| H-A | Revisor humano independiente A | 36 casos + 10 fronteras; decisión registrada antes de conocer H-B | PENDIENTE | Debe registrar identidad, fecha, decisiones por ID, discrepancias y evidencia |
+| H-B | Revisor humano independiente B | 36 casos + 10 fronteras; no debe conocer las decisiones de H-A antes de registrar las propias | PENDIENTE | Debe registrar identidad, fecha, decisiones por ID, discrepancias y evidencia |
 
 Las discrepancias se registrarán por ID, decisión inicial, regla/evidencia en conflicto, resolución y cambio aplicado. No se forzará consenso cuando la salida correcta sea INDETERMINADO.
 
@@ -541,9 +563,10 @@ Las discrepancias se registrarán por ID, decisión inicial, regla/evidencia en 
 - [x] Se distinguen publicación, afirmación, acontecimiento e hito.
 - [x] Se explicita EXCLUIR frente a INDETERMINADO.
 - [x] Revisión A y B asistidas completadas y registradas; no equivalen a dos revisores humanos independientes.
-- [ ] Revisión humana independiente completada.
+- [ ] Dos revisiones humanas independientes completadas y registradas por separado.
 - [x] Referencias internas a los dos documentos normativos comprobadas contra los archivos existentes en `main`.
-- [ ] Validaciones automatizadas/documentales del repositorio ejecutadas; no se declaran como realizadas.
+- [x] Comprobaciones programáticas puntuales de estructura y cobertura ejecutadas sobre el contenido recuperado de la rama; alcance y límites registrados en §6.3.
+- [ ] Markdown lint y validaciones CI del repositorio ejecutadas; no se declaran como realizadas.
 
 ## 10. Referencias
 
