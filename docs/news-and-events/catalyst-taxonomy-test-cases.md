@@ -693,7 +693,7 @@ Esta verificación es estructural: confirma que las mejoras aprobadas están inc
 |---|---|---|---|---|
 | A | Asistente — revisión de consistencia interna | 36 casos + 10 fronteras | COMPLETADA; no cuenta como revisión humana independiente | Recorrido normativo descrito en §6 |
 | B | Mismo asistente — revisión adversarial separada | 36 casos + 10 fronteras | COMPLETADA; no cuenta como revisión humana independiente ni es independiente de A | Recorrido adversarial descrito en §6 |
-| H-OWNER | Propietario — revisión humana | 36 casos + 10 fronteras | PENDIENTE | Debe registrar decisión, evidencia, fecha, SHA y discrepancias por ID |
+| H-OWNER | Propietario — revisión humana | 36 casos + 10 fronteras | COMPLETADA — 46/46 el 2026-11-14 | 46 decisiones «APROBAR CON LA MEJORA PROPUESTA», sin observaciones; registro por ID en §7.1 |
 | AI-ADVERSARIAL | Asistente — revisión adversarial asistida | 36 casos + 10 fronteras; validador y mutaciones | COMPLETADA para SHA `4df01d8af2d67ca4c72ff0113b146ca977ece3ad`; asistida, no independiente | Detectadas y corregidas ubicación H-OWNER Filtraciones-N, estado histórico H-OWNER desactualizado y ausencia de oráculo H-OWNER; añadido M-13. No equivale a ejecución Python. |
 | AUTO-VALIDATION | Scripts deterministas versionados | Cobertura, contratos, estructura y enlaces | PENDIENTE de ejecución reproducible | Registrar commit, versión Python, comandos, salida y código de retorno |
 | ADVERSARIAL-TEST | Tests de mutación M-01…M-13 | Fixtures aislados | PENDIENTE de ejecución | Cada mutación requiere oráculo y resultado; manual review si no automatizable |
@@ -794,7 +794,7 @@ La aprobación del propietario de la política no es una revisión de los 46 cas
 | R-06 Falsa independencia | CONTROLADO POR POLÍTICA | Roles separados; no falsear independencia | A/B conservadas; H-OWNER identificada |
 | R-07 Falsa reproducibilidad | CONTROLABLE | Scripts, comandos y salidas versionados | Commit, versión Python, salida y código de retorno |
 
-**Estado actual:** la política está integrada; H-OWNER, revisión adversarial final y pruebas automatizadas/mutacionales aún no se declaran completadas.
+**Estado actual:** H-OWNER está COMPLETADA para los 46 casos. AI-ADVERSARIAL está COMPLETADA — ASSISTED, NOT INDEPENDENT — para el SHA `4df01d8af2d67ca4c72ff0113b146ca977ece3ad`; no se afirma que se haya repetido sobre el HEAD actual `6aa125b2afa1b7cbf7c89e24816a2acfd8879580`. AUTO-VALIDATION y ADVERSARIAL-TEST M-01…M-13 siguen PENDIENTES de ejecución reproducible.
 
 ## 8. Límites y supuestos
 
