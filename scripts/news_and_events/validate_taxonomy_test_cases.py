@@ -55,7 +55,7 @@ def validate_text(text: str, root: Path | None = None) -> list[str]:
         errors.append("UNKNOWN_IDS: identificadores de escenario no reconocidos: " + ", ".join(unknown))
 
     matrix = _section(text, "## 2. Matriz de trazabilidad de los 36 escenarios", "## 3. Escenarios principales")
-    rows = re.findall(r"^\|\s*\d+\s*\|[^\n]*?\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|", matrix, re.MULTILINE)
+    rows = re.findall(r"^\|\s*\d+\s*\|[^|]*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|", matrix, re.MULTILINE)
     expected_pairs = {(item[:-2] + "-P", item[:-2] + "-N") for item in MAIN_IDS if item.endswith("-P")}
     observed_pairs = {(a.strip(), b.strip()) for a, b in rows}
     if len(rows) != 18 or observed_pairs != expected_pairs:
