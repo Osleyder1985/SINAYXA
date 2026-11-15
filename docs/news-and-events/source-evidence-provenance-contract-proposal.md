@@ -459,7 +459,6 @@ Cada evaluación de componente debe incluir una `rationale` no vacía que expliq
 
 Los registros de disponibilidad son únicos por pareja `(evidence_id, assessment_unit_id)`. Una fecha declarada por la propia fuente (`SOURCE_STATED`) se conserva como declaración temporal, pero no prueba por sí sola que la pieza estuviera disponible en el corte histórico. Solo `SINAYXA_OBSERVATION` o `INDEPENDENT_ARCHIVE`, con referencia trazable, pueden aportar un `available_at` verificado para una evaluación. La evidencia de independencia debe corresponder a todas las identidades de fuente que integran la evaluación, no a publicaciones ajenas al conjunto evaluado.
 
-
 ## 20. Unicidad de unidades y estabilidad de identidades
 
 La tupla metodológica `(claim_id, claim_component_id, source_id, source_version_id, access_path, assessment_cutoff)` identifica una única unidad de evaluación. No se permite duplicarla con otro `assessment_unit_id`, porque eso podría duplicar el peso aparente de una misma observación. Una identidad estable de componente no puede cambiar de afirmación propietaria ni de `component_key` entre versiones. Las evaluaciones de identidad también son únicas por fuente y corte temporal.
