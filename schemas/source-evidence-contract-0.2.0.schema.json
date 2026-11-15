@@ -1448,37 +1448,6 @@
           "if": {
             "properties": {
               "evidentiary_status": {
-                "const": "PARCIALMENTE_CORROBORADA"
-              }
-            },
-            "required": [
-              "evidentiary_status"
-            ]
-          },
-          "then": {
-            "required": [
-              "supported_scope",
-              "unsupported_scope"
-            ],
-            "properties": {
-              "supporting_evidence_refs": {
-                "minItems": 1
-              },
-              "supported_scope": {
-                "type": "string",
-                "minLength": 1
-              },
-              "unsupported_scope": {
-                "type": "string",
-                "minLength": 1
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "evidentiary_status": {
                 "const": "CONTRADICHA"
               }
             },
@@ -1616,7 +1585,54 @@
             ]
           },
           "then": {
+            "properties": {}
+          }
+        },
+        {
+          "if": {
             "properties": {
+              "evidentiary_status": {
+                "const": "CORROBORADA"
+              }
+            },
+            "required": [
+              "evidentiary_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "supporting_evidence_refs": {
+                "minItems": 1
+              },
+              "corroboration_basis": {
+                "enum": [
+                  "EVIDENCIA_PRIMARIA_DIRECTA",
+                  "CORROBORACION_INDEPENDIENTE",
+                  "AMBAS"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "corroboration_basis": {
+                "enum": [
+                  "CORROBORACION_INDEPENDIENTE",
+                  "AMBAS"
+                ]
+              }
+            },
+            "required": [
+              "corroboration_basis"
+            ]
+          },
+          "then": {
+            "properties": {
+              "independence_assessment_refs": {
+                "minItems": 1
+              }
             }
           }
         },
@@ -1624,7 +1640,9 @@
           "if": {
             "properties": {
               "evidentiary_status": {
-                "const": "NO_RESUELTA"
+                "not": {
+                  "const": "CORROBORADA"
+                }
               }
             },
             "required": [
