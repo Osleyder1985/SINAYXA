@@ -116,6 +116,15 @@ jobs:
           node -e "if (Number(process.versions.node.split('.')[0]) < 22) process.exit(1)"
       - name: Install exact locked dependency graph
         run: npm ci --ignore-scripts
+      - name: Lint methodology documentation for Issues #14 and #41
+        run: >-
+          npx --no-install markdownlint-cli2 --no-globs
+          docs/news-and-events/intensity-and-time-horizons-proposal.md
+          docs/news-and-events/intensity-and-time-horizons-test-record.md
+          docs/news-and-events/intensity-horizons-fixture-v1.1.0-change-record.md
+          docs/news-and-events/intensity-horizons-fixture-v1.2.0-change-record.md
+          docs/news-and-events/intensity-horizons-semantic-design-review.md
+          docs/governance/single-human-ai-assisted-evaluation-protocol.md
       - name: Audit all direct and transitive dependencies
         shell: bash
         run: |
