@@ -26,7 +26,11 @@ try {
         @{ Name='Editorial anonymity verification transferred'; Apply={ param($x) $x.cases[14].expected.editor_identity_verification_transferred = $true } },
         @{ Name='Shared employer automatically implies dependency'; Apply={ param($x) $x.cases[8].expected.shared_employer_does_not_imply_dependency = $false } },
         @{ Name='Unsupported institutional character'; Apply={ param($x) $x.cases[2].institutional_character = 'UNOFFICIAL' } },
-        @{ Name='Unsupported independence state'; Apply={ param($x) $x.cases[0].independence = 'UNVERIFIED' } }
+        @{ Name='Unsupported independence state'; Apply={ param($x) $x.cases[0].independence = 'UNVERIFIED' } },
+        @{ Name='Missing source version'; Apply={ param($x) $x.cases[0].evaluation_units[0].source_version = '' } },
+        @{ Name='Mismatched evaluation component'; Apply={ param($x) $x.cases[0].evaluation_units[0].claim_component_id = 'different-component' } },
+        @{ Name='Missing provenance node evaluation'; Apply={ param($x) $x.cases[0].evaluation_units = @($x.cases[0].evaluation_units | Where-Object { $_.source_id -ne 'agency-wire' }) } },
+        @{ Name='Unreferenced independence evidence source'; Apply={ param($x) $x.cases[3].independence_evidence[0].source_ids = @('not-a-source') } }
     )
     foreach ($mutation in $mutations) {
         $copy = $base | ConvertTo-Json -Depth 50 | ConvertFrom-Json -Depth 50
