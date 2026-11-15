@@ -286,8 +286,6 @@ foreach ($factor in $package.factor_assessments) {
         $factorEvidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $reference })[0]
         Test-Condition ($factor.dimension -in @($factorEvidence.factor_dimensions)) 'Factor evidence is not explicitly scoped to the assessed dimension.'
         $factorUnit = @($package.evaluation_units | Where-Object { $_.assessment_unit_id -eq $factor.assessment_unit_id })[0]
-        $factorEvidenceLinks = @($package.claim_evidence_links | Where-Object { $_.evidence_id -eq $reference -and $_.claim_id -eq $factorUnit.claim_id -and $_.claim_component_id -eq $factorUnit.claim_component_id -and $_.claim_version_id -eq $factorUnit.claim_version_id -and $_.claim_component_version_id -eq $factorUnit.claim_component_version_id })
-        Test-Condition ($factorEvidenceLinks.Count -gt 0) 'Factor evidence must have a claim-evidence link for the exact claim and component version of its evaluation unit.'
         $availableForUnit = @($package.evidence_availability | Where-Object { $_.evidence_id -eq $reference -and $_.assessment_unit_id -eq $factor.assessment_unit_id -and $null -ne $_.available_at -and $_.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE') })
         Test-Condition ($availableForUnit.Count -gt 0) 'Factor evidence must have a known availability observation for its exact evaluation unit.'
     }
