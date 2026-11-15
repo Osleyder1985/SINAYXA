@@ -161,6 +161,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 90
 
+  # PR scans compare the target and proposed revisions; SARIF upload is tested separately and remains disabled here.
   osv-pr:
     name: OSV dependency scan / PR
     if: github.event_name == 'pull_request'
