@@ -86,8 +86,18 @@ try {
     $independentAvailabilityB.availability_id = 'availability-independent-b'
     $independentAvailabilityB.evidence_id = 'independent-evidence-b'
     $independentCopy.evidence_availability += @($independentAvailabilityA,$independentAvailabilityB)
+    $independentCopy.provenance_edges = @($independentCopy.provenance_edges | Where-Object { $_.edge_id -ne 'edge-a-unknown' })
+    $independentCopy.provenance_nodes += @(
+        @{ node_id='node-origin-independent-a'; node_type='DOCUMENT'; entity_ref=$null },
+        @{ node_id='node-origin-independent-b'; node_type='DOCUMENT'; entity_ref=$null }
+    )
+    $independentCopy.provenance_edges += @(
+        @{ edge_id='edge-independent-a'; dependent_node_id='node-version-a'; origin_node_id='node-origin-independent-a'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('independent-evidence-a'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null },
+        @{ edge_id='edge-independent-b'; dependent_node_id='node-version-b'; origin_node_id='node-origin-independent-b'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('independent-evidence-b'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null }
+    )
     $independentCopy.independence_assessments[0].status = 'INDEPENDIENTE'
     $independentCopy.independence_assessments[0].supporting_evidence_refs = @('independent-evidence-a','independent-evidence-b')
+    $independentCopy.independence_assessments[0].independent_path_edge_refs = @('edge-independent-a','edge-independent-b')
     $independentCopy.independence_assessments[0].human_review_status = 'REVIEWED'
     $independentCopy.independence_assessments[0].reviewed_at = '2026-11-15T22:05:00Z'
     $independentFile = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-independent-" + [guid]::NewGuid().ToString('N') + '.json')
@@ -141,6 +151,7 @@ try {
         @{ Name='Provenance node references missing source version'; Apply={ param($x) $x.provenance_nodes[0].entity_ref='missing-version' } },
         @{ Name='Provenance edge references missing evidence'; Apply={ param($x) $x.provenance_edges[0].evidence_refs=@('missing-evidence') } },
         @{ Name='Independent without positive evidence'; Apply={ param($x) $x.independence_assessments[0].status='INDEPENDIENTE' } },
+        @{ Name='Independent assessment uses unknown origin instead of separate paths'; Apply={ param($x) $x.independence_assessments[0].status='INDEPENDIENTE'; $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b'); $x.independence_assessments[0].independent_path_edge_refs=@('edge-a-unknown','edge-a-unknown'); $x.independence_assessments[0].human_review_status='REVIEWED'; $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z' } },
         @{ Name='Independent evidence does not cover every evaluated source'; Apply={ param($x) $x.independence_assessments[0].status='INDEPENDIENTE'; $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.independence_assessments[0].human_review_status='REVIEWED'; $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z' } },
         @{ Name='Dependent without dependency edge'; Apply={ param($x) $x.independence_assessments[0].status='DEPENDIENTE' } },
         @{ Name='Independent with two versions of the same source'; Apply={
