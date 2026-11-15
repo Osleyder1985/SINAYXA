@@ -81,7 +81,7 @@
         "evidentiary_status": "PARCIALMENTE_CORROBORADA",
         "document_authenticity": "NO_APLICA",
         "guardrail": "Fecha y entidad respaldadas; el importe permanece desconocido.",
-        "source_identity": "IDENTIFICADA",
+        "source_identity": "DESCONOCIDA",
         "independence_of_origin": "INDEPENDIENTE",
         "access_provenance": "PÚBLICO_LEGÍTIMO",
         "sensitive_information_review": "NO_EVALUADA"
@@ -325,7 +325,7 @@
       "nature": "POSIBLE_FILTRACIÓN",
       "expected": {
         "evidentiary_status": "PARCIALMENTE_CORROBORADA",
-        "document_authenticity": "AUTENTICADA",
+        "document_authenticity": "NO_VERIFICADA",
         "guardrail": "Autenticar la pieza si es posible; mantener propuesta, negociación y ejecución como hechos distintos.",
         "source_identity": "DESCONOCIDA",
         "independence_of_origin": "DESCONOCIDA",
