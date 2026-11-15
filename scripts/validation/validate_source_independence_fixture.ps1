@@ -20,8 +20,8 @@ $expectedIds = @(1..16 | ForEach-Object { 'S{0:D2}' -f $_ })
 $ids = @($fixture.cases | ForEach-Object { [string]$_.id })
 Assert-Condition (($ids | Sort-Object -Unique).Count -eq 16) 'Case identifiers must be unique.'
 Assert-Condition ((@($ids | Sort-Object) -join ',') -eq (@($expectedIds | Sort-Object) -join ',')) 'Fixture must contain exactly S01-S16.'
-$allowedIndependence = @('INDEPENDIENTE','DEPENDIENTE','DESCONOCIDA')
-$allowedInstitutional = @('OFICIAL','NO_INSTITUCIONAL','DESCONOCIDO')
+$allowedIndependence = @($fixture.allowed.independence)
+$allowedInstitutional = @($fixture.allowed.institutional_character)
 foreach ($case in $fixture.cases) {
     $id = [string]$case.id
     Assert-Condition (-not [string]::IsNullOrWhiteSpace($case.scenario)) "${id}: scenario is required."
