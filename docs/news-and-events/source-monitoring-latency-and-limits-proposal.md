@@ -31,15 +31,15 @@
 
 Registrar por separado los siguientes momentos, cuando existan y sean fiables:
 
-| Métrica | Definición |
+|Métrica|Definición|
 |---|---|
-| t_event | Momento del acontecimiento real |
-| t_publication | Momento en que la fuente publica o hace disponible el elemento |
-| t_source_update | Última actualización declarada por la fuente |
-| t_first_seen | Primera observación registrada por el sistema |
-| t_captured | Finalización de la captura |
-| t_processed | Finalización del procesamiento/normalización |
-| t_available | Momento en que el registro queda disponible para consumo interno |
+|t_event|Momento del acontecimiento real|
+|t_publication|Momento en que la fuente publica o hace disponible el elemento|
+|t_source_update|Última actualización declarada por la fuente|
+|t_first_seen|Primera observación registrada por el sistema|
+|t_captured|Finalización de la captura|
+|t_processed|Finalización del procesamiento/normalización|
+|t_available|Momento en que el registro queda disponible para consumo interno|
 
 Derivaciones:
 
@@ -62,15 +62,15 @@ La diferencia entre acontecimiento y publicación no debe atribuirse al sistema 
 
 ## 4. Clasificación de mecanismos
 
-| Mecanismo | Ventaja potencial | Limitación que debe medirse |
+|Mecanismo|Ventaja potencial|Limitación que debe medirse|
 |---|---|---|
-| Webhook/push | Entrega iniciada por el proveedor | Soporte, autenticación, reintentos, expiración y garantías |
-| Stream/API en tiempo real | Puede reducir el intervalo de detección | Cuotas, conexión, reconexión, orden, duplicados y disponibilidad |
-| API consultada | Contrato estructurado potencialmente estable | Intervalo, cuotas, paginación y retraso de actualización |
-| RSS/Atom/feed | Formato simple | Frecuencia de actualización, caché, omisiones y timestamps |
-| Página/portal | Puede cubrir publicaciones sin API | Cambios de estructura, términos, caché y riesgo de bloqueo |
-| Descarga por lotes | Adecuada para históricos o publicaciones periódicas | Retraso inherente al lote y ventanas sin datos |
-| Recepción manual | Útil cuando no existe automatización autorizada | No constituye vigilancia continua |
+|Webhook/push|Entrega iniciada por el proveedor|Soporte, autenticación, reintentos, expiración y garantías|
+|Stream/API en tiempo real|Puede reducir el intervalo de detección|Cuotas, conexión, reconexión, orden, duplicados y disponibilidad|
+|API consultada|Contrato estructurado potencialmente estable|Intervalo, cuotas, paginación y retraso de actualización|
+|RSS/Atom/feed|Formato simple|Frecuencia de actualización, caché, omisiones y timestamps|
+|Página/portal|Puede cubrir publicaciones sin API|Cambios de estructura, términos, caché y riesgo de bloqueo|
+|Descarga por lotes|Adecuada para históricos o publicaciones periódicas|Retraso inherente al lote y ventanas sin datos|
+|Recepción manual|Útil cuando no existe automatización autorizada|No constituye vigilancia continua|
 
 La clasificación no implica que estos mecanismos estén disponibles ni permitidos para una fuente concreta.
 
@@ -98,17 +98,17 @@ Los estados propuestos no sustituyen decisiones legales ni los estados probatori
 
 La matriz fuente/método/frecuencia/latencia/límites debe distinguir:
 
-| Campo | Contenido requerido |
+|Campo|Contenido requerido|
 |---|---|
-| Fuente y método | Identificador y método autorizado |
-| Frecuencia permitida | Límite del proveedor y referencia |
-| Frecuencia configurada | Parámetro realmente desplegado |
-| Latencia observada | Distribución, periodo y muestra |
-| Cobertura | Tipos de publicaciones y exclusiones |
-| Límites | Cuotas, términos, disponibilidad y retención |
-| Fallos | Errores, frecuencia y duración |
-| Estado | Activo, degradado, pausado o no disponible |
-| Revisión | Fecha, responsable y evidencia |
+|Fuente y método|Identificador y método autorizado|
+|Frecuencia permitida|Límite del proveedor y referencia|
+|Frecuencia configurada|Parámetro realmente desplegado|
+|Latencia observada|Distribución, periodo y muestra|
+|Cobertura|Tipos de publicaciones y exclusiones|
+|Límites|Cuotas, términos, disponibilidad y retención|
+|Fallos|Errores, frecuencia y duración|
+|Estado|Activo, degradado, pausado o no disponible|
+|Revisión|Fecha, responsable y evidencia|
 
 Si no hay despliegue o mediciones, utilizar NOT_MEASURED / NOT_CONFIGURED; no rellenar con objetivos hipotéticos.
 
@@ -190,23 +190,23 @@ La disponibilidad pública no se interpreta como licencia de extracción o redis
 
 Los siguientes casos son ejemplos de diseño, no mediciones ni pruebas ejecutadas:
 
-| Caso | Situación | Respuesta exigida |
+|Caso|Situación|Respuesta exigida|
 |---|---|---|
-| L01 | API publica límite de consultas | No superar límite; conservar referencia |
-| L02 | HTTP 429 con Retry-After | Respetar tiempo indicado y registrar degradación |
-| L03 | Feed se actualiza con retraso | Medir retraso; no atribuirlo al procesamiento interno |
-| L04 | Fuente no incluye timestamp de publicación | Latencia de detección NOT_MEASURED |
-| L05 | Fuente deja de responder | UNAVAILABLE/DEGRADED; no reportar ausencia de eventos |
-| L06 | Recuperación sin endpoint histórico | Registrar intervalo perdido como irrecuperable |
-| L07 | API cambia formato | Pausar normalización y revisar antes de reanudar |
-| L08 | Términos prohíben automatización | Pausar hasta revisión/autorización |
-| L09 | Canales reflejan publicación con retrasos distintos | Conservar procedencia y tiempos por fuente |
-| L10 | Procesamiento tardío tras captura | Separar latencia de detección y procesamiento |
-| L11 | Publicación retrospectiva | Conservar fecha del hecho y publicación |
-| L12 | No hubo publicaciones durante una ventana | Verificar mecanismo; no inferir salud ni ausencia |
-| L13 | Timestamp sin zona horaria | Marcar ambigüedad; no asignar UTC por suposición |
-| L14 | Respuesta parcial | Registrar cobertura parcial y checkpoint autorizado |
-| L15 | Cuota excedida por error de configuración | Detener/reducir según proveedor y registrar incidente |
+|L01|API publica límite de consultas|No superar límite; conservar referencia|
+|L02|HTTP 429 con Retry-After|Respetar tiempo indicado y registrar degradación|
+|L03|Feed se actualiza con retraso|Medir retraso; no atribuirlo al procesamiento interno|
+|L04|Fuente no incluye timestamp de publicación|Latencia de detección NOT_MEASURED|
+|L05|Fuente deja de responder|UNAVAILABLE/DEGRADED; no reportar ausencia de eventos|
+|L06|Recuperación sin endpoint histórico|Registrar intervalo perdido como irrecuperable|
+|L07|API cambia formato|Pausar normalización y revisar antes de reanudar|
+|L08|Términos prohíben automatización|Pausar hasta revisión/autorización|
+|L09|Canales reflejan publicación con retrasos distintos|Conservar procedencia y tiempos por fuente|
+|L10|Procesamiento tardío tras captura|Separar latencia de detección y procesamiento|
+|L11|Publicación retrospectiva|Conservar fecha del hecho y publicación|
+|L12|No hubo publicaciones durante una ventana|Verificar mecanismo; no inferir salud ni ausencia|
+|L13|Timestamp sin zona horaria|Marcar ambigüedad; no asignar UTC por suposición|
+|L14|Respuesta parcial|Registrar cobertura parcial y checkpoint autorizado|
+|L15|Cuota excedida por error de configuración|Detener/reducir según proveedor y registrar incidente|
 
 ## 13. Criterios de aceptación propuestos
 
