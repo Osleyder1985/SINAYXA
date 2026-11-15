@@ -45,6 +45,16 @@ try {
         if (-not $pendingOutput.Contains('Result : PASS')) { throw 'DELETE_PENDING with an unverified basis must remain representable while deletion is pending.' }
     }
     finally { if (Test-Path -LiteralPath $pendingFile) { Remove-Item -LiteralPath $pendingFile -Force } }
+    $partialCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
+    $partialCopy.claim_assessments[0].evidentiary_status='PARCIALMENTE_CORROBORADA'
+    $partialCopy.claim_assessments[0].rationale='La evidencia respalda la existencia de la declaración, pero no la ejecución.'
+    $partialCopy.claim_assessments[0].supported_scope='Existencia y atribución de la declaración.'
+    $partialCopy.claim_assessments[0].unsupported_scope='Ejecución material de la compra.'
+    $partialCopy.claim_assessments[0].human_review_status='REVIEWED'
+    $partialCopy.claim_assessments[0].reviewed_at='2026-11-15T22:05:00Z'
+    ConvertTo-Json -InputObject $partialCopy -Depth 100 | Set-Content -LiteralPath $temp -Encoding utf8
+    & $validator -FixturePath $temp | Out-Null
+
     $mutations = @(
         @{ Name='Orphan claim component'; Apply={ param($x) $x.claim_components[0].claim_id='missing-claim' } },
         @{ Name='Duplicate claim version identifier'; Apply={ param($x) $x.claims += $x.claims[0] } },
@@ -83,6 +93,8 @@ try {
         @{ Name='Duplicate factor dimension replaces required dimension'; Apply={ param($x) $x.factor_assessments[1].dimension=$x.factor_assessments[0].dimension } },
         @{ Name='Identity label conflicts with visibility flags'; Apply={ param($x) $x.identity_assessments[0].identity='ANÓNIMA_PARA_SINAYXA' } },
         @{ Name='Unsupported probative state'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='HIGH_CONFIDENCE' } },
+        @{ Name='Claim assessment missing rationale'; Apply={ param($x) $x.claim_assessments[0].rationale='' } },
+        @{ Name='Partial corroboration without delimited scopes'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='PARCIALMENTE_CORROBORADA'; $x.claim_assessments[0].human_review_status='REVIEWED'; $x.claim_assessments[0].reviewed_at='2026-11-15T22:05:00Z'; $x.claim_assessments[0].supported_scope=$null; $x.claim_assessments[0].unsupported_scope=$null } },
         @{ Name='Conclusive state bypasses human review'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='CORROBORADA'; $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.claim_assessments[0].human_review_status='PENDING' } },
         @{ Name='Unauthorized retained content'; Apply={ param($x) $x.retention_records[0].content_retained=$true } },
         @{ Name='Retention record has orphan subject'; Apply={ param($x) $x.retention_records[0].subject_ref='missing-subject' } },
@@ -104,6 +116,7 @@ try {
         @{ Name='Factor evidence crosses dimension boundary'; Apply={ param($x) $x.factor_assessments[0].supporting_evidence_refs=@('evidence-a') } },
         @{ Name='Evidence becomes available after evaluation cutoff'; Apply={ param($x) $x.evidence_availability[0].available_at='2026-11-15T23:00:00Z' } },
         @{ Name='Known availability lacks traceable basis'; Apply={ param($x) $x.evidence_availability[0].availability_basis='UNKNOWN' } },
+        @{ Name='Duplicate evidence availability for the same unit'; Apply={ param($x) $x.evidence_availability += $x.evidence_availability[0] } },
         @{ Name='Source-stated timestamp cannot prove cutoff availability'; Apply={ param($x) $x.evidence_availability[0].availability_basis='SOURCE_STATED'; $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a') } },
         @{ Name='Claim assessment uses evidence unavailable at its cutoff'; Apply={ param($x) $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.claim_assessments[0].assessment_cutoff='2026-11-15T20:00:00Z' } },
         @{ Name='Retained content has an expired retention window'; Apply={ param($x) $x.retention_records[0].content_retained=$true; $x.retention_records[0].legal_basis_status='VERIFIED'; $x.retention_records[0].disposition='RETAIN'; $x.retention_records[0].expires_at='2026-11-15T21:00:00Z' } },
@@ -122,8 +135,9 @@ try {
         BaselineScenarios=1
         PositiveCycleCases=1
         PositiveMultiVersionCases=1
+        PositivePartialScopeCases=1
         NegativeMutations=$mutations.Count
-        TotalChecks=($mutations.Count + 3)
+        TotalChecks=($mutations.Count + 4)
         Scope='Deterministic synthetic contract-validator rejection tests.'
     } | Format-List
 }
