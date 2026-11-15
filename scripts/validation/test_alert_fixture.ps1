@@ -72,7 +72,7 @@ try {
     try { & $validator -FixturePath $corrupt *> $null } catch { $corruptRejected = $true }
     if (-not $corruptRejected) { throw 'Validator accepted malformed JSON.' }
     Write-Information 'Robustness test malformed-json: PASS' -InformationAction Continue
-    Write-Information 'Alert fixture tests: PASS (1 positive + 17 negative mutations + 2 robustness checks).' -InformationAction Continue
+    Write-Information 'Alert fixture tests: PASS (1 positive + 18 negative mutations + 2 robustness checks).' -InformationAction Continue
 }
 finally {
     if (Test-Path -LiteralPath $tempDirectory) { Remove-Item -LiteralPath $tempDirectory -Recurse -Force }
