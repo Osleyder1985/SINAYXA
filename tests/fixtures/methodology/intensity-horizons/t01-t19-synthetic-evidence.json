@@ -1,0 +1,538 @@
+{
+  "package_id": "SINAYXA-IH-T01-T19-SYNTHETIC-001",
+  "package_version": "1.0.0",
+  "status": "SYNTHETIC_TEST_FIXTURE_NOT_REAL_WORLD_EVIDENCE",
+  "purpose": "Deterministic fictional inputs for exercising the proposed intensity and time-horizon rules. These fixtures do not establish empirical validity, real market behavior, causal impact, or human inter-evaluator agreement.",
+  "frozen_inputs_policy": {
+    "all_entities_and_events_are_fictional": true,
+    "timestamps_are_test_vectors_not_market_records": true,
+    "no_external_sources_or_real_personal_data": true,
+    "do_not_infer_missing_values": true,
+    "expected_results_are_oracles_not_observed_execution_results": true
+  },
+  "cases": [
+    {
+      "id": "T01",
+      "unit": "Fictional protocol ALPHA public token and operations",
+      "scenario": "A website branding announcement is evaluated for a possible material effect on ALPHA.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T01-E1",
+          "type": "synthetic_architecture_inventory",
+          "content": "The reviewed architecture inventory lists no contract, token, governance, custody, validator, API, liquidity, or operational dependency on the rebranded website."
+        },
+        {
+          "id": "T01-E2",
+          "type": "synthetic_scope_confirmation",
+          "content": "The inventory covers the declared ALPHA unit and the complete announcement scope as of the cutoff; no omitted dependency is identified."
+        }
+      ],
+      "expected": {
+        "intensity": "I0",
+        "direction": "INDETERMINADA unless separate evidence supports NEUTRAL",
+        "reason": "Evidence affirmatively rules out a material mechanism within the declared unit and cutoff; absence of a market reaction is not used."
+      }
+    },
+    {
+      "id": "T02",
+      "unit": "Fictional exchange BETA support desk",
+      "scenario": "A short interruption affects one non-critical support endpoint; a substitute is claimed to be available.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T02-E1",
+          "type": "synthetic_incident_log",
+          "content": "One support endpoint is unavailable; trading, custody, deposits, withdrawals, and settlement remain operational."
+        },
+        {
+          "id": "T02-E2",
+          "type": "synthetic_capacity_test",
+          "content": "A documented alternate support channel accepts the affected request class at the measured test load."
+        },
+        {
+          "id": "T02-E3",
+          "type": "synthetic_access_test",
+          "content": "The affected user population can authenticate and access the alternate channel."
+        }
+      ],
+      "expected": {
+        "intensity": "I1",
+        "direction": "INDETERMINADA",
+        "reason": "The indirect effect is local and bounded; availability, capacity, and access of the substitute are evidenced."
+      }
+    },
+    {
+      "id": "T03",
+      "unit": "Fictional exchange GAMMA institutional deposit segment",
+      "scenario": "A deposit-processing component fails for one institutional segment, creating a bounded operational restriction.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T03-E1",
+          "type": "synthetic_component_map",
+          "content": "The affected component directly processes deposits for the identified institutional segment only."
+        },
+        {
+          "id": "T03-E2",
+          "type": "synthetic_operations_record",
+          "content": "Deposits for that segment are queued; other exchange functions and other customer segments remain available."
+        },
+        {
+          "id": "T03-E3",
+          "type": "synthetic_scope_record",
+          "content": "The segment is identifiable, but evidence does not show it is central to the exchange as a whole."
+        }
+      ],
+      "expected": {
+        "intensity": "I2",
+        "direction": "NEGATIVA for the affected segment if the operational restriction is confirmed",
+        "reason": "A concrete direct mechanism supports an appreciable but bounded condition change; no broad/central exposure is established."
+      }
+    },
+    {
+      "id": "T04",
+      "unit": "Fictional protocol DELTA oracle-dependent application ecosystem",
+      "scenario": "A shared oracle service serving the declared application ecosystem becomes unreliable, without evidence of essential-function compromise.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T04-E1",
+          "type": "synthetic_dependency_inventory",
+          "content": "The declared ecosystem inventory identifies the oracle service as a central dependency for the listed applications."
+        },
+        {
+          "id": "T04-E2",
+          "type": "synthetic_service_report",
+          "content": "The service reports degraded data publication affecting the listed applications."
+        },
+        {
+          "id": "T04-E3",
+          "type": "synthetic_continuity_report",
+          "content": "Fallback controls and continued operation are documented; no evidence shows compromise of an essential function or viability."
+        }
+      ],
+      "expected": {
+        "intensity": "I3",
+        "direction": "NEGATIVA for the declared affected ecosystem",
+        "reason": "Broad/central exposure and a material operational channel are supported, but I4 essential-function threat is not."
+      }
+    },
+    {
+      "id": "T05",
+      "unit": "Fictional custody network EPSILON withdrawal authorization service",
+      "scenario": "A confirmed compromise of the sole authorization path threatens essential access to customer assets.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T05-E1",
+          "type": "synthetic_security_incident_report",
+          "content": "A forensic report confirms compromise of the sole authorization service."
+        },
+        {
+          "id": "T05-E2",
+          "type": "synthetic_architecture_inventory",
+          "content": "No independent authorization path exists for the declared custody unit."
+        },
+        {
+          "id": "T05-E3",
+          "type": "synthetic_continuity_assessment",
+          "content": "The compromised service is required for withdrawals; the report documents threat to essential customer access."
+        }
+      ],
+      "expected": {
+        "intensity": "I4",
+        "direction": "NEGATIVA",
+        "reason": "A concrete, evidenced mechanism threatens an essential access function."
+      }
+    },
+    {
+      "id": "T06",
+      "unit": "Fictional cryptoasset market segment ZETA",
+      "scenario": "A rumor alleges that a widely used infrastructure provider may stop supporting the segment, but no mechanism evidence is available.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T06-E1",
+          "type": "synthetic_rumor",
+          "content": "An anonymous post claims the provider may discontinue support."
+        },
+        {
+          "id": "T06-E2",
+          "type": "synthetic_dependency_gap",
+          "content": "No verified dependency inventory, provider statement, or operational evidence connects the provider to the declared segment."
+        }
+      ],
+      "expected": {
+        "intensity": "INDETERMINADA",
+        "direction": "INDETERMINADA",
+        "reason": "Wide potential exposure cannot compensate for an unverified speculative channel."
+      }
+    },
+    {
+      "id": "T07",
+      "unit": "Fictional protocol ETA bridge withdrawal function",
+      "scenario": "If a pending technical condition triggers an emergency withdrawal pause, the sole withdrawal function would be unavailable.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T07-E1",
+          "type": "synthetic_architecture_record",
+          "content": "The bridge has one withdrawal function and no alternative route for the declared unit."
+        },
+        {
+          "id": "T07-E2",
+          "type": "synthetic_contingency_plan",
+          "content": "The documented emergency condition activates a withdrawal pause."
+        },
+        {
+          "id": "T07-E3",
+          "type": "synthetic_status_record",
+          "content": "The triggering condition has not been confirmed as of the cutoff."
+        }
+      ],
+      "expected": {
+        "intensity": "I4 for the explicitly conditional scenario",
+        "condition": "PENDING / NOT CONFIRMED",
+        "probability": "NOT_ASSIGNED",
+        "reason": "Potential severity within a defined scenario is separate from the probability or confirmation of its condition."
+      }
+    },
+    {
+      "id": "T08",
+      "unit": "Fictional asset THETA with separately defined user segments A and B",
+      "scenario": "The same event creates a material negative effect for segment A and a material positive effect for segment B.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T08-E1",
+          "type": "synthetic_segment_record",
+          "content": "Segment A loses access to a named integration under the event."
+        },
+        {
+          "id": "T08-E2",
+          "type": "synthetic_segment_record",
+          "content": "Segment B gains access to the same integration under the event."
+        },
+        {
+          "id": "T08-E3",
+          "type": "synthetic_unit_definition",
+          "content": "A and B are separately defined populations; an aggregate unit is included only if explicitly declared."
+        }
+      ],
+      "expected": {
+        "segment_A": {
+          "direction": "NEGATIVA",
+          "intensity": "Evaluate independently"
+        },
+        "segment_B": {
+          "direction": "POSITIVA",
+          "intensity": "Evaluate independently"
+        },
+        "aggregate": "MIXTA only for an explicitly defined aggregate unit; do not average or cancel effects",
+        "reason": "Heterogeneous effects remain segmented."
+      }
+    },
+    {
+      "id": "T09",
+      "unit": "Fictional protocol IOTA validator population",
+      "scenario": "Two evidence items disagree on whether the affected validator population is broad.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T09-E1",
+          "type": "synthetic_scope_report_A",
+          "content": "Report A asserts broad validator exposure but does not disclose its denominator."
+        },
+        {
+          "id": "T09-E2",
+          "type": "synthetic_scope_report_B",
+          "content": "Report B provides contrary validator records and disputes broad exposure."
+        },
+        {
+          "id": "T09-E3",
+          "type": "synthetic_methodology_status",
+          "content": "No approved source-credibility rule resolves this conflict."
+        }
+      ],
+      "expected": {
+        "intensity": "INDETERMINADA for the disputed scope",
+        "direction": "INDETERMINADA unless independently supported",
+        "reason": "Preserve the contradiction; do not select a source by authority or majority."
+      }
+    },
+    {
+      "id": "T10",
+      "unit": "Fictional exchange KAPPA withdrawal queue",
+      "scenario": "The exchange announces a mitigation but has not demonstrated that it is deployed or accessible.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T10-E1",
+          "type": "synthetic_announcement",
+          "content": "The exchange says a recovery route is being prepared."
+        },
+        {
+          "id": "T10-E2",
+          "type": "synthetic_deployment_gap",
+          "content": "No deployment record, capacity test, or user-access evidence exists by the cutoff."
+        },
+        {
+          "id": "T10-E3",
+          "type": "synthetic_existing_impact",
+          "content": "The original withdrawal restriction remains documented."
+        }
+      ],
+      "expected": {
+        "intensity": "Do not reduce the otherwise supported baseline intensity",
+        "mitigation": "UNVERIFIED",
+        "reason": "An announcement is not proof of operational availability, capacity, or access."
+      }
+    },
+    {
+      "id": "T11",
+      "unit": "Synthetic elapsed-time boundary test",
+      "scenario": "Measure exact durations from a precise reference instant.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T11-E1",
+          "type": "synthetic_time_vectors",
+          "reference": "2026-01-01T00:00:00Z",
+          "targets": [
+            "2026-01-02T00:00:00Z",
+            "2026-01-08T00:00:00Z",
+            "2026-04-01T00:00:00Z"
+          ],
+          "elapsed_seconds": [
+            86400,
+            604800,
+            7776000
+          ]
+        }
+      ],
+      "expected": {
+        "horizons": [
+          "INMEDIATO",
+          "CORTO",
+          "MEDIO"
+        ],
+        "reason": "Upper endpoints are inclusive at 24 h, 7 × 24 h, and 90 × 24 h."
+      }
+    },
+    {
+      "id": "T12",
+      "unit": "Synthetic elapsed-time boundary test",
+      "scenario": "Measure one second beyond each exact boundary.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T12-E1",
+          "type": "synthetic_time_vectors",
+          "reference": "2026-01-01T00:00:00Z",
+          "targets": [
+            "2026-01-02T00:00:01Z",
+            "2026-01-08T00:00:01Z",
+            "2026-04-01T00:00:01Z"
+          ],
+          "elapsed_seconds": [
+            86401,
+            604801,
+            7776001
+          ]
+        }
+      ],
+      "expected": {
+        "horizons": [
+          "CORTO",
+          "MEDIO",
+          "LARGO"
+        ],
+        "reason": "The first instant after each upper endpoint belongs to the next category."
+      }
+    },
+    {
+      "id": "T13",
+      "unit": "Synthetic event milestone",
+      "scenario": "A source provides a calendar date only, and classification depends on the exact time.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T13-E1",
+          "type": "synthetic_source_excerpt",
+          "date_only": "2026-01-11",
+          "content": "The event is scheduled for 2026-01-11; no time or timezone is provided."
+        }
+      ],
+      "expected": {
+        "timestamp": "DATE_ONLY_PRESERVED",
+        "horizon": "INDETERMINADO",
+        "reason": "Do not assume midnight or a local timezone."
+      }
+    },
+    {
+      "id": "T14",
+      "unit": "Synthetic phased governance event",
+      "scenario": "An event has distinct announcement, approval, effective, and implementation milestones.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T14-E1",
+          "type": "synthetic_milestone_schedule",
+          "milestones": [
+            {
+              "name": "announcement",
+              "at": "2026-01-10T12:00:00Z"
+            },
+            {
+              "name": "approval",
+              "at": "2026-01-12T12:00:00Z"
+            },
+            {
+              "name": "effective",
+              "at": "2026-02-01T12:00:00Z"
+            },
+            {
+              "name": "implementation",
+              "at": "2026-02-15T12:00:00Z"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "treatment": "FOUR_SEPARATE_MILESTONES_AND_CLOCKS",
+        "reason": "Do not collapse announcement and implementation into one horizon."
+      }
+    },
+    {
+      "id": "T15",
+      "unit": "Synthetic uncertain event time",
+      "scenario": "The available event-time interval straddles the 24-hour horizon boundary.",
+      "cutoff": "2026-01-01T00:00:00Z",
+      "evidence": [
+        {
+          "id": "T15-E1",
+          "type": "synthetic_time_interval",
+          "earliest": "2026-01-01T23:50:00Z",
+          "latest": "2026-01-02T00:10:00Z",
+          "elapsed_seconds": [
+            85800,
+            87000
+          ]
+        }
+      ],
+      "expected": {
+        "horizon": "INDETERMINADO as a single category",
+        "compatible_categories": [
+          "INMEDIATO",
+          "CORTO"
+        ],
+        "reason": "Preserve the full interval and compatible categories."
+      }
+    },
+    {
+      "id": "T16",
+      "unit": "Fictional protocol LAMBDA incident classification",
+      "scenario": "Two independent human evaluators receive the same frozen packet and return different intensity levels.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T16-E1",
+          "type": "synthetic_common_evidence_packet",
+          "content": "The common fictional packet describes a direct operational restriction and contains a disputed statement about whether the affected function is central."
+        },
+        {
+          "id": "T16-E2",
+          "type": "synthetic_expected_process_only",
+          "content": "The exercise requires two real independent human evaluations; this fixture does not contain or simulate their actual responses."
+        }
+      ],
+      "expected": {
+        "process": "BLOCKED until two real independent human evaluators participate",
+        "disagreement_handling": "Record original answers separately, classify the source of disagreement, revise rule if required, and retest; never average",
+        "fixture_limit": "A synthetic disagreement cannot satisfy T16 or count as inter-evaluator validation."
+      }
+    },
+    {
+      "id": "T17",
+      "unit": "Fictional asset MU exposure to a proposed protocol change",
+      "scenario": "Available information is incomplete and cannot confirm or rule out a material mechanism.",
+      "cutoff": "2026-01-10T12:00:00Z",
+      "evidence": [
+        {
+          "id": "T17-E1",
+          "type": "synthetic_incomplete_document",
+          "content": "A proposal references a change but omits affected contracts and implementation details."
+        },
+        {
+          "id": "T17-E2",
+          "type": "synthetic_missing_evidence_register",
+          "content": "No complete dependency inventory or operational confirmation is available."
+        }
+      ],
+      "expected": {
+        "intensity": "INDETERMINADA",
+        "direction": "INDETERMINADA",
+        "reason": "Missing essential information is not evidence that the mechanism is absent."
+      }
+    },
+    {
+      "id": "T18",
+      "unit": "Synthetic elapsed-time daylight-saving test",
+      "scenario": "Compare two Europe/Madrid local timestamps across the 2026 spring daylight-saving transition.",
+      "cutoff": "2026-03-29T14:00:00+02:00",
+      "evidence": [
+        {
+          "id": "T18-E1",
+          "type": "synthetic_timestamp_pair",
+          "timezone": "Europe/Madrid",
+          "start": "2026-03-28T12:00:00+01:00",
+          "end": "2026-03-29T13:00:00+02:00",
+          "expected_elapsed_seconds": 86400
+        }
+      ],
+      "expected": {
+        "horizon": "INMEDIATO",
+        "elapsed_seconds": 86400,
+        "reason": "Compare absolute instants; preserve original offsets and IANA timezone."
+      }
+    },
+    {
+      "id": "T19",
+      "unit": "Synthetic event milestone with contradictory source timestamps",
+      "scenario": "Two sources place the same milestone on opposite sides of the 24-hour boundary.",
+      "cutoff": "2026-01-02T00:30:00Z",
+      "evidence": [
+        {
+          "id": "T19-E1",
+          "type": "synthetic_source_timestamp",
+          "source_label": "SOURCE-A",
+          "at": "2026-01-01T23:50:00Z"
+        },
+        {
+          "id": "T19-E2",
+          "type": "synthetic_source_timestamp",
+          "source_label": "SOURCE-B",
+          "at": "2026-01-02T00:10:00Z"
+        },
+        {
+          "id": "T19-E3",
+          "type": "synthetic_reference_instant",
+          "at": "2026-01-01T00:00:00Z",
+          "elapsed_seconds": [
+            85800,
+            87000
+          ]
+        }
+      ],
+      "expected": {
+        "horizon": "INDETERMINADO as a single category",
+        "compatible_categories": [
+          "INMEDIATO",
+          "CORTO"
+        ],
+        "reason": "Preserve both source timestamps and the 23 h 50 min–24 h 10 min interval; do not choose one without an approved rule."
+      }
+    }
+  ]
+}

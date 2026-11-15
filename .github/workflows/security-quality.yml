@@ -1,0 +1,194 @@
+name: Security and dependency quality gate
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**"
+      - ".github/workflows/security-quality.yml"
+      - ".github/dependabot.yml"
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "23 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-quality-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  secret-scan:
+    name: Secret scanning / Gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout full Git history
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Scan repository history for secrets
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: "false"
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+          GITLEAKS_ENABLE_SUMMARY: "true"
+          GITLEAKS_VERSION: "8.24.3"
+      - name: Verify Gitleaks detects a synthetic custom-rule canary
+        shell: bash
+        run: |
+          set -euo pipefail
+          gitleaks version
+          temp_repo="$(mktemp -d)"
+          trap 'rm -rf "$temp_repo"' EXIT
+          git -C "$temp_repo" init -q
+          git -C "$temp_repo" config user.name "SINAYXA Security Test"
+          git -C "$temp_repo" config user.email "security-test@example.invalid"
+          cat > "$temp_repo/gitleaks.toml" <<'EOF'
+          title = "SINAYXA Gitleaks regression test"
+          [[rules]]
+          id = "sinayxa-canary"
+          description = "Synthetic canary used to prove secret detection works"
+          regex = '''SINAYXA_CANARY_[A-Z0-9]{32}'''
+          secretGroup = 0
+          keywords = ["SINAYXA_CANARY_"]
+          EOF
+          printf '%s\n' 'SINAYXA_CANARY_0123456789ABCDEF0123456789ABCDEF' > "$temp_repo/canary.txt"
+          git -C "$temp_repo" add canary.txt
+          git -C "$temp_repo" commit -qm "test: synthetic secret canary"
+          set +e
+          gitleaks detect --source "$temp_repo" --config "$temp_repo/gitleaks.toml" --redact --exit-code=2 --report-format=json --report-path="$temp_repo/report.json"
+          scan_status=$?
+          set -e
+          if [ "$scan_status" -ne 2 ]; then
+            echo "::error::Gitleaks did not return the expected leak-detected exit code 2 (got $scan_status)."
+            exit 1
+          fi
+          if ! jq -e 'length > 0 and any(.[]; .RuleID == "sinayxa-canary")' "$temp_repo/report.json" >/dev/null; then
+            echo "::error::Gitleaks did not report the expected synthetic canary rule."
+            exit 1
+          fi
+          echo "Gitleaks synthetic canary detection: PASS"
+      - name: Scan complete Git history for secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          evidence_dir="${RUNNER_TEMP}/gitleaks-evidence"
+          mkdir -p "$evidence_dir"
+          gitleaks detect --source "$GITHUB_WORKSPACE" --redact --exit-code=2 --report-format=json --report-path="$evidence_dir/full-history-report.json"
+          echo "Gitleaks full-history scan: PASS"
+      - name: Upload full-history secret scan evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: gitleaks-full-history-${{ github.run_id }}
+          path: ${{ runner.temp }}/gitleaks-evidence/full-history-report.json
+          if-no-files-found: warn
+          retention-days: 90
+
+  dependency-audit:
+    name: Dependency audit / npm
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.0.0
+        with:
+          persist-credentials: false
+      - name: Verify supported Node.js runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --version
+          npm --version
+          node -e "if (Number(process.versions.node.split('.')[0]) < 22) process.exit(1)"
+      - name: Install exact locked dependency graph
+        run: npm ci --ignore-scripts
+      - name: Lint changed methodology and governance documentation
+        shell: bash
+        run: |
+          set -euo pipefail
+          markdown_files=()
+          for file in \
+            docs/news-and-events/intensity-and-time-horizons-proposal.md \
+            docs/news-and-events/intensity-and-time-horizons-test-record.md \
+            docs/news-and-events/intensity-horizons-fixture-v1.1.0-change-record.md \
+            docs/news-and-events/intensity-horizons-fixture-v1.2.0-change-record.md \
+            docs/news-and-events/intensity-horizons-semantic-design-review.md \
+            docs/news-and-events/evidence-standard-for-indicia-rumours-and-leaks.md \
+            docs/governance/single-human-ai-assisted-evaluation-protocol.md; do
+            if [[ -f "$file" ]]; then
+              markdown_files+=("$file")
+            fi
+          done
+          if [[ ${#markdown_files[@]} -eq 0 ]]; then
+            echo "::error::No scoped Markdown documents were found to lint."
+            exit 1
+          fi
+          printf 'Markdown files selected for lint:\n'
+          printf ' - %s\n' "${markdown_files[@]}"
+          npx --no-install markdownlint-cli2 --no-globs "${markdown_files[@]}"
+      - name: Audit all direct and transitive dependencies
+        shell: bash
+        run: |
+          set +e
+          npm audit --audit-level=high --json > "${RUNNER_TEMP}/npm-audit.json"
+          audit_status=$?
+          cat "${RUNNER_TEMP}/npm-audit.json"
+          if [ "$audit_status" -ne 0 ]; then
+            echo "::error::npm audit detected high/critical vulnerabilities or could not complete."
+            exit "$audit_status"
+          fi
+          echo "npm audit: no high or critical vulnerabilities."
+      - name: Upload dependency audit evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: npm-dependency-audit-${{ github.run_id }}
+          path: ${{ runner.temp }}/npm-audit.json
+          if-no-files-found: warn
+          retention-days: 90
+
+  osv-pr:
+    name: OSV dependency scan / PR
+    if: github.event_name == 'pull_request'
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@ef6dfdf01765802d5a8dbc3c39852a6128b00af0 # v2.7.0
+    with:
+      scan-args: |-
+        --include-git-root
+        -r
+        ./
+      upload-sarif: false
+      fail-on-vuln: true
+
+  osv-full:
+    name: OSV dependency scan / full
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@ef6dfdf01765802d5a8dbc3c39852a6128b00af0 # v2.7.0
+    with:
+      scan-args: |-
+        --include-git-root
+        -r
+        ./
+      upload-sarif: false
+      fail-on-vuln: true

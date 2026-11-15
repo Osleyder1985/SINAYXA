@@ -1,0 +1,305 @@
+{
+  "schema_version": "1.0.0",
+  "package_id": "SINAYXA-EVIDENCE-E01-E18-SYNTHETIC-001",
+  "status": "SYNTHETIC_TEST_FIXTURE_NOT_REAL_WORLD_EVIDENCE",
+  "source_standard": "docs/news-and-events/evidence-standard-for-indicia-rumours-and-leaks.md",
+  "scope": "Structural and rule-conformance checks only; not legal advice, source credibility scoring, empirical validation, or automated truth determination.",
+  "permitted_evidentiary_states": [
+    "NO_CORROBORADA",
+    "PARCIALMENTE_CORROBORADA",
+    "CORROBORADA",
+    "CONTRADICHA",
+    "REFUTADA",
+    "NO_RESUELTA"
+  ],
+  "cases": [
+    {
+      "id": "E01",
+      "scenario": "Una fuente anónima publica una afirmación sin evidencia documental.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "ANÓNIMA_PARA_EL_PÚBLICO",
+        "guardrail": "No elevar por atribución anónima."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E02",
+      "scenario": "Un documento atribuido a una filtración carece de autenticación.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "NO_VERIFICADA",
+        "guardrail": "POSIBLE_FILTRACIÓN no autentica el documento."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E03",
+      "scenario": "Dos medios reproducen literalmente una única publicación original.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "DESCONOCIDA",
+        "guardrail": "No contar republicaciones como corroboración independiente."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E04",
+      "scenario": "Dos referencias proceden de una fuente común identificable.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "DEPENDIENTE",
+        "guardrail": "No elevar estado por multiplicidad de referencias."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E05",
+      "scenario": "Un documento genuino contiene una afirmación no demostrada.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "AUTENTICADA",
+        "guardrail": "Autenticidad no equivale a veracidad."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E06",
+      "scenario": "Un hash coincide con la copia preservada, pero no hay prueba de autoría.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "NO_VERIFICADA",
+        "guardrail": "Hash acredita integridad desde captura, no autoría."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E07",
+      "scenario": "Una fuente primaria confirma solo la fecha de una reunión, no el acuerdo alegado.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+        "document_authenticity": "AUTENTICADA",
+        "guardrail": "Limitar corroboración al componente confirmado."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E08",
+      "scenario": "Dos fuentes secundarias con independencia no demostrada repiten una afirmación.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "DESCONOCIDA",
+        "guardrail": "No asumir independencia."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E09",
+      "scenario": "Una autoridad confirma oficialmente una afirmación concreta.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "CORROBORADA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "Limitar el estado al contenido efectivamente confirmado."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E10",
+      "scenario": "Evidencia directa contradice un detalle, pero no resuelve el resto.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "CONTRADICHA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "No extender contradicción a toda la publicación."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E11",
+      "scenario": "Evidencia suficiente refuta la proposición concreta.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "REFUTADA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "Registrar proposición y evidencia refutatoria."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E12",
+      "scenario": "No existe confirmación ni evidencia suficiente para resolver la afirmación.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "NO_RESUELTA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "Ausencia de confirmación no es falsedad."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E13",
+      "scenario": "La publicación aparece días antes del anuncio oficial que confirma parte del hecho.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "NO_VERIFICADA",
+        "guardrail": "No reescribir el estado histórico previo al anuncio."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E14",
+      "scenario": "El movimiento del precio coincide temporalmente con un rumor.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "Precio no es corroboración probatoria."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E15",
+      "scenario": "El material parece obtenido mediante acceso no autorizado.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "NO_RESUELTA",
+        "document_authenticity": "NO_DETERMINADO",
+        "guardrail": "Detener adquisición y escalado; revisión legal."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E16",
+      "scenario": "Una filtración anticipa un acuerdo, pero el documento solo recoge una propuesta preliminar.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+        "document_authenticity": "AUTENTICADA",
+        "guardrail": "No convertir propuesta en acuerdo ejecutado."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E17",
+      "scenario": "Dos medios publican versiones incompatibles y citan fuentes anónimas distintas.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "CONTRADICHA",
+        "document_authenticity": "DESCONOCIDA",
+        "guardrail": "Mantener contradicción y estado no resuelto cuando no pueda resolverse."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E18",
+      "scenario": "Una publicación se rectifica y elimina un dato concreto.",
+      "nature": "ASSERTION_OR_SIGNAL",
+      "expected": {
+        "evidentiary_status": "NO_RESUELTA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "Registrar la rectificación como acto atribuido, preservar la versión anterior y no inferir corroboración ni refutación del contenido eliminado."
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    }
+  ]
+}
