@@ -118,7 +118,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | T11 | 24 h → INMEDIATO; 7 × 24 h → CORTO; 90 × 24 h → MEDIO | NOT_EXECUTED | Fronteras inclusivas aceptadas: ≤24 h INMEDIATO; >24 h–≤7×24 h CORTO; >7×24 h–≤90×24 h MEDIO; >90×24 h LARGO (decisión humana asistida por IA; desviación de secuencia) | Sección 21; ejecución conforme al protocolo pendiente |
 | T12 | Un segundo después de cada frontera → horizonte siguiente | NOT_EXECUTED | 24 h + 1 s → CORTO; 7×24 h + 1 s → MEDIO; 90×24 h + 1 s → LARGO (decisión humana asistida por IA; desviación de secuencia) | Sección 22; ejecución conforme al protocolo pendiente |
 | T13 | Fecha sin hora/zona: no inventar timestamp ni categoría exacta; horizonte INDETERMINADO | NOT_EXECUTED | DATE_ONLY_PRESERVED; horizonte INDETERMINADO; conservar precisión original (decisión humana asistida por IA; desviación de secuencia) | Sección 23; ejecución conforme al protocolo pendiente |
-| T14 | Anuncio, aprobación, entrada en vigor e implementación con hitos/relojes separados | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T14 | Anuncio, aprobación, entrada en vigor e implementación son cuatro hitos/relojes separados | NOT_EXECUTED | Cuatro hitos independientes; timestamps, fuentes, zona horaria y verificación por separado; ausencias no inferidas (decisión humana asistida por IA; desviación de secuencia) | Sección 24; ejecución conforme al protocolo pendiente |
 | T15 | Intervalo que cruza categorías: conservar intervalo; categoría única INDETERMINADO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T16 | Evaluación primaria de un humano + crítica IA separada; diferencias documentadas sin promediar ni afirmar acuerdo | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T17 | INDETERMINADA, no I0, cuando no se puede confirmar ni descartar mecanismo material | NOT_EXECUTED | PENDIENTE | PENDIENTE |
@@ -858,3 +858,56 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 23.4 Resultado de auditoría
 
 La decisión **DATE_ONLY_PRESERVED / horizonte INDETERMINADO** queda documentada como decisión humana asistida. No se inventaron hora, zona horaria ni timestamp, y no se asignó una categoría temporal exacta que la evidencia no permite sostener. **T13 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+
+## 24. Registro de decisión asistida — T14
+
+### 24.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T14 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Separación de hitos temporales de un acontecimiento |
+| Evidencia examinada | T14: anuncio, aprobación, entrada en vigor e implementación |
+| Decisión humana comunicada | Tratar los cuatro hitos como relojes independientes y registrar cada uno por separado |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 24.2 Decisión y registro de los cuatro relojes
+
+El propietario aceptó que los siguientes hitos no son intercambiables y deben conservarse como eventos temporales separados:
+
+1. **Anuncio:** momento en que la información se comunica públicamente.
+2. **Aprobación:** momento en que la autoridad o entidad competente adopta formalmente la decisión.
+3. **Entrada en vigor:** momento desde el cual la medida o decisión produce efectos formales.
+4. **Implementación:** momento en que la medida se ejecuta efectivamente en los sistemas, procesos o actividades afectados.
+
+Para cada hito se debe registrar, cuando esté disponible:
+
+- Timestamp original y precisión declarada.
+- Zona horaria o referencia temporal explícita.
+- Fuente documental y localizador de evidencia.
+- Estado de verificación.
+- Unidad, alcance y población a la que corresponde.
+- Relación con los otros hitos, sin presumir que ocurren simultáneamente.
+
+No se debe asumir que el anuncio equivale a aprobación, que la aprobación equivale a entrada en vigor ni que la entrada en vigor demuestra implementación. Tampoco se debe inferir que la implementación comenzó en la fecha anunciada.
+
+Cuando un hito no esté documentado, debe conservarse como desconocido o no verificado según corresponda. No se debe completar con una fecha inferida, copiar el timestamp de otro hito ni convertir una fecha de calendario sin hora y zona en un instante artificial. Si las fuentes discrepan, se preservará la discrepancia y se documentará su alcance.
+
+La cronología resultante debe permitir que los análisis posteriores distingan entre anticipación informativa, decisión formal, efecto jurídico u operativo y ejecución efectiva. La mera proximidad temporal entre cualquiera de estos hitos y un movimiento de mercado no demuestra causalidad.
+
+### 24.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción no cumple la secuencia de evaluación primaria humana sellada antes de la crítica de IA establecida en el protocolo de evaluador único.
+
+La aceptación se conserva como **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T14.
+
+Para completar una ejecución formal conforme al protocolo, será necesaria una nueva evaluación con el paquete congelado: primero se registra y sella la evaluación humana sin conocer la salida de IA y, después, se realiza la crítica auxiliar separada. La nueva ejecución se conservará como un registro distinto, sin sobrescribir esta decisión.
+
+### 24.4 Resultado de auditoría
+
+La separación de anuncio, aprobación, entrada en vigor e implementación queda documentada como decisión humana asistida. Los cuatro hitos deben conservar fuentes y metadatos temporales propios; la ausencia o discrepancia de uno no se resuelve copiando otro. **T14 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
