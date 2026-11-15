@@ -89,7 +89,8 @@
         "claim_type": "RUMOUR",
         "evidentiary_status": "NO_CORROBORADA",
         "potential_harm": "POTENTIALLY_GRAVE",
-        "scope_verified": false
+        "scope_verified": false,
+        "affected_scope": "TO_BE_DETERMINED"
       },
       "expected": {
         "decision": "CREATE_WATCH_ALERT_IF_GUARDS_PASS",

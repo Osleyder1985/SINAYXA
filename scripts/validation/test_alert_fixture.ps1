@@ -33,6 +33,8 @@ try {
     Invoke-ExpectedFailure -Name 'rumour-upgrade' -Data $mut -ExpectedMessage 'A04 must keep the rumour uncorroborated'
     $mut = Copy-Fixture; $mut.cases[3].expected.visible_label = 'CONFIRMADA'
     Invoke-ExpectedFailure -Name 'rumour-label-hidden' -Data $mut -ExpectedMessage 'A04 must keep the rumour uncorroborated'
+    $mut = Copy-Fixture; $mut.cases[3].input.affected_scope = $null
+    Invoke-ExpectedFailure -Name 'rumour-scope-omitted' -Data $mut -ExpectedMessage 'A04 must identify the affected scope'
     $mut = Copy-Fixture; $mut.cases[1].input.independent_origins_proven = $true
     Invoke-ExpectedFailure -Name 'syndication-as-independent' -Data $mut -ExpectedMessage 'A02 must not count syndicated republications'
     $mut = Copy-Fixture; $mut.cases[2].expected.evidence_scope = 'ALL_CLAIMS_AND_CONSEQUENCES'
