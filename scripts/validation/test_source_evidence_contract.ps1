@@ -325,10 +325,12 @@ try {
         @{ Name='Independent with two versions of the same source'; Apply={
             param($x)
             Initialize-IndependentPathsForFixture -Package $x
-            $sourceId = $x.evaluation_units[0].source_id
-            $x.evaluation_units[1].source_id = $sourceId
-            $versionId = $x.evaluation_units[1].source_version_id
-            ($x.source_versions | Where-Object { $_.source_version_id -eq $versionId })[0].source_id = $sourceId
+            $sourceId = $x.evaluation_units[0]['source_id']
+            $x.evaluation_units[1]['source_id'] = $sourceId
+            $versionId = $x.evaluation_units[1]['source_version_id']
+            $matchingVersion = @($x.source_versions | Where-Object { $_['source_version_id'] -eq $versionId })
+            if ($matchingVersion.Count -ne 1) { throw "Expected exactly one source version for evaluation unit '$versionId'." }
+            $matchingVersion[0]['source_id'] = $sourceId
             $x.independence_assessments[0].status='INDEPENDIENTE'
             $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b')
             $x.independence_assessments[0].human_review_status='REVIEWED'
@@ -413,7 +415,7 @@ try {
     )
     foreach ($mutation in $mutations) {
         $copy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
-        & $mutation.Apply $copy
+        try { & $mutation.Apply $copy } catch { throw "Mutation setup failed: $($mutation.Name). $($_.Exception.Message)" }
         ConvertTo-Json -InputObject $copy -Depth 100 | Set-Content -LiteralPath $temp -Encoding utf8
         $rejected = $false
         try { & $validator -FixturePath $temp | Out-Null } catch { $rejected = $true }
