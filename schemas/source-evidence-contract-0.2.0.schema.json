@@ -524,7 +524,16 @@
           ]
         },
         "source_subtype": {
-          "$ref": "#/$defs/nonEmpty"
+          "$ref": "#/$defs/nonEmpty",
+          "enum": [
+            "REGISTRO_ORIGINAL",
+            "TESTIMONIO_PRIMERA_MANO",
+            "INVESTIGACION_SECUNDARIA",
+            "ANALISIS_TECNICO",
+            "COMENTARIO",
+            "COMPILACION",
+            "REPRODUCCION"
+          ]
         },
         "knowledge_basis": {
           "enum": [
@@ -540,10 +549,25 @@
           ]
         },
         "institutional_character": {
-          "$ref": "#/$defs/nonEmpty"
+          "$ref": "#/$defs/nonEmpty",
+          "enum": [
+            "OFICIAL",
+            "NO_INSTITUCIONAL",
+            "DESCONOCIDO"
+          ]
         },
         "dissemination": {
-          "$ref": "#/$defs/nonEmpty"
+          "$ref": "#/$defs/nonEmpty",
+          "enum": [
+            "ORIGINAL",
+            "SINDICADA",
+            "REPUBLICADA",
+            "TRADUCIDA",
+            "RESUMIDA",
+            "ANÁLISIS_PROPIO",
+            "COMPILACIÓN",
+            "DESCONOCIDA"
+          ]
         }
       }
     },
