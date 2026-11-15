@@ -30,9 +30,9 @@ Completar antes de ejecutar cada ciclo:
 
 No iniciar una ejecución reproducible si la unidad, el escenario, el corte o el contenido del paquete no están definidos. Conservar timestamps originales, offsets, zona IANA cuando esté disponible, fuente y precisión. No completar datos ausentes mediante suposiciones.
 
-## 2.1 Paquete sintético vigente v1.2.0
+## 2.1 Paquete histórico v1.2.0 (preservado)
 
-El paquete vigente de entradas sintéticas para T01–T19 está en [t01-t19-synthetic-evidence-v1.2.0.json](../../tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence-v1.2.0.json). Su identificador es `SINAYXA-IH-T01-T19-SYNTHETIC-003`, versión `1.2.0`. Todos los nombres, acontecimientos, registros y marcas temporales son ficticios y sirven exclusivamente para probar la aplicación de las reglas. Los paquetes v1.0.0 y v1.1.0 citados en las secciones 2.2, 2.3 y 8 son registros históricos y no son el objetivo predeterminado actual.
+El paquete histórico de entradas sintéticas para T01–T19 está en [t01-t19-synthetic-evidence-v1.2.0.json](../../tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence-v1.2.0.json). Su identificador es `SINAYXA-IH-T01-T19-SYNTHETIC-003`, versión `1.2.0`. Todos los nombres, acontecimientos, registros y marcas temporales son ficticios y sirven exclusivamente para probar la aplicación de las reglas. Los paquetes v1.0.0 y v1.1.0 citados en las secciones 2.2, 2.3 y 8 son registros históricos y no son el objetivo predeterminado actual.
 
 El paquete vigente contiene 19 casos ordenados, unidades, escenarios, cortes, elementos de evidencia y resultados esperados. Los resultados esperados son oráculos de prueba, no resultados obtenidos. T16 define el flujo de un evaluador humano único con crítica auxiliar de IA; no simula respuestas humanas o de IA ni acredita ejecución del protocolo.
 
@@ -1124,3 +1124,12 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 29.4 Resultado de auditoría
 
 La clasificación única **INDETERMINADO**, con horizontes compatibles **INMEDIATO** y **CORTO**, queda documentada porque el intervalo de evidencia cruza la frontera de 24 horas. Las observaciones originales permanecen preservadas; no se promedian ni se resuelve arbitrariamente la discrepancia. **T19 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+## 2.5 Paquete sintético vigente v1.3.0 — T20 antigüedad de hitos pasados
+
+El paquete vigente se conserva en `tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence-v1.3.0.json` (nombre histórico del archivo T01–T19 conservado por compatibilidad; contiene ahora T01–T20). Identificador `SINAYXA-IH-T01-T19-SYNTHETIC-004`, versión `1.3.0`, 20 casos ordenados. v1.2.0 permanece inmutable y se conserva como antecedente.
+
+T20 registra un hito ocurrido el `2026-01-01T09:30:00Z` y una fecha de corte `2026-01-10T12:00:00Z`: antigüedad exacta de 786.600 segundos. El resultado esperado es `DESCRIPTIVE_ONLY`; el horizonte futuro es `NOT_APPLICABLE`, no se asigna ninguna categoría INMEDIATO/CORTO/MEDIO/LARGO. El caso no introduce umbrales de impacto ni resultados de mercado.
+
+El validador actualizado comprueba el linaje del paquete v1.2.0, 20 IDs únicos y ordenados, cronología no negativa, cálculo exacto de antigüedad y ausencia de clasificación de horizonte en T20. Las pruebas negativas incorporan mutaciones para antigüedad incorrecta, etiqueta de horizonte indebida y evento posterior al corte. La CI debe ejecutar esta versión antes de registrar cualquier PASS. La validación del fixture no constituye ejecución metodológica humana de T01–T20 ni validación empírica.
