@@ -46,7 +46,36 @@ La intensidad se asigna mediante juicio estructurado contra los anclajes observa
 | I4 | CRÍTICA | El mecanismo podría comprometer la continuidad, solvencia, seguridad, integridad, acceso esencial o viabilidad de la exposición evaluada, o producir una alteración sistémica documentable. Requiere evidencia sólida de la exposición y de la severidad potencial; no se asigna por titulares alarmistas. |
 | — | INDETERMINADA | No hay evidencia suficiente para distinguir niveles, existen contradicciones relevantes o faltan datos esenciales. Debe especificarse qué información falta. |
 
-### 3.1 Reglas de asignación
+### 3.1 Matriz de comprobación de evidencia
+
+Antes de asignar I1–I4, documentar cada dimensión por separado. Esta matriz es una lista de comprobación cualitativa: no es una escala, no suma puntos y no establece pesos.
+
+| Dimensión | Pregunta de comprobación | Evidencia que debe conservarse | Tratamiento si no está acreditada |
+| --- | --- | --- | --- |
+| Exposición | ¿Qué activo, entidad, protocolo, usuarios, volumen, jurisdicción o infraestructura queda realmente expuesto? ¿Qué parte del total representa, si existe un denominador verificable? | Unidad y población expuesta, alcance conocido, fuente, fecha de referencia y límites de los datos | No describir la exposición como amplia o central; limitar el alcance o declarar indeterminación |
+| Mecanismo | ¿Qué cadena concreta conecta el acontecimiento con un cambio en la exposición? | Secuencia causal hipotética, dependencias, condiciones necesarias y evidencia de cada eslabón | No elevar intensidad por la mera coexistencia temporal del acontecimiento y un movimiento de mercado |
+| Magnitud potencial | ¿Qué condición económica, operativa, regulatoria, de seguridad, liquidez, oferta, demanda o acceso podría cambiar y con qué evidencia? | Medidas observadas, documentos, alcance del cambio y comparación pertinente, cuando existan | No inventar cantidades ni convertir adjetivos de una fuente en magnitud demostrada |
+| Persistencia | ¿Durante cuánto tiempo podría mantenerse el efecto y qué condición lo terminaría? | Duración observada o calendario/condición documentada; incertidumbres explícitas | No asumir permanencia; registrar duración desconocida o condicionada |
+| Reversibilidad | ¿Puede revertirse el efecto? ¿Quién puede hacerlo y mediante qué procedimiento o coste conocido? | Mecanismo de reversión, autoridad/actor, pasos, restricciones y evidencia | No llamar reversible o irreversible sin fundamento; dejarlo indeterminado |
+| Alternativas y mitigaciones | ¿Existen sustitutos, rutas alternativas, recuperación, cobertura o mitigaciones que reduzcan la exposición? | Alternativas realmente disponibles, capacidad, límites y evidencia de acceso/uso | No presumir que una alternativa existe o es efectiva; señalar la laguna |
+
+La ficha debe conservar también evidencia contraria, contradicciones, supuestos y datos ausentes. Una dimensión no documentada no se considera satisfecha por defecto.
+
+### 3.2 Registro explicativo de la asignación
+
+Toda clasificación I1–I4 debe acompañarse de un registro que permita a otra persona reconstruir el razonamiento sin adivinar los criterios aplicados. Como mínimo:
+
+- unidad de análisis y escenario al que se aplica la clasificación;
+- evidencia y referencia concreta para cada dimensión de la matriz, incluida la fecha de corte;
+- nivel propuesto y anclaje observable que se considera satisfecho;
+- explicación de por qué el nivel inmediatamente inferior no representa adecuadamente la evidencia;
+- explicación de por qué el nivel inmediatamente superior no está justificado por la evidencia disponible;
+- contradicciones, condiciones pendientes, alternativas, limitaciones y datos ausentes;
+- responsable y fecha/hora de evaluación.
+
+No se exige una explicación artificial cuando los niveles adyacentes no puedan distinguirse con la evidencia disponible. En ese caso, registrar la ambigüedad y usar INDETERMINADA, o conservar explícitamente la incertidumbre si una clasificación provisional está permitida por el flujo que finalmente se apruebe. No resolver desacuerdos entre dimensiones mediante suma, promedio, ponderación ni selección automática del valor máximo.
+
+### 3.3 Reglas de asignación
 
 - La unidad evaluada debe quedar explícita: activo concreto, protocolo, entidad, infraestructura, sector o mercado agregado. Una clasificación para un protocolo no se extrapola automáticamente a todo el mercado.
 - Se consideran conjuntamente, sin ponderación matemática: alcance de la exposición, centralidad del mecanismo, magnitud del cambio respaldado, duración/persistencia plausible, reversibilidad y disponibilidad de alternativas.
@@ -72,7 +101,23 @@ Se propone una convención común de ventanas para facilitar el registro y la co
 
 **Punto de referencia temporal:** cada horizonte debe indicar su evento de referencia (por ejemplo, primera divulgación pública, decisión oficial, entrada en vigor, activación técnica o ejecución). No se mezclan fechas de publicación, detección, ocurrencia y vigencia.
 
-### 4.1 Tres relojes distintos
+### 4.1 Referencia temporal y conservación de timestamps
+
+Cada fecha/hora utilizada para asignar un horizonte debe conservar su procedencia y contexto temporal. El registro mínimo propuesto es:
+
+- instante de referencia en formato ISO 8601, con offset explícito (por ejemplo, `2026-11-15T14:30:00Z` o `2026-11-15T09:30:00-05:00`);
+- identificador de zona horaria IANA cuando la fuente o el calendario la especifique (por ejemplo, `America/New_York`); el offset por sí solo no identifica todas las reglas históricas de una zona;
+- tipo de instante: ocurrencia del acontecimiento, publicación oficial, primera detección, ejecución/entrada en vigor, inicio de transmisión o inicio/fin de la ventana de reacción del precio;
+- fuente y evidencia que respaldan el instante, precisión realmente publicada y estado temporal (confirmado, estimado, programado, intervalo o desconocido);
+- instante de captura/registro y zona horaria del sistema, sin sustituir con él el instante del acontecimiento.
+
+No convertir fechas sin hora en timestamps exactos, no asumir medianoche ni inferir una zona horaria que la fuente no indique. Si solo se conoce una fecha, conservarla como fecha; si se conoce un intervalo, conservar ambos extremos y su incertidumbre. Cuando se normalice a UTC, preservar también el valor original, el offset/zona de origen y la regla de conversión aplicada.
+
+Los siguientes instantes deben mantenerse diferenciados cuando existan: (a) cuándo ocurrió el hecho; (b) cuándo se publicó oficialmente; (c) cuándo fue detectado por primera vez por el sistema o analista; (d) cuándo se ejecutó, activó o entró en vigor; (e) cuándo comenzó cada etapa de transmisión; y (f) cuándo empieza y termina la ventana de observación del precio. Una publicación posterior no reemplaza la hora de ocurrencia, y una detección tardía no debe presentarse como inicio del acontecimiento.
+
+Si la evidencia temporal es contradictoria, incompleta o solo aproximada, registrar la discrepancia y no elegir una hora exacta sin justificación. El horizonte se calcula desde un instante de referencia explícitamente identificado; si no existe referencia fiable, usar INDETERMINADO.
+
+### 4.2 Tres relojes distintos
 
 1. **Reloj del acontecimiento:** tiempo hasta el hito previsto o tiempo transcurrido desde el hito ocurrido. Se apoya en fechas y ventanas documentadas.
 2. **Reloj de transmisión:** tiempo que el mecanismo necesita para modificar la exposición. Debe justificarse por las etapas reales del proceso (condición legal, despliegue, integración, liquidación, cambio de oferta, etc.).
@@ -130,6 +175,9 @@ Tampoco define puntuación compuesta, pesos, probabilidad, retorno esperado, se�
 
 ## 9. Criterios de aceptación propuestos para el Issue #14
 
+- [ ] La matriz cualitativa de exposición, mecanismo, magnitud potencial, persistencia, reversibilidad y alternativas se documenta sin puntuaciones ni ponderaciones.
+- [ ] Toda asignación I1–I4 explica el anclaje satisfecho y por qué no corresponden los niveles adyacentes; la ambigüedad no se resuelve mediante cálculos arbitrarios.
+- [ ] Los instantes temporales conservan ISO 8601 con offset, zona horaria identificada cuando esté disponible, tipo de instante, fuente y precisión; no se inventan horas ni zonas.
 - [ ] El propietario aprueba o modifica los niveles I0–I4 y sus anclajes observables.
 - [ ] El propietario aprueba o modifica la regla de indeterminación y confirma que ausencia de evidencia no equivale a impacto nulo.
 - [ ] El propietario aprueba o modifica las ventanas INMEDIATO (hasta 24 h), CORTO (>24 h–7 días), MEDIO (>7–90 días) y LARGO (>90 días), entendidas como convenciones operativas.
