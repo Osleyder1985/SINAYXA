@@ -129,6 +129,7 @@ Medir por fuente y mecanismo:
 Publicar N, periodo, zona horaria, exclusiones y método de cálculo. No comparar fuentes con definiciones de timestamp o cobertura incompatibles.
 
 Sesgos a controlar:
+
 - Medir solo elementos detectados produce sesgo de supervivencia y no revela lo que nunca se detectó.
 - La hora de primera captura depende del intervalo y disponibilidad del mecanismo.
 - Cachés intermedias pueden separar hora observada y hora de publicación.
@@ -177,6 +178,7 @@ Cada cambio registra causa, intervalo afectado, evidencia, responsable, impacto 
 ## 11. Autorización y condiciones de uso
 
 Antes de habilitar una fuente, revisar y conservar evidencia de:
+
 - términos vigentes y fecha/versión;
 - permiso para automatización y frecuencia;
 - autenticación y cuotas;
