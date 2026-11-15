@@ -15,13 +15,15 @@ Windows PowerShell 5.1 is not a mandatory parallel target. Add compatibility tes
 The GitHub Actions workflow `.github/workflows/powershell-validation.yml` is responsible for:
 
 - Installing and verifying PowerShell 7.6.6.
-- Running PSScriptAnalyzer 1.24.0 against `scripts/validation`.
+- Parsing every tracked PowerShell source file (`.ps1` and `.psm1`) with the PowerShell language parser.
+- Running PSScriptAnalyzer 1.24.0 recursively across the repository's PowerShell source files.
 - Blocking on analyzer findings with severity `Error`; non-error findings remain visible for review and are not silently treated as blockers.
-- Running the versioned synthetic-fixture validator.
-- Running its positive control and negative mutation tests.
+- Validating the versioned synthetic fixture, including schema, ordered unique case IDs, required fields, timestamp offsets, elapsed-time arithmetic, and versioned semantic contracts.
+- Running a positive control and ten negative mutation tests, including duplicate IDs, malformed date-only input, invalid timezone offsets, and daylight-saving elapsed-time inconsistencies.
+- Keeping test artifacts isolated in a unique temporary directory and removing them in a `finally` block.
 - Recording the exact source commit and fixture SHA-256 in the job log.
 
-The current validator harness is a project-specific PowerShell test script. Pester is not added as a dependency until the repository contains Pester-native test suites that benefit from it.
+The current validator harness is a project-specific PowerShell test script. Pester is not added as a dependency until the repository contains Pester-native test suites that benefit from it. Static analysis findings with severity `Error` block the job; non-error findings remain visible for triage and are not silently promoted to blockers.
 
 ## 3. Triggers
 
