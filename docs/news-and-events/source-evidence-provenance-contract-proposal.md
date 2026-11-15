@@ -396,7 +396,6 @@ La aprobación de esta versión requiere que CI valide el esquema formal, ejecut
 
 Estas resoluciones son parte de la propuesta 0.2.0 y no constituyen aprobación metodológica ni autorización para tratar datos reales. La aprobación expresa del propietario sigue siendo un criterio de salida de #78.
 
-
 ## 15. Identidad de versiones y alcance exacto de las evaluaciones (v0.2.0)
 
 Los identificadores estables de una afirmación o componente no bastan para reconstruir qué formulación exacta fue evaluada. Por ello, cada versión posee un identificador opaco propio:
