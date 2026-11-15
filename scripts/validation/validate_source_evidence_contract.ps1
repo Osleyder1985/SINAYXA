@@ -191,6 +191,20 @@ foreach ($factor in $package.factor_assessments) {
         Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Factor assessment references unknown evidence.'
     }
 }
+$expectedFactorDimensions = @(
+    'RELATION_WITH_FACT','ACCESS_AND_PROXIMITY','SUBJECT_COMPETENCE','TRANSPARENCY_TRACEABILITY',
+    'RELEVANT_ACCURACY_HISTORY','CORRECTIONS_ACCOUNTABILITY','INCENTIVES_CONFLICTS',
+    'INTERNAL_CONSISTENCY','CONTRARY_EVIDENCE','TEMPORAL_ADEQUACY'
+)
+foreach ($unit in $package.evaluation_units) {
+    $unitFactors = @($package.factor_assessments | Where-Object { $_.assessment_unit_id -eq $unit.assessment_unit_id })
+    Test-Condition ($unitFactors.Count -eq $expectedFactorDimensions.Count) "Evaluation unit '$($unit.assessment_unit_id)' must contain exactly ten factor assessments."
+    $actualDimensions = @($unitFactors.dimension | Sort-Object -Unique)
+    $missingDimensions = @($expectedFactorDimensions | Where-Object { $_ -notin $actualDimensions })
+    $unexpectedDimensions = @($actualDimensions | Where-Object { $_ -notin $expectedFactorDimensions })
+    Test-Condition ($missingDimensions.Count -eq 0 -and $unexpectedDimensions.Count -eq 0) "Evaluation unit '$($unit.assessment_unit_id)' does not implement the exact #16 factor catalogue."
+}
+
 foreach ($assessment in $package.independence_assessments) {
     Test-Condition (Test-HasRef $claimIds ([string]$assessment.claim_id)) 'Independence assessment references an unknown claim.'
     Test-Condition (Test-HasRef $componentIds ([string]$assessment.claim_component_id)) 'Independence assessment references an unknown component.'
