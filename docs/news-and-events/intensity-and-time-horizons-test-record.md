@@ -1129,7 +1129,7 @@ La clasificación única **INDETERMINADO**, con horizontes compatibles **INMEDIA
 
 ## 2.5 Paquete sintético vigente v1.3.0 — T20 antigüedad de hitos pasados
 
-El paquete vigente se conserva en `tests/fixtures/methodology/intensity-horizons/t01-t20-synthetic-evidence-v1.3.0.json` (nombre histórico del archivo T01–T19 conservado por compatibilidad; contiene ahora T01–T20). Identificador `SINAYXA-IH-T01-T19-SYNTHETIC-004`, versión `1.3.0`, 20 casos ordenados. v1.2.0 permanece inmutable y se conserva como antecedente.
+El paquete vigente se conserva en `tests/fixtures/methodology/intensity-horizons/t01-t20-synthetic-evidence-v1.3.0.json` (nombre histórico del archivo T01–T19 conservado por compatibilidad; contiene ahora T01–T20). Identificador `SINAYXA-IH-T01-T20-SYNTHETIC-004`, versión `1.3.0`, 20 casos ordenados. v1.2.0 permanece inmutable y se conserva como antecedente.
 
 T20 registra un hito ocurrido el `2026-01-01T09:30:00Z` y una fecha de corte `2026-01-10T12:00:00Z`: antigüedad exacta de 786.600 segundos. El resultado esperado es `DESCRIPTIVE_ONLY`; el horizonte futuro es `NOT_APPLICABLE`, no se asigna ninguna categoría INMEDIATO/CORTO/MEDIO/LARGO. El caso no introduce umbrales de impacto ni resultados de mercado.
 
