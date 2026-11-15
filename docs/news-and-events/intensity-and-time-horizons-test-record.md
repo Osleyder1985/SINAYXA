@@ -123,7 +123,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | T13 | Fecha sin hora/zona: no inventar timestamp ni categoría exacta | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T14 | Anuncio, aprobación, entrada en vigor e implementación con hitos/relojes separados | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T15 | Intervalo que cruza categorías: conservar intervalo; categoría única INDETERMINADO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
-| T16 | Dos evaluadores humanos independientes; discrepancia registrada y resuelta sin promediar | BLOCKED | PENDIENTE | PENDIENTE |
+| T16 | Evaluación primaria de un humano + crítica IA separada; diferencias documentadas sin promediar ni afirmar acuerdo | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T17 | INDETERMINADA, no I0, cuando no se puede confirmar ni descartar mecanismo material | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T18 | Exactamente 24 h reales durante cambio horario → INMEDIATO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T19 | Conservar fuentes e intervalo 23 h 50 min–24 h 10 min; categoría única INDETERMINADO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
@@ -153,21 +153,20 @@ Duplicar esta ficha para cada ejecución de T01–T19. No sustituir un registro 
 | Justificación del estado | PENDIENTE |
 | Fecha/hora de registro | PENDIENTE |
 
-## 6. Requisitos adicionales para T16
+## 6. Requisitos adicionales para T16 — protocolo de evaluador único
 
-T16 permanece **BLOCKED** hasta que existan dos evaluadores humanos realmente independientes. Ambos deben recibir el mismo paquete congelado, la misma unidad, el mismo escenario y la misma fecha de corte. Deben emitir sus evaluaciones por separado antes de conocer la respuesta del otro.
+T16 deja de estar bloqueado por la ausencia de una segunda persona. En SINAYXA existe un único evaluador humano responsable: el propietario. La ejecución se realiza conforme a [single-human-ai-assisted-evaluation-protocol.md](../governance/single-human-ai-assisted-evaluation-protocol.md).
 
-Registrar para cada evaluador:
+Secuencia obligatoria:
 
-- Identificador no ambiguo del evaluador y declaración de independencia.
-- Confirmación de que recibió exactamente el mismo paquete (hash).
-- Fecha/hora de inicio y cierre.
-- Resultado original sin conciliación previa.
-- Diferencias por dimensión, evidencia o interpretación.
-- Resolución posterior, responsable y cambio de regla/anclaje, si procede.
-- Repetición de la evaluación cuando se modifique la regla.
+1. Congelar unidad, escenario, corte, propuesta, protocolo y paquete; registrar el SHA-256.
+2. El propietario completa y sella la evaluación primaria humana antes de consultar la crítica de IA.
+3. Una IA recibe el mismo paquete sin la conclusión humana, preferiblemente en un contexto aislado, y produce una crítica estructurada con referencias a IDs de evidencia.
+4. Registrar producto/modelo/versión cuando estén disponibles, fecha/hora, prompt, hash del paquete, aislamiento y limitaciones. Los metadatos no disponibles se marcan `NOT_AVAILABLE`.
+5. Comparar la crítica con la evaluación sellada; clasificar diferencias y documentar la decisión del propietario por cada hallazgo.
+6. Si una diferencia revela una regla defectuosa, crear una versión metodológica nueva y repetir los casos afectados. Nunca sobrescribir la evaluación previa.
 
-No usar al mismo evaluador en dos roles, autoevaluación, una respuesta simulada ni una evaluación generada por IA para completar el segundo puesto. No calcular acuerdo interevaluador ni afirmar consenso si no se ha realizado la comparación válida.
+**Límite:** la IA no es un segundo evaluador humano, no tiene voto y no demuestra independencia estadística. T16 no mide acuerdo interevaluador, consenso humano ni fiabilidad interevaluador. Si la crítica de IA no se ejecuta, T16 permanece NOT_EXECUTED; la falta de un segundo humano no es motivo para BLOCKED.
 
 ## 7. Cierre de una ejecución
 
@@ -176,7 +175,7 @@ Una ejecución de la batería solo puede considerarse completa cuando:
 1. T01–T19 tienen estado terminal justificado (PASS, FAIL, BLOCKED o NOT_APPLICABLE); los BLOCKED deben explicar la dependencia pendiente.
 2. Cada PASS/FAIL contiene entradas, procedimiento, resultado obtenido y evidencia rastreable.
 3. Las discrepancias han sido documentadas y no ocultadas mediante promedios o cambios retrospectivos.
-4. T16 se ha ejecutado con dos evaluadores humanos independientes o permanece explícitamente BLOCKED; si sigue bloqueado, no afirmar validación interevaluador completa.
+4. T16 se ha ejecutado conforme al protocolo de evaluador único o permanece NOT_EXECUTED; nunca afirmar validación interevaluador ni consenso humano.
 5. Se conserva el paquete congelado y los hashes que permiten reproducir la evaluación.
 6. Cualquier modificación de la propuesta crea una nueva versión y exige identificar qué casos deben repetirse.
 
@@ -217,3 +216,37 @@ Resultado real informado:
 - `git status --short`: vacío.
 
 **Alcance del PASS:** integridad estructural del fixture v1.1.0 y comprobaciones temporales deterministas. No acredita la corrección semántica de las clasificaciones esperadas de T01–T19, ni ejecución formal de esos casos, ni acuerdo entre evaluadores. La matriz de ejecución permanece sin cambios: T01–T15 y T17–T19 NOT_EXECUTED; T16 BLOCKED.
+
+
+## 9. Fixture sintético v1.2.0 — adaptación de T16 al proyecto de un único humano
+
+### Identificación
+
+| Campo | Valor |
+| --- | --- |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión | `1.2.0` |
+| Archivo | `tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence-v1.2.0.json` |
+| Paquete anterior | `SINAYXA-IH-T01-T19-SYNTHETIC-002` v1.1.0 |
+| SHA-256 del paquete anterior | `E685D6BB4459F5A580ABFAC11979D4FCABF385EE7856EC28C16541C2AD05948C` |
+| Estado de ejecución T16 | NOT_EXECUTED |
+
+### Cambio de T16
+
+La versión 1.2.0 conserva los 19 casos y los datos históricos de T01–T15 y T17–T19. T16 se redefine para comprobar un flujo viable con un solo evaluador humano:
+
+- el propietario registra y sella la evaluación primaria;
+- después, una IA realiza una crítica estructurada del mismo paquete sin recibir la conclusión humana;
+- se registra la procedencia de la IA y cualquier limitación de aislamiento;
+- el propietario resuelve y documenta los hallazgos;
+- no se promedian resultados ni se afirma acuerdo interevaluador.
+
+La versión 1.1.0 y su hash permanecen inmutables. La nueva versión no contiene respuestas humanas o de IA simuladas: solo define el proceso esperado.
+
+### Validador
+
+`validate_intensity_horizon_fixture.ps1` admite las versiones 1.0.0, 1.1.0 y 1.2.0. Para 1.2.0 comprueba el linaje del paquete y los campos de contrato de T16. El resultado del validador solo acreditará estructura y presencia de salvaguardas; no acreditará que el propietario haya realizado la evaluación ni que la crítica de IA se haya ejecutado.
+
+### Estado y límites
+
+T16 pasa de BLOCKED por una dependencia humana imposible a NOT_EXECUTED: el proceso ya es ejecutable por el único propietario, pero todavía no se ha realizado. Los estados de los otros casos no cambian. No se afirma acuerdo entre evaluadores humanos, fiabilidad interevaluador, consenso ni validez empírica.
