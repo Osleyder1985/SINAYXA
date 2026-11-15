@@ -427,7 +427,6 @@ Para CORROBORADA basada en fuentes secundarias o terciarias, todas las unidades 
 
 Estas restricciones son validaciones de integridad y flujo de revisión; no son una puntuación, regla probabilística ni automatización de la verdad.
 
-
 ## 17. Correcciones de conformance v0.2.0 — revisión posterior
 
 La auditoría de la primera implementación identificó dos invariantes que debían probarse expresamente:
