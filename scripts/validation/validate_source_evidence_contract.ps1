@@ -170,11 +170,23 @@ foreach ($link in $package.claim_evidence_links) {
     Test-Condition ($component.claim_id -eq $link.claim_id) 'Evidence link claim and component do not match.'
     Test-Condition ($component.claim_version_id -eq $link.claim_version_id -and $component.claim_component_version_id -eq $link.claim_component_version_id) 'Evidence link does not match the exact claim/component versions.'
 }
+foreach ($node in $package.provenance_nodes) {
+    if ($node.node_type -eq 'SOURCE_VERSION') {
+        Test-Condition (Test-HasRef $versionIds ([string]$node.entity_ref)) 'SOURCE_VERSION provenance node must reference an existing source version.'
+    }
+    if ($node.node_type -eq 'EVIDENCE_ITEM') {
+        Test-Condition (Test-HasRef $evidenceIds ([string]$node.entity_ref)) 'EVIDENCE_ITEM provenance node must reference an existing evidence item.'
+    }
+    if ($node.node_type -eq 'UNKNOWN_ORIGIN') {
+        Test-Condition ($null -eq $node.entity_ref) 'UNKNOWN_ORIGIN must not contain an entity reference or identity.'
+    }
+}
 foreach ($edge in $package.provenance_edges) {
     Test-Condition (Test-HasRef $nodeIds ([string]$edge.dependent_node_id)) 'Provenance edge has an unknown dependent node.'
     Test-Condition (Test-HasRef $nodeIds ([string]$edge.origin_node_id)) 'Provenance edge has an unknown origin node.'
     Test-Condition (Test-HasRef $componentIds ([string]$edge.claim_component_id)) 'Provenance edge has an unknown claim component.'
     Test-Condition (Test-HasRef $componentVersionIds ([string]$edge.claim_component_version_id)) 'Provenance edge has an unknown component version.'
+    foreach ($reference in @($edge.evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Provenance edge references unknown supporting evidence.' }
     $edgeComponent = @($package.claim_components | Where-Object { $_.claim_component_version_id -eq $edge.claim_component_version_id })[0]
     Test-Condition ($edgeComponent.claim_component_id -eq $edge.claim_component_id) 'Provenance edge component version does not match its component.'
     Test-Condition ($edge.dependent_node_id -ne $edge.origin_node_id) 'A provenance edge cannot point to itself.'
@@ -329,6 +341,7 @@ foreach ($assessment in $package.claim_assessments) {
     }
 }
 foreach ($record in $package.retention_records) {
+    Test-Condition ((Test-HasRef $claimIds ([string]$record.subject_ref)) -or (Test-HasRef $claimVersionIds ([string]$record.subject_ref)) -or (Test-HasRef $componentIds ([string]$record.subject_ref)) -or (Test-HasRef $componentVersionIds ([string]$record.subject_ref)) -or (Test-HasRef $sourceIds ([string]$record.subject_ref)) -or (Test-HasRef $versionIds ([string]$record.subject_ref)) -or (Test-HasRef $evidenceIds ([string]$record.subject_ref))) 'Retention record references an unknown subject.'
     Test-Condition (Test-Utc $record.review_at 'review_at') 'Retention review_at must be UTC.'
     Test-Condition (Test-Utc $record.recorded_at 'recorded_at') 'Retention recorded_at must be UTC.'
     if ($record.content_retained -eq $true) {
@@ -340,6 +353,7 @@ foreach ($record in $package.retention_records) {
     }
 }
 foreach ($auditEvent in $package.audit_events) {
+    Test-Condition ((Test-HasRef $claimIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $claimVersionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $componentIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $componentVersionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sourceIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $versionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $evidenceIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.claim_assessments ([string]$auditEvent.subject_ref))) 'Audit event references an unknown subject.'
     Test-Condition (Test-Utc $auditEvent.occurred_at 'occurred_at') 'Audit event occurred_at must be UTC.'
 }
 Test-ForbiddenKey -Value $package
