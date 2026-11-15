@@ -386,6 +386,15 @@
         },
         "recorded_at": {
           "$ref": "#/$defs/utc"
+        },
+        "first_publicly_observed_at": {
+          "$ref": "#/$defs/optionalUtc"
+        },
+        "original_timestamps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/timestampObservation"
+          }
         }
       }
     },
@@ -944,6 +953,7 @@
         "attribution_status",
         "supporting_evidence_refs",
         "contrary_evidence_refs",
+        "independence_assessment_refs",
         "alternatives",
         "uncertainty",
         "limitations",
@@ -1018,6 +1028,9 @@
             "string",
             "null"
           ]
+        },
+        "independence_assessment_refs": {
+          "$ref": "#/$defs/refs"
         }
       }
     },
