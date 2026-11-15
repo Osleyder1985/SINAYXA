@@ -1149,7 +1149,8 @@
         "human_review_status",
         "reviewed_at",
         "claim_version_id",
-        "claim_component_version_id"
+        "claim_component_version_id",
+        "independent_path_edge_refs"
       ],
       "properties": {
         "independence_assessment_id": {
@@ -1212,6 +1213,9 @@
         },
         "claim_component_version_id": {
           "$ref": "#/$defs/id"
+        },
+        "independent_path_edge_refs": {
+          "$ref": "#/$defs/refs"
         }
       },
       "allOf": [
@@ -1236,6 +1240,9 @@
               },
               "human_review_status": {
                 "const": "REVIEWED"
+              },
+              "independent_path_edge_refs": {
+                "minItems": 2
               }
             }
           }
@@ -1258,6 +1265,9 @@
               },
               "human_review_status": {
                 "const": "REVIEWED"
+              },
+              "independent_path_edge_refs": {
+                "maxItems": 0
               }
             }
           }
