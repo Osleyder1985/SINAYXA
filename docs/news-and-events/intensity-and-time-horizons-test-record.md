@@ -79,7 +79,7 @@ El hash anterior corresponde al archivo local en la ruta `tests/fixtures/methodo
 | Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-001` |
 | Casos detectados | 19 |
 | Comprobaciones temporales deterministas | PASS: T11, T12, T13, T14, T15, T18 y T19 |
-| T16 | `NOT_EXECUTED` | Protocolo aceptado como decisión humana asistida; ejecución formal pendiente | Sección 26; no afirmar acuerdo interevaluador ni consenso |
+| T16 | `NOT_EXECUTED` (el `BLOCKED` descrito en esta tabla pertenece al registro histórico v1.0.0; el protocolo vigente v1.2.0 está definido, pero no ejecutado) |
 | SHA-256 | `467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22` |
 | Ruta del fixture | `tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence.json` |
 | `git status --short` | Sin cambios pendientes |
