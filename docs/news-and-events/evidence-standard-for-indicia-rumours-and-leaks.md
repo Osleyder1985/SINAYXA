@@ -1,14 +1,14 @@
-# Propuesta de estándar probatorio para indicios, rumores y posibles filtraciones
+# Estándar probatorio para indicios, rumores y posibles filtraciones
 
 **Issue:** [#15 — Establecer estándar probatorio para indicios y filtraciones](https://github.com/Osleyder1985/SINAYXA/issues/15)  
-**Estado:** propuesta documental pendiente de revisión y aprobación expresa del propietario.  
+**Estado:** estándar metodológico aprobado expresamente por el propietario en el Issue #15 y registrado en el PR #43 (HEAD aprobado: `0542ba72a89cf1ad4e2171826acc5c876f6bc282`).  
 **Dependencia:** glosario operativo aprobado en el Issue #13.  
 **Relaciones:** Issue #14 (intensidad y horizontes), #16 (credibilidad e independencia de fuentes) y #25 (ciclo de vida y caducidad).  
 **Ámbito:** evaluación probatoria de afirmaciones, indicios públicos, rumores y posibles filtraciones en el módulo de noticias y acontecimientos. No implementa captura, scoring, predicción, señales de trading ni decisiones legales.
 
 ## 1. Objetivo y principios
 
-Esta propuesta establece cómo registrar la atribución de una afirmación como dimensión independiente y cómo evaluar su estado probatorio (NO_CORROBORADA, PARCIALMENTE_CORROBORADA, CORROBORADA, CONTRADICHA, REFUTADA o NO_RESUELTA), qué evidencia mínima exige cada tratamiento y cómo preservar la incertidumbre de la información anticipatoria.
+Este estándar establece cómo registrar la atribución de una afirmación como dimensión independiente y cómo evaluar su estado probatorio (NO_CORROBORADA, PARCIALMENTE_CORROBORADA, CORROBORADA, CONTRADICHA, REFUTADA o NO_RESUELTA), qué evidencia mínima exige cada tratamiento y cómo preservar la incertidumbre de la información anticipatoria.
 
 Principios obligatorios:
 
@@ -16,7 +16,7 @@ Principios obligatorios:
 2. **Naturaleza, estado probatorio, autenticidad y procedencia son dimensiones distintas.** «Rumor», «indicio» y «posible filtración» describen la naturaleza de la información; no son grados automáticos de verdad.
 3. **La etiqueta filtración no autentica un documento.** Tampoco demuestra que el contenido sea verdadero, completo, vigente, legalmente obtenido o aprobado.
 4. **La corroboración debe respaldar el alcance exacto de la afirmación.** La confirmación de una parte no eleva automáticamente los demás detalles.
-5. **La corroboración independiente exige orígenes diferenciados, no cantidad de publicaciones.** Esta propuesta fija solo el filtro mínimo contra republicaciones y fuentes comunes; la rúbrica detallada de independencia, credibilidad y ponderación se reserva al Issue #16.
+5. **La corroboración independiente exige orígenes diferenciados, no cantidad de publicaciones.** Este estándar fija solo el filtro mínimo contra republicaciones y fuentes comunes; la rúbrica detallada de independencia, credibilidad y ponderación se reserva al Issue #16.
 6. **Una fuente primaria puede confirmar el acto que realizó o publicó.** No confirma automáticamente todas las afirmaciones contenidas en el documento ni sus consecuencias futuras.
 7. **La ausencia de confirmación no demuestra falsedad.** La refutación requiere evidencia positiva que contradiga la proposición concreta.
 8. **El precio no corrobora la noticia.** Un movimiento de mercado puede motivar una investigación, pero no autentica fuentes, documentos ni acontecimientos.
@@ -25,7 +25,7 @@ Principios obligatorios:
 
 ## 2. Separación de dimensiones
 
-Cada evaluación debe mantener conceptualmente separadas estas dimensiones. La tabla es una propuesta semántica, no un contrato de API ni una decisión de implementación. `ATRIBUIDA` describe la relación entre una afirmación y una fuente; no es un estado probatorio ni implica que la fuente esté identificada públicamente. `source_identity` conserva por separado cuánto se conoce de esa identidad.
+Cada evaluación debe mantener conceptualmente separadas estas dimensiones. La tabla define distinciones semánticas; no constituye un contrato de API ni una decisión de implementación. `ATRIBUIDA` describe la relación entre una afirmación y una fuente; no es un estado probatorio ni implica que la fuente esté identificada públicamente. `source_identity` conserva por separado cuánto se conoce de esa identidad.
 
 | Dimensión | Valores descriptivos propuestos | Qué responde |
 | --- | --- | --- |
@@ -41,9 +41,9 @@ Cada evaluación debe mantener conceptualmente separadas estas dimensiones. La t
 
 ### 2.1 Compatibilidad con la taxonomía aprobada
 
-La taxonomía de catalizadores y el glosario aprobado del Issue #13 ya establecen los estados descriptivos **Confirmada por evidencia primaria**, **Atribuida a fuente identificada**, **Parcialmente corroborada**, **No corroborada** y **Posteriormente desmentida**. Los términos técnicos propuestos en este documento no los sustituyen ni autorizan una nueva taxonomía por sí solos.
+La taxonomía de catalizadores y el glosario aprobado del Issue #13 ya establecen los estados descriptivos **Confirmada por evidencia primaria**, **Atribuida a fuente identificada**, **Parcialmente corroborada**, **No corroborada** y **Posteriormente desmentida**. Los términos técnicos de este estándar no los sustituyen ni autorizan una nueva taxonomía de implementación por sí solos.
 
-La correspondencia propuesta es:
+La correspondencia metodológica es:
 
 | Estado detallado de esta propuesta | Relación con el vocabulario aprobado | Salvaguarda |
 | --- | --- | --- |
@@ -55,7 +55,7 @@ La correspondencia propuesta es:
 | REFUTADA | Refinamiento propuesto cuando evidencia directa y pertinente demuestra que la proposición concreta es falsa. | Solo podrá describirse como **Posteriormente desmentida** cuando la evidencia sea posterior; conservar el alcance exacto refutado. |
 | NO_RESUELTA | Indicador propuesto de que la evaluación no permite resolver la discrepancia o insuficiencia. | Es una condición de resolución, no un sinónimo de NO_CORROBORADA ni una conclusión de falsedad. |
 
-Hasta que el propietario apruebe expresamente esta propuesta, las etiquetas y correspondencias de esta tabla son exclusivamente explicativas. Cualquier contrato de datos o interfaz futura deberá conservar el vocabulario aprobado y representar por separado la base probatoria y los refinamientos que se aprueben.
+El propietario aprobó expresamente estas etiquetas y correspondencias en el Issue #15. Cualquier contrato de datos o interfaz futura deberá conservar el vocabulario aprobado y representar por separado la base probatoria y sus dimensiones independientes.
 
 No se debe derivar automáticamente una dimensión de otra. Por ejemplo:
 
@@ -286,7 +286,7 @@ No se sobrescribe una evaluación anterior. La confirmación posterior no borra 
 
 Las transiciones, caducidad, cierre y reapertura del ciclo de vida se reservan al Issue #25. Este documento define el significado probatorio de los estados, no su automatización.
 
-## 9. Casos límite propuestos para revisión
+## 9. Casos límite de conformidad
 
 | ID | Escenario | Tratamiento esperado | Error que debe evitarse |
 | --- | --- | --- | --- |
@@ -309,11 +309,11 @@ Las transiciones, caducidad, cierre y reapertura del ciclo de vida se reservan a
 | E17 | Dos medios publican versiones incompatibles y ambos citan fuentes anónimas distintas, sin corroboración verificable de sus orígenes | NO_RESUELTA; conservar ambas atribuciones sin asumir independencia ni contradicción probatoria suficiente | Convertir versiones incompatibles en CONTRADICHA o resolver por mayoría de publicaciones |
 | E18 | Una publicación se rectifica y elimina un dato | Registrar rectificación atribuida y preservar versión anterior; reevaluar solo el componente afectado | Suponer que la rectificación invalida todo el acontecimiento |
 
-Los resultados esperados son criterios de revisión, no pruebas ejecutadas ni afirmaciones sobre acontecimientos reales.
+Los resultados esperados son criterios de conformidad sintética; no constituyen pruebas de acontecimientos reales ni afirmaciones sobre ellos.
 
-## 10. Criterios de aceptación propuestos para el Issue #15
+## 10. Criterios de aceptación aprobados para el Issue #15
 
-- [ ] Se distingue la naturaleza de la información del estado probatorio, atribución, autenticidad, procedencia y legalidad de acceso.
+- [x] Se distingue la naturaleza de la información del estado probatorio, atribución, autenticidad, procedencia y legalidad de acceso.
 - [ ] AFIRMACIÓN ATRIBUIDA se representa como dimensión de atribución y nunca como estado probatorio.
 - [ ] Indicio, rumor y posible filtración no se utilizan como sinónimos ni como grados automáticos de veracidad.
 - [ ] Cada estado probatorio se aplica a afirmaciones concretas y conserva el alcance respaldado.
@@ -329,7 +329,7 @@ Los resultados esperados son criterios de revisión, no pruebas ejecutadas ni af
 - [ ] CONTRADICHA exige dos líneas de evidencia materialmente incompatibles con base verificable; un documento no autenticado o relatos anónimos sin corroboración no bastan por sí solos.
 - [ ] Los casos E01–E18 cubren fuentes anónimas, documentos no autenticados, corroboración parcial, independencia, falsificación, confirmación posterior y salvaguardas legales.
 - [ ] Se mantiene la separación con los Issues #16 (credibilidad/ponderación de fuentes) y #25 (ciclo de vida/caducidad).
-- [ ] El propietario aprueba o modifica expresamente los criterios y el estándar probatorio antes de cualquier implementación.
+- [x] El propietario aprobó expresamente los criterios y el estándar probatorio antes de cualquier implementación.
 
 ## 11. Referencias y límites de aplicación
 
@@ -342,4 +342,4 @@ Estas referencias sustentan controles de prudencia y preservación. No sustituye
 
 ## 12. Gobernanza
 
-Esta versión es una propuesta. No aprueba automáticamente estados probatorios, umbrales, reglas de corroboración ni tratamiento legal. No implementa clasificación automática ni recomienda operaciones. Cualquier implementación requerirá un Issue funcional, un PR separado y pruebas sobre casos aprobados por el propietario.
+Esta versión constituye el estándar metodológico aprobado para el alcance del Issue #15. No implementa clasificación automática ni recomienda operaciones. Cualquier implementación requerirá un Issue funcional, un PR separado y pruebas sobre casos aprobados por el propietario.
