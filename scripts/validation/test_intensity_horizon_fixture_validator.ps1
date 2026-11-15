@@ -125,6 +125,30 @@ try {
     }
 
     Write-Information "Negative validator tests: PASS (12 mutation cases)" -InformationAction Continue
+
+    $missingFixturePath = Join-Path $tempDirectory "missing-fixture.json"
+    $missingFixtureRejected = $false
+    try {
+        & $validatorPath -FixturePath $missingFixturePath
+    }
+    catch {
+        $missingFixtureRejected = $true
+    }
+    if (-not $missingFixtureRejected) { throw "Validator accepted a nonexistent fixture path." }
+    Write-Information "Robustness test reject-missing-file: PASS" -InformationAction Continue
+
+    $corruptFixturePath = Join-Path $tempDirectory "corrupt-fixture.json"
+    Set-Content -LiteralPath $corruptFixturePath -Value '{"cases":' -Encoding utf8
+    $corruptFixtureRejected = $false
+    try {
+        & $validatorPath -FixturePath $corruptFixturePath
+    }
+    catch {
+        $corruptFixtureRejected = $true
+    }
+    if (-not $corruptFixtureRejected) { throw "Validator accepted malformed JSON." }
+    Write-Information "Robustness test reject-malformed-json: PASS" -InformationAction Continue
+
 }
 finally {
     if (Test-Path -LiteralPath $tempDirectory) {
