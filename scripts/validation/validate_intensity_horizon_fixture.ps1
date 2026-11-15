@@ -49,8 +49,15 @@ if ($fixture.status -ne "SYNTHETIC_TEST_FIXTURE_NOT_REAL_WORLD_EVIDENCE") {
     throw "Fixture status is missing or does not identify the data as synthetic."
 }
 
-if ($fixture.package_id -ne "SINAYXA-IH-T01-T19-SYNTHETIC-001") {
+$allowedPackages = @{
+    "SINAYXA-IH-T01-T19-SYNTHETIC-001" = "1.0.0"
+    "SINAYXA-IH-T01-T19-SYNTHETIC-002" = "1.1.0"
+}
+if (-not $allowedPackages.ContainsKey([string]$fixture.package_id)) {
     throw "Unexpected package_id."
+}
+if ([string]$fixture.package_version -ne $allowedPackages[[string]$fixture.package_id]) {
+    throw "Package ID/version mismatch."
 }
 
 $expectedIds = 1..19 | ForEach-Object { "T{0:D2}" -f $_ }
@@ -85,6 +92,51 @@ if ($t16.expected.process -notlike "BLOCKED*") {
 }
 if ($t16.expected.fixture_limit -notlike "A synthetic disagreement*") {
     throw "T16 must explicitly state that synthetic data cannot satisfy inter-evaluator validation."
+}
+
+# Version 1.1.0 semantic-input contract checks. These validate required fixture
+# fields and scope declarations; they do not prove that the expected judgments
+# are methodologically correct or constitute execution of the semantic cases.
+if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-002") {
+    $t01 = Get-FixtureCase -Id "T01"
+    if ($t01.expected.intensity -ne "I0" -or
+        $t01.unit -notlike "*technical and operational functions only*" -or
+        $t01.evidence.Count -lt 3 -or
+        $t01.expected.reason -notlike "*makes no I0 claim about token-market*") {
+        throw "T01 v1.1.0 must explicitly bound I0 to technical/operational functions."
+    }
+
+    $t03 = Get-FixtureCase -Id "T03"
+    $t03EvidenceIds = @($t03.evidence | ForEach-Object { $_.id })
+    if ($t03.expected.intensity -ne "I2" -or
+        $t03EvidenceIds -notcontains "T03-E3" -or
+        $t03.expected.observed_effect -notlike "*uncredited*" -or
+        $t03.expected.potential_effect -notlike "*not established*") {
+        throw "T03 v1.1.0 must include observed functional consequence and bounded potential effect."
+    }
+
+    $t04 = Get-FixtureCase -Id "T04"
+    $t04EvidenceIds = @($t04.evidence | ForEach-Object { $_.id })
+    if ($t04.expected.intensity -ne "I3" -or
+        $t04EvidenceIds -notcontains "T04-E5" -or
+        $t04.evidence[0].content -notlike "*five named applications*" -or
+        $t04.evidence[3].content -notlike "*withdrawals and user access remain available*") {
+        throw "T04 v1.1.0 must specify the dependency denominator, material function, and I4 boundary."
+    }
+
+    $t08 = Get-FixtureCase -Id "T08"
+    if ($t08.evidence.Count -lt 5 -or
+        $t08.expected.segment_A.intensity -ne "I2" -or
+        $t08.expected.segment_B.intensity -ne "I2" -or
+        $t08.expected.aggregate -notlike "Do not assign an aggregate classification*") {
+        throw "T08 v1.1.0 must preserve independently evidenced segment classifications without an invented aggregate."
+    }
+
+    $t10 = Get-FixtureCase -Id "T10"
+    if ($t10.expected.intensity_baseline -ne "NOT_ASSESSED" -or
+        $t10.expected.mitigation -ne "UNVERIFIED") {
+        throw "T10 v1.1.0 must remain a mitigation-only case without a baseline intensity."
+    }
 }
 
 # Deterministic checks of the temporal test vectors.
@@ -165,7 +217,7 @@ if ([Math]::Abs($t19SourceASeconds - 85800) -gt 0.001 -or
 $hash = (Get-FileHash -LiteralPath $resolvedPath -Algorithm SHA256).Hash
 
 Write-Host "Fixture structure validation: PASS"
-Write-Host "Package: $($fixture.package_id)"
+Write-Host "Package: $($fixture.package_id) v$($fixture.package_version)"
 Write-Host "Cases: $($actualIds.Count)"
 Write-Host "Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)"
 Write-Host "T16: BLOCKED (correctly preserved)"
