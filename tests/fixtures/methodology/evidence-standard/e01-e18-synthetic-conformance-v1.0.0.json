@@ -290,9 +290,9 @@
       "scenario": "Una publicación se rectifica y elimina un dato concreto.",
       "nature": "ASSERTION_OR_SIGNAL",
       "expected": {
-        "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+        "evidentiary_status": "NO_RESUELTA",
         "document_authenticity": "NO_APLICA",
-        "guardrail": "Preservar versión anterior y limitar rectificación al componente afectado."
+        "guardrail": "Registrar la rectificación como acto atribuido, preservar la versión anterior y no inferir corroboración ni refutación del contenido eliminado."
       },
       "invariants": {
         "price_is_corrobative": false,
