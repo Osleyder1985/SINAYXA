@@ -46,6 +46,26 @@ El validador comprueba la identidad del paquete, los 19 IDs únicos y ordenados,
 
 **Límite:** validar la estructura del fixture no ejecuta la batería metodológica ni convierte ningún caso a PASS. La matriz de la sección 4 permanece en NOT_EXECUTED, salvo T16 en BLOCKED, hasta registrar evaluaciones efectivas.
 
+### 2.2 Registro verificado de integridad del paquete
+
+**Comprobación local comunicada por el propietario:**
+
+| Campo | Resultado |
+| --- | --- |
+| Commit local | `6dcc3228578be7cd1a4d0421e51d62d823bca8d3` |
+| Resultado del validador estructural | PASS |
+| Identificador | `SINAYXA-IH-T01-T19-SYNTHETIC-001` |
+| Casos detectados | 19 |
+| T16 | BLOCKED (bloqueo conservado correctamente) |
+| SHA-256 del fixture | `467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22` |
+| Markdown lint de los dos documentos | PASS; 0 issues |
+| `git status --short` | Sin cambios pendientes |
+
+El hash anterior corresponde al archivo local en la ruta `tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence.json`. El propietario confirmó que el comando terminó con `Fixture validation: PASS` y que el árbol de trabajo estaba limpio.
+
+**Alcance exacto de esta verificación:** acredita que el fixture local coincide con las comprobaciones estructurales implementadas y que los dos documentos Markdown pasan lint. No constituye ejecución de los resultados metodológicos T01–T19, no cambia sus estados y no valida acuerdo interevaluador. La matriz de la sección 4 permanece sin cambios.
+
+
 ## 3. Estados permitidos
 
 - **NOT_EXECUTED:** no existe ejecución registrada.
