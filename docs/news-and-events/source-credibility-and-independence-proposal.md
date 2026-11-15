@@ -1,13 +1,13 @@
 # Propuesta metodológica: credibilidad e independencia de fuentes
 
 **Issue:** [#16 — Definir rúbrica de credibilidad e independencia de fuentes](https://github.com/Osleyder1985/SINAYXA/issues/16)  
-**Estado:** propuesta pendiente de aprobación expresa del propietario.  
+**Estado:** metodología aprobada expresamente por el propietario el 2026-11-15; contrato ejecutable y pruebas en implementación.  
 **Base obligatoria:** [estándar probatorio para indicios, rumores y posibles filtraciones](evidence-standard-for-indicia-rumours-and-leaks.md), aprobado en #15 y fusionado mediante PR #43.  
 **Ámbito:** evaluación de procedencia, capacidad informativa, fiabilidad contextual e independencia de cadenas de obtención. No implementa captura, reputación automatizada, puntuación numérica, probabilidad de verdad, causalidad ni señales de trading.
 
-## 1. Decisión que se solicita
+## 1. Decisión metodológica aprobada
 
-Aprobar —o modificar expresamente— una rúbrica cualitativa, multidimensional y trazable para responder por separado:
+Se aprueba una rúbrica cualitativa, multidimensional y trazable para responder por separado:
 
 1. ¿Qué relación tiene esta fuente con la afirmación concreta y con el hecho que dice conocer?
 2. ¿Qué evidencia verificable respalda su acceso, competencia, transparencia y comportamiento editorial/documental?
@@ -89,7 +89,7 @@ Cada dimensión se registra por separado con evidencia y justificación. No se s
 
 ### 4.1 Estados descriptivos por dimensión
 
-Para evitar una escala numérica o una falsa precisión, se propone registrar cada dimensión con uno de estos estados descriptivos:
+Para evitar una escala numérica o una falsa precisión, cada dimensión se registra con uno de estos estados descriptivos aprobados:
 
 - **SUSTENTADA:** existe evidencia identificable y pertinente que respalda la evaluación de esa dimensión concreta. Es un estado del factor de la rúbrica, no un estado probatorio de la afirmación ni un sinónimo de CORROBORADA conforme al Issue #15.
 - **LIMITADA:** existe evidencia, pero su alcance, actualidad o calidad restringe la conclusión.
@@ -97,7 +97,7 @@ Para evitar una escala numérica o una falsa precisión, se propone registrar ca
 - **DESCONOCIDA:** la información disponible no permite evaluarla.
 - **NO_APLICA:** la dimensión no es pertinente a la relación fuente-afirmación evaluada.
 
-Estos valores son una propuesta para aprobación, no estados aprobados ni un contrato de datos. La justificación y referencias son obligatorias; el estado aislado nunca basta.
+Estos valores están aprobados como estados descriptivos de los factores, no como estados probatorios ni como score. La justificación y referencias son obligatorias; el estado aislado nunca basta.
 
 ### 4.2 Resultado de evaluación de la fuente para la afirmación
 
@@ -111,7 +111,7 @@ La independencia se evalúa entre cadenas de obtención para una afirmación y u
 
 ### 5.1 Relaciones propuestas
 
-Cada referencia secundaria debe enlazarse, cuando se conozca, con su origen inmediato y con el origen primario alegado. Las relaciones posibles a documentar son:
+Cada referencia secundaria debe enlazarse, cuando se conozca, con su origen inmediato y con el origen primario alegado. Las relaciones de procedencia aprobadas para documentar son:
 
 - **ORIGEN_DIRECTO:** la fuente declara y sustenta acceso propio al hecho o registro.
 - **CITA_DE:** reproduce una afirmación atribuida a otra fuente.
@@ -122,15 +122,15 @@ Cada referencia secundaria debe enlazarse, cuando se conozca, con su origen inme
 - **ORIGEN_NO_DETERMINADO:** no se ha podido reconstruir la cadena.
 - **ANÁLISIS_SEPARADO_SOBRE_DATOS_COMUNES:** análisis producido por separado a partir de un mismo conjunto de datos o documento; puede permitir replicación analítica, pero no constituye un segundo origen independiente del dato compartido.
 
-Estas relaciones son etiquetas propuestas, no una taxonomía ya aprobada.
+Estas relaciones forman parte de la taxonomía metodológica aprobada.
 
-### 5.2 Clasificación de independencia propuesta
+### 5.2 Clasificación de independencia aprobada
 
 - **INDEPENDIENTE:** hay evidencia positiva de una vía de obtención separada y no se identifica dependencia material común para el componente corroborado.
 - **DEPENDIENTE:** hay evidencia de reproducción, sindicación, cita, documento/intermediario común u otra dependencia material.
 - **DESCONOCIDA:** la cadena no puede reconstruirse con evidencia suficiente.
 
-Reglas obligatorias propuestas:
+Reglas obligatorias aprobadas:
 
 1. Dos dominios, autores o marcas diferentes no prueban independencia.
 2. Dos periodistas del mismo medio pueden tener vías distintas, pero debe documentarse la separación; la organización común se registra como posible factor, no como prueba automática de dependencia.
@@ -272,11 +272,11 @@ La rúbrica debe rechazar, al menos, estos atajos:
 
 ## 13. Criterios de aceptación propuestos para #16
 
-- [ ] Se aprueba la evaluación multidimensional y contextual, sin nota global ni probabilidades.
-- [ ] Se aprueban, modifican o rechazan los estados descriptivos por dimensión.
-- [ ] Se aprueba la representación de cadenas de procedencia y relaciones de dependencia.
-- [ ] Se distinguen los tipos PRIMARIA, SECUNDARIA y TERCIARIA por su relación con cada afirmación y componente.
-- [ ] El carácter oficial/institucional, el subtipo/función, la base de conocimiento y el modo de difusión se registran en ejes separados; no se confunden con el tipo de fuente ni con credibilidad.
+- [x] Se aprueba la evaluación multidimensional y contextual, sin nota global ni probabilidades.
+- [x] Se aprueban los estados descriptivos por dimensión.
+- [x] Se aprueba la representación de cadenas de procedencia y relaciones de dependencia.
+- [x] Se distinguen los tipos PRIMARIA, SECUNDARIA y TERCIARIA por su relación con cada afirmación y componente.
+- [x] El carácter oficial/institucional, el subtipo/función, la base de conocimiento y el modo de difusión se registran en ejes separados; no se confunden con el tipo de fuente ni con credibilidad.
 - [ ] Se resuelven explícitamente los casos de anonimato y confidencialidad.
 - [ ] Se resuelven sindicación, citas cruzadas, documentos e informantes comunes.
 - [ ] Se define el tratamiento de contradicciones, rectificaciones y ausencia de corroboración compatible con #15.
@@ -300,6 +300,6 @@ Los asuntos jurídicos, de privacidad y seguridad deben revisarse por separado a
 
 ## 15. Registro de decisión
 
-**Estado actual: PROPUESTA NO APROBADA.**
+**Estado actual: METODOLOGÍA APROBADA; CONTRATO Y PRUEBAS EN IMPLEMENTACIÓN.**
 
-La integración de este documento solo acredita que existe una propuesta revisable y trazable. #16 permanecerá abierto hasta que el propietario resuelva expresamente las decisiones metodológicas, la batería sintética se convierta en pruebas verificables y se cumplan sus criterios de cierre. No habilita todavía la implementación funcional de #4.
+La decisión metodológica expresa del propietario quedó registrada en [el Issue #16](https://github.com/Osleyder1985/SINAYXA/issues/16#issuecomment-6900966461) el 2026-11-15. Se autoriza convertir S01–S16 en fixtures y pruebas deterministas dentro del alcance aprobado. #16 permanece abierto hasta que el contrato, los casos positivos/negativos/fronterizos, la compatibilidad con #15 y el CI del HEAD definitivo estén verificados. La aprobación no autoriza scoring, probabilidades, ranking universal, causalidad ni señales de inversión.
