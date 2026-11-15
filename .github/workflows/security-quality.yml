@@ -44,7 +44,7 @@ jobs:
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
           GITLEAKS_ENABLE_SUMMARY: "true"
           GITLEAKS_VERSION: "8.24.3"
-      - name: Verify Gitleaks detects a synthetic GitHub token
+      - name: Verify Gitleaks detects a synthetic custom-rule canary
         shell: bash
         run: |
           set -euo pipefail
@@ -54,21 +54,28 @@ jobs:
           git -C "$temp_repo" init -q
           git -C "$temp_repo" config user.name "SINAYXA Security Test"
           git -C "$temp_repo" config user.email "security-test@example.invalid"
-          cat > "$temp_repo/canary.env" <<'EOF'
-          GITHUB_TOKEN=ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+          cat > "$temp_repo/gitleaks.toml" <<'EOF'
+          title = "SINAYXA Gitleaks regression test"
+          [[rules]]
+          id = "sinayxa-canary"
+          description = "Synthetic canary used to prove secret detection works"
+          regex = '''SINAYXA_CANARY_[A-Z0-9]{32}'''
+          secretGroup = 0
+          keywords = ["SINAYXA_CANARY_"]
           EOF
-          git -C "$temp_repo" add canary.env
+          printf '%s\n' 'SINAYXA_CANARY_0123456789ABCDEF0123456789ABCDEF' > "$temp_repo/canary.txt"
+          git -C "$temp_repo" add canary.txt
           git -C "$temp_repo" commit -qm "test: synthetic secret canary"
           set +e
-          gitleaks detect --source "$temp_repo" --redact --exit-code=2 --report-format=json --report-path="$temp_repo/report.json"
+          gitleaks detect --source "$temp_repo" --config "$temp_repo/gitleaks.toml" --redact --exit-code=2 --report-format=json --report-path="$temp_repo/report.json"
           scan_status=$?
           set -e
           if [ "$scan_status" -ne 2 ]; then
             echo "::error::Gitleaks did not return the expected leak-detected exit code 2 (got $scan_status)."
             exit 1
           fi
-          if ! jq -e 'length > 0' "$temp_repo/report.json" >/dev/null; then
-            echo "::error::Gitleaks did not produce a non-empty synthetic canary report."
+          if ! jq -e 'length > 0 and any(.[]; .RuleID == "sinayxa-canary")' "$temp_repo/report.json" >/dev/null; then
+            echo "::error::Gitleaks did not report the expected synthetic canary rule."
             exit 1
           fi
           echo "Gitleaks synthetic canary detection: PASS"
