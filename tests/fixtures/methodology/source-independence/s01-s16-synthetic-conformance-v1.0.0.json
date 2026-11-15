@@ -201,7 +201,8 @@
         "anonymous_to_sinayxa": false,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S02",
@@ -284,7 +285,8 @@
         "anonymous_to_sinayxa": null,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S03",
@@ -357,7 +359,8 @@
         "anonymous_to_sinayxa": false,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S04",
@@ -464,7 +467,8 @@
         "anonymous_to_sinayxa": false,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S05",
@@ -532,7 +536,8 @@
         "anonymous_to_sinayxa": false,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S06",
@@ -607,7 +612,8 @@
         "anonymous_to_sinayxa": false,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S07",
@@ -674,7 +680,8 @@
         "anonymous_to_sinayxa": true,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": false
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S08",
@@ -756,7 +763,8 @@
         "anonymous_to_sinayxa": null,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S09",
@@ -872,7 +880,8 @@
         "anonymous_to_sinayxa": false,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S10",
@@ -942,7 +951,8 @@
         "anonymous_to_sinayxa": false,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S11",
@@ -1011,7 +1021,8 @@
         "anonymous_to_sinayxa": false,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S12",
@@ -1079,7 +1090,8 @@
         "anonymous_to_sinayxa": false,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S13",
@@ -1153,7 +1165,8 @@
         "anonymous_to_sinayxa": false,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S14",
@@ -1261,7 +1274,7 @@
           "synthetic-fixture://S14-E02"
         ],
         "contrary_evidence_refs": [
-          "synthetic-fixture://S14/contrary/amount-disagreement"
+          "synthetic-fixture://S14-C01"
         ],
         "limitations": [
           "Independencia y coincidencia se limitan a entidad y fecha; importe no resuelto."
@@ -1277,7 +1290,20 @@
         "anonymous_to_sinayxa": false,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": [
+        {
+          "evidence_id": "S14-C01",
+          "claim_component_id": "amount",
+          "source_ids": [
+            "observation-a",
+            "observation-b"
+          ],
+          "evidence_type": "DISAGREEING_AMOUNT_OBSERVATIONS",
+          "reference": "synthetic-fixture://S14-C01",
+          "description": "The two independent observations report different amounts; neither amount is selected as corroborated."
+        }
+      ]
     },
     {
       "id": "S15",
@@ -1344,7 +1370,8 @@
         "anonymous_to_sinayxa": true,
         "identity_verified_by_publisher": true,
         "identity_verified_by_sinayxa": false
-      }
+      },
+      "contrary_evidence": []
     },
     {
       "id": "S16",
@@ -1427,7 +1454,8 @@
         "anonymous_to_sinayxa": false,
         "identity_verified_by_publisher": null,
         "identity_verified_by_sinayxa": null
-      }
+      },
+      "contrary_evidence": []
     }
   ]
 }
