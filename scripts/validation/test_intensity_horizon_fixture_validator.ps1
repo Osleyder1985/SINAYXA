@@ -55,42 +55,50 @@ try {
 
     Invoke-ExpectedFailure -Name "reject-wrong-iana-zone" -ExpectedMessage "IANA timezone Europe/Madrid" -Mutation {
         param($Fixture)
-        ($Fixture.cases | Where-Object id -eq "T18").evidence[0].timezone = "Europe/Paris"
+        $case = $Fixture.cases | Where-Object { $_.id -eq "T18" }
+        $case.evidence[0].timezone = "Europe/Paris"
     }
 
     Invoke-ExpectedFailure -Name "reject-madrid-offset-mismatch" -ExpectedMessage "offset consistency" -Mutation {
         param($Fixture)
-        ($Fixture.cases | Where-Object id -eq "T18").evidence[0].start = "2026-03-28T12:00:00+02:00"
+        $case = $Fixture.cases | Where-Object { $_.id -eq "T18" }
+        $case.evidence[0].start = "2026-03-28T12:00:00+02:00"
     }
 
     Invoke-ExpectedFailure -Name "reject-timestamp-without-offset" -ExpectedMessage "explicit UTC designator or numeric offset" -Mutation {
         param($Fixture)
-        ($Fixture.cases | Where-Object id -eq "T11").evidence[0].reference = "2026-01-01T00:00:00"
+        $case = $Fixture.cases | Where-Object { $_.id -eq "T11" }
+        $case.evidence[0].reference = "2026-01-01T00:00:00"
     }
 
     Invoke-ExpectedFailure -Name "reject-wrong-t19-categories" -ExpectedMessage "T19 compatible_categories mismatch" -Mutation {
         param($Fixture)
-        ($Fixture.cases | Where-Object id -eq "T19").expected.compatible_categories = @("CORTO", "MEDIO")
+        $case = $Fixture.cases | Where-Object { $_.id -eq "T19" }
+        $case.expected.compatible_categories = @("CORTO", "MEDIO")
     }
 
     Invoke-ExpectedFailure -Name "reject-wrong-t15-categories" -ExpectedMessage "T15 compatible_categories mismatch" -Mutation {
         param($Fixture)
-        ($Fixture.cases | Where-Object id -eq "T15").expected.compatible_categories = @("INMEDIATO")
+        $case = $Fixture.cases | Where-Object { $_.id -eq "T15" }
+        $case.expected.compatible_categories = @("INMEDIATO")
     }
 
     Invoke-ExpectedFailure -Name "reject-wrong-t14-milestone" -ExpectedMessage "exactly announcement, approval, effective, and implementation" -Mutation {
         param($Fixture)
-        ($Fixture.cases | Where-Object id -eq "T14").evidence[0].milestones[2].name = "activation"
+        $case = $Fixture.cases | Where-Object { $_.id -eq "T14" }
+        $case.evidence[0].milestones[2].name = "activation"
     }
 
     Invoke-ExpectedFailure -Name "reject-broken-t01-semantic-contract" -ExpectedMessage "T01 v1.2.0" -Mutation {
         param($Fixture)
-        ($Fixture.cases | Where-Object id -eq "T01").expected.intensity = "I1"
+        $case = $Fixture.cases | Where-Object { $_.id -eq "T01" }
+        $case.expected.intensity = "I1"
     }
 
     Invoke-ExpectedFailure -Name "reject-invalid-date-only" -ExpectedMessage "valid calendar date" -Mutation {
         param($Fixture)
-        ($Fixture.cases | Where-Object id -eq "T13").evidence[0].date_only = "2026-02-30"
+        $case = $Fixture.cases | Where-Object { $_.id -eq "T13" }
+        $case.evidence[0].date_only = "2026-02-30"
     }
 
     Write-Host "Negative validator tests: PASS (8 mutation cases)"
