@@ -88,8 +88,8 @@ try {
     $independentCopy.evidence_availability += @($independentAvailabilityA,$independentAvailabilityB)
     $independentCopy.provenance_edges = @($independentCopy.provenance_edges | Where-Object { $_.edge_id -ne 'edge-a-unknown' })
     $independentCopy.provenance_nodes += @(
-        @{ node_id='node-origin-independent-a'; node_type='DOCUMENT'; entity_ref=$null },
-        @{ node_id='node-origin-independent-b'; node_type='DOCUMENT'; entity_ref=$null }
+        @{ node_id='node-origin-independent-a'; node_type='EVIDENCE_ITEM'; entity_ref='independent-evidence-a' },
+        @{ node_id='node-origin-independent-b'; node_type='EVIDENCE_ITEM'; entity_ref='independent-evidence-b' }
     )
     $independentCopy.provenance_edges += @(
         @{ edge_id='edge-independent-a'; dependent_node_id='node-version-a'; origin_node_id='node-origin-independent-a'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('independent-evidence-a'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null },
@@ -171,6 +171,23 @@ try {
         @{ Name='Provenance node references missing source version'; Apply={ param($x) $x.provenance_nodes[0].entity_ref='missing-version' } },
         @{ Name='Provenance edge references missing evidence'; Apply={ param($x) $x.provenance_edges[0].evidence_refs=@('missing-evidence') } },
         @{ Name='Independent without positive evidence'; Apply={ param($x) $x.independence_assessments[0].status='INDEPENDIENTE' } },
+        @{ Name='Independent path terminates at an unanchored document node'; Apply={
+            param($x)
+            $x.provenance_edges = @($x.provenance_edges | Where-Object { $_.edge_id -ne 'edge-a-unknown' })
+            $x.provenance_nodes += @(
+                @{ node_id='node-origin-unanchored-a'; node_type='DOCUMENT'; entity_ref=$null },
+                @{ node_id='node-origin-unanchored-b'; node_type='DOCUMENT'; entity_ref=$null }
+            )
+            $x.provenance_edges += @(
+                @{ edge_id='edge-unanchored-a'; dependent_node_id='node-version-a'; origin_node_id='node-origin-unanchored-a'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-a'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null },
+                @{ edge_id='edge-unanchored-b'; dependent_node_id='node-version-b'; origin_node_id='node-origin-unanchored-b'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-b'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null }
+            )
+            $x.independence_assessments[0].status='INDEPENDIENTE'
+            $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b')
+            $x.independence_assessments[0].independent_path_edge_refs=@('edge-unanchored-a','edge-unanchored-b')
+            $x.independence_assessments[0].human_review_status='REVIEWED'
+            $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z'
+        } },
         @{ Name='Independent assessment uses unknown origin instead of separate paths'; Apply={
             param($x)
             $x.provenance_edges[0].relation_type='ORIGEN_DIRECTO'
