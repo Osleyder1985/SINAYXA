@@ -73,6 +73,18 @@ foreach ($case in $fixture.cases) {
         Assert-Condition ($cutoffValid -and $cutoff.Offset -eq [TimeSpan]::Zero) "${id}: assessment_cutoff must be a valid UTC timestamp."
     }
     Assert-Condition ($null -ne $case.independence_evidence) "${id}: independence_evidence must be present, even when empty."
+    Assert-Condition ($null -ne $case.contrary_evidence) "${id}: contrary_evidence must be present, even when empty."
+    foreach ($evidence in $case.contrary_evidence) {
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($evidence.evidence_id)) "${id}: contrary evidence requires evidence_id."
+        Assert-Condition ($evidence.claim_component_id -eq $case.claim_component_id) "${id}: contrary evidence must be scoped to the evaluated component."
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($evidence.evidence_type)) "${id}: contrary evidence requires evidence_type."
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($evidence.reference)) "${id}: contrary evidence requires a reference."
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($evidence.description)) "${id}: contrary evidence requires a description."
+        Assert-Condition ($evidence.source_ids.Count -gt 0) "${id}: contrary evidence requires source_ids."
+        foreach ($sourceId in $evidence.source_ids) {
+            Assert-Condition ($evaluationSourceIds -contains [string]$sourceId) "${id}: contrary evidence references an unknown source_id."
+        }
+    }
     foreach ($evidence in $case.independence_evidence) {
         Assert-Condition (-not [string]::IsNullOrWhiteSpace($evidence.evidence_id)) "${id}: independence evidence requires evidence_id."
         Assert-Condition ($evidence.claim_component_id -eq $case.claim_component_id) "${id}: independence evidence must be scoped to the evaluated component."
@@ -94,6 +106,10 @@ foreach ($case in $fixture.cases) {
     $knownEvidenceRefs = @($case.provenance_edges | ForEach-Object { "synthetic-fixture://$($_.edge_id)" }) + @($case.independence_evidence | ForEach-Object { [string]$_.reference })
     foreach ($evidenceRef in $case.assessment_record.supporting_evidence_refs) {
         Assert-Condition ($knownEvidenceRefs -contains [string]$evidenceRef) "${id}: assessment references unknown supporting evidence."
+    }
+    $knownContraryRefs = @($case.contrary_evidence | ForEach-Object { [string]$_.reference })
+    foreach ($evidenceRef in $case.assessment_record.contrary_evidence_refs) {
+        Assert-Condition ($knownContraryRefs -contains [string]$evidenceRef) "${id}: assessment references unknown contrary evidence."
     }
     Assert-Condition ($case.expected.PSObject.Properties.Name -contains 'independent_origins') "${id}: expected.independent_origins must be explicit, including null."
     Assert-Condition ($case.expected.PSObject.Properties.Name -contains 'corroboration_count_increment') "${id}: expected.corroboration_count_increment must be explicit, including null."
