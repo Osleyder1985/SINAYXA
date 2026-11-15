@@ -176,7 +176,7 @@
         }
       ],
       "expected": {
-        "independent_origins": 1,
+        "independent_origins": 2,
         "corroboration_count_increment": 1,
         "guardrail": "La independencia se admite solo para los componentes cuya vía separada está demostrada."
       },
@@ -438,8 +438,15 @@
       ],
       "expected": {
         "independent_origins": 2,
-        "corroboration_count_increment": 1,
-        "guardrail": "Independencia y coincidencia se limitan a entidad y fecha; importe no resuelto."
+        "corroboration_count_increment": 0,
+        "guardrail": "Independencia y coincidencia se limitan a entidad y fecha; importe no resuelto.",
+        "corroborated_components": [
+          "entity",
+          "date"
+        ],
+        "unresolved_components": [
+          "amount"
+        ]
       },
       "independence_basis": [
         "Dos observaciones directas separadas",
