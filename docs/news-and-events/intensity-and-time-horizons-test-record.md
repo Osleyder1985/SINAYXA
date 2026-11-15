@@ -36,7 +36,7 @@ El paquete histórico de entradas sintéticas para T01–T19 está en [t01-t19-s
 
 El paquete histórico v1.2.0 contiene 19 casos ordenados, unidades, escenarios, cortes, elementos de evidencia y resultados esperados. El paquete vigente v1.3.0 añade T20 y contiene 20 casos. Los resultados esperados son oráculos de prueba, no resultados obtenidos. T16 define el flujo de un evaluador humano único con crítica auxiliar de IA; no simula respuestas humanas o de IA ni acredita ejecución del protocolo.
 
-Validador ejecutado con **PowerShell 7.6.6**, runtime estándar del proyecto conforme a los Issues #41 y #44: `scripts/validation/validate_intensity_horizon_fixture.ps1`. Su ruta predeterminada apunta explícitamente al fixture v1.2.0; las versiones históricas requieren `-FixturePath`. Desde la raíz del repositorio:
+Validador ejecutado con **PowerShell 7.6.6**, runtime estándar del proyecto conforme a los Issues #41 y #44: `scripts/validation/validate_intensity_horizon_fixture.ps1`. Su ruta predeterminada apunta explícitamente al fixture vigente v1.3.0 (`t01-t20-synthetic-evidence-v1.3.0.json`); los paquetes históricos requieren `-FixturePath`. Desde la raíz del repositorio:
 
 ```powershell
 .\scripts\validation\validate_intensity_horizon_fixture.ps1
