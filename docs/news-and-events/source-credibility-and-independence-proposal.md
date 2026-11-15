@@ -35,7 +35,9 @@ Estas reglas no se reabren en #16:
 
 La evaluación se vincula a una tupla conceptual:
 
-`(claim_id, source_id, source_version, access_path, assessment_cutoff)`
+`(claim_id, claim_component_id, source_id, source_version, access_path, assessment_cutoff)`
+
+El tipo de fuente, el subtipo/función, la base de conocimiento, el carácter institucional y la identidad se registran como atributos separados de la evaluación; no se infieren unos de otros.
 
 Debe conservarse como mínimo:
 
@@ -43,6 +45,8 @@ Debe conservarse como mínimo:
 - referencia exacta y versión de la publicación/documento;
 - fecha de publicación, fecha de acceso y fecha de corte de la evaluación;
 - identidad conocida por SINAYXA y visibilidad de esa identidad para el público, con acceso restringido cuando proceda;
+- tipo de fuente (PRIMARIA, SECUNDARIA, TERCIARIA o DESCONOCIDA) relativo a la afirmación y al componente evaluado;
+- subtipo/función, base de conocimiento, carácter oficial/institucional y modo de difusión, registrados como atributos separados;
 - relación declarada de la fuente con el hecho: observación directa, participación, documento recibido, testimonio indirecto, análisis, comentario o reproducción;
 - cadena de obtención conocida y sus incertidumbres;
 - evidencias favorables, limitaciones y evidencias contrarias;
@@ -87,7 +91,7 @@ Cada dimensión se registra por separado con evidencia y justificación. No se s
 
 Para evitar una escala numérica o una falsa precisión, se propone registrar cada dimensión con uno de estos estados descriptivos:
 
-- **RESPALDADA:** existe evidencia identificable y pertinente para la dimensión concreta.
+- **SUSTENTADA:** existe evidencia identificable y pertinente que respalda la evaluación de esa dimensión concreta. Es un estado del factor de la rúbrica, no un estado probatorio de la afirmación ni un sinónimo de CORROBORADA conforme al Issue #15.
 - **LIMITADA:** existe evidencia, pero su alcance, actualidad o calidad restringe la conclusión.
 - **DESFAVORABLE:** existe evidencia verificable que limita la fuente en esa dimensión o contradice una característica que la fuente se atribuye. Este estado describe un factor de la rúbrica y **no** es el estado probatorio CONTRADICHA de la afirmación conforme al Issue #15.
 - **DESCONOCIDA:** la información disponible no permite evaluarla.
@@ -138,18 +142,29 @@ Reglas obligatorias propuestas:
 8. La independencia se establece para el componente exacto: dos orígenes pueden corroborar fecha y entidad, pero no importe, intención o ejecución.
 9. Dos análisis reproducibles sobre un dataset común pueden ser independientes como procesos analíticos, pero permanecen dependientes respecto del origen del dato; registrar ambas relaciones por separado.
 
-## 6. Fuentes primarias, secundarias y oficiales
+## 6. Tipo de fuente y carácter institucional: ejes separados
 
-La clasificación depende de la relación con la proposición evaluada:
+El **tipo de fuente** se determina por la relación de la pieza con la proposición concreta, no como una reputación permanente de la entidad, medio, dominio o autor. Se propone registrar uno de estos valores:
 
-- **Primaria directa:** produce o conserva el registro del acto que se afirma (por ejemplo, resolución, transacción, repositorio oficial, presentación regulatoria). Puede acreditar el acto documentado, no sus consecuencias no registradas.
-- **Primaria testimonial:** una persona con conocimiento directo relata lo que observó o hizo. Se evalúan acceso, proximidad, capacidad de observación, consistencia, incentivos y posibilidad de contraste.
-- **Secundaria de investigación:** obtiene y contrasta información propia, pero no es el registro original. Se evalúan método, trazabilidad, atribución y separación real de orígenes.
-- **Secundaria de análisis:** interpreta datos/documentos. Puede aportar interpretación técnica, no corroboración directa del acontecimiento que interpreta.
-- **Reproductora/sindicada:** difunde contenido originado por otra fuente. No añade una corroboración independiente salvo que aporte comprobación propia diferenciada y demostrable.
-- **Oficial/institucional:** describe la relación institucional de quien publica; no es un nivel automático de veracidad. Se limita a los actos, competencias y registros que la entidad puede acreditar.
+- **PRIMARIA:** produce, ejecuta, observa directamente o conserva el registro original del acto/hecho evaluado. Incluye subtipos como registro original y testimonio de primera mano. Solo respalda aquello que su posición y el material permiten observar.
+- **SECUNDARIA:** obtiene, investiga, contrasta o analiza información procedente de fuentes primarias u otros materiales. La investigación propia puede aportar evidencia nueva si su método y procedencia son trazables; el análisis aporta interpretación, no necesariamente corroboración directa del hecho interpretado.
+- **TERCIARIA:** compila, indexa, resume o sintetiza información procedente principalmente de fuentes secundarias, como repertorios, enciclopedias, directorios, agregadores o revisiones de publicaciones. Por sí sola no constituye un nuevo origen primario de las afirmaciones que resume.
+- **DESCONOCIDA:** no hay información suficiente para clasificar la relación de la pieza con la proposición.
 
-No se ordenan estas categorías en una jerarquía universal. Una fuente primaria puede equivocarse, ser parcial o no tener competencia sobre una consecuencia; una fuente secundaria puede revelar evidencia directa propia. La evaluación depende de la afirmación y del alcance.
+El tipo puede variar por componente de una afirmación. Un documento oficial puede ser fuente primaria para acreditar que se emitió una resolución, mientras que una explicación de sus consecuencias publicada por esa misma entidad puede requerir evaluación separada. Cuando una pieza contenga contribuciones de tipos distintos, se desglosan por componente o se documenta expresamente la clasificación mixta; no se fuerza una etiqueta única.
+
+### 6.1 Subtipo, base de conocimiento y modo de difusión
+
+Mantener separados del tipo de fuente:
+
+- **Subtipo/función:** registro original, testimonio de primera mano, investigación secundaria, análisis técnico, comentario, compilación o reproducción.
+- **Base de conocimiento:** utilizar los valores definidos en 3.1 (OBSERVACIÓN_DIRECTA, REGISTRO_ORIGINAL, ACCESO_DIRECTO_DECLARADO, TESTIMONIO_DE_TERCEROS, DOCUMENTO_DE_TERCEROS, ANÁLISIS_REPRODUCIBLE, OPINIÓN_O_INTERPRETACIÓN, REPRODUCCIÓN_SIN_VERIFICACIÓN_PROPIA o DESCONOCIDA).
+- **Carácter institucional:** registrar por separado si la fuente es oficial/institucional y, cuando sea relevante, la entidad, competencia y ámbito de autoridad que invoca. «OFICIAL» no es un cuarto tipo de fuente ni un nivel automático de credibilidad o veracidad.
+- **Relación de procedencia:** conservar las relaciones del apartado 5.1, incluida la sindicación, cita, derivación y origen no determinado.
+
+Una publicación reproductora o sindicada no se clasifica automáticamente como terciaria: su tipo depende de su función respecto de la afirmación; su modo de difusión y dependencia se registran por separado. No añade corroboración independiente salvo que aporte comprobación propia diferenciada y demostrable.
+
+No se ordenan PRIMARIA, SECUNDARIA y TERCIARIA en una jerarquía universal de credibilidad. Una fuente primaria puede equivocarse, ser parcial o no tener competencia sobre una consecuencia; una fuente secundaria puede revelar evidencia directa propia; una fuente terciaria puede ser útil para localizar referencias sin constituir un origen adicional. La evaluación depende de la afirmación, el componente y el alcance.
 
 ## 7. Fuentes anónimas y confidenciales
 
@@ -260,7 +275,8 @@ La rúbrica debe rechazar, al menos, estos atajos:
 - [ ] Se aprueba la evaluación multidimensional y contextual, sin nota global ni probabilidades.
 - [ ] Se aprueban, modifican o rechazan los estados descriptivos por dimensión.
 - [ ] Se aprueba la representación de cadenas de procedencia y relaciones de dependencia.
-- [ ] Se distinguen fuentes primarias, testimoniales, secundarias de investigación, secundarias de análisis, reproductoras y oficiales por su relación con cada afirmación.
+- [ ] Se distinguen los tipos PRIMARIA, SECUNDARIA y TERCIARIA por su relación con cada afirmación y componente.
+- [ ] El carácter oficial/institucional, el subtipo/función, la base de conocimiento y el modo de difusión se registran en ejes separados; no se confunden con el tipo de fuente ni con credibilidad.
 - [ ] Se resuelven explícitamente los casos de anonimato y confidencialidad.
 - [ ] Se resuelven sindicación, citas cruzadas, documentos e informantes comunes.
 - [ ] Se define el tratamiento de contradicciones, rectificaciones y ausencia de corroboración compatible con #15.
