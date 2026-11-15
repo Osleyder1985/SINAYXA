@@ -86,7 +86,6 @@ No se exige una explicación artificial cuando los niveles adyacentes no puedan 
 - Una evaluación I0 debe explicar por qué no se identifica impacto material. La falta de información nunca se convierte en I0.
 - La intensidad potencial no mide probabilidad. La posibilidad de que se cumplan condiciones debe describirse separadamente como condición pendiente, no cuantificarse sin metodología aprobada.
 
-
 ### 3.4 Reglas de frontera entre niveles
 
 Los niveles forman una escala ordinal de severidad potencial para una unidad de análisis y un escenario concretos. No representan probabilidad, frecuencia ni confianza. Para evitar que los adjetivos se interpreten libremente, se aplican las siguientes pruebas de frontera:
@@ -189,7 +188,6 @@ Si la evidencia temporal es contradictoria, incompleta o solo aproximada, regist
 
 Para acontecimientos programados, puede existir una fase anticipatoria antes del hito y otra posterior a su materialización. Deben describirse por separado cuando los mecanismos difieran. La fecha programada no demuestra que el acontecimiento vaya a ocurrir.
 
-
 ### 4.3 Límites exactos y cálculo de ventanas
 
 Las ventanas se interpretan como duración transcurrida desde un instante de referencia identificado, no como etiquetas basadas en el cambio de fecha del calendario:
@@ -290,7 +288,6 @@ Tampoco define puntuación compuesta, pesos, probabilidad, retorno esperado, se�
 - [ ] Se acepta la separación entre dirección, intensidad y probabilidad, sin puntuaciones ni probabilidades inventadas.
 - [ ] Los casos ilustrativos se consideran suficientes y no contradicen el glosario del Issue #13.
 - [ ] Se acepta la preservación de evaluaciones anteriores y la prohibición de usar movimientos posteriores del precio como justificación retroactiva.
-
 
 ### 9.1 Batería mínima de pruebas metodológicas
 
