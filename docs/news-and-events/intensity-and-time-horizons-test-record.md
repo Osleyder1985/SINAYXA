@@ -46,7 +46,7 @@ El validador comprueba la identidad del paquete, los 19 IDs únicos y ordenados,
 
 **Límite:** validar la estructura del fixture no ejecuta la batería metodológica ni convierte ningún caso a PASS. La matriz de la sección 4 permanece en NOT_EXECUTED, salvo T16 en BLOCKED, hasta registrar evaluaciones efectivas.
 
-**Alcance ampliado del validador (commit `49db0a0cbe8f534eeeb8855e82279a4055bfda2d`):** además de la estructura, el script comprueba aritméticamente los vectores temporales de T11/T12, el tratamiento date-only de T13, los cuatro hitos de T14, el intervalo de frontera de T15, las 24 horas reales de T18 y el intervalo contradictorio de T19. Estas comprobaciones son deterministas sobre los datos sintéticos. No evalúan semánticamente intensidad/dirección de T01–T10/T16/T17, ni constituyen una ejecución integral de la batería. El nuevo código todavía requiere ejecución local en Windows PowerShell 5.1; no se afirma que esta versión ampliada haya pasado hasta recibir ese resultado.
+**Alcance ampliado del validador (commit `49db0a0cbe8f534eeeb8855e82279a4055bfda2d`):** además de la estructura, el script comprueba aritméticamente los vectores temporales de T11/T12, el tratamiento date-only de T13, los cuatro hitos de T14, el intervalo de frontera de T15, las 24 horas reales de T18 y el intervalo contradictorio de T19. Estas comprobaciones son deterministas sobre los datos sintéticos. No evalúan semánticamente intensidad/dirección de T01–T10/T16/T17, ni constituyen una ejecución integral de la batería. La ejecución local de esta versión ampliada en Windows PowerShell 5.1 quedó verificada y se registra en la sección 2.3. El resultado acredita únicamente las comprobaciones deterministas descritas; no constituye una ejecución integral de la batería metodológica.
 
 
 ### 2.2 Registro verificado de integridad del paquete
@@ -67,6 +67,28 @@ El validador comprueba la identidad del paquete, los 19 IDs únicos y ordenados,
 El hash anterior corresponde al archivo local en la ruta `tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence.json`. El propietario confirmó que el comando terminó con `Fixture validation: PASS` y que el árbol de trabajo estaba limpio.
 
 **Alcance exacto de esta verificación:** acredita que el fixture local coincide con las comprobaciones estructurales implementadas y que los dos documentos Markdown pasan lint. No constituye ejecución de los resultados metodológicos T01–T19, no cambia sus estados y no valida acuerdo interevaluador. La matriz de la sección 4 permanece sin cambios.
+
+
+### 2.3 Registro verificado de la ejecución ampliada del validador
+
+**Ejecución local comunicada por el propietario y reproducida en Windows PowerShell 5.1:**
+
+| Campo | Resultado |
+| --- | --- |
+| Commit ejecutado | `5e5dcb69663fd8e34b22825c9374bd0c949747b5` |
+| Comando | `.scripts\validation\validate_intensity_horizon_fixture.ps1` |
+| Validación estructural del fixture | PASS |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-001` |
+| Casos detectados | 19 |
+| Comprobaciones temporales deterministas | PASS: T11, T12, T13, T14, T15, T18 y T19 |
+| T16 | BLOCKED (bloqueo conservado correctamente) |
+| SHA-256 | `467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22` |
+| Ruta del fixture | `tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence.json` |
+| `git status --short` | Sin cambios pendientes |
+
+La salida observada fue: `Fixture structure validation: PASS`, `Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)` y `T16: BLOCKED (correctly preserved)`. El hash impreso coincide con el hash registrado para el paquete congelado.
+
+**Alcance:** este resultado verifica la estructura del fixture y los cálculos/reglas temporales deterministas implementados para los siete casos indicados. No demuestra que la clasificación semántica de intensidad/dirección de T01–T10 y T17 sea correcta, no ejecuta una evaluación integral de T01–T19, no valida acuerdo interevaluador y no satisface T16. Por tanto, los estados de la matriz de la sección 4 permanecen sin cambios: T01–T15 y T17–T19 siguen NOT_EXECUTED; T16 sigue BLOCKED. El PASS aquí registrado corresponde exclusivamente al validador de fixture y sus comprobaciones temporales.
 
 
 ## 3. Estados permitidos
