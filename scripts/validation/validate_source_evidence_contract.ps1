@@ -451,6 +451,13 @@ foreach ($assessment in $package.claim_assessments) {
         }
         $supportingUnits = @($supportingUnits | Sort-Object -Property assessment_unit_id -Unique)
         Test-Condition ($supportingUnits.Count -gt 0) 'CORROBORADA evidence must map to at least one exact supporting evaluation unit.'
+        $hasNonPrimarySupportingUnit = @($supportingUnits | Where-Object { $_.source_type -ne 'PRIMARIA' }).Count -gt 0
+        if ($hasNonPrimarySupportingUnit) {
+            Test-Condition ($assessment.corroboration_basis -in @('CORROBORACION_INDEPENDIENTE','AMBAS')) 'Any non-primary supporting source requires the independent-corroboration basis.'
+        }
+        if ($assessment.corroboration_basis -eq 'EVIDENCIA_PRIMARIA_DIRECTA') {
+            Test-Condition (-not $hasNonPrimarySupportingUnit) 'Primary-direct corroboration cannot silently include non-primary supporting sources.'
+        }
         if ($assessment.corroboration_basis -in @('EVIDENCIA_PRIMARIA_DIRECTA','AMBAS')) {
             Test-Condition $primaryDirectEvidenceFound 'Primary corroboration requires authenticated, legitimately accessed primary evidence directly linked to the exact component scope.'
         }
