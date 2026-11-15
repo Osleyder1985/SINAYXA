@@ -1,0 +1,394 @@
+{
+  "schema_version": "1.0.0",
+  "package_id": "SINAYXA-ALERTS-A01-A15-SYNTHETIC-001",
+  "status": "SYNTHETIC_TEST_FIXTURE_NOT_REAL_WORLD_EVIDENCE",
+  "source_proposal": "docs/news-and-events/alert-severity-and-deduplication-proposal.md",
+  "source_issue": 17,
+  "scope": "Structural conformance to the unapproved Issue #17 proposal only. These synthetic examples do not approve the methodology, calibrate severity, establish empirical validity, determine truth, authorize production alerts, or set thresholds, cooldowns, channels, or probabilities.",
+  "cases": [
+    {
+      "id": "A01",
+      "scenario": "La misma publicación y versión se captura dos veces sin cambios.",
+      "input": {
+        "same_source_item": true,
+        "same_version": true,
+        "material_change": false
+      },
+      "expected": {
+        "decision": "SUPPRESS_DUPLICATE",
+        "severity": "NOT_ASSIGNED",
+        "urgency": "PRESERVE_EXISTING",
+        "evidentiary_status": "PRESERVE_EXISTING",
+        "history": "RETAIN",
+        "reason": "La reingesta de la misma publicación y versión no genera una nueva emisión."
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A02",
+      "scenario": "Tres portales reproducen el mismo cable.",
+      "input": {
+        "publication_count": 3,
+        "shared_origin": "SAME_WIRE",
+        "independent_origins_proven": false
+      },
+      "expected": {
+        "decision": "GROUP_DEPENDENT_REFERENCE",
+        "severity": "NOT_ASSIGNED",
+        "urgency": "PRESERVE_EXISTING",
+        "evidentiary_status": "PRESERVE_EXISTING",
+        "history": "RETAIN_ALL_REFERENCES",
+        "reason": "Las republicaciones de un mismo cable son referencias dependientes, no corroboraciones independientes."
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A03",
+      "scenario": "Un regulador publica una resolución oficial.",
+      "input": {
+        "source_type": "REGULATOR_OFFICIAL_CHANNEL",
+        "document_authenticity": "AUTHENTICATED",
+        "claim_scope": "PUBLICATION_AND_EXISTENCE_OF_ACT"
+      },
+      "expected": {
+        "decision": "EVALUATE_OFFICIAL_ACT",
+        "severity": "REQUIRES_SCOPE_ASSESSMENT",
+        "urgency": "REQUIRES_VERIFIED_MILESTONE",
+        "evidentiary_status": "CORROBORADA",
+        "history": "RETAIN",
+        "reason": "La fuente primaria respalda únicamente la publicación y existencia del acto oficial; vigencia, ejecución y consecuencias se evalúan por separado.",
+        "evidence_scope": "OFFICIAL_ACT_ONLY"
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A04",
+      "scenario": "Rumor no corroborado sobre una vulnerabilidad potencialmente grave.",
+      "input": {
+        "claim_type": "RUMOUR",
+        "evidentiary_status": "NO_CORROBORADA",
+        "potential_harm": "POTENTIALLY_GRAVE",
+        "scope_verified": false,
+        "affected_scope": "TO_BE_DETERMINED"
+      },
+      "expected": {
+        "decision": "CREATE_WATCH_ALERT_IF_GUARDS_PASS",
+        "severity": "REQUIRES_JUSTIFICATION",
+        "urgency": "DESCONOCIDA_UNLESS_VERIFIED",
+        "evidentiary_status": "NO_CORROBORADA",
+        "history": "RETAIN",
+        "reason": "Un riesgo potencial grave puede justificar vigilancia temprana, pero la afirmación debe seguir visible como no confirmada.",
+        "visible_label": "NO_CONFIRMADA"
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A05",
+      "scenario": "El rumor recibe un desmentido documentado.",
+      "input": {
+        "prior_claim_status": "NO_CORROBORADA",
+        "new_item": "DOCUMENTED_DENIAL",
+        "denial_truth_independently_established": false
+      },
+      "expected": {
+        "decision": "ISSUE_VISIBLE_MATERIAL_UPDATE",
+        "severity": "REASSESS_WITH_REASON",
+        "urgency": "REASSESS_WITH_REASON",
+        "evidentiary_status": "PRESERVE_PRIOR_CLAIM_STATUS_UNTIL_REASSESSED",
+        "history": "RETAIN_RUMOUR_AND_DENIAL",
+        "reason": "Registrar un desmentido no demuestra automáticamente la falsedad de la afirmación; conservar ambos registros."
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A06",
+      "scenario": "Una fuente independiente aporta un documento primario nuevo sobre el mismo claim.",
+      "input": {
+        "same_claim": true,
+        "new_primary_evidence": true,
+        "independent_origin_proven": true
+      },
+      "expected": {
+        "decision": "REASSESS_CLAIM_AND_UPDATE_IF_MATERIAL",
+        "severity": "REASSESS_WITH_REASON",
+        "urgency": "REASSESS_WITH_REASON",
+        "evidentiary_status": "REASSESS_FROM_NEW_EVIDENCE",
+        "history": "RETAIN_PRIOR_ASSESSMENTS",
+        "reason": "La evidencia primaria nueva con origen independiente demostrado exige reevaluar la afirmación; actualizar solo si el cambio es material."
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A07",
+      "scenario": "El precio cae después de una noticia.",
+      "input": {
+        "only_new_observation": "PRICE_DECLINE",
+        "causal_link_established": false
+      },
+      "expected": {
+        "decision": "NO_PROOF_OR_SEVERITY_UPGRADE",
+        "severity": "NO_CHANGE_FROM_PRICE_ALONE",
+        "urgency": "NO_CHANGE_FROM_PRICE_ALONE",
+        "evidentiary_status": "NO_CHANGE_FROM_PRICE_ALONE",
+        "history": "RETAIN_MARKET_OBSERVATION_SEPARATELY",
+        "reason": "La caída del precio no corrobora la noticia ni eleva por sí sola la severidad."
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A08",
+      "scenario": "Dos eventos del mismo tipo afectan a activos distintos.",
+      "input": {
+        "same_event_type": true,
+        "asset_a": "ASSET_A",
+        "asset_b": "ASSET_B",
+        "same_real_world_event": false
+      },
+      "expected": {
+        "decision": "KEEP_EVENTS_SEPARATE_OPTIONAL_GROUP",
+        "severity": "ASSESS_PER_EVENT",
+        "urgency": "ASSESS_PER_EVENT",
+        "evidentiary_status": "ASSESS_PER_CLAIM",
+        "history": "RETAIN_SEPARATE_EVENT_IDENTITIES",
+        "reason": "La similitud del tipo de evento no permite fusionar eventos distintos que afectan a activos diferentes."
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A09",
+      "scenario": "Una publicación corrige un importe o fecha esencial.",
+      "input": {
+        "same_source_item": true,
+        "new_version": true,
+        "material_field_changed": "AMOUNT_OR_DATE"
+      },
+      "expected": {
+        "decision": "CREATE_MATERIAL_VERSION_UPDATE",
+        "severity": "REASSESS_WITH_REASON",
+        "urgency": "REASSESS_WITH_REASON",
+        "evidentiary_status": "REASSESS_EXACT_CLAIM_SCOPE",
+        "history": "RETAIN_PREVIOUS_VERSION",
+        "reason": "Una corrección material crea una versión vinculada y conserva la versión anterior."
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A10",
+      "scenario": "Una nota nueva reproduce lo ya conocido sin evidencia nueva.",
+      "input": {
+        "new_publication": true,
+        "new_evidence": false,
+        "new_claim": false
+      },
+      "expected": {
+        "decision": "NO_RESEND_ATTACH_CONTEXT",
+        "severity": "NO_CHANGE",
+        "urgency": "NO_CHANGE",
+        "evidentiary_status": "NO_CHANGE",
+        "history": "RETAIN_REFERENCE_AS_DEPENDENT_OR_UNASSESSED",
+        "reason": "Una nueva nota sin evidencia ni afirmación nueva no justifica reenviar la alerta."
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A11",
+      "scenario": "Se aproxima un hito futuro verificable sin cambio del riesgo potencial.",
+      "input": {
+        "verified_future_milestone": true,
+        "time_to_milestone_decreased": true,
+        "impact_assessment_changed": false
+      },
+      "expected": {
+        "decision": "UPDATE_URGENCY_ONLY_IF_POLICY_ALLOWS",
+        "severity": "UNCHANGED",
+        "urgency": "MAY_CHANGE_WITH_TEMPORAL_EVIDENCE",
+        "evidentiary_status": "UNCHANGED",
+        "history": "RETAIN_PRIOR_ASSESSMENT",
+        "reason": "La proximidad de un hito futuro verificable puede cambiar urgencia, nunca automáticamente severidad ni estado probatorio."
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A12",
+      "scenario": "Un evento pasado parece seguir produciendo efectos.",
+      "input": {
+        "event_is_past": true,
+        "current_persistence_evidence": false,
+        "age_used_as_future_horizon": false
+      },
+      "expected": {
+        "decision": "REASSESS_PERSISTENCE_ONLY_WITH_EVIDENCE",
+        "severity": "REASSESS_CURRENT_IMPACT_IF_EVIDENCED",
+        "urgency": "PASADA",
+        "evidentiary_status": "PRESERVE_UNTIL_NEW_EVIDENCE",
+        "history": "RETAIN_EVENT_AGE_SEPARATELY",
+        "reason": "La persistencia de efectos requiere evidencia actual; la antigüedad de un evento pasado no es un horizonte futuro."
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A13",
+      "scenario": "Dos claims incompatibles describen el mismo evento.",
+      "input": {
+        "same_event": true,
+        "claims_materially_incompatible": true,
+        "evidence_lines_individually_sufficient": false
+      },
+      "expected": {
+        "decision": "KEEP_CLAIMS_SEPARATE_AND_LINK_EVENT",
+        "severity": "ASSESS_PER_CLAIM",
+        "urgency": "ASSESS_PER_CLAIM",
+        "evidentiary_status": "PRESERVE_EACH_CLAIM_AND_UNRESOLVED_CONFLICT",
+        "history": "RETAIN_BOTH_CLAIMS",
+        "reason": "Claims incompatibles pueden compartir evento, pero no se fusionan ni se resuelven por mayoría."
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A14",
+      "scenario": "No puede determinarse si dos publicaciones comparten origen.",
+      "input": {
+        "source_relationship": "UNKNOWN",
+        "independence_proven": false
+      },
+      "expected": {
+        "decision": "PRESERVE_UNRESOLVED_SOURCE_RELATIONSHIP",
+        "severity": "NO_CHANGE_FROM_UNKNOWN_INDEPENDENCE",
+        "urgency": "NO_CHANGE_FROM_UNKNOWN_INDEPENDENCE",
+        "evidentiary_status": "NO_UPGRADE_FROM_UNKNOWN_INDEPENDENCE",
+        "history": "RETAIN_BOTH_SOURCE_ITEMS",
+        "reason": "La relación de origen desconocida no se presenta como independencia demostrada ni como corroboración adicional.",
+        "independence_of_origin": "DESCONOCIDA"
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    },
+    {
+      "id": "A15",
+      "scenario": "Una alerta se suprime por una política del canal.",
+      "input": {
+        "channel_policy_suppresses_delivery": true,
+        "policy_is_identified": true
+      },
+      "expected": {
+        "decision": "SUPPRESS_DELIVERY_WITH_AUDIT_RECORD",
+        "severity": "UNCHANGED",
+        "urgency": "UNCHANGED",
+        "evidentiary_status": "UNCHANGED",
+        "history": "RETAIN_ALERT_AND_SUPPRESSION_RECORD",
+        "reason": "La supresión afecta a la entrega, no borra la alerta ni altera su estado probatorio.",
+        "audit_fields": [
+          "reason",
+          "rule_id",
+          "actor",
+          "timestamp"
+        ]
+      },
+      "invariants": {
+        "price_changes_evidentiary_status": false,
+        "severity_changes_evidentiary_status": false,
+        "republishing_is_independent": false,
+        "grouping_merges_evidence": false,
+        "suppression_deletes_history": false,
+        "retroactive_rewrite": false
+      }
+    }
+  ]
+}
