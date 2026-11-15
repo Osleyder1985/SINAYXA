@@ -1449,6 +1449,9 @@
             "properties": {
               "supporting_evidence_refs": {
                 "minItems": 1
+              },
+              "independence_assessment_refs": {
+                "minItems": 1
               }
             }
           }
@@ -1646,11 +1649,24 @@
           ]
         },
         "previous_disposition": {
-          "type": ["string", "null"],
-          "enum": ["RETAIN", "REFERENCE_ONLY", "DELETE_PENDING", "DELETED", "RESTRICTED", null]
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "RETAIN",
+            "REFERENCE_ONLY",
+            "DELETE_PENDING",
+            "DELETED",
+            "RESTRICTED",
+            null
+          ]
         },
         "authorization_reference": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "recorded_at": {
           "$ref": "#/$defs/utc"
@@ -1698,9 +1714,37 @@
         "reason": {
           "$ref": "#/$defs/nonEmpty"
         },
-        "retention_id": { "$ref": "#/$defs/id" },
-        "from_disposition": { "type": ["string", "null"], "enum": ["RETAIN", "REFERENCE_ONLY", "DELETE_PENDING", "DELETED", "RESTRICTED", null] },
-        "to_disposition": { "type": ["string", "null"], "enum": ["RETAIN", "REFERENCE_ONLY", "DELETE_PENDING", "DELETED", "RESTRICTED", null] }
+        "retention_id": {
+          "$ref": "#/$defs/id"
+        },
+        "from_disposition": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "RETAIN",
+            "REFERENCE_ONLY",
+            "DELETE_PENDING",
+            "DELETED",
+            "RESTRICTED",
+            null
+          ]
+        },
+        "to_disposition": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "RETAIN",
+            "REFERENCE_ONLY",
+            "DELETE_PENDING",
+            "DELETED",
+            "RESTRICTED",
+            null
+          ]
+        }
       }
     },
     "sourceId": {
