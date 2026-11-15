@@ -122,7 +122,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | T15 | Intervalo cruza frontera 24 h: conservar intervalo; horizonte único INDETERMINADO; compatibles INMEDIATO y CORTO | NOT_EXECUTED | Conservar límites 23 h 50 min–24 h 10 min; horizonte único INDETERMINADO; compatibles INMEDIATO y CORTO (decisión humana asistida por IA; desviación de secuencia) | Sección 25; ejecución conforme al protocolo pendiente |
 | T16 | Evaluación primaria de un humano + crítica IA separada; diferencias documentadas sin promediar ni afirmar acuerdo | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T17 | Evidencia insuficiente para confirmar o descartar mecanismo material: INDETERMINADA | NOT_EXECUTED | Intensidad INDETERMINADA; no asignar I0 ni I1–I4; documentar brechas y permitir vigilancia sin confirmar catalizador (decisión humana asistida por IA; desviación de secuencia) | Sección 27; ejecución conforme al protocolo pendiente |
-| T18 | Exactamente 24 h reales durante cambio horario → INMEDIATO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T18 | Cambio horario Europe/Madrid: comparar instantes absolutos; 24 h reales → INMEDIATO | NOT_EXECUTED | Usar instantes comparables/UTC y zona Europe/Madrid; duración real exacta de 24 h → INMEDIATO; no usar diferencia ingenua de reloj local (decisión humana asistida por IA; desviación de secuencia) | Sección 28; ejecución conforme al protocolo pendiente |
 | T19 | Conservar fuentes e intervalo 23 h 50 min–24 h 10 min; categoría única INDETERMINADO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 
 ## 5. Ficha obligatoria por caso
@@ -1043,3 +1043,46 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 27.4 Resultado de auditoría
 
 La decisión **INDETERMINADA** queda documentada porque la evidencia no permite confirmar ni descartar el mecanismo material. No se equipara ausencia de evidencia con evidencia de ausencia, ni se fuerza I0 o I1–I4. La vigilancia y la recopilación adicional pueden continuar sin elevar una hipótesis a catalizador confirmado. **T17 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+
+## 28. Registro de decisión asistida — T18
+
+### 28.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T18 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Cálculo de duración durante un cambio horario en Europe/Madrid |
+| Evidencia examinada | T18: timestamps en zona Europe/Madrid a ambos lados de un cambio horario |
+| Decisión humana comunicada | Comparar instantes absolutos; una duración real de 24 horas se clasifica como INMEDIATO |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 28.2 Decisión y regla de cálculo
+
+El propietario aceptó que la duración se calcule entre instantes absolutos comparables, preservando la zona horaria de origen `Europe/Madrid` y evitando la resta ingenua de las representaciones locales del reloj.
+
+- La zona IANA de origen debe conservarse como metadato: `Europe/Madrid`.
+- Cada timestamp debe interpretarse con su offset y reglas de zona válidos para la fecha correspondiente.
+- La duración se calcula entre los instantes equivalentes, por ejemplo después de convertirlos a UTC.
+- Una duración real exactamente igual a 24 horas pertenece a **INMEDIATO**, conforme a la frontera inclusiva aceptada en T11.
+- El salto del reloj local al entrar o salir del horario de verano no constituye por sí mismo tiempo transcurrido.
+
+Durante una transición de horario, la diferencia aparente entre las horas locales puede ser distinta de la duración absoluta. Por tanto, no se deben restar horas de pared ni asumir que la diferencia entre las etiquetas locales representa el tiempo real. Si un timestamp local es ambiguo o inexistente y no incluye offset u otra información suficiente para resolverlo, se debe preservar esa ambigüedad y dejar la duración sin determinar; no se elegirá arbitrariamente uno de los instantes posibles.
+
+La clasificación depende de la duración absoluta calculada con precisión suficiente. No se redondeará antes de aplicar las fronteras temporales. Este registro acepta la regla metodológica; no demuestra por sí mismo que el código de SINAYXA la implemente correctamente.
+
+### 28.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción no cumple la secuencia de evaluación primaria humana sellada antes de la crítica de IA establecida en el protocolo de evaluador único.
+
+La aceptación se conserva como **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T18.
+
+Para completar una ejecución formal conforme al protocolo, será necesaria una nueva evaluación con el paquete congelado: primero se registra y sella la evaluación humana sin conocer la salida de IA y, después, se realiza la crítica auxiliar separada. La nueva ejecución se conservará como un registro distinto, sin sobrescribir esta decisión.
+
+### 28.4 Resultado de auditoría
+
+La decisión **instantes absolutos / zona Europe/Madrid preservada / 24 horas reales = INMEDIATO** queda documentada como decisión humana asistida. La aritmética ingenua de horas locales no se acepta como sustituto del cálculo de duración real; timestamps ambiguos o inexistentes sin offset suficiente no se resolverán por conjetura. **T18 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
