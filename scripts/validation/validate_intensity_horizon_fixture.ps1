@@ -98,6 +98,12 @@ if ($t16.expected.fixture_limit -notlike "A synthetic disagreement*") {
 # fields and scope declarations; they do not prove that the expected judgments
 # are methodologically correct or constitute execution of the semantic cases.
 if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-002") {
+    if ($fixture.supersedes.package_id -ne "SINAYXA-IH-T01-T19-SYNTHETIC-001" -or
+        $fixture.supersedes.package_version -ne "1.0.0" -or
+        $fixture.supersedes.sha256 -ne "467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22") {
+        throw "v1.1.0 must identify the immutable v1.0.0 package it supersedes."
+    }
+
     $t01 = Get-FixtureCase -Id "T01"
     if ($t01.expected.intensity -ne "I0" -or
         $t01.unit -notlike "*technical and operational functions only*" -or
