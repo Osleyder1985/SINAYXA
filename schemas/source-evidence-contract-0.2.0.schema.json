@@ -803,7 +803,76 @@
         "recorded_at": {
           "$ref": "#/$defs/utc"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "available_at": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "available_at"
+            ]
+          },
+          "then": {
+            "properties": {
+              "availability_basis": {
+                "enum": [
+                  "SINAYXA_OBSERVATION",
+                  "INDEPENDENT_ARCHIVE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "availability_basis": {
+                "const": "SOURCE_STATED"
+              }
+            },
+            "required": [
+              "availability_basis"
+            ]
+          },
+          "then": {
+            "properties": {
+              "available_at": {
+                "type": "null"
+              },
+              "availability_reference": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "availability_basis": {
+                "const": "UNKNOWN"
+              }
+            },
+            "required": [
+              "availability_basis"
+            ]
+          },
+          "then": {
+            "properties": {
+              "available_at": {
+                "type": "null"
+              },
+              "availability_reference": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
     },
     "evidenceLink": {
       "type": "object",
@@ -1129,7 +1198,8 @@
         "supersedes_assessment_id",
         "claim_version_id",
         "claim_component_version_id",
-        "reviewed_at"
+        "reviewed_at",
+        "rationale"
       ],
       "properties": {
         "claim_assessment_id": {
@@ -1209,6 +1279,23 @@
         },
         "reviewed_at": {
           "$ref": "#/$defs/optionalUtc"
+        },
+        "rationale": {
+          "$ref": "#/$defs/nonEmpty"
+        },
+        "supported_scope": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "unsupported_scope": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
         }
       }
     },
