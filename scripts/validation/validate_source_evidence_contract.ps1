@@ -442,7 +442,7 @@ foreach ($assessment in $package.claim_assessments) {
                             $_.claim_version_id -eq $assessment.claim_version_id -and $_.claim_component_version_id -eq $assessment.claim_component_version_id -and
                             $_.evidence_role -eq 'SUPPORTING' -and -not [string]::IsNullOrWhiteSpace([string]$_.scope_note)
                         })
-                        if ($unit.knowledge_basis -in @('OBSERVACION_DIRECTA','TESTIMONIO_DIRECTO','REGISTRO_ORIGINAL') -and $item.authenticity_status -eq 'AUTENTICADA' -and $item.access_status -in @('PÚBLICO_LEGÍTIMO','PRIVADO_AUTORIZADO') -and $directLinks.Count -gt 0) {
+                        if ($unit.knowledge_basis -in @('OBSERVACIÓN_DIRECTA','REGISTRO_ORIGINAL') -and $item.authenticity_status -eq 'AUTENTICADA' -and $item.access_status -in @('PÚBLICO_LEGÍTIMO','PRIVADO_AUTORIZADO') -and $directLinks.Count -gt 0) {
                             $primaryDirectEvidenceFound = $true
                         }
                     }
