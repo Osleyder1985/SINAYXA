@@ -95,6 +95,7 @@ La validación del código corregido se ejecutó en GitHub Actions sobre runner 
 **Evidencia principal:** [GitHub Actions run #43730040376](https://github.com/Osleyder1985/SINAYXA/actions/runs/43730040376), sobre el commit fuente `27378b72543f0f078e75b3f6e404875889c3290e`.
 
 Resultados registrados:
+
 - PowerShell 7.6.6: versión exacta verificada.
 - PSScriptAnalyzer 1.24.0: cero findings.
 - Inventario de scripts versionados y análisis sintáctico: PASS.
