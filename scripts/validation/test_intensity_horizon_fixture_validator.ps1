@@ -101,7 +101,18 @@ try {
         $case.evidence[0].date_only = "2026-02-30"
     }
 
-    Write-Host "Negative validator tests: PASS (8 mutation cases)"
+    Invoke-ExpectedFailure -Name "reject-duplicate-case-id" -ExpectedMessage "Duplicate case IDs" -Mutation {
+        param($Fixture)
+        $Fixture.cases[1].id = $Fixture.cases[0].id
+    }
+
+    Invoke-ExpectedFailure -Name "reject-wrong-t18-elapsed-seconds" -ExpectedMessage "T18 Europe/Madrid offset consistency" -Mutation {
+        param($Fixture)
+        $case = $Fixture.cases | Where-Object { $_.id -eq "T18" }
+        $case.evidence[0].expected_elapsed_seconds = 82800
+    }
+
+    Write-Host "Negative validator tests: PASS (10 mutation cases)"
 }
 finally {
     if (Test-Path -LiteralPath $tempDirectory) {
