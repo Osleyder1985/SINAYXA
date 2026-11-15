@@ -37,6 +37,24 @@ Cada evaluación debe mantener conceptualmente separadas estas dimensiones. La t
 | Acceso y procedencia | PÚBLICO_LEGÍTIMO, PRIVADO_AUTORIZADO, SOSPECHA_DE_ACCESO_NO_AUTORIZADO, NO_DETERMINADO | Si existe base legítima conocida para acceder a la evidencia |
 | Revisión de información sensible | NO_EVALUADA, POSIBLE_INFORMACIÓN_PRIVILEGIADA, REVISIÓN_LEGAL_REQUERIDA, REVISADA_CON_RESTRICCIONES, EXCLUIDA | Si existen señales que impiden tratar el material como información ordinaria |
 
+### 2.1 Compatibilidad con la taxonomía aprobada
+
+La taxonomía de catalizadores y el glosario aprobado del Issue #13 ya establecen los estados descriptivos **Confirmada por evidencia primaria**, **Atribuida a fuente identificada**, **Parcialmente corroborada**, **No corroborada** y **Posteriormente desmentida**. Los términos técnicos propuestos en este documento no los sustituyen ni autorizan una nueva taxonomía por sí solos.
+
+La correspondencia propuesta es:
+
+| Estado detallado de esta propuesta | Relación con el vocabulario aprobado | Salvaguarda |
+| --- | --- | --- |
+| CORROBORADA | Refina el principio de confirmación mediante evidencia primaria y/o corroboración independiente. | Registrar siempre la base: evidencia primaria o fuentes secundarias cuya independencia haya sido demostrada. No presentar una corroboración secundaria como «evidencia primaria». |
+| PARCIALMENTE_CORROBORADA | Equivale a **Parcialmente corroborada**. | Delimitar exactamente los componentes respaldados y los que siguen sin respaldo. |
+| NO_CORROBORADA | Equivale a **No corroborada**. | No convertir ausencia de corroboración en falsedad. |
+| AFIRMACIÓN ATRIBUIDA | Equivale a **Atribuida a fuente identificada**, cuando la fuente sea identificable. | La atribución acredita quién sostiene la afirmación, no su veracidad. |
+| CONTRADICHA | Refinamiento propuesto para una incompatibilidad probatoria todavía no resuelta. | No equivale automáticamente a **Posteriormente desmentida** ni a REFUTADA. |
+| REFUTADA | Refinamiento propuesto cuando evidencia directa y pertinente demuestra que la proposición concreta es falsa. | Solo podrá describirse como **Posteriormente desmentida** cuando la evidencia sea posterior; conservar el alcance exacto refutado. |
+| NO_RESUELTA | Indicador propuesto de que la evaluación no permite resolver la discrepancia o insuficiencia. | Es una condición de resolución, no un sinónimo de NO_CORROBORADA ni una conclusión de falsedad. |
+
+Hasta que el propietario apruebe expresamente esta propuesta, las etiquetas y correspondencias de esta tabla son exclusivamente explicativas. Cualquier contrato de datos o interfaz futura deberá conservar el vocabulario aprobado y representar por separado la base probatoria y los refinamientos que se aprueben.
+
 No se debe derivar automáticamente una dimensión de otra. Por ejemplo:
 
 - AUTENTICADA no significa CORROBORADA en cuanto a todas las afirmaciones del documento.
