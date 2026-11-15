@@ -66,32 +66,38 @@
         {
           "from": "portal-1",
           "relation": "ORIGINATES_FROM",
-          "to": "agency-wire"
+          "to": "agency-wire",
+          "edge_id": "S01-P01"
         },
         {
           "from": "portal-2",
           "relation": "REPRODUCES",
-          "to": "agency-wire"
+          "to": "agency-wire",
+          "edge_id": "S01-P02"
         },
         {
           "from": "portal-3",
           "relation": "REPRODUCES",
-          "to": "agency-wire"
+          "to": "agency-wire",
+          "edge_id": "S01-P03"
         },
         {
           "from": "portal-4",
           "relation": "REPRODUCES",
-          "to": "agency-wire"
+          "to": "agency-wire",
+          "edge_id": "S01-P04"
         },
         {
           "from": "portal-5",
           "relation": "REPRODUCES",
-          "to": "agency-wire"
+          "to": "agency-wire",
+          "edge_id": "S01-P05"
         },
         {
           "from": "portal-6",
           "relation": "REPRODUCES",
-          "to": "agency-wire"
+          "to": "agency-wire",
+          "edge_id": "S01-P06"
         }
       ],
       "expected": {
@@ -158,7 +164,27 @@
           "assessment_cutoff": "2026-11-15T00:00:00Z"
         }
       ],
-      "independence_evidence": []
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DEPENDIENTE",
+        "decision_scope": "content",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S01-P01",
+          "synthetic-fixture://S01-P02",
+          "synthetic-fixture://S01-P03",
+          "synthetic-fixture://S01-P04",
+          "synthetic-fixture://S01-P05",
+          "synthetic-fixture://S01-P06"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Seis publicaciones no crean seis orígenes."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S02",
@@ -174,12 +200,14 @@
         {
           "from": "outlet-a",
           "relation": "CONTACTO_COMÚN",
-          "to": "anonymous-spokesperson"
+          "to": "anonymous-spokesperson",
+          "edge_id": "S02-P01"
         },
         {
           "from": "outlet-b",
           "relation": "CONTACTO_COMÚN",
-          "to": "anonymous-spokesperson"
+          "to": "anonymous-spokesperson",
+          "edge_id": "S02-P02"
         }
       ],
       "expected": {
@@ -215,7 +243,23 @@
           "assessment_cutoff": "2026-11-15T00:00:00Z"
         }
       ],
-      "independence_evidence": []
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DEPENDIENTE",
+        "decision_scope": "statement",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S02-P01",
+          "synthetic-fixture://S02-P02"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "El portavoz común es un único origen para la declaración compartida."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S03",
@@ -231,7 +275,8 @@
         {
           "from": "regulator-record",
           "relation": "ORIGINATES_FROM",
-          "to": "regulator"
+          "to": "regulator",
+          "edge_id": "S03-P01"
         }
       ],
       "expected": {
@@ -264,7 +309,22 @@
           "assessment_cutoff": "2026-11-15T00:00:00Z"
         }
       ],
-      "independence_evidence": []
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "filing",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S03-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "La fuente primaria solo acredita la presentación registrada, no aprobación."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S04",
@@ -280,12 +340,14 @@
         {
           "from": "outlet-investigation",
           "relation": "ORIGINATES_FROM",
-          "to": "own-interviews"
+          "to": "own-interviews",
+          "edge_id": "S04-P01"
         },
         {
           "from": "outlet-investigation",
           "relation": "ORIGINATES_FROM",
-          "to": "separate-records"
+          "to": "separate-records",
+          "edge_id": "S04-P02"
         }
       ],
       "expected": {
@@ -343,7 +405,25 @@
           "evidence_type": "DISTINCT_DOCUMENT_PATH",
           "reference": "synthetic-fixture://S04-E02"
         }
-      ]
+      ],
+      "assessment_record": {
+        "decision_state": "INDEPENDIENTE",
+        "decision_scope": "reported-fact",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S04-P01",
+          "synthetic-fixture://S04-P02",
+          "synthetic-fixture://S04-E01",
+          "synthetic-fixture://S04-E02"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "La independencia se admite solo para los componentes cuya vía separada está demostrada."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S05",
@@ -359,7 +439,8 @@
         {
           "from": "analyst-report",
           "relation": "ANALYSIS_OF",
-          "to": "public-contract"
+          "to": "public-contract",
+          "edge_id": "S05-P01"
         }
       ],
       "expected": {
@@ -387,7 +468,22 @@
           "assessment_cutoff": "2026-11-15T00:00:00Z"
         }
       ],
-      "independence_evidence": []
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "interpretation",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S05-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "La interpretación no acredita que el contrato se ejecutó."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S06",
@@ -403,7 +499,8 @@
         {
           "from": "article-v2",
           "relation": "REVISION_OF",
-          "to": "article-v1"
+          "to": "article-v1",
+          "edge_id": "S06-P01"
         }
       ],
       "expected": {
@@ -438,7 +535,22 @@
           "assessment_cutoff": "2026-11-15T00:00:00Z"
         }
       ],
-      "independence_evidence": []
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "amount",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S06-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "La rectificación afecta al componente importe; preservar versiones y no invalidar otros componentes."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S07",
@@ -454,7 +566,8 @@
         {
           "from": "anonymous-source",
           "relation": "ORIGIN_NO_VERIFIED",
-          "to": "unknown"
+          "to": "unknown",
+          "edge_id": "S07-P01"
         }
       ],
       "expected": {
@@ -481,7 +594,22 @@
           "assessment_cutoff": "2026-11-15T00:00:00Z"
         }
       ],
-      "independence_evidence": []
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "access-claim",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S07-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Acceso declarado no es acceso verificado; independencia permanece DESCONOCIDA."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S08",
@@ -497,12 +625,14 @@
         {
           "from": "outlet-a",
           "relation": "DOCUMENTO_COMÚN",
-          "to": "intermediary-document"
+          "to": "intermediary-document",
+          "edge_id": "S08-P01"
         },
         {
           "from": "outlet-b",
           "relation": "DOCUMENTO_COMÚN",
-          "to": "intermediary-document"
+          "to": "intermediary-document",
+          "edge_id": "S08-P02"
         }
       ],
       "expected": {
@@ -537,7 +667,23 @@
           "assessment_cutoff": "2026-11-15T00:00:00Z"
         }
       ],
-      "independence_evidence": []
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DEPENDIENTE",
+        "decision_scope": "document-content",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S08-P01",
+          "synthetic-fixture://S08-P02"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Documento e intermediario comunes implican dependencia para ese contenido."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S09",
@@ -553,12 +699,14 @@
         {
           "from": "reporter-a",
           "relation": "ORIGINATES_FROM",
-          "to": "observation-a"
+          "to": "observation-a",
+          "edge_id": "S09-P01"
         },
         {
           "from": "reporter-b",
           "relation": "ORIGINATES_FROM",
-          "to": "observation-b"
+          "to": "observation-b",
+          "edge_id": "S09-P02"
         }
       ],
       "expected": {
@@ -625,7 +773,25 @@
           "evidence_type": "REPORTER_B_DIRECT_OBSERVATION",
           "reference": "synthetic-fixture://S09-E02"
         }
-      ]
+      ],
+      "assessment_record": {
+        "decision_state": "INDEPENDIENTE",
+        "decision_scope": "observed-event",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S09-P01",
+          "synthetic-fixture://S09-P02",
+          "synthetic-fixture://S09-E01",
+          "synthetic-fixture://S09-E02"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Empleador común no demuestra dependencia si las vías separadas están sustentadas."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S10",
@@ -641,7 +807,8 @@
         {
           "from": "official-denial",
           "relation": "ORIGINATES_FROM",
-          "to": "institution"
+          "to": "institution",
+          "edge_id": "S10-P01"
         }
       ],
       "expected": {
@@ -671,7 +838,22 @@
           "assessment_cutoff": "2026-11-15T00:00:00Z"
         }
       ],
-      "independence_evidence": []
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "denial",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S10-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Registrar la negación atribuida; autoridad institucional no convierte la negación en refutación."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S11",
@@ -687,7 +869,8 @@
         {
           "from": "original-document",
           "relation": "ORIGINATES_FROM",
-          "to": "record-custodian"
+          "to": "record-custodian",
+          "edge_id": "S11-P01"
         }
       ],
       "expected": {
@@ -716,7 +899,22 @@
           "assessment_cutoff": "2026-11-15T00:00:00Z"
         }
       ],
-      "independence_evidence": []
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "documented-act",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S11-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Evaluar historial y autenticidad del documento por separado; los errores previos no lo invalidan automáticamente."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S12",
@@ -732,7 +930,8 @@
         {
           "from": "publication",
           "relation": "ORIGIN_NO_VERIFIED",
-          "to": "unknown"
+          "to": "unknown",
+          "edge_id": "S12-P01"
         }
       ],
       "expected": {
@@ -760,7 +959,22 @@
           "assessment_cutoff": "2026-11-15T00:00:00Z"
         }
       ],
-      "independence_evidence": []
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "unsupported-claim",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S12-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Prestigio no sustituye evidencia; no inferir credibilidad ni independencia."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S13",
@@ -776,12 +990,14 @@
         {
           "from": "source-a",
           "relation": "CITES",
-          "to": "source-b"
+          "to": "source-b",
+          "edge_id": "S13-P01"
         },
         {
           "from": "source-b",
           "relation": "CITES",
-          "to": "source-a"
+          "to": "source-a",
+          "edge_id": "S13-P02"
         }
       ],
       "expected": {
@@ -808,7 +1024,23 @@
           "assessment_cutoff": "2026-11-15T00:00:00Z"
         }
       ],
-      "independence_evidence": []
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DEPENDIENTE",
+        "decision_scope": "circular-claim",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S13-P01",
+          "synthetic-fixture://S13-P02"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Detectar ciclo y no contar las dos publicaciones como orígenes independientes."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S14",
@@ -824,12 +1056,14 @@
         {
           "from": "source-a",
           "relation": "ORIGINATES_FROM",
-          "to": "observation-a"
+          "to": "observation-a",
+          "edge_id": "S14-P01"
         },
         {
           "from": "source-b",
           "relation": "ORIGINATES_FROM",
-          "to": "observation-b"
+          "to": "observation-b",
+          "edge_id": "S14-P02"
         }
       ],
       "expected": {
@@ -902,7 +1136,27 @@
           "evidence_type": "SOURCE_B_SEPARATE_OBSERVATION",
           "reference": "synthetic-fixture://S14-E02"
         }
-      ]
+      ],
+      "assessment_record": {
+        "decision_state": "INDEPENDIENTE",
+        "decision_scope": "amount",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S14-P01",
+          "synthetic-fixture://S14-P02",
+          "synthetic-fixture://S14-E01",
+          "synthetic-fixture://S14-E02"
+        ],
+        "contrary_evidence_refs": [
+          "synthetic-fixture://S14/contrary/amount-disagreement"
+        ],
+        "limitations": [
+          "Independencia y coincidencia se limitan a entidad y fecha; importe no resuelto."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S15",
@@ -918,7 +1172,8 @@
         {
           "from": "editorial-assertion",
           "relation": "IDENTITY_VERIFICATION_NOT_AVAILABLE_TO_SINAYXA",
-          "to": "unknown-source"
+          "to": "unknown-source",
+          "edge_id": "S15-P01"
         }
       ],
       "expected": {
@@ -945,7 +1200,22 @@
           "assessment_cutoff": "2026-11-15T00:00:00Z"
         }
       ],
-      "independence_evidence": []
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "source-separation",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S15-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "La garantía del editor no transfiere verificación de identidad ni independencia a SINAYXA."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     },
     {
       "id": "S16",
@@ -961,12 +1231,14 @@
         {
           "from": "analysis-a",
           "relation": "ANALYSIS_OF",
-          "to": "shared-dataset"
+          "to": "shared-dataset",
+          "edge_id": "S16-P01"
         },
         {
           "from": "analysis-b",
           "relation": "ANALYSIS_OF",
-          "to": "shared-dataset"
+          "to": "shared-dataset",
+          "edge_id": "S16-P02"
         }
       ],
       "expected": {
@@ -1002,7 +1274,23 @@
           "assessment_cutoff": "2026-11-15T00:00:00Z"
         }
       ],
-      "independence_evidence": []
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DEPENDIENTE",
+        "decision_scope": "derived-calculation",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S16-P01",
+          "synthetic-fixture://S16-P02"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Procesos analíticos separados no crean un segundo origen independiente del dataset."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      }
     }
   ]
 }
