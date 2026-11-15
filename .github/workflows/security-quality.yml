@@ -79,6 +79,22 @@ jobs:
             exit 1
           fi
           echo "Gitleaks synthetic canary detection: PASS"
+      - name: Scan complete Git history for secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          evidence_dir="${RUNNER_TEMP}/gitleaks-evidence"
+          mkdir -p "$evidence_dir"
+          gitleaks detect --source "$GITHUB_WORKSPACE" --redact --exit-code=2 --report-format=json --report-path="$evidence_dir/full-history-report.json"
+          echo "Gitleaks full-history scan: PASS"
+      - name: Upload full-history secret scan evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: gitleaks-full-history-${{ github.run_id }}
+          path: ${{ runner.temp }}/gitleaks-evidence/full-history-report.json
+          if-no-files-found: warn
+          retention-days: 90
 
   dependency-audit:
     name: Dependency audit / npm
