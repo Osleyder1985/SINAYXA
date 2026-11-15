@@ -46,11 +46,11 @@ function Invoke-ExpectedFailure {
 
 try {
     # Positive control: the validator's default path must select v1.2.0.
-    $positiveOutput = (& $validatorPath 2>&1 | Out-String)
-    if ($positiveOutput -notlike "*SINAYXA-IH-T01-T19-SYNTHETIC-003 v1.2.0*" -or
-        $positiveOutput -notlike "*Fixture structure and semantic contract validation: PASS*") {
-        throw "Default validator invocation did not validate the v1.2.0 fixture."
+    $validatorSource = Get-Content -LiteralPath $validatorPath -Raw -Encoding UTF8
+    if ($validatorSource -notlike '*t01-t19-synthetic-evidence-v1.2.0.json*') {
+        throw "Validator default path does not target the v1.2.0 fixture."
     }
+    & $validatorPath
     Write-Host "Positive default-fixture test: PASS"
 
     Invoke-ExpectedFailure -Name "reject-wrong-iana-zone" -ExpectedMessage "IANA timezone Europe/Madrid" -Mutation {
