@@ -264,6 +264,56 @@
         }
       }
     },
+    "timestampObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field",
+        "original_value",
+        "original_zone",
+        "precision",
+        "basis"
+      ],
+      "properties": {
+        "field": {
+          "enum": [
+            "EVENT_TIME",
+            "PUBLICATION_TIME",
+            "FIRST_PUBLIC_OBSERVATION",
+            "RETRIEVAL_TIME"
+          ]
+        },
+        "original_value": {
+          "$ref": "#/$defs/nonEmpty"
+        },
+        "original_zone": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "precision": {
+          "enum": [
+            "YEAR",
+            "MONTH",
+            "DAY",
+            "MINUTE",
+            "SECOND",
+            "MILLISECOND",
+            "UNKNOWN"
+          ]
+        },
+        "basis": {
+          "enum": [
+            "SOURCE_STATED",
+            "PLATFORM_TIMESTAMP",
+            "INDEPENDENT_ARCHIVE",
+            "SINAYXA_OBSERVATION",
+            "UNKNOWN"
+          ]
+        }
+      }
+    },
     "sourceVersion": {
       "type": "object",
       "additionalProperties": false,
@@ -273,6 +323,8 @@
         "version_label",
         "published_at",
         "first_detected_at",
+        "first_publicly_observed_at",
+        "original_timestamps",
         "retrieved_at",
         "canonical_reference",
         "content_reference",
