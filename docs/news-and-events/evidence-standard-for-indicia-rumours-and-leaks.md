@@ -8,7 +8,7 @@
 
 ## 1. Objetivo y principios
 
-Esta propuesta establece cuándo una afirmación puede considerarse atribuida, parcialmente corroborada, corroborada, contradicha, refutada o no resuelta; qué evidencia mínima exige cada tratamiento; y cómo preservar la incertidumbre de la información anticipatoria.
+Esta propuesta establece cómo registrar la atribución de una afirmación como dimensión independiente y cómo evaluar su estado probatorio (NO_CORROBORADA, PARCIALMENTE_CORROBORADA, CORROBORADA, CONTRADICHA, REFUTADA o NO_RESUELTA), qué evidencia mínima exige cada tratamiento y cómo preservar la incertidumbre de la información anticipatoria.
 
 Principios obligatorios:
 
