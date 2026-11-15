@@ -1132,3 +1132,17 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 29.4 Resultado de auditoría
 
 La clasificación única **INDETERMINADO**, con horizontes compatibles **INMEDIATO** y **CORTO**, queda documentada porque el intervalo de evidencia cruza la frontera de 24 horas. Las observaciones originales permanecen preservadas; no se promedian ni se resuelve arbitrariamente la discrepancia. **T19 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+## 30. Registro de revisión documental — aclaraciones I0 y tiempo de hitos pasados
+
+**Tipo de actividad:** revisión metodológica documental; no es ejecución de T01–T19.
+
+Se actualizó la propuesta asociada al Issue #14 para resolver dos ambigüedades detectadas en la revisión técnica:
+
+1. **I0 y alcance de evidencia:** I0 exige una revisión de alcance delimitado que identifique unidad, población/segmento, escenario, fecha de corte, fuentes y áreas examinadas y limitaciones conocidas. La falta de búsqueda suficiente, fuentes esenciales no examinadas o lagunas que impidan descartar un mecanismo material conducen a INDETERMINADA. I0 no se extrapola a canales o poblaciones fuera del alcance revisado.
+2. **Hitos pasados:** el tiempo entre un hito ocurrido y la fecha de corte se registra como tiempo transcurrido/antigüedad, no como horizonte futuro ni como latencia de transmisión. El horizonte de transmisión restante requiere un objetivo futuro y un mecanismo/latencia justificables; de lo contrario, es INDETERMINADO.
+
+La batería existente mantiene sus identidades y estados. T01 ya delimita explícitamente su unidad a funciones técnicas/operativas y documenta el inventario revisado; su resultado esperado I0 se limita a ese alcance. T17 conserva el resultado INDETERMINADA cuando faltan inventario de dependencias y confirmación operativa. Estos casos son compatibles con la aclaración, pero su presencia no equivale a una nueva ejecución.
+
+**Estado de ejecución tras esta revisión:** T01–T15 y T17–T19 continúan NOT_EXECUTED; T16 continúa NOT_EXECUTED conforme al protocolo de evaluador único y crítica auxiliar de IA. No se ha ejecutado PowerShell, no se ha recalculado el SHA-256 del fixture y no se declara PASS de la batería metodológica. La modificación documental requiere revisión local de formato y verificación de repositorio antes de integrar la PR.
