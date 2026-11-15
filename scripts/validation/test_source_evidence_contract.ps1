@@ -85,7 +85,10 @@ try {
         @{ Name='Source identifier is not opaque'; Apply={ param($x) $x.sources[0].source_id='person-name' } },
         @{ Name='Source version supersedes itself'; Apply={ param($x) $x.source_versions[0].supersedes_source_version_id='version-a1' } },
         @{ Name='Source version supersedes a later version'; Apply={ param($x) $new = $x.source_versions[0].Clone(); $new.source_version_id='version-a2'; $new.version_label='v2'; $new.version_sequence=2; $new.supersedes_source_version_id='version-a1'; $x.source_versions += $new; $x.source_versions[0].supersedes_source_version_id='version-a2' } },
-        @{ Name='Factor evidence crosses dimension boundary'; Apply={ param($x) $x.factor_assessments[0].supporting_evidence_refs=@('evidence-a') } }
+        @{ Name='Factor evidence crosses dimension boundary'; Apply={ param($x) $x.factor_assessments[0].supporting_evidence_refs=@('evidence-a') } },
+        @{ Name='Evidence becomes available after evaluation cutoff'; Apply={ param($x) $x.evidence_availability[0].available_at='2026-11-15T23:00:00Z' } },
+        @{ Name='Known availability lacks traceable basis'; Apply={ param($x) $x.evidence_availability[0].availability_basis='UNKNOWN' } },
+        @{ Name='Claim assessment uses evidence unavailable at its cutoff'; Apply={ param($x) $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.claim_assessments[0].assessment_cutoff='2026-11-15T20:00:00Z' } }
     )
     foreach ($mutation in $mutations) {
         $copy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
