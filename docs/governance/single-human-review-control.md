@@ -46,7 +46,7 @@ La exigencia de dos revisores humanos independientes del Issue #29 fue un criter
 
 El estado de control se denomina:
 
-**SINGLE-HUMAN REVIEW WITH COMPENSATING CONTROLS**
+> SINGLE-HUMAN REVIEW WITH COMPENSATING CONTROLS
 
 Este estado nunca se abrevia ni se interpreta como «dos revisiones humanas independientes».
 
@@ -132,7 +132,7 @@ Si la revisión externa es obligatoria y no hay revisor disponible, el artefacto
 ## 5. Estados de conformidad
 
 | Estado | Significado | Uso permitido |
-|---|---|---|
+| --- | --- | --- |
 | `PASS — SINGLE-HUMAN COMPENSATING CONTROLS` | Revisión H-OWNER, revisión asistida, validaciones deterministas y controles adversariales exigidos completados; evidencia preservada; sin defectos bloqueantes. | Uso dentro del alcance interno aprobado, sujeto al riesgo residual documentado. |
 | `PASS WITH LIMITATION — EXTERNAL REVIEW PENDING` | Controles compensatorios completados, pero una revisión externa recomendada está pendiente. | Solo uso interno limitado; no afirmar validación externa. |
 | `NOT CONFORMANT` | Falta un control obligatorio, hay defectos bloqueantes o el riesgo residual no está aceptado. | No aprobar ni promover el artefacto. |
@@ -157,7 +157,7 @@ Esta política no cierra el Issue #29 ni declara sus controles completados. El I
 ## 7. Registro de cambios
 
 | Versión | Fecha | Cambio |
-|---|---|---|
+| --- | --- | --- |
 | 1.0-proposal | 2026-11-14 | Primera propuesta para revisión mediante PR vinculada al Issue #30. |
 
 ## 8. Referencias
@@ -173,7 +173,7 @@ Esta política no cierra el Issue #29 ni declara sus controles completados. El I
 La revisión independiente pretende reducir el riesgo de que un error de interpretación compartido por el autor y su proceso de elaboración pase inadvertido. La independencia reduce ciertos sesgos de confirmación y errores comunes, pero no garantiza por sí sola la corrección. El modelo de participante único no reproduce esa independencia: reduce riesgos distintos mediante controles heterogéneos y deja explícito el riesgo residual de sesgo humano común.
 
 | Riesgo | Defecto que puede escapar a una sola lectura | Control compensatorio | Evidencia exigida | Riesgo residual |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | R-01 Sesgo de confirmación | Un escenario induce la clasificación esperada por el autor. | H-OWNER por ID + AI-ADVERSARIAL contra falsos positivos/negativos + mutaciones. | Decisiones por ID; hallazgos; mutaciones detectadas. | El asistente puede compartir premisas o errores del autor. |
 | R-02 Omisión de cobertura | Falta un ID, familia o fila de trazabilidad. | Validación determinista de conjuntos exactos y cardinalidades. | Salida reproducible con IDs esperados y observados. | El oráculo de cobertura puede estar mal definido. |
 | R-03 Contradicción estructural | Resultado, categoría, objeto o estado no concuerdan. | Reglas automáticas explícitas y pruebas negativas. | Resultado por regla y fixture de detección. | Contradicciones semánticas requieren juicio humano. |
@@ -185,7 +185,7 @@ La revisión independiente pretende reducir el riesgo de que un error de interpr
 ### 9.1 Evaluación de alternativas
 
 | Alternativa | Cobertura del riesgo | Limitación | Decisión para SINAYXA |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Dos revisores humanos independientes | Segunda interpretación humana y posible detección de sesgos comunes. | No disponible en el modelo actual; no se puede simular ni inventar. | Exigible si una obligación externa o el riesgo lo requiere; bloquear ese uso si no está disponible. |
 | Dos pasadas del mismo asistente | Puede generar críticas adicionales e inconsistencias detectables. | No es independiente ni aporta una segunda persona. | Complementaria, etiquetada ASSISTED — NOT INDEPENDENT. |
 | Revisión completa del propietario | Responsabilidad y juicio humano sobre cada caso. | Persiste el sesgo propio y la falta de separación autor/revisor. | Obligatoria, con decisión por ID y SHA. |
@@ -200,7 +200,7 @@ La revisión independiente pretende reducir el riesgo de que un error de interpr
 Las pruebas de mutación se ejecutarán sobre fixtures aislados y versionados. Cada mutación debe ser detectada por una aserción concreta; ejecutar el validador sin demostrar el fallo esperado no cuenta como PASS.
 
 | ID | Mutación deliberada | Resultado obligatorio del validador | Criterio PASS |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | M-01 | Duplicar un ID. | FAIL por duplicidad y mostrar ID. | Código de salida no cero y diagnóstico de duplicado. |
 | M-02 | Eliminar uno de los 36 IDs. | FAIL por cobertura incompleta. | Identifica el ID ausente. |
 | M-03 | Añadir un ID principal desconocido. | FAIL por ID inesperado. | Identifica el ID adicional. |
@@ -247,6 +247,6 @@ El Issue #30 podrá cerrarse cuando la política aprobada esté integrada en mai
 ## 13. Registro de cambios
 
 | Versión | Fecha | Cambio |
-|---|---|---|
+| --- | --- | --- |
 | 1.0-proposal | 2026-11-14 | Primera propuesta para revisión mediante PR vinculada al Issue #30. |
 | 1.1-approved-by-owner-pending-merge | 2026-11-14 | Añadidas matriz R-01…R-07, evaluación comparativa, protocolo M-01…M-12 con oráculos PASS/FAIL, cambios definitivos para Issue #29 y condición de cierre del Issue #30. La aprobación del propietario se registra en la conversación; integración y ejecución siguen pendientes. |

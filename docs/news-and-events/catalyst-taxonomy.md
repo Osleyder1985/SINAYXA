@@ -13,6 +13,7 @@ El módulo investigará acontecimientos del ecosistema de criptoactivos y de la 
 La mera mención de Bitcoin, de otro criptoactivo o de una empresa del sector no convierte una noticia en catalizador. La coincidencia temporal entre un acontecimiento y un movimiento de precio tampoco demuestra causalidad.
 
 Cada registro de acontecimiento debe permitir responder, con evidencia:
+
 - qué ocurrió o qué se propone que ocurra;
 - quién o qué entidad interviene;
 - a qué activos, protocolos, empresas, sectores, jurisdicciones o segmentos podría afectar, si pueden identificarse;
@@ -26,30 +27,39 @@ La ausencia de un activo concreto no excluye un acontecimiento si existe un meca
 Cada acontecimiento tendrá exactamente una categoría principal, determinada por la naturaleza inmediata del hecho o decisión. Podrá tener categorías secundarias cuando las relaciones estén justificadas. Las consecuencias posibles no sustituyen la naturaleza del acontecimiento para elegir la categoría principal.
 
 ### MAC — Política monetaria y bancos centrales
+
 Decisiones, comunicaciones y actuaciones de bancos centrales: tipos de interés, balances, compras o ventas de activos, liquidez, orientación futura, actas, discursos, proyecciones y cambios en las expectativas de política monetaria.
 
 ### ECO — Economía mundial y mercados financieros
+
 Inflación, empleo, crecimiento, recesión, deuda, crisis bancarias o financieras, política fiscal, presupuestos, aranceles, comercio, materias primas, energía, divisas, financiación y apetito por riesgo.
 
 ### REG — Regulación, legislación y política pública
+
 Leyes, proyectos legislativos, reglamentos, decisiones judiciales, licencias, sanciones, prohibiciones, restricciones, autorizaciones, fiscalidad, interpretaciones regulatorias y actuaciones de supervisión o aplicación relacionadas con criptoactivos o sus participantes.
 
 ### ETF — Productos de inversión y acceso regulado
+
 Solicitudes, modificaciones, aprobaciones, rechazos, suspensiones, restricciones, lanzamientos e hitos de ETF y otros productos cotizados vinculados a criptoactivos. Debe distinguirse cada fase del procedimiento; una solicitud no equivale a aprobación ni a lanzamiento.
 
 ### INS — Adopción y actividad institucional o empresarial
+
 Compras y ventas verificadas, tenencia corporativa, tesorerías, inversiones, adopción o abandono, integración de servicios financieros, custodia, pagos, uso comercial y decisiones estratégicas de instituciones y empresas.
 
 ### COM — Acuerdos comerciales y financieros
+
 Alianzas, adquisiciones, fusiones, contratos, inversiones, financiación, distribución, licencias e integraciones entre entidades. Debe diferenciarse un acuerdo ejecutado o firmado de conversaciones, memorandos no vinculantes o anuncios de intención.
 
 ### EXC — Exchanges, intermediarios e infraestructura de mercado
+
 Hackeos, insolvencias, solvencia, suspensión de depósitos o retiros, interrupciones, restricciones, custodia, proveedores críticos e incidentes que afecten a intermediarios o infraestructura de mercado.
 
 ### TEC — Tecnología, protocolos e infraestructura blockchain
+
 Lanzamientos, actualizaciones, hard forks, consenso, escalabilidad, interoperabilidad, puentes, oráculos, vulnerabilidades, exploits, fallos, interrupciones, gobernanza técnica y propuestas o votaciones sobre cambios de protocolo.
 
 ### GEO — Geopolítica y acontecimientos internacionales
+
 Conflictos, sanciones, tensiones, elecciones y decisiones gubernamentales con efecto económico documentable, controles de capital, restricciones financieras, medidas comerciales y decisiones entre Estados.
 
 ## 3. Subfamilias de cobertura obligatoria
@@ -69,6 +79,7 @@ Estas subfamilias deben quedar cubiertas por la taxonomía, aunque se clasifique
 ## 4. Tipos y temporalidad de los acontecimientos
 
 La cobertura incluye:
+
 1. Acontecimientos pasados y materializados.
 2. Acontecimientos en desarrollo.
 3. Acontecimientos futuros programados.
@@ -77,6 +88,7 @@ La cobertura incluye:
 6. Cancelaciones, aplazamientos, modificaciones, rectificaciones y desenlaces contrarios a las expectativas.
 
 No deben confundirse las siguientes fechas, cuando sean conocidas:
+
 - fecha en que ocurrió el acontecimiento;
 - fecha y hora de publicación de la fuente;
 - fecha de primera detección por el sistema;
@@ -90,6 +102,7 @@ Una fecha desconocida debe permanecer desconocida; no se debe inferir ni complet
 Toda información anticipatoria que se incorpore debe tener al menos una pieza de evidencia identificable y fechable, por ejemplo: documento, declaración atribuida, registro público, comunicación verificable o reporte de una fuente identificada.
 
 La publicación de una afirmación no la convierte automáticamente en un hecho confirmado. El registro debe distinguir, como mínimo, estos estados descriptivos:
+
 - **Confirmada por evidencia primaria:** existe evidencia primaria suficiente para respaldar el hecho concreto.
 - **Atribuida a fuente identificada:** la afirmación se atribuye explícitamente a una fuente identificable, pero aún no está confirmada de forma independiente.
 - **Parcialmente corroborada:** existe corroboración de una parte de la afirmación, no necesariamente de todos sus detalles.
@@ -111,6 +124,7 @@ La inclusión exige una hipótesis razonable, explicable y verificable de transm
 - energía, materias primas, comercio, divisas y condiciones macroeconómicas.
 
 El vínculo con el activo o mercado puede ser:
+
 - **Directo:** el acontecimiento afecta inmediatamente al activo, protocolo, emisor, proveedor o mercado identificado.
 - **Indirecto:** el efecto se transmite a través de otra entidad, sector, mercado o condición económica.
 - **Condicional:** el efecto depende de que se cumpla una condición explícita que debe documentarse.
@@ -129,6 +143,7 @@ Esta taxonomía no asigna puntuaciones, pesos, umbrales, probabilidades ni inten
 - Si existe ambigüedad razonable, debe conservarse la explicación de la decisión clasificatoria.
 
 Ejemplos:
+
 - Una sanción impuesta por un Estado: GEO puede ser principal si el acontecimiento inmediato es una medida geopolítica; REG y ECO pueden ser secundarias si sus efectos están documentados.
 - Una prohibición legal de minería: REG es principal; ECO o GEO pueden ser secundarias según el contexto.
 - Un exploit en un protocolo DeFi: TEC es principal; EXC solo sería secundaria si también afecta a un intermediario o infraestructura de mercado.
@@ -138,6 +153,7 @@ Ejemplos:
 ## 8. Inclusión y exclusión
 
 ### Incluir
+
 - Acontecimientos oficiales y hechos verificables en desarrollo.
 - Eventos futuros programados y procesos pendientes con evidencia.
 - Propuestas y preparativos con procedencia identificable y relevancia potencial.
@@ -147,6 +163,7 @@ Ejemplos:
 - Acontecimientos de cualquier región o jurisdicción cuando exista un mecanismo relevante y documentable.
 
 ### Excluir
+
 - Noticias sin mecanismo plausible de transmisión.
 - Promoción, entretenimiento o contenido publicitario sin un hecho material verificable.
 - Opiniones sin evidencia nueva ni cambio identificable en expectativas.
@@ -183,6 +200,7 @@ Los siguientes casos son requisitos de verificación de la taxonomía. No implic
 ## 10. Límites de alcance y separación de responsabilidades
 
 Este documento no define ni autoriza implementar:
+
 - análisis de derivados, order books o generación de señales;
 - vigilancia general de redes sociales;
 - inteligencia general de participantes o atribución de entidades;
@@ -196,6 +214,7 @@ La taxonomía debe permitir clasificar acontecimientos procedentes de esos domin
 ## 11. Criterios de conformidad documental
 
 La documentación es conforme cuando:
+
 - define las nueve categorías y cubre todas las subfamilias obligatorias;
 - distingue tipos, estados y fechas del acontecimiento;
 - establece evidencia mínima para registrar información anticipatoria sin confundirla con confirmación;
