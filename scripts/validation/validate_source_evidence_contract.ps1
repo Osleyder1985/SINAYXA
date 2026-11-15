@@ -235,7 +235,11 @@ foreach ($factor in $package.factor_assessments) {
     Test-Condition ($factor.dimension -in @('RELATION_WITH_FACT','ACCESS_AND_PROXIMITY','SUBJECT_COMPETENCE','TRANSPARENCY_TRACEABILITY','RELEVANT_ACCURACY_HISTORY','CORRECTIONS_ACCOUNTABILITY','INCENTIVES_CONFLICTS','INTERNAL_CONSISTENCY','CONTRARY_EVIDENCE','TEMPORAL_ADEQUACY')) 'Unsupported factor dimension.'
     Test-Condition ($factor.status -in @('SUSTENTADA','LIMITADA','DESFAVORABLE','DESCONOCIDA','NO_APLICA')) 'Factor status must use the approved #16 vocabulary.'
     Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$factor.justification)) 'Factor assessment requires justification.'
-    foreach ($reference in @($factor.supporting_evidence_refs) + @($factor.contrary_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Factor assessment references unknown evidence.' }
+    foreach ($reference in @($factor.supporting_evidence_refs) + @($factor.contrary_evidence_refs)) {
+        Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Factor assessment references unknown evidence.'
+        $factorEvidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $reference })[0]
+        Test-Condition ($factor.dimension -in @($factorEvidence.factor_dimensions)) 'Factor evidence is not explicitly scoped to the assessed dimension.'
+    }
     if ($factor.human_review_status -eq 'REVIEWED') { Test-Condition (Test-Utc $factor.reviewed_at 'reviewed_at') 'Reviewed factor assessment requires UTC reviewed_at.' }
     if ($factor.human_review_status -eq 'PENDING') { Test-Condition ($null -eq $factor.reviewed_at) 'Pending factor assessment cannot carry reviewed_at.' }
 }
