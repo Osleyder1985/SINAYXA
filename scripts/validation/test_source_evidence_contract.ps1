@@ -184,6 +184,50 @@ try {
     ConvertTo-Json -InputObject $factorEvidenceCopy -Depth 100 | Set-Content -LiteralPath $temp -Encoding utf8
     & $validator -FixturePath $temp | Out-Null
 
+    $primaryCorroboration = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
+    $primaryCorroboration.evaluation_units[0].source_type = 'PRIMARIA'
+    $primaryCorroboration.evaluation_units[0].source_subtype = 'REGISTRO_ORIGINAL'
+    $primaryCorroboration.evaluation_units[0].knowledge_basis = 'REGISTRO_ORIGINAL'
+    $primaryCorroboration.evaluation_units[0].institutional_character = 'OFICIAL'
+    $primaryCorroboration.evaluation_units[0].dissemination = 'ORIGINAL'
+    $primaryCorroboration.evidence_items[0].information_nature = 'HECHO_OBSERVADO'
+    $primaryCorroboration.claim_assessments[0].evidentiary_status = 'CORROBORADA'
+    $primaryCorroboration.claim_assessments[0].attribution_status = 'ATRIBUIDA'
+    $primaryCorroboration.claim_assessments[0].supporting_evidence_refs = @('evidence-a')
+    $primaryCorroboration.claim_assessments[0].independence_assessment_refs = @()
+    $primaryCorroboration.claim_assessments[0].human_review_status = 'REVIEWED'
+    $primaryCorroboration.claim_assessments[0].reviewed_at = '2026-11-15T22:05:00Z'
+    $primaryCorroboration.claim_assessments[0].rationale = 'Registro primario sintético directamente pertinente al componente.'
+    $primaryCorroboration.claim_assessments[0].supported_scope = 'La entidad X realizó la acción registrada.'
+    $primaryFile = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-primary-" + [guid]::NewGuid().ToString('N') + '.json')
+    try {
+        ConvertTo-Json -InputObject $primaryCorroboration -Depth 100 | Set-Content -LiteralPath $primaryFile -Encoding utf8
+        $primaryOutput = (& $validator -FixturePath $primaryFile | Out-String)
+        if (-not $primaryOutput.Contains('Result : PASS')) { throw 'A single directly relevant primary source must not be forced through a secondary-source independence rule.' }
+    }
+    finally { if (Test-Path -LiteralPath $primaryFile) { Remove-Item -LiteralPath $primaryFile -Force } }
+
+    $secondaryCorroboration = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $independentCopy -Depth 100 -Compress) -AsHashtable -Depth 100
+    $secondaryCorroboration.claim_evidence_links += @(
+        @{ link_id='link-independent-support-a'; evidence_id='independent-evidence-a'; claim_id='claim-btc-purchase'; claim_component_id='component-entity'; claim_version_id='claim-btc-purchase-v1'; claim_component_version_id='component-entity-v1'; evidence_role='SUPPORTING'; recorded_at='2026-11-15T22:01:00Z' },
+        @{ link_id='link-independent-support-b'; evidence_id='independent-evidence-b'; claim_id='claim-btc-purchase'; claim_component_id='component-entity'; claim_version_id='claim-btc-purchase-v1'; claim_component_version_id='component-entity-v1'; evidence_role='SUPPORTING'; recorded_at='2026-11-15T22:01:00Z' }
+    )
+    $secondaryCorroboration.claim_assessments[0].evidentiary_status = 'CORROBORADA'
+    $secondaryCorroboration.claim_assessments[0].attribution_status = 'ATRIBUIDA'
+    $secondaryCorroboration.claim_assessments[0].supporting_evidence_refs = @('independent-evidence-a','independent-evidence-b')
+    $secondaryCorroboration.claim_assessments[0].independence_assessment_refs = @('independence-entity')
+    $secondaryCorroboration.claim_assessments[0].human_review_status = 'REVIEWED'
+    $secondaryCorroboration.claim_assessments[0].reviewed_at = '2026-11-15T22:05:00Z'
+    $secondaryCorroboration.claim_assessments[0].rationale = 'Dos rutas de origen independientes, revisadas y vinculadas al mismo componente.'
+    $secondaryCorroboration.claim_assessments[0].supported_scope = 'La entidad X realizó la acción respaldada por las dos rutas.'
+    $secondaryFile = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-secondary-" + [guid]::NewGuid().ToString('N') + '.json')
+    try {
+        ConvertTo-Json -InputObject $secondaryCorroboration -Depth 100 | Set-Content -LiteralPath $secondaryFile -Encoding utf8
+        $secondaryOutput = (& $validator -FixturePath $secondaryFile | Out-String)
+        if (-not $secondaryOutput.Contains('Result : PASS')) { throw 'Secondary-source corroboration with reviewed independent paths for every supporting unit must validate.' }
+    }
+    finally { if (Test-Path -LiteralPath $secondaryFile) { Remove-Item -LiteralPath $secondaryFile -Force } }
+
     $mutations = @(
         @{ Name='Orphan claim component'; Apply={ param($x) $x.claim_components[0].claim_id='missing-claim' } },
         @{ Name='Stable component identity changes owning claim'; Apply={ param($x) $newClaim=$x.claims[0].Clone(); $newClaim.claim_id='claim-other'; $newClaim.claim_version_id='claim-other-v1'; $newClaim.supersedes_claim_version_id=$null; $x.claims += $newClaim; $newComponent=$x.claim_components[0].Clone(); $newComponent.claim_id='claim-other'; $newComponent.claim_version_id='claim-other-v1'; $newComponent.claim_component_version_id='component-entity-other-v1'; $newComponent.supersedes_component_version_id=$null; $x.claim_components += $newComponent } },
@@ -290,6 +334,7 @@ try {
         @{ Name='Claim assessment missing rationale'; Apply={ param($x) $x.claim_assessments[0].rationale='' } },
         @{ Name='Partial corroboration without delimited scopes'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='PARCIALMENTE_CORROBORADA'; $x.claim_assessments[0].human_review_status='REVIEWED'; $x.claim_assessments[0].reviewed_at='2026-11-15T22:05:00Z'; $x.claim_assessments[0].supported_scope=$null; $x.claim_assessments[0].unsupported_scope=$null } },
         @{ Name='Conclusive state bypasses human review'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='CORROBORADA'; $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.claim_assessments[0].human_review_status='PENDING' } },
+        @{ Name='Secondary-source corroboration lacks reviewed independence'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='CORROBORADA'; $x.claim_assessments[0].attribution_status='ATRIBUIDA'; $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.claim_assessments[0].independence_assessment_refs=@(); $x.claim_assessments[0].human_review_status='REVIEWED'; $x.claim_assessments[0].reviewed_at='2026-11-15T22:05:00Z' } },
         @{ Name='CORROBORADA from primary sources bypasses independence'; Apply={ param($x) $x.evaluation_units[0].source_type='PRIMARIA'; $x.evaluation_units[1].source_type='PRIMARIA'; $x.claim_evidence_links[1].evidence_role='SUPPORTING'; $x.claim_assessments[0].evidentiary_status='CORROBORADA'; $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b'); $x.claim_assessments[0].independence_assessment_refs=@(); $x.claim_assessments[0].human_review_status='REVIEWED'; $x.claim_assessments[0].reviewed_at='2026-11-15T22:05:00Z' } },
         @{ Name='Unauthorized retained content'; Apply={ param($x) $x.retention_records[0].content_retained=$true } },
         @{ Name='Retention record has orphan subject'; Apply={ param($x) $x.retention_records[0].subject_ref='missing-subject' } },
