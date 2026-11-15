@@ -818,12 +818,19 @@
             ]
           },
           "then": {
+            "required": [
+              "availability_reference"
+            ],
             "properties": {
               "availability_basis": {
                 "enum": [
                   "SINAYXA_OBSERVATION",
                   "INDEPENDENT_ARCHIVE"
                 ]
+              },
+              "availability_reference": {
+                "type": "string",
+                "minLength": 1
               }
             }
           }
@@ -840,6 +847,10 @@
             ]
           },
           "then": {
+            "required": [
+              "available_at",
+              "availability_reference"
+            ],
             "properties": {
               "available_at": {
                 "type": "null"
@@ -863,12 +874,38 @@
             ]
           },
           "then": {
+            "required": [
+              "available_at",
+              "availability_reference"
+            ],
             "properties": {
               "available_at": {
                 "type": "null"
               },
               "availability_reference": {
                 "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "available_at": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "available_at"
+            ]
+          },
+          "then": {
+            "properties": {
+              "availability_basis": {
+                "enum": [
+                  "SOURCE_STATED",
+                  "UNKNOWN"
+                ]
               }
             }
           }
@@ -1176,7 +1213,94 @@
         "claim_component_version_id": {
           "$ref": "#/$defs/id"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "INDEPENDIENTE"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "supporting_evidence_refs": {
+                "minItems": 1
+              },
+              "dependency_edge_refs": {
+                "maxItems": 0
+              },
+              "human_review_status": {
+                "const": "REVIEWED"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "DEPENDIENTE"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "dependency_edge_refs": {
+                "minItems": 1
+              },
+              "human_review_status": {
+                "const": "REVIEWED"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "human_review_status": {
+                "const": "REVIEWED"
+              }
+            },
+            "required": [
+              "human_review_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reviewed_at": {
+                "$ref": "#/$defs/utc"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "human_review_status": {
+                "const": "PENDING"
+              }
+            },
+            "required": [
+              "human_review_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reviewed_at": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
     },
     "claimAssessment": {
       "type": "object",
@@ -1298,7 +1422,162 @@
           ],
           "minLength": 1
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidentiary_status": {
+                "const": "CORROBORADA"
+              }
+            },
+            "required": [
+              "evidentiary_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "supporting_evidence_refs": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidentiary_status": {
+                "const": "PARCIALMENTE_CORROBORADA"
+              }
+            },
+            "required": [
+              "evidentiary_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "supported_scope",
+              "unsupported_scope"
+            ],
+            "properties": {
+              "supporting_evidence_refs": {
+                "minItems": 1
+              },
+              "supported_scope": {
+                "type": "string",
+                "minLength": 1
+              },
+              "unsupported_scope": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidentiary_status": {
+                "const": "CONTRADICHA"
+              }
+            },
+            "required": [
+              "evidentiary_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "supporting_evidence_refs": {
+                "minItems": 1
+              },
+              "contrary_evidence_refs": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidentiary_status": {
+                "const": "REFUTADA"
+              }
+            },
+            "required": [
+              "evidentiary_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "contrary_evidence_refs": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "human_review_status": {
+                "const": "REVIEWED"
+              }
+            },
+            "required": [
+              "human_review_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reviewed_at": {
+                "$ref": "#/$defs/utc"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "human_review_status": {
+                "const": "PENDING"
+              }
+            },
+            "required": [
+              "human_review_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reviewed_at": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidentiary_status": {
+                "enum": [
+                  "CORROBORADA",
+                  "PARCIALMENTE_CORROBORADA",
+                  "CONTRADICHA",
+                  "REFUTADA"
+                ]
+              }
+            },
+            "required": [
+              "evidentiary_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "human_review_status": {
+                "const": "REVIEWED"
+              }
+            }
+          }
+        }
+      ]
     },
     "retentionRecord": {
       "type": "object",
