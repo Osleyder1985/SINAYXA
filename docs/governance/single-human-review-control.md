@@ -1,6 +1,6 @@
 # Revisión documental con un único participante humano
 
-**Estado:** política integrada en `main` mediante PR [#32](https://github.com/Osleyder1985/SINAYXA/pull/32). Su aplicación debe acreditarse por artefacto y registro de revisión; no declara independencia humana ni certificación ISO.  
+**Estado:** política integrada en `main` mediante PR [#32](https://github.com/Osleyder1985/SINAYXA/pull/32). Su aplicación debe acreditarse por artefacto y registro de revisión; no declara independencia humana ni certificación ISO.
 **Ámbito:** documentos de especificación, taxonomías y contratos de pruebas de SINAYXA mantenidos por un único participante humano.  
 **No constituye:** certificación ISO, auditoría externa ni declaración de dos revisores humanos independientes.
 
