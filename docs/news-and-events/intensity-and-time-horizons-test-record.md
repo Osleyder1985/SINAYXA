@@ -181,3 +181,39 @@ Una ejecución de la batería solo puede considerarse completa cuando:
 6. Cualquier modificación de la propuesta crea una nueva versión y exige identificar qué casos deben repetirse.
 
 **Regla de integridad:** nunca cambiar NOT_EXECUTED/BLOCKED a PASS por inferencia, revisión de escritorio o porque el resultado esperado parezca obvio.
+
+
+## 8. Ejecución local del fixture sintético v1.1.0
+
+### Identificación del artefacto
+
+| Campo | Valor |
+| --- | --- |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-002` |
+| Versión | `1.1.0` |
+| Commit local confirmado | `3e28232fa7c6a0e261a6fb9b9b5097ef8569a200` |
+| SHA-256 | `E685D6BB4459F5A580ABFAC11979D4FCABF385EE7856EC28C16541C2AD05948C` |
+| Casos detectados | 19 |
+| Estado T16 | BLOCKED |
+
+### Evidencia de ejecución comunicada por el propietario
+
+Entorno: Windows PowerShell 5.1, raíz `C:\Proyecto\SINAYXA`.
+
+Comandos ejecutados:
+- `git pull --ff-only`
+- `git rev-parse HEAD`
+- `validate_intensity_horizon_fixture.ps1 -FixturePath <fixture v1.1.0>`
+- `Get-FileHash -LiteralPath $fixture -Algorithm SHA256`
+- `git status --short`
+
+Resultado real informado:
+- `Fixture structure validation: PASS`
+- Paquete: `SINAYXA-IH-T01-T19-SYNTHETIC-002 v1.1.0`
+- `Cases: 19`
+- `Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)`
+- `T16: BLOCKED (correctly preserved)`
+- SHA-256 del validador y de `Get-FileHash` coincidentes: `E685D6BB4459F5A580ABFAC11979D4FCABF385EE7856EC28C16541C2AD05948C`
+- `git status --short`: vacío.
+
+**Alcance del PASS:** integridad estructural del fixture v1.1.0 y comprobaciones temporales deterministas. No acredita la corrección semántica de las clasificaciones esperadas de T01–T19, ni ejecución formal de esos casos, ni acuerdo entre evaluadores. La matriz de ejecución permanece sin cambios: T01–T15 y T17–T19 NOT_EXECUTED; T16 BLOCKED.
