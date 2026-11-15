@@ -1,4 +1,4 @@
- [CmdletBinding()]
+﻿ [CmdletBinding()]
 param([Parameter()][string]$FixturePath)
 
 $ErrorActionPreference = 'Stop'
@@ -54,7 +54,6 @@ Assert-Condition ($byId.S13.independence -eq 'DEPENDIENTE' -and $byId.S13.expect
 Assert-Condition ($byId.S16.expected.independent_analytical_processes -eq 2 -and $byId.S16.expected.independent_data_origins -eq 1 -and $byId.S16.expected.corroboration_count_increment -eq 0) 'S16 must separate analytical replication from data-origin independence.'
 Assert-Condition ($byId.S14.independence -eq 'INDEPENDIENTE' -and $byId.S14.claim_component_id -eq 'amount') 'S14 must scope the disagreement to the amount component.'
 Assert-Condition ($byId.S15.independence -eq 'DESCONOCIDA' -and $byId.S15.identity -eq 'ANÓNIMA_PARA_SINAYXA') 'S15 must not transfer editor identity verification to SINAYXA.'
-Assert-Condition ($byId.S16.expected.independent_analytical_processes -eq 2 -and $byId.S16.expected.independent_data_origins -eq 1 -and $byId.S16.expected.corroboration_count_increment -eq 0) 'S16 must separate analytical replication from data-origin independence.'
 [pscustomobject]@{
     Result = 'PASS'
     Package = $fixture.package_id
