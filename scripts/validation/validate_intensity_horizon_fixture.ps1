@@ -52,6 +52,7 @@ if ($fixture.status -ne "SYNTHETIC_TEST_FIXTURE_NOT_REAL_WORLD_EVIDENCE") {
 $allowedPackages = @{
     "SINAYXA-IH-T01-T19-SYNTHETIC-001" = "1.0.0"
     "SINAYXA-IH-T01-T19-SYNTHETIC-002" = "1.1.0"
+    "SINAYXA-IH-T01-T19-SYNTHETIC-003" = "1.2.0"
 }
 if (-not $allowedPackages.ContainsKey([string]$fixture.package_id)) {
     throw "Unexpected package_id."
@@ -87,11 +88,39 @@ foreach ($case in $fixture.cases) {
 }
 
 $t16 = Get-FixtureCase -Id "T16"
-if ($t16.expected.process -notlike "BLOCKED*") {
-    throw "T16 must remain blocked pending two real independent human evaluators."
+if ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-001", "SINAYXA-IH-T01-T19-SYNTHETIC-002")) {
+    # Historical fixture versions retain their original two-human-evaluator
+    # requirement; this check validates their historical, immutable contents.
+    if ($t16.expected.process -notlike "BLOCKED*" -or
+        $t16.expected.fixture_limit -notlike "A synthetic disagreement*") {
+        throw "Historical T16 fixture content was unexpectedly changed."
+    }
 }
-if ($t16.expected.fixture_limit -notlike "A synthetic disagreement*") {
-    throw "T16 must explicitly state that synthetic data cannot satisfy inter-evaluator validation."
+elseif ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {
+    if ($t16.expected.process -ne "ONE_HUMAN_PRIMARY_EVALUATION_WITH_AI_ASSISTED_ADVERSARIAL_REVIEW" -or
+        $t16.expected.ai_review -notlike "*not a human evaluator*" -or
+        $t16.expected.fixture_limit -notlike "*cannot establish inter-evaluator reliability*" -or
+        $t16.expected.disagreement_handling -notlike "*never average*") {
+        throw "T16 v1.2.0 must define the single-human process and prohibit false inter-evaluator claims."
+    }
+}
+
+# Version 1.2.0 governance-contract checks. This validates the fixture declaration,
+# not actual human/AI execution or methodological validity.
+if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {
+    if ($fixture.supersedes.package_id -ne "SINAYXA-IH-T01-T19-SYNTHETIC-002" -or
+        $fixture.supersedes.package_version -ne "1.1.0" -or
+        $fixture.supersedes.sha256 -ne "E685D6BB4459F5A580ABFAC11979D4FCABF385EE7856EC28C16541C2AD05948C") {
+        throw "v1.2.0 must identify the immutable v1.1.0 package it supersedes."
+    }
+    if ($t16.evidence.Count -lt 3 -or
+        $t16.expected.human_primary_assessment -notlike "*before seeing any AI critique*" -or
+        $t16.expected.ai_review -notlike "*not a human evaluator*" -or
+        $t16.expected.separation -notlike "*isolated context*" -or
+        $t16.expected.provenance -notlike "*NOT_AVAILABLE*" -or
+        $t16.expected.fixture_limit -notlike "*cannot establish inter-evaluator reliability*") {
+        throw "T16 v1.2.0 must preserve the single-human/AI-assistance boundaries and provenance requirements."
+    }
 }
 
 # Version 1.1.0 semantic-input contract checks. These validate required fixture
@@ -226,6 +255,6 @@ Write-Host "Fixture structure validation: PASS"
 Write-Host "Package: $($fixture.package_id) v$($fixture.package_version)"
 Write-Host "Cases: $($actualIds.Count)"
 Write-Host "Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)"
-Write-Host "T16: BLOCKED (correctly preserved)"
+if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {\n    Write-Host "T16: SINGLE-HUMAN PROTOCOL DEFINED (not an execution result)"\n}\nelse {\n    Write-Host "T16: BLOCKED (historical fixture requirement correctly preserved)"\n}
 Write-Host "SHA256: $hash"
 Write-Host "Path: $resolvedPath"
