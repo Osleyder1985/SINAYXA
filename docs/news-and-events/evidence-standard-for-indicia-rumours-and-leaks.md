@@ -111,7 +111,9 @@ La clasificación inicial será **POSIBLE_FILTRACIÓN + NO_CORROBORADA** o **NO_
 
 Si un anuncio oficial posterior confirma el acontecimiento, se crea o actualiza la afirmación correspondiente con su nueva evidencia. No se reescribe retrospectivamente la situación probatoria que existía antes del anuncio. La existencia del acontecimiento puede quedar confirmada posteriormente mientras la autenticidad, la fecha de origen o la procedencia de la pieza anticipatoria siguen sin resolverse.
 
-### 3.4 Afirmación atribuida a una fuente identificada
+### 3.4 Atribución de una afirmación
+
+La atribución se registra en la dimensión independiente `attribution_status` (`ATRIBUIDA`, `NO_ATRIBUIDA` o `NO_DETERMINADA`); no es un estado probatorio ni sustituye a `evidentiary_status`. La identidad de la fuente se registra por separado en `source_identity`. Una afirmación puede estar `ATRIBUIDA` a una fuente anónima y continuar `NO_CORROBORADA` o `NO_RESUELTA`.
 
 La atribución demuestra que una fuente sostiene una proposición, no que sea verdadera. Debe registrarse la fuente, la formulación exacta, la fecha, el contexto y si la fuente habla por conocimiento directo, por documento o por referencia a terceros, cuando esa información esté disponible.
 
