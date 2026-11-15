@@ -18,7 +18,7 @@ function Invoke-ExpectedFailure {
         else { throw "$Name failed for an unexpected reason: $($_.Exception.Message)" }
     }
     if (-not $failed) { throw "Negative test '$Name' was not rejected with expected message '$ExpectedMessage'." }
-    Write-Information "Negative test $Name: PASS" -InformationAction Continue
+    Write-Information "Negative test ${Name}: PASS" -InformationAction Continue
 }
 
 function Copy-Fixture {
