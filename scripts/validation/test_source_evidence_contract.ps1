@@ -9,8 +9,8 @@ $temp = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-" + [g
 try {
     $cycleCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
     $cycleEdges = @(
-        @{ edge_id='cycle-a-b'; dependent_node_id='node-version-a'; origin_node_id='node-version-b'; relation_type='CITA_DE'; claim_component_id='component-entity'; evidence_refs=@('evidence-a'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null },
-        @{ edge_id='cycle-b-a'; dependent_node_id='node-version-b'; origin_node_id='node-version-a'; relation_type='CITA_DE'; claim_component_id='component-entity'; evidence_refs=@('evidence-b'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null }
+        @{ edge_id='cycle-a-b'; dependent_node_id='node-version-a'; origin_node_id='node-version-b'; relation_type='CITA_DE'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-a'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null },
+        @{ edge_id='cycle-b-a'; dependent_node_id='node-version-b'; origin_node_id='node-version-a'; relation_type='CITA_DE'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-b'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null }
     )
     $cycleCopy.provenance_edges = @($cycleCopy.provenance_edges) + $cycleEdges
     ConvertTo-Json -InputObject $cycleCopy -Depth 100 | Set-Content -LiteralPath $temp -Encoding utf8
