@@ -1334,7 +1334,8 @@
         "claim_version_id",
         "claim_component_version_id",
         "reviewed_at",
-        "rationale"
+        "rationale",
+        "corroboration_basis"
       ],
       "properties": {
         "claim_assessment_id": {
@@ -1431,31 +1432,18 @@
             "null"
           ],
           "minLength": 1
+        },
+        "corroboration_basis": {
+          "type": "string",
+          "enum": [
+            "EVIDENCIA_PRIMARIA_DIRECTA",
+            "CORROBORACION_INDEPENDIENTE",
+            "AMBAS",
+            "NO_APLICA"
+          ]
         }
       },
       "allOf": [
-        {
-          "if": {
-            "properties": {
-              "evidentiary_status": {
-                "const": "CORROBORADA"
-              }
-            },
-            "required": [
-              "evidentiary_status"
-            ]
-          },
-          "then": {
-            "properties": {
-              "supporting_evidence_refs": {
-                "minItems": 1
-              },
-              "independence_assessment_refs": {
-                "minItems": 1
-              }
-            }
-          }
-        },
         {
           "if": {
             "properties": {
@@ -1586,6 +1574,70 @@
             "properties": {
               "human_review_status": {
                 "const": "REVIEWED"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidentiary_status": {
+                "const": "CORROBORADA"
+              }
+            },
+            "required": [
+              "evidentiary_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "corroboration_basis": {
+                "enum": [
+                  "EVIDENCIA_PRIMARIA_DIRECTA",
+                  "CORROBORACION_INDEPENDIENTE",
+                  "AMBAS"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "corroboration_basis": {
+                "enum": [
+                  "CORROBORACION_INDEPENDIENTE",
+                  "AMBAS"
+                ]
+              }
+            },
+            "required": [
+              "corroboration_basis"
+            ]
+          },
+          "then": {
+            "properties": {
+              "independence_assessment_refs": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidentiary_status": {
+                "const": "NO_RESUELTA"
+              }
+            },
+            "required": [
+              "evidentiary_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "corroboration_basis": {
+                "const": "NO_APLICA"
               }
             }
           }
