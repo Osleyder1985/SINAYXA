@@ -49,10 +49,12 @@ Assert-Condition ($byId.S01.independence -eq 'DEPENDIENTE' -and $byId.S01.expect
 Assert-Condition ($byId.S02.independence -eq 'DEPENDIENTE' -and $byId.S02.identity -eq 'ANÓNIMA_PARA_EL_PÚBLICO') 'S02 must preserve common anonymous spokesperson dependency.'
 Assert-Condition ($byId.S03.source_type -eq 'PRIMARIA' -and $byId.S03.institutional_character -eq 'OFICIAL') 'S03 must separate primary type from institutional character.'
 Assert-Condition ($byId.S07.knowledge_basis -eq 'ACCESO_DIRECTO_DECLARADO' -and $byId.S07.independence -eq 'DESCONOCIDA') 'S07 must not treat declared access as verified independence.'
+Assert-Condition ($byId.S04.expected.independent_origins -eq 2) 'S04 must represent both separately traced source paths.'
 Assert-Condition ($byId.S09.independence -eq 'INDEPENDIENTE' -and $byId.S09.independence_basis.Count -gt 0) 'S09 must require evidence despite shared employer.'
 Assert-Condition ($byId.S13.independence -eq 'DEPENDIENTE' -and $byId.S13.expected.cycle_detected -eq $true) 'S13 must detect citation cycles.'
 Assert-Condition ($byId.S16.expected.independent_analytical_processes -eq 2 -and $byId.S16.expected.independent_data_origins -eq 1 -and $byId.S16.expected.corroboration_count_increment -eq 0) 'S16 must separate analytical replication from data-origin independence.'
-Assert-Condition ($byId.S14.independence -eq 'INDEPENDIENTE' -and $byId.S14.claim_component_id -eq 'amount') 'S14 must scope the disagreement to the amount component.'
+Assert-Condition ($byId.S14.independence -eq 'INDEPENDIENTE' -and $byId.S14.claim_component_id -eq 'amount' -and $byId.S14.expected.corroboration_count_increment -eq 0) 'S14 must leave the disputed amount uncorroborated.'
+Assert-Condition (($byId.S14.expected.corroborated_components -join ',') -eq 'entity,date' -and ($byId.S14.expected.unresolved_components -join ',') -eq 'amount') 'S14 must scope corroboration to entity/date and leave amount unresolved.'
 Assert-Condition ($byId.S15.independence -eq 'DESCONOCIDA' -and $byId.S15.identity -eq 'ANÓNIMA_PARA_SINAYXA') 'S15 must not transfer editor identity verification to SINAYXA.'
 [pscustomobject]@{
     Result = 'PASS'
