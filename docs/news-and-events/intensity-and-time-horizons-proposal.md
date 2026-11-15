@@ -337,6 +337,6 @@ Los siguientes casos son escenarios sintéticos de prueba. Los resultados espera
 - [ ] Las fechas sin hora, intervalos y timestamps contradictorios no se convierten en precisión artificial.
 - [x] La cobertura sintética incluye T20 en el fixture v1.3.0: la antigüedad de un hito pasado se registra como dato descriptivo y no se clasifica como horizonte. Esta casilla acredita la presencia contractual del caso, no su ejecución formal ni la aprobación metodológica.
 - [ ] Los acontecimientos con varias fases conservan un horizonte por hito/fase y distinguen los tres relojes.
-- [ ] La batería T01–T19 se ejecuta y sus resultados quedan registrados antes de la aprobación metodológica.
+- [ ] La batería T01–T20 se ejecuta y sus resultados quedan registrados antes de la aprobación metodológica.
 
 **Gobernanza:** esta versión es una propuesta. Ningún nivel, ventana o criterio se considera aprobado hasta que el propietario lo acepte expresamente. La aprobación documental no autoriza implementación automática; cualquier implementación requerirá un Issue funcional y un PR con pruebas.
