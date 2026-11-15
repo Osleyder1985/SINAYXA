@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - quality/powershell-analyzer-hardening
+      - ci/powershell-7.6.6-validation
   pull_request:
     branches:
       - main
