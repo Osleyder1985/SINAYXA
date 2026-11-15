@@ -18,7 +18,7 @@ The machine-readable specification is `main-branch-ruleset.json`. It defines:
   - `PowerShell 7.6.6 / Windows`
   - `Secret scanning / Gitleaks`
   - `Dependency audit / npm`
-  - `Dependency review`
+  - `OSV dependency scan / PR / osv-scan`
 - Zero required approving reviews. This repository has one human maintainer; requiring an approval from a second person would make the normal workflow impossible. This does not remove the requirement to use a PR or resolve review threads.
 
 ## Application and verification
@@ -37,4 +37,4 @@ Then verify the persisted policy through the GitHub rulesets API or repository s
 
 ## Operational note
 
-The ruleset can only require checks that have completed at least once on a pull request targeting `main`. The security workflows introduced with this policy must first complete successfully on PR #45 so their exact check names are available for selection.
+The ruleset can only require checks that have completed at least once on a pull request targeting `main`. The required checks have now completed successfully on PR #45 and their exact GitHub check contexts are recorded in the JSON. The GitHub Dependency Review action was not used because the repository dependency graph is disabled; OSV-Scanner compares the lockfile dependency graph directly without requiring that GitHub setting. npm audit is an independent full-lockfile check.
