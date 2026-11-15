@@ -1126,7 +1126,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 
 La clasificación única **INDETERMINADO**, con horizontes compatibles **INMEDIATO** y **CORTO**, queda documentada porque el intervalo de evidencia cruza la frontera de 24 horas. Las observaciones originales permanecen preservadas; no se promedian ni se resuelve arbitrariamente la discrepancia. **T19 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
 
-
 ## 2.5 Paquete sintético vigente v1.3.0 — T20 antigüedad de hitos pasados
 
 El paquete vigente se conserva en `tests/fixtures/methodology/intensity-horizons/t01-t20-synthetic-evidence-v1.3.0.json` (nombre histórico del archivo T01–T19 conservado por compatibilidad; contiene ahora T01–T20). Identificador `SINAYXA-IH-T01-T20-SYNTHETIC-004`, versión `1.3.0`, 20 casos ordenados. v1.2.0 permanece inmutable y se conserva como antecedente.
