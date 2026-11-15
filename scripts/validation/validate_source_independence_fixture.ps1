@@ -21,6 +21,7 @@ $ids = @($fixture.cases | ForEach-Object { [string]$_.id })
 Assert-Condition (($ids | Sort-Object -Unique).Count -eq 16) 'Case identifiers must be unique.'
 Assert-Condition ((@($ids | Sort-Object) -join ',') -eq (@($expectedIds | Sort-Object) -join ',')) 'Fixture must contain exactly S01-S16.'
 $allowedIndependence = @('INDEPENDIENTE','DEPENDIENTE','DESCONOCIDA')
+$allowedInstitutional = @('OFICIAL','NO_INSTITUCIONAL','DESCONOCIDO')
 foreach ($case in $fixture.cases) {
     $id = [string]$case.id
     Assert-Condition (-not [string]::IsNullOrWhiteSpace($case.scenario)) "${id}: scenario is required."
@@ -28,9 +29,17 @@ foreach ($case in $fixture.cases) {
     Assert-Condition ($fixture.allowed.source_type -contains [string]$case.source_type) "${id}: invalid source_type."
     Assert-Condition ($fixture.allowed.knowledge_basis -contains [string]$case.knowledge_basis) "${id}: invalid knowledge_basis."
     Assert-Condition ($fixture.allowed.identity -contains [string]$case.identity) "${id}: invalid identity."
+    Assert-Condition ($allowedInstitutional -contains [string]$case.institutional_character) "${id}: invalid institutional_character."
     Assert-Condition ($fixture.allowed.dissemination -contains [string]$case.dissemination) "${id}: invalid dissemination."
     Assert-Condition ($allowedIndependence -contains [string]$case.independence) "${id}: invalid independence."
     Assert-Condition ($null -ne $case.provenance_edges) "${id}: provenance_edges must be present, even when empty."
+    foreach ($edge in $case.provenance_edges) {
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($edge.from)) "${id}: provenance edge requires from."
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($edge.relation)) "${id}: provenance edge requires relation."
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($edge.to)) "${id}: provenance edge requires to."
+    }
+    Assert-Condition ($case.expected.PSObject.Properties.Name -contains 'independent_origins') "${id}: expected.independent_origins must be explicit, including null."
+    Assert-Condition ($case.expected.PSObject.Properties.Name -contains 'corroboration_count_increment') "${id}: expected.corroboration_count_increment must be explicit, including null."
     Assert-Condition (-not [string]::IsNullOrWhiteSpace($case.expected.guardrail)) "${id}: expected.guardrail is required."
     if ($case.independence -eq 'INDEPENDIENTE') {
         Assert-Condition ($case.independence_basis.Count -gt 0) "${id}: INDEPENDIENTE requires positive, component-specific evidence."
@@ -39,8 +48,8 @@ foreach ($case in $fixture.cases) {
     if ($case.independence -eq 'DEPENDIENTE') {
         Assert-Condition ($case.provenance_edges.Count -gt 0) "${id}: DEPENDIENTE requires an evidenced dependency edge."
     }
-    if ($case.independence -eq 'DESCONOCIDA') {
-        Assert-Condition ($case.expected.corroboration_count_increment -ne 1) "${id}: DESCONOCIDA cannot be upgraded to independent corroboration."
+    if ($case.independence -ne 'INDEPENDIENTE') {
+        Assert-Condition ($case.expected.corroboration_count_increment -ne 1) "${id}: only INDEPENDIENTE with positive evidence may increment independent corroboration."
     }
 }
 $byId = @{}
