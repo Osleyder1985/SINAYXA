@@ -38,7 +38,13 @@ try {
         @{ Name='Unsupported source subtype'; Apply={ param($x) $x.cases[0].source_subtype = 'UNCLASSIFIED' } },
         @{ Name='SINAYXA anonymity status falsely cleared'; Apply={ param($x) $x.cases[14].identity_visibility.anonymous_to_sinayxa = $false } },
         @{ Name='Publisher identity verification transferred to SINAYXA'; Apply={ param($x) $x.cases[14].identity_visibility.identity_verified_by_sinayxa = $true } },
-        @{ Name='Assessment cites nonexistent contrary evidence'; Apply={ param($x) $x.cases[13].assessment_record.contrary_evidence_refs = @('synthetic-fixture://missing-contrary') } }
+        @{ Name='Assessment cites nonexistent contrary evidence'; Apply={ param($x) $x.cases[13].assessment_record.contrary_evidence_refs = @('synthetic-fixture://missing-contrary') } },
+        @{ Name='Missing qualitative factor'; Apply={ param($x) $x.cases[0].factor_assessments = @($x.cases[0].factor_assessments | Select-Object -Skip 1) } },
+        @{ Name='Unsupported qualitative factor status'; Apply={ param($x) $x.cases[0].factor_assessments[0].status = 'HIGH_CONFIDENCE' } },
+        @{ Name='Factor without justification'; Apply={ param($x) $x.cases[0].factor_assessments[0].justification = '' } },
+        @{ Name='Factor references nonexistent evidence'; Apply={ param($x) $x.cases[0].factor_assessments[0].evidence_refs = @('synthetic-fixture://missing-factor-evidence') } },
+        @{ Name='Factor status contradicts evidence basis'; Apply={ param($x) $x.cases[0].factor_assessments[0].status = 'SUSTENTADA' } },
+        @{ Name='Numeric credibility score injected'; Apply={ param($x) $x.cases[0].factor_assessments[0] | Add-Member -NotePropertyName score -NotePropertyValue 0.95 } }
     )
     foreach ($mutation in $mutations) {
         $copy = $base | ConvertTo-Json -Depth 50 | ConvertFrom-Json -Depth 50
