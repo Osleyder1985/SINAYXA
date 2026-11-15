@@ -47,7 +47,7 @@ function Invoke-ExpectedFailure {
 try {
     # Positive control: the validator's default path must select v1.3.0.
     $validatorSource = Get-Content -LiteralPath $validatorPath -Raw -Encoding UTF8
-    if ($validatorSource -notlike '*t01-t19-synthetic-evidence-v1.2.0.json*') {
+    if ($validatorSource -notlike '*t01-t20-synthetic-evidence-v1.3.0.json*') {
         throw "Validator default path does not target the v1.3.0 fixture."
     }
     & $validatorPath
