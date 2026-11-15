@@ -30,21 +30,21 @@ Completar antes de ejecutar cada ciclo:
 
 No iniciar una ejecución reproducible si la unidad, el escenario, el corte o el contenido del paquete no están definidos. Conservar timestamps originales, offsets, zona IANA cuando esté disponible, fuente y precisión. No completar datos ausentes mediante suposiciones.
 
-## 2.1 Paquete sintético congelable
+## 2.1 Paquete sintético vigente v1.2.0
 
-El paquete de entradas sintéticas para T01–T19 está en [t01-t19-synthetic-evidence.json](../../tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence.json). Su identificador es `SINAYXA-IH-T01-T19-SYNTHETIC-001`. Todos los nombres, acontecimientos, registros y marcas temporales son ficticios y sirven exclusivamente para probar la aplicación de las reglas.
+El paquete vigente de entradas sintéticas para T01–T19 está en [t01-t19-synthetic-evidence-v1.2.0.json](../../tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence-v1.2.0.json). Su identificador es `SINAYXA-IH-T01-T19-SYNTHETIC-003`, versión `1.2.0`. Todos los nombres, acontecimientos, registros y marcas temporales son ficticios y sirven exclusivamente para probar la aplicación de las reglas. Los paquetes v1.0.0 y v1.1.0 citados en las secciones 2.2, 2.3 y 8 son registros históricos y no son el objetivo predeterminado actual.
 
-El paquete contiene 19 casos ordenados, unidades, escenarios, cortes, elementos de evidencia y resultados esperados. Los resultados esperados son oráculos de prueba, no resultados obtenidos. En particular, el material de T16 solo describe el requisito de dos evaluadores reales; no simula sus respuestas ni satisface la validación interevaluador.
+El paquete vigente contiene 19 casos ordenados, unidades, escenarios, cortes, elementos de evidencia y resultados esperados. Los resultados esperados son oráculos de prueba, no resultados obtenidos. T16 define el flujo de un evaluador humano único con crítica auxiliar de IA; no simula respuestas humanas o de IA ni acredita ejecución del protocolo.
 
-Validador estructural compatible con Windows PowerShell 5.1: `scripts/validation/validate_intensity_horizon_fixture.ps1`. Desde la raíz del repositorio:
+Validador compatible con Windows PowerShell 5.1: `scripts/validation/validate_intensity_horizon_fixture.ps1`. Su ruta predeterminada apunta explícitamente al fixture v1.2.0; las versiones históricas requieren `-FixturePath`. Desde la raíz del repositorio:
 
 ```powershell
 .\scripts\validation\validate_intensity_horizon_fixture.ps1
 ```
 
-El validador comprueba la identidad del paquete, los 19 IDs únicos y ordenados, campos obligatorios y el bloqueo de T16. También ejecuta comprobaciones deterministas de los vectores temporales T11, T12, T13, T14, T15, T18 y T19: aritmética de duraciones, límites de horizonte, conservación de fecha sin hora, separación de hitos e intervalos que cruzan fronteras. También imprime el SHA-256 del archivo local. Para registrar una ejecución reproducible, copiar ese hash a la ficha de ejecución junto con el commit exacto del repositorio; no modificar el fixture después de congelarlo. Cualquier cambio debe crear una nueva versión del paquete y un nuevo hash.
+El validador comprueba identidad y linaje del paquete, los 19 IDs únicos y ordenados, campos obligatorios, contratos semánticos v1.2.0 de T01/T03/T04/T08/T10, salvaguardas de T16 y vectores temporales T11/T12/T13/T14/T15/T18/T19. Exige offsets explícitos en timestamps, valida fechas de calendario, hitos exactos, categorías compatibles y coherencia de los offsets de T18 con las reglas Windows de `Europe/Madrid`. Imprime el SHA-256 del archivo local. Para registrar una ejecución reproducible, copiar ese hash a la ficha de ejecución junto con el commit exacto del repositorio; no modificar el fixture después de congelarlo. Cualquier cambio debe crear una nueva versión del paquete y un nuevo hash.
 
-**Límite histórico de la versión inicial:** validar la estructura del fixture no ejecuta la batería metodológica ni convierte ningún caso a PASS. La referencia histórica a T16 como BLOCKED fue sustituida por el protocolo de evaluador único de la sección 6 y el fixture v1.2.0 de la sección 9. La matriz vigente de la sección 4 mantiene todos los casos en NOT_EXECUTED.
+**Límite histórico de la versión inicial:** la ejecución v1.0.0 no ejecutó la batería metodológica ni convirtió ningún caso a PASS. La referencia histórica a T16 como BLOCKED fue sustituida en v1.2.0 por el protocolo de evaluador único de la sección 6 y la matriz vigente de la sección 4. Todos los casos formales permanecen NOT_EXECUTED.
 
 **Alcance ampliado del validador (commit `49db0a0cbe8f534eeeb8855e82279a4055bfda2d`):** además de la estructura, el script comprueba aritméticamente los vectores temporales de T11/T12, el tratamiento date-only de T13, los cuatro hitos de T14, el intervalo de frontera de T15, las 24 horas reales de T18 y el intervalo contradictorio de T19. Estas comprobaciones son deterministas sobre los datos sintéticos. No evalúan semánticamente intensidad/dirección de T01–T10/T16/T17, ni constituyen una ejecución integral de la batería. La ejecución local de esta versión ampliada en Windows PowerShell 5.1 quedó verificada y se registra en la sección 2.3. El resultado acredita únicamente las comprobaciones deterministas descritas; no constituye una ejecución integral de la batería metodológica.
 
@@ -58,7 +58,7 @@ El validador comprueba la identidad del paquete, los 19 IDs únicos y ordenados,
 | Resultado del validador estructural | PASS |
 | Identificador | `SINAYXA-IH-T01-T19-SYNTHETIC-001` |
 | Casos detectados | 19 |
-| T16 | Evaluación primaria humana sellada antes de crítica IA separada; IA no cuenta como segundo evaluador humano | NOT_EXECUTED | Protocolo aceptado; no afirmar acuerdo interevaluador, consenso ni independencia estadística; ejecuciones previas expuestas no cumplen secuencia (decisión humana asistida por IA; desviación documentada) | Sección 26; ejecución formal pendiente |
+| T16 | `NOT_EXECUTED` | Protocolo aceptado como decisión humana asistida; ejecución formal pendiente | Sección 26; no afirmar acuerdo interevaluador ni consenso |
 | SHA-256 del fixture | `467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22` |
 | Markdown lint de los dos documentos | PASS; 0 issues |
 | `git status --short` | Sin cambios pendientes |
@@ -79,14 +79,14 @@ El hash anterior corresponde al archivo local en la ruta `tests/fixtures/methodo
 | Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-001` |
 | Casos detectados | 19 |
 | Comprobaciones temporales deterministas | PASS: T11, T12, T13, T14, T15, T18 y T19 |
-| T16 | Evaluación primaria humana sellada antes de crítica IA separada; IA no cuenta como segundo evaluador humano | NOT_EXECUTED | Protocolo aceptado; no afirmar acuerdo interevaluador, consenso ni independencia estadística; ejecuciones previas expuestas no cumplen secuencia (decisión humana asistida por IA; desviación documentada) | Sección 26; ejecución formal pendiente |
+| T16 | `NOT_EXECUTED` | Protocolo aceptado como decisión humana asistida; ejecución formal pendiente | Sección 26; no afirmar acuerdo interevaluador ni consenso |
 | SHA-256 | `467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22` |
 | Ruta del fixture | `tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence.json` |
 | `git status --short` | Sin cambios pendientes |
 
-La salida observada fue: `Fixture structure validation: PASS`, `Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)` y `T16: BLOCKED (correctly preserved)`. El hash impreso coincide con el hash registrado para el paquete congelado.
+La salida histórica observada en esa ejecución fue: `Fixture structure validation: PASS`, `Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)` y `T16: BLOCKED (correctly preserved)`. El hash impreso coincidió con el hash registrado para el paquete v1.0.0; esta salida no describe el validador vigente.
 
-**Alcance:** este resultado verifica la estructura del fixture y los cálculos/reglas temporales deterministas implementados para los siete casos indicados. No demuestra que la clasificación semántica de intensidad/dirección de T01–T10 y T17 sea correcta, no ejecuta una evaluación integral de T01–T19, no valida acuerdo interevaluador y no satisface T16. Por tanto, los estados de la matriz de la sección 4 permanecen sin cambios: T01–T15 y T17–T19 siguen NOT_EXECUTED; T16 sigue BLOCKED. El PASS aquí registrado corresponde exclusivamente al validador de fixture y sus comprobaciones temporales.
+**Alcance histórico:** este resultado verifica únicamente la estructura del fixture v1.0.0 y los cálculos temporales ejecutados entonces. No demuestra corrección semántica, no ejecuta la batería T01–T19 y no satisface T16. La referencia a T16 como BLOCKED describe el requisito de la versión histórica, no el estado vigente del protocolo v1.2.0. El estado formal actual de T16 es NOT_EXECUTED.
 
 ## 3. Estados permitidos
 
@@ -120,7 +120,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | T13 | Fecha sin hora/zona: no inventar timestamp ni categoría exacta; horizonte INDETERMINADO | NOT_EXECUTED | DATE_ONLY_PRESERVED; horizonte INDETERMINADO; conservar precisión original (decisión humana asistida por IA; desviación de secuencia) | Sección 23; ejecución conforme al protocolo pendiente |
 | T14 | Anuncio, aprobación, entrada en vigor e implementación son cuatro hitos/relojes separados | NOT_EXECUTED | Cuatro hitos independientes; timestamps, fuentes, zona horaria y verificación por separado; ausencias no inferidas (decisión humana asistida por IA; desviación de secuencia) | Sección 24; ejecución conforme al protocolo pendiente |
 | T15 | Intervalo cruza frontera 24 h: conservar intervalo; horizonte único INDETERMINADO; compatibles INMEDIATO y CORTO | NOT_EXECUTED | Conservar límites 23 h 50 min–24 h 10 min; horizonte único INDETERMINADO; compatibles INMEDIATO y CORTO (decisión humana asistida por IA; desviación de secuencia) | Sección 25; ejecución conforme al protocolo pendiente |
-| T16 | Evaluación primaria de un humano + crítica IA separada; diferencias documentadas sin promediar ni afirmar acuerdo | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T16 | Evaluación primaria humana sellada antes de crítica IA separada; IA no es segundo evaluador humano | NOT_EXECUTED | Protocolo aceptado como decisión humana asistida; ejecución formal pendiente | Sección 26 |
 | T17 | Evidencia insuficiente para confirmar o descartar mecanismo material: INDETERMINADA | NOT_EXECUTED | Intensidad INDETERMINADA; no asignar I0 ni I1–I4; documentar brechas y permitir vigilancia sin confirmar catalizador (decisión humana asistida por IA; desviación de secuencia) | Sección 27; ejecución conforme al protocolo pendiente |
 | T18 | Cambio horario Europe/Madrid: comparar instantes absolutos; 24 h reales → INMEDIATO | NOT_EXECUTED | Usar instantes comparables/UTC y zona Europe/Madrid; duración real exacta de 24 h → INMEDIATO; no usar diferencia ingenua de reloj local (decisión humana asistida por IA; desviación de secuencia) | Sección 28; ejecución conforme al protocolo pendiente |
 | T19 | Fuentes discrepan a ambos lados de 24 h: intervalo 23 h 50 min–24 h 10 min | NOT_EXECUTED | Conservar ambas fuentes y el intervalo; categoría única INDETERMINADO; horizontes compatibles INMEDIATO y CORTO; no promediar ni elegir arbitrariamente (decisión humana asistida por IA; desviación de secuencia) | Sección 29; ejecución conforme al protocolo pendiente |
@@ -147,7 +147,8 @@ Duplicar esta ficha para cada ejecución de T01–T19. No sustituir un registro 
 | Evidencia que respalda el resultado | PENDIENTE |
 | Discrepancias/contradicciones | PENDIENTE |
 | Regla o anclaje cuestionado | PENDIENTE |
-| Justificación del estado | PENDIENTE || Fecha/hora de registro | PENDIENTE |
+| Justificación del estado | PENDIENTE |
+| Fecha/hora de registro | PENDIENTE |
 
 ## 6. Requisitos adicionales para T16 — protocolo de evaluador único
 
@@ -208,11 +209,11 @@ Resultado real informado:
 - Paquete: `SINAYXA-IH-T01-T19-SYNTHETIC-002 v1.1.0`
 - `Cases: 19`
 - `Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)`
-- `T16: BLOCKED (correctly preserved)`
+- `T16: BLOCKED (correctly preserved)` (salida histórica del paquete v1.1.0; no representa el estado del protocolo vigente v1.2.0)
 - SHA-256 del validador y de `Get-FileHash` coincidentes: `E685D6BB4459F5A580ABFAC11979D4FCABF385EE7856EC28C16541C2AD05948C`
 - `git status --short`: vacío.
 
-**Alcance del PASS:** integridad estructural del fixture v1.1.0 y comprobaciones temporales deterministas. No acredita la corrección semántica de las clasificaciones esperadas de T01–T19, ni ejecución formal de esos casos, ni acuerdo entre evaluadores. La matriz de ejecución permanece sin cambios: T01–T15 y T17–T19 NOT_EXECUTED; T16 BLOCKED.
+**Alcance histórico del PASS:** integridad estructural del fixture v1.1.0 y comprobaciones temporales deterministas. No acredita corrección semántica, ejecución formal ni acuerdo entre evaluadores. El estado `T16 BLOCKED` pertenece exclusivamente al protocolo histórico v1.1.0; en v1.2.0 fue sustituido por un proceso ejecutable de un único humano y su estado formal actual es NOT_EXECUTED.
 
 ## 9. Fixture sintético v1.2.0 — adaptación de T16 al proyecto de un único humano
 
@@ -247,7 +248,7 @@ La versión 1.1.0 y su hash permanecen inmutables. La nueva versión no contiene
 
 T16 pasa de BLOCKED por una dependencia humana imposible a NOT_EXECUTED: el proceso ya es ejecutable por el único propietario, pero todavía no se ha realizado. Los estados de los otros casos no cambian. No se afirma acuerdo entre evaluadores humanos, fiabilidad interevaluador, consenso ni validez empírica.
 
-## 10. Ejecución local del fixture sintético v1.2.0
+## 10. Ejecución local histórica del fixture sintético v1.2.0 (validador anterior al Issue #41)
 
 ### Identificación y entorno
 
@@ -269,6 +270,8 @@ T16 pasa de BLOCKED por una dependencia humana imposible a NOT_EXECUTED: el proc
 - `git status --short`: vacío.
 
 **Alcance:** queda verificada la estructura del fixture v1.2.0, el linaje comprobado por el validador y los vectores temporales deterministas indicados. La salida de T16 confirma que el protocolo de un único humano está definido; no acredita que se haya realizado la evaluación primaria ni la crítica de IA. T01–T15 y T17–T19 siguen NOT_EXECUTED; T16 sigue NOT_EXECUTED. No se declara acuerdo interevaluador humano, consenso ni validez empírica.
+
+**Alcance histórico de esta ejecución:** corresponde al commit `bae7ae515ac64d64edf3676250a6cdde32889783` y al validador anterior a las correcciones del Issue #41. No verifica las nuevas aserciones semánticas de T01/T03/T04/T08/T10, el offset IANA de T18 ni las pruebas negativas añadidas en esta rama. La ejecución del validador corregido y de su harness de mutaciones en Windows PowerShell 5.1 queda pendiente de evidencia local.
 
 ### Resultado de Markdown lint comunicado por el propietario
 
