@@ -7,6 +7,15 @@ $fixture = Join-Path $PSScriptRoot '..\..\tests\fixtures\contracts\source-eviden
 $base = Get-Content -LiteralPath $fixture -Raw -Encoding utf8 | ConvertFrom-Json -AsHashtable -Depth 100
 $temp = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-" + [guid]::NewGuid().ToString('N') + '.json')
 try {
+    $cycleCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
+    $cycleEdges = @(
+        @{ edge_id='cycle-a-b'; dependent_node_id='node-version-a'; origin_node_id='node-version-b'; relation_type='CITA_DE'; claim_component_id='component-entity'; evidence_refs=@('evidence-a'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null },
+        @{ edge_id='cycle-b-a'; dependent_node_id='node-version-b'; origin_node_id='node-version-a'; relation_type='CITA_DE'; claim_component_id='component-entity'; evidence_refs=@('evidence-b'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null }
+    )
+    $cycleCopy.provenance_edges = @($cycleCopy.provenance_edges) + $cycleEdges
+    ConvertTo-Json -InputObject $cycleCopy -Depth 100 | Set-Content -LiteralPath $temp -Encoding utf8
+    $cycleOutput = (& $validator -FixturePath $temp | Out-String)
+    if (-not $cycleOutput.Contains('CycleReviewRequired : True')) { throw 'A provenance cycle was not detected and preserved for review.' }
     $mutations = @(
         @{ Name='Orphan claim component'; Apply={ param($x) $x.claim_components[0].claim_id='missing-claim' } },
         @{ Name='Evaluation unit source/version mismatch'; Apply={ param($x) $x.evaluation_units[0].source_id='source-b' } },
@@ -33,8 +42,9 @@ try {
     [pscustomobject]@{
         Result='PASS'
         BaselineScenarios=1
+        PositiveCycleCases=1
         NegativeMutations=$mutations.Count
-        TotalChecks=($mutations.Count + 1)
+        TotalChecks=($mutations.Count + 2)
         Scope='Deterministic synthetic contract-validator rejection tests.'
     } | Format-List
 }
