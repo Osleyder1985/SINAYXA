@@ -143,7 +143,7 @@ Assert-Condition ($byId.S10.expected.declaration_recorded -eq $true -and $byId.S
 Assert-Condition ($byId.S11.expected.document_authenticity -eq 'AUTHENTICATED' -and $byId.S11.expected.source_track_record_separate -eq $true -and $byId.S11.expected.past_errors_automatically_invalidate_document -eq $false) 'S11 must assess document authenticity separately from source history.'
 Assert-Condition ($byId.S12.expected.prestige_used_as_evidence -eq $false -and $byId.S12.knowledge_basis -eq 'DESCONOCIDA') 'S12 must not use prestige as evidence.'
 Assert-Condition ($byId.S13.expected.cycle_detected -eq $true -and $byId.S13.independence -eq 'DEPENDIENTE') 'S13 must detect circular citation dependency.'
-Assert-Condition (($byId.S14.expected.corroborated_components -join ',') -eq 'entity,date' -and ($byId.S14.expected.unresolved_components -join ',') -eq 'amount' -and $byId.S14.expected.corroboration_count_increment -eq 0) 'S14 must not corroborate the disputed amount.'
+Assert-Condition (($byId.S14.expected.components_outside_scope -join ',') -eq 'entity,date' -and ($byId.S14.expected.unresolved_components -join ',') -eq 'amount' -and $byId.S14.expected.corroboration_count_increment -eq 0) 'S14 must not corroborate the disputed amount or decide components outside scope.'
 Assert-Condition ($byId.S15.expected.editor_identity_verification_transferred -eq $false -and $byId.S15.independence -eq 'DESCONOCIDA' -and $byId.S15.identity_visibility.identity_verified_by_publisher -eq $true -and $byId.S15.identity_visibility.identity_verified_by_sinayxa -eq $false) 'S15 must not transfer editorial identity verification to SINAYXA.'
 Assert-Condition ($byId.S16.expected.independent_analytical_processes -eq 2 -and $byId.S16.expected.independent_data_origins -eq 1) 'S16 must separate independent analytical processes from shared data origin.'
 Assert-Condition ($byId.S01.independence -eq 'DEPENDIENTE' -and $byId.S01.expected.independent_origins -eq 1) 'S01 must collapse six syndications to one origin.'
@@ -155,7 +155,7 @@ Assert-Condition ($byId.S09.independence -eq 'INDEPENDIENTE' -and $byId.S09.inde
 Assert-Condition ($byId.S13.independence -eq 'DEPENDIENTE' -and $byId.S13.expected.cycle_detected -eq $true) 'S13 must detect citation cycles.'
 Assert-Condition ($byId.S16.expected.independent_analytical_processes -eq 2 -and $byId.S16.expected.independent_data_origins -eq 1 -and $byId.S16.expected.corroboration_count_increment -eq 0) 'S16 must separate analytical replication from data-origin independence.'
 Assert-Condition ($byId.S14.independence -eq 'INDEPENDIENTE' -and $byId.S14.claim_component_id -eq 'amount' -and $byId.S14.expected.corroboration_count_increment -eq 0) 'S14 must leave the disputed amount uncorroborated.'
-Assert-Condition (($byId.S14.expected.corroborated_components -join ',') -eq 'entity,date' -and ($byId.S14.expected.unresolved_components -join ',') -eq 'amount') 'S14 must scope corroboration to entity/date and leave amount unresolved.'
+Assert-Condition (($byId.S14.expected.components_outside_scope -join ',') -eq 'entity,date' -and ($byId.S14.expected.unresolved_components -join ',') -eq 'amount') 'S14 must keep entity/date outside this unit and leave amount unresolved.'
 Assert-Condition ($byId.S15.independence -eq 'DESCONOCIDA' -and $byId.S15.identity -eq 'ANÓNIMA_PARA_SINAYXA') 'S15 must not transfer editor identity verification to SINAYXA.'
 [pscustomobject]@{
     Result = 'PASS'
