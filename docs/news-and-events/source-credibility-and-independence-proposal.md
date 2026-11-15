@@ -49,6 +49,7 @@ Debe conservarse como mínimo:
 - evaluador, justificación y cambios respecto de evaluaciones anteriores.
 
 No se extrapola una evaluación a otras afirmaciones, materias, autores, periodos o publicaciones sin evidencia específica.
+
 ### 3.1 Base de conocimiento, separada del tipo de fuente
 
 Además del tipo PRIMARIA/SECUNDARIA/TERCIARIA, registrar cómo se relaciona la fuente con el hecho o con el dato:
@@ -64,7 +65,6 @@ Además del tipo PRIMARIA/SECUNDARIA/TERCIARIA, registrar cómo se relaciona la 
 - **DESCONOCIDA:** la base de conocimiento no puede establecerse.
 
 Una fuente puede combinar bases distintas para componentes diferentes de una afirmación. No presentar un acceso declarado como acceso verificado ni un análisis como registro original.
-
 
 ## 4. Rúbrica cualitativa propuesta
 
