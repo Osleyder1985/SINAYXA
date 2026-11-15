@@ -74,6 +74,12 @@ try {
     $mut = Copy-Fixture; $mut.cases[12].invariants.unauthorized_acquisition = $true
     Invoke-ExpectedFailure -Name 'unauthorized-acquisition' -Data $mut -ExpectedMessage 'unauthorized acquisition must remain prohibited'
 
+    $mut = Copy-Fixture; $mut.cases[3].expected.source_identity = 'IDENTIFICADA'
+    Invoke-ExpectedFailure -Name 'invent-source-identity' -Data $mut -ExpectedMessage 'E04 must preserve independent origin'
+
+    $mut = Copy-Fixture; $mut.cases[15].expected.document_authenticity = 'AUTENTICADA'
+    Invoke-ExpectedFailure -Name 'invent-document-authenticity' -Data $mut -ExpectedMessage 'E16 must preserve the preliminary proposal'
+
     $mut = Copy-Fixture; $mut.cases[14].expected.evidentiary_status = 'CORROBORADA'
     Invoke-ExpectedFailure -Name 'filing-to-approval-overclaim' -Data $mut -ExpectedMessage 'E15: evidentiary status does not match'
 
@@ -89,7 +95,7 @@ try {
     $mut = Copy-Fixture; $mut.cases[16].expected.evidentiary_status = 'NO_CORROBORADA'
     Invoke-ExpectedFailure -Name 'incompatible-versions-not-contradicted' -Data $mut -ExpectedMessage 'E17: evidentiary status does not match'
 
-    Write-Information 'Evidence-standard fixture tests: PASS (1 positive + 20 negative mutations).' -InformationAction Continue
+    Write-Information 'Evidence-standard fixture tests: PASS (1 positive + 22 negative mutations).' -InformationAction Continue
 }
 finally {
     Remove-Item -LiteralPath $temp -Recurse -Force -ErrorAction SilentlyContinue
