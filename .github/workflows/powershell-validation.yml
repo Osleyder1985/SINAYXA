@@ -13,7 +13,11 @@ on:
       - "**.ps1"
       - "**.psm1"
       - "tests/fixtures/methodology/intensity-horizons/**"
+      - "tests/fixtures/methodology/evidence-standard/**"
+      - "scripts/validation/validate_evidence_standard_fixture.ps1"
+      - "scripts/validation/test_evidence_standard_fixture.ps1"
       - "docs/news-and-events/intensity-and-time-horizons-test-record.md"
+      - "docs/news-and-events/evidence-standard-for-indicia-rumours-and-leaks.md"
       - ".github/workflows/powershell-validation.yml"
   workflow_dispatch:
     inputs:
@@ -144,6 +148,22 @@ jobs:
           & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_intensity_horizon_fixture_validator.ps1'
           if ($LASTEXITCODE -ne 0) { throw 'The validator test harness failed.' }
 
+      - name: Validate Issue #15 evidence-standard fixture
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/validate_evidence_standard_fixture.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'The evidence-standard fixture validator failed.' }
+
+      - name: Run Issue #15 positive and negative mutation tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_evidence_standard_fixture.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'The evidence-standard mutation tests failed.' }
+
       - name: Record source and fixture provenance
         shell: pwsh
         working-directory: source
@@ -159,6 +179,8 @@ jobs:
             psscriptanalyzer = '1.24.0'
             fixture = $fixture
             fixture_sha256 = $hash
+            evidence_standard_fixture = 'tests/fixtures/methodology/evidence-standard/e01-e18-synthetic-conformance-v1.0.0.json'
+            evidence_standard_fixture_sha256 = (Get-FileHash -LiteralPath 'tests/fixtures/methodology/evidence-standard/e01-e18-synthetic-conformance-v1.0.0.json' -Algorithm SHA256).Hash
             powerShell_files = @(git ls-files '*.ps1' '*.psm1').Count
             run_id = '${{ github.run_id }}'
             event = '${{ github.event_name }}'
