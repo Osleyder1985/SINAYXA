@@ -339,7 +339,7 @@ Los ciclos entre nodos diferentes se conservan. La detección de ciclos no elimi
 1. Claim component assessment es la única entidad que contiene evidentiary_status; los estados de factor de #16 y de independencia no pueden sustituirlo.
 2. CONTRADICHA requiere líneas de evidencia materialmente incompatibles y trazables en ambos sentidos; dos relatos no autenticados o dos etiquetas incompatibles no bastan.
 3. REFUTADA requiere evidencia contraria directa y pertinente respecto al componente exacto. Refutar autenticidad de un documento no refuta automáticamente el hecho subyacente.
-4. CORROBORADA exige evidencia favorable suficiente para el alcance del componente. Cuando la base sea secundaria, la independencia debe estar demostrada para ese mismo componente y corte; la cantidad de publicaciones no sustituye esa prueba.
+4. CORROBORADA exige evidencia favorable suficiente para el alcance del componente. Cuando entre las fuentes que sustentan el componente haya al menos una fuente no primaria (SECUNDARIA, TERCIARIA o DESCONOCIDA), la independencia debe estar demostrada y revisada para todas las unidades de fuente que sustentan ese mismo componente y corte; la cantidad de publicaciones no sustituye esa prueba. Una fuente de tipo DESCONOCIDA no se presume primaria. Una fuente primaria auténtica y directamente pertinente puede corroborar por sí sola el acto que realizó o publicó, dentro de ese alcance, conforme al estándar #15; no necesita una evaluación positiva de independencia para ese uso directo.
 5. PARCIALMENTE_CORROBORADA exige identificar el alcance respaldado y no respaldado. No eleva automáticamente otros componentes.
 6. NO_CORROBORADA y NO_RESUELTA no significan falsedad. La ausencia de evidencia no se transforma en evidencia contraria.
 7. Una evaluación nueva es un registro nuevo que referencia la anterior mediante supersedes_assessment_id; no se modifica la evaluación histórica.
@@ -434,7 +434,7 @@ Cada factor conserva human_review_status y reviewed_at. Un estado PENDING no pue
 
 Las conclusiones probatorias CORROBORADA, PARCIALMENTE_CORROBORADA, CONTRADICHA y REFUTADA requieren revisión humana registrada. Una evaluación pendiente no puede consumirse como conclusión final.
 
-Para CORROBORADA basada en fuentes secundarias o terciarias, todas las unidades de fuente que sustentan el componente deben quedar cubiertas por una evaluación de independencia INDEPENDIENTE revisada, vinculada a la misma versión de afirmación y componente. Una evaluación de independencia de otro componente no puede reutilizarse.
+Para CORROBORADA basada en una o más fuentes no primarias (SECUNDARIA, TERCIARIA o DESCONOCIDA), todas las unidades de fuente que sustentan el componente —incluidas las primarias que participen en esa misma corroboración— deben quedar cubiertas por una evaluación de independencia INDEPENDIENTE revisada, vinculada a la misma versión de afirmación y componente. Una fuente de tipo DESCONOCIDA se trata conservadoramente como no primaria. Cuando el alcance corroborado se apoya directamente en una fuente primaria auténtica y pertinente, no se exige una evaluación positiva de independencia adicional. Una evaluación de independencia de otro componente no puede reutilizarse.
 
 Estas restricciones son validaciones de integridad y flujo de revisión; no son una puntuación, regla probabilística ni automatización de la verdad.
 
