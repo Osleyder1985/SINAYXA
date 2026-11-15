@@ -48,10 +48,10 @@ The current repository contains a small PowerShell surface. Coverage is reported
 
 In addition to analyzing production scripts, CI runs controlled, synthetic snippets to verify that PSScriptAnalyzer 1.24.0 actually detects these security patterns:
 
-- Plain-text password parameters: `AvoidUsingPlainTextForPassword`.
-- Dynamic expression execution: `AvoidUsingInvokeExpression`.
-- Plain-text input to `ConvertTo-SecureString`: `AvoidUsingConvertToSecureStringWithPlainText`.
-- Hardcoded remote computer names: `AvoidUsingComputerNameHardcoded`.
+- Plain-text password parameters: `PSAvoidUsingPlainTextForPassword`.
+- Dynamic expression execution: `PSAvoidUsingInvokeExpression`.
+- Plain-text input to `ConvertTo-SecureString`: `PSAvoidUsingConvertToSecureStringWithPlainText`.
+- Hardcoded remote computer names: `PSAvoidUsingComputerNameHardcoded`.
 
 The test harness requires every expected rule to fire and verifies temporary test-directory cleanup. These snippets are deliberately synthetic and are not executed; they are analyzed statically.
 
