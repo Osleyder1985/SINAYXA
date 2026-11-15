@@ -37,6 +37,13 @@ $actualIds = @($fixture.cases | ForEach-Object { [string]$_.id })
 Assert-Condition (($actualIds | Sort-Object -Unique).Count -eq 18) 'Case identifiers must be unique.'
 Assert-Condition ((@($actualIds | Sort-Object) -join ',') -eq (@($expectedIds | Sort-Object) -join ',')) 'Fixture must contain exactly E01-E18.'
 
+$requiredAttribution = @{
+    E01 = 'ATRIBUIDA'; E02 = 'ATRIBUIDA'; E03 = 'ATRIBUIDA'; E04 = 'ATRIBUIDA'
+    E05 = 'NO_DETERMINADA'; E06 = 'NO_DETERMINADA'; E07 = 'NO_DETERMINADA'; E08 = 'ATRIBUIDA'
+    E09 = 'NO_DETERMINADA'; E10 = 'NO_DETERMINADA'; E11 = 'NO_DETERMINADA'; E12 = 'NO_DETERMINADA'
+    E13 = 'NO_DETERMINADA'; E14 = 'ATRIBUIDA'; E15 = 'ATRIBUIDA'; E16 = 'NO_DETERMINADA'
+    E17 = 'ATRIBUIDA'; E18 = 'ATRIBUIDA'
+}
 $requiredStatuses = @{
     E01 = 'CORROBORADA'
     E02 = 'NO_CORROBORADA'
@@ -66,6 +73,7 @@ foreach ($case in $fixture.cases) {
     Assert-Condition ($null -ne $case.expected) "${id}: expected result is required."
     Assert-Condition ($requiredStatuses.ContainsKey($id)) "${id}: no standard case contract exists."
     Assert-Condition ($allowedAttribution -contains [string]$case.expected.attribution_status) "${id}: unsupported attribution-status value."
+    Assert-Condition ($case.expected.attribution_status -eq $requiredAttribution[$id]) "${id}: attribution status does not match the scenario's source traceability."
     Assert-Condition ($allowedStates -contains [string]$case.expected.evidentiary_status) "${id}: unsupported evidentiary status."
     Assert-Condition ($case.expected.evidentiary_status -eq $requiredStatuses[$id]) "${id}: evidentiary status does not match the corresponding Issue #15 case."
     Assert-Condition ($allowedAuthenticity -contains [string]$case.expected.document_authenticity) "${id}: unsupported document-authenticity value."
@@ -94,7 +102,7 @@ Assert-Condition ($caseById.E14.expected.source_identity -eq 'ANÓNIMA_PARA_EL_P
 Assert-Condition ($caseById.E15.expected.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') 'E15 must confirm filing only, not approval.'
 Assert-Condition ($caseById.E16.expected.evidentiary_status -eq 'NO_CORROBORADA' -and $caseById.E16.expected.document_authenticity -eq 'NO_VERIFICADA' -and $caseById.E16.expected.access_provenance -eq 'NO_DETERMINADO' -and $caseById.E16.expected.guardrail.Contains('corroboración independiente')) 'E16 must not corroborate an unauthenticated proposal without independent evidence.'
 Assert-Condition ($caseById.E17.expected.evidentiary_status -eq 'NO_RESUELTA' -and $caseById.E17.expected.independence_of_origin -eq 'DESCONOCIDA') 'E17 must not classify incompatible anonymous reports as CONTRADICHA without verifiable evidence lines.'
-Assert-Condition (@($fixture.cases | Where-Object { $_.expected.attribution_status -eq 'ATRIBUIDA' }).Count -eq 18) 'Every synthetic case must explicitly represent attribution independently of evidentiary status.'
+Assert-Condition ($caseById.E02.expected.attribution_status -eq 'ATRIBUIDA' -and $caseById.E02.expected.evidentiary_status -eq 'NO_CORROBORADA') 'E02 must show that an attributed claim can remain uncorroborated.'
 Assert-Condition ($caseById.E18.expected.evidentiary_status -eq 'NO_RESUELTA') 'E18 must not infer corroboration or refutation from a correction alone.'
 
 [pscustomobject]@{
