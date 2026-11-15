@@ -16,6 +16,7 @@
     "identity_assessments",
     "evaluation_units",
     "evidence_items",
+    "evidence_availability",
     "claim_evidence_links",
     "provenance_nodes",
     "provenance_edges",
@@ -75,6 +76,12 @@
       "type": "array",
       "items": {
         "$ref": "#/$defs/evidence"
+      }
+    },
+    "evidence_availability": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidenceAvailability"
       }
     },
     "claim_evidence_links": {
@@ -736,6 +743,43 @@
         "recorded_at": {
           "$ref": "#/$defs/utc"
         }
+      }
+    },
+    "evidenceAvailability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "availability_id",
+        "evidence_id",
+        "assessment_unit_id",
+        "claim_id",
+        "claim_component_id",
+        "claim_version_id",
+        "claim_component_version_id",
+        "available_at",
+        "availability_basis",
+        "availability_reference",
+        "recorded_at"
+      ],
+      "properties": {
+        "availability_id": { "$ref": "#/$defs/id" },
+        "evidence_id": { "$ref": "#/$defs/id" },
+        "assessment_unit_id": { "$ref": "#/$defs/id" },
+        "claim_id": { "$ref": "#/$defs/id" },
+        "claim_component_id": { "$ref": "#/$defs/id" },
+        "claim_version_id": { "$ref": "#/$defs/id" },
+        "claim_component_version_id": { "$ref": "#/$defs/id" },
+        "available_at": { "$ref": "#/$defs/optionalUtc" },
+        "availability_basis": {
+          "enum": [
+            "SINAYXA_OBSERVATION",
+            "INDEPENDENT_ARCHIVE",
+            "SOURCE_STATED",
+            "UNKNOWN"
+          ]
+        },
+        "availability_reference": { "type": ["string", "null"] },
+        "recorded_at": { "$ref": "#/$defs/utc" }
       }
     },
     "evidenceLink": {
