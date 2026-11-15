@@ -59,7 +59,7 @@ Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$package.package_id)) 
 Test-Condition (Test-Utc $package.created_at 'created_at') 'created_at must be an ISO 8601 UTC instant ending in Z.'
 
 $collections = @(
-    @{ Name='claims'; Id='claim_id' }, @{ Name='claim_components'; Id='claim_component_id' },
+    @{ Name='claims'; Id='claim_version_id' }, @{ Name='claim_components'; Id='claim_component_version_id' },
     @{ Name='sources'; Id='source_id' }, @{ Name='source_versions'; Id='source_version_id' },
     @{ Name='identity_assessments'; Id='identity_assessment_id' }, @{ Name='evaluation_units'; Id='assessment_unit_id' },
     @{ Name='evidence_items'; Id='evidence_id' }, @{ Name='claim_evidence_links'; Id='link_id' },
@@ -73,10 +73,12 @@ foreach ($collection in $collections) {
     Test-Condition ($package.Contains($collection.Name)) "Missing collection '$($collection.Name)'."
     $sets[$collection.Name] = Get-IdSet -Items @($package[$collection.Name]) -IdProperty $collection.Id -Label $collection.Name
 }
-$claimIds = $sets.claims
-$claimVersionIds = Get-IdSet -Items @($package.claims) -IdProperty 'claim_version_id' -Label 'claim versions'
-$componentIds = $sets.claim_components
-$componentVersionIds = Get-IdSet -Items @($package.claim_components) -IdProperty 'claim_component_version_id' -Label 'claim component versions'
+$claimIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+foreach ($claim in $package.claims) { Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$claim.claim_id)) 'Claim identity cannot be empty.'; [void]$claimIds.Add([string]$claim.claim_id) }
+$claimVersionIds = $sets.claims
+$componentIds = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+foreach ($component in $package.claim_components) { Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$component.claim_component_id)) 'Claim component identity cannot be empty.'; [void]$componentIds.Add([string]$component.claim_component_id) }
+$componentVersionIds = $sets.claim_components
 $sourceIds = $sets.sources
 $versionIds = $sets.source_versions
 $unitIds = $sets.evaluation_units
@@ -258,14 +260,36 @@ foreach ($assessment in $package.independence_assessments) {
     Test-Condition (Test-HasRef $claimVersionIds ([string]$assessment.claim_version_id)) 'Independence assessment references an unknown claim version.'
     Test-Condition (Test-HasRef $componentVersionIds ([string]$assessment.claim_component_version_id)) 'Independence assessment references an unknown component version.'
     Test-Condition (@($assessment.assessment_unit_ids).Count -ge 2) 'Independence assessment requires at least two units.'
+    Test-Condition (@($assessment.assessment_unit_ids | Sort-Object -Unique).Count -eq @($assessment.assessment_unit_ids).Count) 'Independence assessment cannot repeat an evaluation unit.'
     foreach ($unitId in $assessment.assessment_unit_ids) { Test-Condition (Test-HasRef $unitIds ([string]$unitId)) 'Independence assessment references an unknown unit.' }
     $units = @($package.evaluation_units | Where-Object { $_.assessment_unit_id -in $assessment.assessment_unit_ids })
     Test-Condition (@($units | Where-Object { $_.claim_id -ne $assessment.claim_id -or $_.claim_component_id -ne $assessment.claim_component_id -or $_.claim_version_id -ne $assessment.claim_version_id -or $_.claim_component_version_id -ne $assessment.claim_component_version_id }).Count -eq 0) 'Independence assessment mixes claims or component versions.'
     foreach ($reference in @($assessment.supporting_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Independence assessment references unknown evidence.' }
     foreach ($reference in @($assessment.dependency_edge_refs)) { Test-Condition (Test-HasRef $edgeIds ([string]$reference)) 'Independence assessment references an unknown provenance edge.' }
     Test-Condition ($assessment.status -in @('INDEPENDIENTE','DEPENDIENTE','DESCONOCIDA')) 'Unsupported independence status.'
-    if ($assessment.status -eq 'INDEPENDIENTE') { Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'INDEPENDIENTE requires positive evidence.' }
-    if ($assessment.status -eq 'DEPENDIENTE') { Test-Condition (@($assessment.dependency_edge_refs).Count -gt 0) 'DEPENDIENTE requires an evidenced dependency edge.' }
+    if ($assessment.status -eq 'INDEPENDIENTE') {
+        Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'INDEPENDIENTE requires positive evidence.'
+        $distinctSourceIds = @($units.source_id | Sort-Object -Unique)
+        Test-Condition ($distinctSourceIds.Count -ge 2) 'INDEPENDIENTE requires at least two distinct source identities, not merely two versions of one source.'
+        $evidenceSourceIds = @()
+        foreach ($evidenceId in @($assessment.supporting_evidence_refs)) {
+            $evidenceItem = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
+            if ($null -ne $evidenceItem.source_version_id) {
+                $evidenceVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $evidenceItem.source_version_id })[0]
+                if ($null -ne $evidenceVersion) { $evidenceSourceIds += [string]$evidenceVersion.source_id }
+            }
+        }
+        Test-Condition (@($evidenceSourceIds | Sort-Object -Unique).Count -ge 2) 'INDEPENDIENTE evidence must positively cover at least two distinct source identities.'
+        Test-Condition (@($assessment.dependency_edge_refs).Count -eq 0) 'INDEPENDIENTE cannot simultaneously declare material dependency edges.'
+    }
+    if ($assessment.status -eq 'DEPENDIENTE') {
+        Test-Condition (@($assessment.dependency_edge_refs).Count -gt 0) 'DEPENDIENTE requires an evidenced dependency edge.'
+        foreach ($edgeId in @($assessment.dependency_edge_refs)) {
+            $dependencyEdge = @($package.provenance_edges | Where-Object { $_.edge_id -eq $edgeId })[0]
+            Test-Condition ($dependencyEdge.claim_component_id -eq $assessment.claim_component_id -and $dependencyEdge.claim_component_version_id -eq $assessment.claim_component_version_id) 'Dependency edge must apply to the exact assessed component version.'
+            Test-Condition ($dependencyEdge.relation_type -ne 'ORIGEN_NO_DETERMINADO' -and @($dependencyEdge.evidence_refs).Count -gt 0) 'DEPENDIENTE requires a material, evidenced dependency relation; unknown origin alone is insufficient.'
+        }
+    }
     if ($assessment.status -in @('INDEPENDIENTE','DEPENDIENTE')) { Test-Condition ($assessment.human_review_status -eq 'REVIEWED') 'Positive independence/dependence requires human review.' }
     if ($assessment.human_review_status -eq 'REVIEWED') { Test-Condition (Test-Utc $assessment.reviewed_at 'reviewed_at') 'Reviewed independence assessment requires UTC reviewed_at.' }
     if ($assessment.human_review_status -eq 'PENDING') { Test-Condition ($null -eq $assessment.reviewed_at) 'Pending independence assessment cannot carry reviewed_at.' }
