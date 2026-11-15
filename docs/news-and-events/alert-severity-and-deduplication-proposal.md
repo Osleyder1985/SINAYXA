@@ -34,12 +34,12 @@ Aprobar o modificar expresamente:
 
 Toda decisión de alerta debe conservar cuatro ejes separados:
 
-| Eje | Qué responde | No debe confundirse con |
+|Eje|Qué responde|No debe confundirse con|
 |---|---|---|
-| Severidad | ¿Qué importancia potencial tendría el hecho para el activo/ámbito considerado? | Veracidad, probabilidad o certeza |
-| Urgencia | ¿Cuánto tiempo queda para que la información sea útil o para que ocurra el hito? | Severidad o antigüedad de un hecho pasado |
-| Estado probatorio | ¿Qué estado tiene la afirmación conforme al estándar #15? | Severidad, popularidad o credibilidad |
-| Alcance/incertidumbre | ¿Qué activos, componentes, fuentes, límites y alternativas están implicados? | Un score agregado |
+|Severidad|¿Qué importancia potencial tendría el hecho para el activo/ámbito considerado?|Veracidad, probabilidad o certeza|
+|Urgencia|¿Cuánto tiempo queda para que la información sea útil o para que ocurra el hito?|Severidad o antigüedad de un hecho pasado|
+|Estado probatorio|¿Qué estado tiene la afirmación conforme al estándar #15?|Severidad, popularidad o credibilidad|
+|Alcance/incertidumbre|¿Qué activos, componentes, fuentes, límites y alternativas están implicados?|Un score agregado|
 
 La evaluación de #14 puede aportar horizonte e intensidad cuando sea aprobada. Mientras permanezca pendiente, no deben tratarse sus categorías propuestas como contrato operativo. La propuesta #16 tampoco puede considerarse aprobada ni automatizarse.
 
@@ -47,13 +47,13 @@ La evaluación de #14 puede aportar horizonte e intensidad cuando sea aprobada. 
 
 Se proponen cinco etiquetas para revisión, sin puntuación numérica:
 
-| Nivel propuesto | Criterio general | Tratamiento esperado |
+|Nivel propuesto|Criterio general|Tratamiento esperado|
 |---|---|---|
-| CRÍTICA | Posible afectación inmediata y extraordinaria a la continuidad, integridad, acceso, solvencia, legalidad o funcionamiento esencial del activo/mercado; requiere atención humana prioritaria | Notificación prioritaria solo si existe evidencia suficiente del alcance y una ruta de escalamiento aprobada |
-| ALTA | Posible cambio material en fundamentos, disponibilidad, regulación, seguridad, estructura de mercado o exposición del activo | Notificación destacada con evidencia, límites y urgencia |
-| MEDIA | Acontecimiento potencialmente relevante, pero de alcance acotado, efecto condicionado o confirmación incompleta | Notificación ordinaria o agrupada si no pierde oportunidad |
-| BAJA | Información de contexto, evolución incremental o impacto potencial limitado | Registro y resumen; notificación individual solo si política/canal lo justifica |
-| INFORMATIVA | Actualización documental, aclaración, contexto o cambio sin impacto material demostrado | Incorporar al historial; no requiere alerta urgente |
+|CRÍTICA|Posible afectación inmediata y extraordinaria a la continuidad, integridad, acceso, solvencia, legalidad o funcionamiento esencial del activo/mercado; requiere atención humana prioritaria|Notificación prioritaria solo si existe evidencia suficiente del alcance y una ruta de escalamiento aprobada|
+|ALTA|Posible cambio material en fundamentos, disponibilidad, regulación, seguridad, estructura de mercado o exposición del activo|Notificación destacada con evidencia, límites y urgencia|
+|MEDIA|Acontecimiento potencialmente relevante, pero de alcance acotado, efecto condicionado o confirmación incompleta|Notificación ordinaria o agrupada si no pierde oportunidad|
+|BAJA|Información de contexto, evolución incremental o impacto potencial limitado|Registro y resumen; notificación individual solo si política/canal lo justifica|
+|INFORMATIVA|Actualización documental, aclaración, contexto o cambio sin impacto material demostrado|Incorporar al historial; no requiere alerta urgente|
 
 Los niveles son etiquetas operativas propuestas, no afirmaciones de impacto demostrado. Cada nivel exige una justificación vinculada a un mecanismo plausible, alcance, activo afectado, horizonte y evidencia. «CRÍTICA» no significa «verdadera» ni «probable».
 
@@ -135,17 +135,17 @@ Una publicación puede contener varias afirmaciones; varias publicaciones pueden
 
 ### 8.2 Reglas de deduplicación propuestas
 
-| Caso | Decisión |
+|Caso|Decisión|
 |---|---|
-| Misma URL y misma versión, reingestada sin cambio | No emitir de nuevo; actualizar metadatos de captura |
-| Misma publicación con corrección material/versionado nuevo | Crear actualización vinculada a la alerta previa |
-| Varios medios reproducen el mismo cable | Una afirmación/cadena de origen; adjuntar referencias dependientes sin multiplicar alertas |
-| Fuentes independientes aportan evidencia nueva sobre la misma afirmación | Actualizar la evaluación de la afirmación y emitir solo si el cambio es material |
-| Dos afirmaciones distintas sobre el mismo evento | Mantener claims separados; pueden compartir event_id y alert_group_id |
-| Dos eventos similares en fechas o jurisdicciones distintas | No deduplicar como uno; mantener event_id diferentes salvo evidencia de identidad común |
-| Rumor y posterior confirmación | Mantener la secuencia de estados y versiones; no borrar la alerta inicial |
-| Desmentido de una afirmación | Nueva actualización enlazada; no suprimir la historia previa |
-| Citas circulares o republicaciones | Registrar la genealogía; no contar como nueva corroboración |
+|Misma URL y misma versión, reingestada sin cambio|No emitir de nuevo; actualizar metadatos de captura|
+|Misma publicación con corrección material/versionado nuevo|Crear actualización vinculada a la alerta previa|
+|Varios medios reproducen el mismo cable|Una afirmación/cadena de origen; adjuntar referencias dependientes sin multiplicar alertas|
+|Fuentes independientes aportan evidencia nueva sobre la misma afirmación|Actualizar la evaluación de la afirmación y emitir solo si el cambio es material|
+|Dos afirmaciones distintas sobre el mismo evento|Mantener claims separados; pueden compartir event_id y alert_group_id|
+|Dos eventos similares en fechas o jurisdicciones distintas|No deduplicar como uno; mantener event_id diferentes salvo evidencia de identidad común|
+|Rumor y posterior confirmación|Mantener la secuencia de estados y versiones; no borrar la alerta inicial|
+|Desmentido de una afirmación|Nueva actualización enlazada; no suprimir la historia previa|
+|Citas circulares o republicaciones|Registrar la genealogía; no contar como nueva corroboración|
 
 La coincidencia de texto, símbolo, entidad o ventana temporal solo genera candidatos a agrupación. No basta para fusionar eventos.
 
@@ -197,23 +197,23 @@ Cada emisión/actualización conserva timestamp, versión de evaluación, regla 
 
 Todos los escenarios son ficticios; no constituyen calibración ni pruebas ejecutadas.
 
-| Caso | Entrada | Decisión propuesta |
+|Caso|Entrada|Decisión propuesta|
 |---|---|---|
-| A01 | La misma publicación se captura dos veces sin cambio | Duplicado técnico; no reenviar |
-| A02 | Tres portales reproducen el mismo cable | Agrupar referencias dependientes; no crear tres corroboraciones |
-| A03 | Un regulador publica una resolución oficial | Alerta según alcance/urgencia; estado probatorio limitado al acto publicado |
-| A04 | Aparece rumor no corroborado de vulnerabilidad con posible exposición grave | Posible alerta de vigilancia rotulada NO CONFIRMADA; severidad justificada aparte |
-| A05 | El rumor recibe un desmentido documentado | Actualización visible; conservar rumor y desmentido con sus fuentes |
-| A06 | Una fuente independiente aporta documento primario nuevo | Reevaluar afirmación; actualizar si cambia materialmente el estado |
-| A07 | El precio cae tras una noticia | No elevar severidad ni corroboración por la caída; analizar reacción aparte |
-| A08 | Dos eventos del mismo tipo afectan a activos distintos | Alertas separadas; posible grupo común |
-| A09 | Una noticia corrige importe o fecha esencial | Nueva versión/actualización; conservar la anterior |
-| A10 | Se publica otra nota sin evidencia nueva | No reenviar; adjuntar referencia si aporta contexto |
-| A11 | Un hito futuro se acerca y el riesgo potencial no cambia | Urgencia puede cambiar con evidencia temporal; severidad no cambia automáticamente |
-| A12 | Un evento pasado sigue produciendo efectos | Mantener antigüedad separada; nueva alerta solo por evidencia de persistencia/cambio actual |
-| A13 | Dos claims contradictorios describen el mismo evento | Claims separados, evento relacionado; no resolver por mayoría |
-| A14 | El sistema no puede determinar si dos publicaciones comparten fuente | Independencia DESCONOCIDA; no deduplicar como corroboración independiente |
-| A15 | La alerta se suprime por política de canal | Conservar registro, motivo, regla, actor y hora; la supresión no cambia el estado probatorio |
+|A01|La misma publicación se captura dos veces sin cambio|Duplicado técnico; no reenviar|
+|A02|Tres portales reproducen el mismo cable|Agrupar referencias dependientes; no crear tres corroboraciones|
+|A03|Un regulador publica una resolución oficial|Alerta según alcance/urgencia; estado probatorio limitado al acto publicado|
+|A04|Aparece rumor no corroborado de vulnerabilidad con posible exposición grave|Posible alerta de vigilancia rotulada NO CONFIRMADA; severidad justificada aparte|
+|A05|El rumor recibe un desmentido documentado|Actualización visible; conservar rumor y desmentido con sus fuentes|
+|A06|Una fuente independiente aporta documento primario nuevo|Reevaluar afirmación; actualizar si cambia materialmente el estado|
+|A07|El precio cae tras una noticia|No elevar severidad ni corroboración por la caída; analizar reacción aparte|
+|A08|Dos eventos del mismo tipo afectan a activos distintos|Alertas separadas; posible grupo común|
+|A09|Una noticia corrige importe o fecha esencial|Nueva versión/actualización; conservar la anterior|
+|A10|Se publica otra nota sin evidencia nueva|No reenviar; adjuntar referencia si aporta contexto|
+|A11|Un hito futuro se acerca y el riesgo potencial no cambia|Urgencia puede cambiar con evidencia temporal; severidad no cambia automáticamente|
+|A12|Un evento pasado sigue produciendo efectos|Mantener antigüedad separada; nueva alerta solo por evidencia de persistencia/cambio actual|
+|A13|Dos claims contradictorios describen el mismo evento|Claims separados, evento relacionado; no resolver por mayoría|
+|A14|El sistema no puede determinar si dos publicaciones comparten fuente|Independencia DESCONOCIDA; no deduplicar como corroboración independiente|
+|A15|La alerta se suprime por política de canal|Conservar registro, motivo, regla, actor y hora; la supresión no cambia el estado probatorio|
 
 ## 12. Umbrales cuantitativos y calibración
 
