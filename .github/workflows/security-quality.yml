@@ -44,7 +44,7 @@ jobs:
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
           GITLEAKS_ENABLE_SUMMARY: "true"
           GITLEAKS_VERSION: "8.24.3"
-      - name: Verify Gitleaks detects a synthetic AWS canary
+      - name: Verify Gitleaks detects a synthetic GitHub token
         shell: bash
         run: |
           set -euo pipefail
@@ -55,8 +55,7 @@ jobs:
           git -C "$temp_repo" config user.name "SINAYXA Security Test"
           git -C "$temp_repo" config user.email "security-test@example.invalid"
           cat > "$temp_repo/canary.env" <<'EOF'
-          AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
-          AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+          GITHUB_TOKEN=ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
           EOF
           git -C "$temp_repo" add canary.env
           git -C "$temp_repo" commit -qm "test: synthetic secret canary"
