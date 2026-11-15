@@ -2,6 +2,7 @@
 
 **Estado:** aprobada por el propietario del proyecto; documentación propuesta mediante PR  
 **Issue de origen:** [#1 — Definir taxonomía y cobertura de catalizadores](https://github.com/Osleyder1985/SINAYXA/issues/1)  
+**Issue de actualización:** [#33 — Incorporar explícitamente filtraciones como novena familia transversal](https://github.com/Osleyder1985/SINAYXA/issues/33)  
 **Ámbito:** definición semántica y criterios de cobertura. Este documento no especifica ni implementa captura, almacenamiento, evaluación automatizada de fuentes, análisis cuantitativo de impacto o predicción.
 
 ## 1. Propósito y principio rector
