@@ -3,7 +3,7 @@ param()
 
 $ErrorActionPreference = "Stop"
 $validatorPath = Join-Path $PSScriptRoot "validate_intensity_horizon_fixture.ps1"
-$fixturePath = Join-Path $PSScriptRoot "..\..\tests\fixtures\methodology\intensity-horizons\t01-t19-synthetic-evidence-v1.2.0.json"
+$fixturePath = Join-Path $PSScriptRoot "..\..\tests\fixtures\methodology\intensity-horizons\t01-t19-synthetic-evidence-v1.3.0.json"
 $fixturePath = (Resolve-Path -LiteralPath $fixturePath).Path
 $tempDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-ih-validator-" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $tempDirectory | Out-Null
@@ -45,10 +45,10 @@ function Invoke-ExpectedFailure {
 }
 
 try {
-    # Positive control: the validator's default path must select v1.2.0.
+    # Positive control: the validator's default path must select v1.3.0.
     $validatorSource = Get-Content -LiteralPath $validatorPath -Raw -Encoding UTF8
     if ($validatorSource -notlike '*t01-t19-synthetic-evidence-v1.2.0.json*') {
-        throw "Validator default path does not target the v1.2.0 fixture."
+        throw "Validator default path does not target the v1.3.0 fixture."
     }
     & $validatorPath
     Write-Information "Positive default-fixture test: PASS" -InformationAction Continue
@@ -124,7 +124,25 @@ try {
         $case.evidence[0].reference = "not-a-timestamp"
     }
 
-    Write-Information "Negative validator tests: PASS (12 mutation cases)" -InformationAction Continue
+    Invoke-ExpectedFailure -Name "reject-wrong-t20-age" -ExpectedMessage "T20 must preserve past-event age" -Mutation {
+        param($Fixture)
+        $case = $Fixture.cases | Where-Object { $_.id -eq "T20" }
+        $case.expected.elapsed_since_event_seconds = 86400
+    }
+
+    Invoke-ExpectedFailure -Name "reject-t20-future-horizon-label" -ExpectedMessage "T20 must preserve past-event age" -Mutation {
+        param($Fixture)
+        $case = $Fixture.cases | Where-Object { $_.id -eq "T20" }
+        $case.expected.horizon = "LARGO"
+    }
+
+    Invoke-ExpectedFailure -Name "reject-t20-negative-past-age" -ExpectedMessage "T20 past-event chronology cannot be negative" -Mutation {
+        param($Fixture)
+        $case = $Fixture.cases | Where-Object { $_.id -eq "T20" }
+        $case.evidence[0].occurred_at = "2026-01-11T12:00:00Z"
+    }
+
+    Write-Information "Negative validator tests: PASS (15 mutation cases)" -InformationAction Continue
 
     $missingFixturePath = Join-Path $tempDirectory "missing-fixture.json"
     $missingFixtureRejected = $false
