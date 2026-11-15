@@ -123,7 +123,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | T16 | Evaluación primaria de un humano + crítica IA separada; diferencias documentadas sin promediar ni afirmar acuerdo | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T17 | Evidencia insuficiente para confirmar o descartar mecanismo material: INDETERMINADA | NOT_EXECUTED | Intensidad INDETERMINADA; no asignar I0 ni I1–I4; documentar brechas y permitir vigilancia sin confirmar catalizador (decisión humana asistida por IA; desviación de secuencia) | Sección 27; ejecución conforme al protocolo pendiente |
 | T18 | Cambio horario Europe/Madrid: comparar instantes absolutos; 24 h reales → INMEDIATO | NOT_EXECUTED | Usar instantes comparables/UTC y zona Europe/Madrid; duración real exacta de 24 h → INMEDIATO; no usar diferencia ingenua de reloj local (decisión humana asistida por IA; desviación de secuencia) | Sección 28; ejecución conforme al protocolo pendiente |
-| T19 | Conservar fuentes e intervalo 23 h 50 min–24 h 10 min; categoría única INDETERMINADO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T19 | Fuentes discrepan a ambos lados de 24 h: intervalo 23 h 50 min–24 h 10 min | NOT_EXECUTED | Conservar ambas fuentes y el intervalo; categoría única INDETERMINADO; horizontes compatibles INMEDIATO y CORTO; no promediar ni elegir arbitrariamente (decisión humana asistida por IA; desviación de secuencia) | Sección 29; ejecución conforme al protocolo pendiente |
 
 ## 5. Ficha obligatoria por caso
 
@@ -1086,3 +1086,49 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 28.4 Resultado de auditoría
 
 La decisión **instantes absolutos / zona Europe/Madrid preservada / 24 horas reales = INMEDIATO** queda documentada como decisión humana asistida. La aritmética ingenua de horas locales no se acepta como sustituto del cálculo de duración real; timestamps ambiguos o inexistentes sin offset suficiente no se resolverán por conjetura. **T18 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+
+## 29. Registro de decisión asistida — T19
+
+### 29.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T19 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Determinación del horizonte ante timestamps discrepantes de dos fuentes |
+| Evidencia examinada | T19: una fuente sitúa el evento a 23 h 50 min y otra a 24 h 10 min |
+| Decisión humana comunicada | Conservar ambas fuentes y el intervalo; categoría única INDETERMINADO; horizontes compatibles INMEDIATO y CORTO |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 29.2 Decisión y razonamiento
+
+El propietario aceptó conservar ambas observaciones y representar la incertidumbre temporal mediante el intervalo **23 h 50 min–24 h 10 min**.
+
+La frontera de 24 horas separa INMEDIATO de CORTO. Como el intervalo contiene duraciones a ambos lados de esa frontera, no existe base para asignar una categoría única con la evidencia disponible.
+
+Por tanto:
+
+- Horizonte único: **INDETERMINADO**.
+- Horizontes compatibles: **INMEDIATO** y **CORTO**.
+- Se conservan las dos fuentes, sus timestamps originales, sus zonas u offsets cuando estén disponibles y sus respectivos metadatos de procedencia.
+- No se selecciona una fuente por conveniencia, autoridad no establecida o coincidencia con el resultado esperado.
+- No se calcula un promedio para fabricar un timestamp representativo ni se redondea el intervalo para forzar una categoría.
+- La discrepancia y sus consecuencias para la clasificación permanecen visibles para evaluaciones posteriores.
+
+La incertidumbre solo podrá reducirse mediante evidencia adicional que permita justificar qué timestamp representa mejor el acontecimiento o acotar el intervalo sin cruzar la frontera. Si una fuente carece de zona horaria, precisión o metadatos necesarios, esa limitación debe conservarse; no se completará por inferencia.
+
+### 29.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción no cumple la secuencia de evaluación primaria humana sellada antes de la crítica de IA establecida en el protocolo de evaluador único.
+
+La aceptación se conserva como **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T19.
+
+Para completar una ejecución formal conforme al protocolo, será necesaria una nueva evaluación con el paquete congelado: primero se registra y sella la evaluación humana sin conocer la salida de IA y, después, se realiza la crítica auxiliar separada. La nueva ejecución se conservará como un registro distinto, sin sobrescribir esta decisión.
+
+### 29.4 Resultado de auditoría
+
+La clasificación única **INDETERMINADO**, con horizontes compatibles **INMEDIATO** y **CORTO**, queda documentada porque el intervalo de evidencia cruza la frontera de 24 horas. Las observaciones originales permanecen preservadas; no se promedian ni se resuelve arbitrariamente la discrepancia. **T19 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
