@@ -162,6 +162,7 @@
       "additionalProperties": false,
       "required": [
         "claim_id",
+        "claim_version_id",
         "claim_version",
         "proposition",
         "scope",
@@ -195,6 +196,9 @@
             "string",
             "null"
           ]
+        },
+        "claim_version_id": {
+          "$ref": "#/$defs/id"
         }
       }
     },
@@ -203,12 +207,15 @@
       "additionalProperties": false,
       "required": [
         "claim_component_id",
+        "claim_component_version_id",
         "claim_id",
+        "claim_version_id",
         "component_key",
         "proposition_fragment",
         "scope",
         "version",
-        "recorded_at"
+        "recorded_at",
+        "supersedes_component_version_id"
       ],
       "properties": {
         "claim_component_id": {
@@ -241,6 +248,18 @@
         },
         "recorded_at": {
           "$ref": "#/$defs/utc"
+        },
+        "claim_component_version_id": {
+          "$ref": "#/$defs/id"
+        },
+        "claim_version_id": {
+          "$ref": "#/$defs/id"
+        },
+        "supersedes_component_version_id": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
       }
     },
@@ -480,7 +499,9 @@
         "source_subtype",
         "knowledge_basis",
         "institutional_character",
-        "dissemination"
+        "dissemination",
+        "claim_version_id",
+        "claim_component_version_id"
       ],
       "properties": {
         "assessment_unit_id": {
@@ -568,6 +589,12 @@
             "COMPILACIÓN",
             "DESCONOCIDA"
           ]
+        },
+        "claim_version_id": {
+          "$ref": "#/$defs/id"
+        },
+        "claim_component_version_id": {
+          "$ref": "#/$defs/id"
         }
       }
     },
@@ -697,7 +724,9 @@
         "evidence_id",
         "evidence_role",
         "scope_note",
-        "limitations"
+        "limitations",
+        "claim_version_id",
+        "claim_component_version_id"
       ],
       "properties": {
         "link_id": {
@@ -727,6 +756,12 @@
           "items": {
             "$ref": "#/$defs/nonEmpty"
           }
+        },
+        "claim_version_id": {
+          "$ref": "#/$defs/id"
+        },
+        "claim_component_version_id": {
+          "$ref": "#/$defs/id"
         }
       }
     },
@@ -773,7 +808,8 @@
         "evidence_refs",
         "recorded_at",
         "valid_from",
-        "valid_to"
+        "valid_to",
+        "claim_component_version_id"
       ],
       "properties": {
         "edge_id": {
@@ -811,6 +847,9 @@
         },
         "valid_to": {
           "$ref": "#/$defs/optionalUtc"
+        },
+        "claim_component_version_id": {
+          "$ref": "#/$defs/id"
         }
       }
     },
@@ -906,7 +945,9 @@
         "assessment_cutoff",
         "methodology_version",
         "human_review_status",
-        "reviewed_at"
+        "reviewed_at",
+        "claim_version_id",
+        "claim_component_version_id"
       ],
       "properties": {
         "independence_assessment_id": {
@@ -963,6 +1004,12 @@
         },
         "reviewed_at": {
           "$ref": "#/$defs/optionalUtc"
+        },
+        "claim_version_id": {
+          "$ref": "#/$defs/id"
+        },
+        "claim_component_version_id": {
+          "$ref": "#/$defs/id"
         }
       }
     },
@@ -984,7 +1031,9 @@
         "assessment_cutoff",
         "methodology_version",
         "human_review_status",
-        "supersedes_assessment_id"
+        "supersedes_assessment_id",
+        "claim_version_id",
+        "claim_component_version_id"
       ],
       "properties": {
         "claim_assessment_id": {
@@ -1055,6 +1104,12 @@
         },
         "independence_assessment_refs": {
           "$ref": "#/$defs/refs"
+        },
+        "claim_version_id": {
+          "$ref": "#/$defs/id"
+        },
+        "claim_component_version_id": {
+          "$ref": "#/$defs/id"
         }
       }
     },
