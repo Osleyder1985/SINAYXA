@@ -19,6 +19,8 @@ try {
     $mutations = @(
         @{ Name='Orphan claim component'; Apply={ param($x) $x.claim_components[0].claim_id='missing-claim' } },
         @{ Name='Evaluation unit source/version mismatch'; Apply={ param($x) $x.evaluation_units[0].source_id='source-b' } },
+        @{ Name='Evaluation unit bound to a different component version'; Apply={ param($x) $x.evaluation_units[0].claim_component_version_id='component-amount-v1' } },
+        @{ Name='Claim version supersedes itself'; Apply={ param($x) $x.claims[0].supersedes_claim_version_id='claim-btc-purchase-v1' } },
         @{ Name='Unknown origin edge targets ordinary node'; Apply={ param($x) $x.provenance_edges[0].origin_node_id='node-version-b' } },
         @{ Name='Independent without positive evidence'; Apply={ param($x) $x.independence_assessments[0].status='INDEPENDIENTE' } },
         @{ Name='Dependent without dependency edge'; Apply={ param($x) $x.independence_assessments[0].status='DEPENDIENTE' } },
