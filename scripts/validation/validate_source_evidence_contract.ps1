@@ -120,7 +120,14 @@ foreach ($identity in $package.identity_assessments) {
     foreach ($reference in @($identity.verification_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Identity assessment references unknown verification evidence.' }
     Test-Condition (Test-Utc $identity.assessment_cutoff 'assessment_cutoff') 'Identity assessment cutoff must be UTC.'
     Test-Condition (Test-Utc $identity.recorded_at 'recorded_at') 'Identity assessment recorded_at must be UTC.'
+    if ($identity.identity -eq 'ANÓNIMA_PARA_EL_PÚBLICO') {
+        Test-Condition ($identity.anonymous_to_public -eq $true) 'ANÓNIMA_PARA_EL_PÚBLICO requires anonymous_to_public=true.'
+    }
+    if ($identity.identity -eq 'ANÓNIMA_PARA_SINAYXA') {
+        Test-Condition ($identity.anonymous_to_sinayxa -eq $true) 'ANÓNIMA_PARA_SINAYXA requires anonymous_to_sinayxa=true.'
+    }
     if ($identity.identity_verified_by_sinayxa -eq $true) {
+        Test-Condition ($identity.anonymous_to_sinayxa -eq $false) 'SINAYXA cannot verify an identity recorded as anonymous to SINAYXA.'
         Test-Condition (@($identity.verification_evidence_refs).Count -gt 0) 'SINAYXA identity verification requires evidence references.'
     }
 }
@@ -216,6 +223,8 @@ foreach ($factor in $package.factor_assessments) {
     foreach ($reference in @($factor.supporting_evidence_refs) + @($factor.contrary_evidence_refs)) {
         Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Factor assessment references unknown evidence.'
     }
+    if ($factor.human_review_status -eq 'REVIEWED') { Test-Condition (Test-Utc $factor.reviewed_at 'reviewed_at') 'A reviewed factor assessment requires UTC reviewed_at.' }
+    if ($factor.human_review_status -eq 'PENDING') { Test-Condition ($null -eq $factor.reviewed_at) 'A pending factor assessment cannot carry reviewed_at.' }
 }
 $expectedFactorDimensions = @(
     'RELATION_WITH_FACT','ACCESS_AND_PROXIMITY','SUBJECT_COMPETENCE','TRANSPARENCY_TRACEABILITY',
@@ -250,6 +259,7 @@ foreach ($assessment in $package.independence_assessments) {
     if ($assessment.status -eq 'DEPENDIENTE') {
         Test-Condition (@($assessment.dependency_edge_refs).Count -gt 0) 'DEPENDIENTE requires an evidenced dependency edge.'
     }
+    if ($assessment.status -in @('INDEPENDIENTE','DEPENDIENTE')) { Test-Condition ($assessment.human_review_status -eq 'REVIEWED') 'A positive independence/dependence conclusion requires human review.' }
     Test-Condition ($assessment.status -in @('INDEPENDIENTE','DEPENDIENTE','DESCONOCIDA')) 'Unsupported independence status.'
 }
 foreach ($assessment in $package.claim_assessments) {
@@ -279,6 +289,14 @@ foreach ($assessment in $package.claim_assessments) {
     if ($null -ne $assessment.supersedes_assessment_id) {
         Test-Condition (Test-HasRef $sets.claim_assessments ([string]$assessment.supersedes_assessment_id)) 'Claim assessment supersedes an unknown assessment.'
         Test-Condition ($assessment.supersedes_assessment_id -ne $assessment.claim_assessment_id) 'Claim assessment cannot supersede itself.'
+        $priorAssessment = @($package.claim_assessments | Where-Object { $_.claim_assessment_id -eq $assessment.supersedes_assessment_id })[0]
+        Test-Condition ($priorAssessment.claim_id -eq $assessment.claim_id -and $priorAssessment.claim_component_id -eq $assessment.claim_component_id) 'Claim assessment supersession must remain within the same claim component.'
+        Test-Condition ([DateTimeOffset]::Parse([string]$priorAssessment.assessment_cutoff) -lt [DateTimeOffset]::Parse([string]$assessment.assessment_cutoff)) 'A superseding claim assessment must have a later assessment cutoff.'
+    }
+    if ($assessment.human_review_status -eq 'REVIEWED') { Test-Condition (Test-Utc $assessment.reviewed_at 'reviewed_at') 'A reviewed claim assessment requires UTC reviewed_at.' }
+    if ($assessment.human_review_status -eq 'PENDING') { Test-Condition ($null -eq $assessment.reviewed_at) 'A pending claim assessment cannot carry reviewed_at.' }
+    if ($assessment.evidentiary_status -in @('CORROBORADA','PARCIALMENTE_CORROBORADA','CONTRADICHA','REFUTADA')) {
+        Test-Condition ($assessment.human_review_status -eq 'REVIEWED') 'A conclusive probative state requires human review.'
     }
 }
 foreach ($record in $package.retention_records) {
