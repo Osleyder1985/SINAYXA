@@ -1617,9 +1617,6 @@
           },
           "then": {
             "properties": {
-              "independence_assessment_refs": {
-                "minItems": 1
-              }
             }
           }
         },
