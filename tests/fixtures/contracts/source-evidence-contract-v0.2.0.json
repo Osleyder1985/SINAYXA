@@ -1,0 +1,308 @@
+{
+  "contract_version": "0.2.0",
+  "package_id": "synthetic-contract-78-v020",
+  "created_at": "2026-11-15T22:00:00Z",
+  "claims": [
+    {
+      "claim_id": "claim-btc-purchase",
+      "claim_version": 1,
+      "proposition": "Una entidad X aprobó una compra de BTC por un importe determinado.",
+      "scope": "Caso sintético; no describe un hecho real.",
+      "valid_time_start": null,
+      "valid_time_end": null,
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "supersedes_claim_version_id": null
+    }
+  ],
+  "claim_components": [
+    {
+      "claim_component_id": "component-entity",
+      "claim_id": "claim-btc-purchase",
+      "component_key": "entity",
+      "proposition_fragment": "La entidad X realizó la acción.",
+      "scope": "Identidad de la entidad; caso sintético.",
+      "version": 1,
+      "recorded_at": "2026-11-15T22:00:00Z"
+    },
+    {
+      "claim_component_id": "component-amount",
+      "claim_id": "claim-btc-purchase",
+      "component_key": "amount",
+      "proposition_fragment": "El importe fue el indicado.",
+      "scope": "Importe; caso sintético.",
+      "version": 1,
+      "recorded_at": "2026-11-15T22:00:00Z"
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "source-a",
+      "created_at": "2026-11-15T22:00:00Z",
+      "recorded_at": "2026-11-15T22:00:00Z"
+    },
+    {
+      "source_id": "source-b",
+      "created_at": "2026-11-15T22:00:00Z",
+      "recorded_at": "2026-11-15T22:00:00Z"
+    }
+  ],
+  "source_versions": [
+    {
+      "source_version_id": "version-a1",
+      "source_id": "source-a",
+      "version_label": "v1",
+      "published_at": "2026-11-15T20:00:00Z",
+      "first_detected_at": "2026-11-15T20:05:00Z",
+      "retrieved_at": "2026-11-15T20:10:00Z",
+      "canonical_reference": "https://example.invalid/a",
+      "content_reference": null,
+      "content_hash": null,
+      "hash_algorithm": null,
+      "supersedes_source_version_id": null,
+      "recorded_at": "2026-11-15T22:00:00Z"
+    },
+    {
+      "source_version_id": "version-b1",
+      "source_id": "source-b",
+      "version_label": "v1",
+      "published_at": null,
+      "first_detected_at": "2026-11-15T20:06:00Z",
+      "retrieved_at": "2026-11-15T20:11:00Z",
+      "canonical_reference": "https://example.invalid/b",
+      "content_reference": null,
+      "content_hash": null,
+      "hash_algorithm": null,
+      "supersedes_source_version_id": null,
+      "recorded_at": "2026-11-15T22:00:00Z"
+    }
+  ],
+  "identity_assessments": [
+    {
+      "identity_assessment_id": "identity-a",
+      "source_id": "source-a",
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "identity": "IDENTIFICADA",
+      "anonymous_to_public": false,
+      "anonymous_to_publisher": false,
+      "anonymous_to_sinayxa": false,
+      "identity_verified_by_publisher": false,
+      "identity_verified_by_sinayxa": false,
+      "verification_evidence_refs": [],
+      "limitations": [
+        "Caso sintético; identidad no verificada."
+      ],
+      "recorded_at": "2026-11-15T22:00:00Z"
+    }
+  ],
+  "evaluation_units": [
+    {
+      "assessment_unit_id": "unit-a-entity",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "source_id": "source-a",
+      "source_version_id": "version-a1",
+      "access_path": "PUBLIC_URL",
+      "access_status": "PÚBLICO_LEGÍTIMO",
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "source_type": "SECUNDARIA",
+      "source_subtype": "SYNTHETIC_REPORT",
+      "knowledge_basis": "REPRODUCCIÓN_SIN_VERIFICACIÓN_PROPIA",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "dissemination": "PUBLIC"
+    },
+    {
+      "assessment_unit_id": "unit-b-entity",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "source_id": "source-b",
+      "source_version_id": "version-b1",
+      "access_path": "PUBLIC_URL",
+      "access_status": "PÚBLICO_LEGÍTIMO",
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "source_type": "DESCONOCIDA",
+      "source_subtype": "UNKNOWN",
+      "knowledge_basis": "DESCONOCIDA",
+      "institutional_character": "DESCONOCIDO",
+      "dissemination": "PUBLIC"
+    }
+  ],
+  "evidence_items": [
+    {
+      "evidence_id": "evidence-a",
+      "source_version_id": "version-a1",
+      "evidence_kind": "DECLARACIÓN",
+      "information_nature": "AFIRMACIÓN",
+      "content_reference": "https://example.invalid/a",
+      "integrity_check": {
+        "algorithm": "DESCONOCIDO",
+        "expected_digest": null,
+        "observed_digest": null,
+        "checked_at": null,
+        "result": "NOT_CHECKED"
+      },
+      "authenticity_status": "NO_APLICA",
+      "access_status": "PÚBLICO_LEGÍTIMO",
+      "recorded_at": "2026-11-15T22:00:00Z"
+    },
+    {
+      "evidence_id": "evidence-b",
+      "source_version_id": "version-b1",
+      "evidence_kind": "DOCUMENTO",
+      "information_nature": "POSIBLE_FILTRACIÓN",
+      "content_reference": "https://example.invalid/b",
+      "integrity_check": {
+        "algorithm": "DESCONOCIDO",
+        "expected_digest": null,
+        "observed_digest": null,
+        "checked_at": null,
+        "result": "NOT_CHECKED"
+      },
+      "authenticity_status": "NO_VERIFICADA",
+      "access_status": "PÚBLICO_LEGÍTIMO",
+      "recorded_at": "2026-11-15T22:00:00Z"
+    }
+  ],
+  "claim_evidence_links": [
+    {
+      "link_id": "link-a",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "evidence_id": "evidence-a",
+      "evidence_role": "SUPPORTING",
+      "scope_note": "Solo atribución de la declaración.",
+      "limitations": [
+        "No demuestra el hecho subyacente."
+      ]
+    },
+    {
+      "link_id": "link-b",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "evidence_id": "evidence-b",
+      "evidence_role": "CONTEXTUAL",
+      "scope_note": "Pieza no autenticada.",
+      "limitations": [
+        "No puede sustentar contradicción por sí sola."
+      ]
+    }
+  ],
+  "provenance_nodes": [
+    {
+      "node_id": "node-version-a",
+      "node_type": "SOURCE_VERSION",
+      "entity_ref": "version-a1"
+    },
+    {
+      "node_id": "node-version-b",
+      "node_type": "SOURCE_VERSION",
+      "entity_ref": "version-b1"
+    },
+    {
+      "node_id": "node-unknown-origin",
+      "node_type": "UNKNOWN_ORIGIN",
+      "entity_ref": null
+    }
+  ],
+  "provenance_edges": [
+    {
+      "edge_id": "edge-a-unknown",
+      "dependent_node_id": "node-version-a",
+      "origin_node_id": "node-unknown-origin",
+      "relation_type": "ORIGEN_NO_DETERMINADO",
+      "claim_component_id": "component-entity",
+      "evidence_refs": [],
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "valid_from": null,
+      "valid_to": null
+    }
+  ],
+  "factor_assessments": [
+    {
+      "factor_assessment_id": "factor-a-relation",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "RELATION_WITH_FACT",
+      "status": "DESCONOCIDA",
+      "justification": "El escenario sintético no aporta evidencia sobre la relación directa con el hecho.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No inferir relación directa."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    }
+  ],
+  "independence_assessments": [
+    {
+      "independence_assessment_id": "independence-entity",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "assessment_unit_ids": [
+        "unit-a-entity",
+        "unit-b-entity"
+      ],
+      "status": "DESCONOCIDA",
+      "supporting_evidence_refs": [],
+      "dependency_edge_refs": [],
+      "rationale": "No hay evidencia positiva de vías separadas ni de dependencia material.",
+      "limitations": [
+        "Origen no reconstruido."
+      ],
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    }
+  ],
+  "claim_assessments": [
+    {
+      "claim_assessment_id": "assessment-entity-v1",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "evidentiary_status": "NO_RESUELTA",
+      "attribution_status": "ATRIBUIDA",
+      "supporting_evidence_refs": [
+        "evidence-a"
+      ],
+      "contrary_evidence_refs": [],
+      "alternatives": [
+        "La declaración puede describir intención y no ejecución."
+      ],
+      "uncertainty": "No se ha verificado el hecho subyacente.",
+      "limitations": [
+        "No extrapolar al importe."
+      ],
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "15-approved",
+      "human_review_status": "PENDING",
+      "supersedes_assessment_id": null
+    }
+  ],
+  "retention_records": [
+    {
+      "retention_id": "retention-a",
+      "subject_ref": "evidence-a",
+      "content_retained": false,
+      "legal_basis_status": "NOT_REQUIRED",
+      "purpose": "Referencia mínima de caso sintético.",
+      "responsible_role": "SYSTEM_OWNER",
+      "review_at": "2026-11-15T22:00:00Z",
+      "expires_at": null,
+      "disposition": "REFERENCE_ONLY",
+      "recorded_at": "2026-11-15T22:00:00Z"
+    }
+  ],
+  "audit_events": [
+    {
+      "audit_event_id": "audit-created",
+      "subject_ref": "assessment-entity-v1",
+      "action": "CREATED",
+      "actor_role": "SYNTHETIC_TEST",
+      "occurred_at": "2026-11-15T22:00:00Z",
+      "reason": "Creación de fixture sintético de conformidad."
+    }
+  ]
+}
