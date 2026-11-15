@@ -134,20 +134,24 @@ Ejemplos de aplicación obligatoria:
 - **Mitigación disponible pero no confirmada:** no tratarla como efectiva hasta demostrar disponibilidad, capacidad y acceso para la población expuesta.
 - **Evidencia contradictoria sobre alcance o severidad:** conservar ambas fuentes, su fecha y alcance; no resolver por autoridad aparente, mayoría de fuentes ni reacción del precio sin una regla de credibilidad aprobada.
 
-### 3.6 Protocolo de consistencia entre evaluadores
+### 3.6 Protocolo de evaluación con un único responsable humano
 
-La reproducibilidad se comprobará con un conjunto de casos congelado y un paquete de evidencia idéntico para cada evaluación:
+SINAYXA opera con un único participante humano. Por tanto, la evaluación metodológica primaria corresponde al propietario del proyecto; no se exige ni se presupone un segundo evaluador humano.
 
-- cada evaluador recibe la misma unidad de análisis, escenario, fecha de corte y evidencias;
-- cada uno completa de forma independiente dirección, intensidad, horizontes, condiciones, anclajes y justificación;
-- no se comparten resultados ni se discuten casos antes de cerrar ambas fichas;
-- se comparan por separado nivel, dirección, reloj temporal, referencias de evidencia y razonamiento de frontera;
-- toda discrepancia se clasifica como diferencia de interpretación, ambigüedad del anclaje, evidencia insuficiente o error de aplicación;
-- una discrepancia no se resuelve promediando niveles: se revisa la regla, se documenta la decisión y se repite el caso con la versión revisada.
+La reproducibilidad y el control crítico se apoyan en dos artefactos separados:
 
-**Limitación de validación:** una segunda pasada del mismo analista o una revisión asistida por IA es una prueba de consistencia interna, no una medición de acuerdo entre evaluadores independientes. No se declarará validación interevaluador hasta disponer de evaluadores realmente independientes. No se fijará un coeficiente estadístico ni un umbral de concordancia sin un diseño y un tamaño de muestra justificados.
+1. **Evaluación primaria humana:** el propietario registra y sella su juicio sobre el paquete congelado antes de consultar la crítica de IA.
+2. **Revisión adversarial asistida por IA:** después, una IA recibe el mismo paquete, sin conocer la conclusión primaria, preferiblemente en un contexto aislado, y busca omisiones, inferencias no justificadas, contradicciones, ambigüedades y alternativas.
 
-La batería de casos de la sección 9 debe incluir casos claros, fronterizos, contradictorios y condicionados. Los resultados esperados son criterios de prueba de la regla, no afirmaciones sobre acontecimientos reales.
+La IA es una herramienta auxiliar, no una persona, no un segundo evaluador humano, no un voto y no una fuente de acuerdo interevaluador. El propietario conserva la autoridad para aceptar, rechazar o dejar sin resolver cada hallazgo, con justificación y referencias a la evidencia.
+
+Se registran por separado los resultados originales, el paquete/hash, las fechas, el prompt, el producto/modelo/versión cuando estén disponibles, las limitaciones de aislamiento y la resolución humana. Si el contexto no puede aislarse o falta un metadato, se declara expresamente; no se inventa independencia ni información.
+
+Las diferencias humano–IA se clasifican como evidencia omitida, interpretación, alcance/unidad, ambigüedad del anclaje, error temporal, inferencia no respaldada de IA o diferencia no material. Nunca se promedian niveles ni se presenta el resultado como consenso.
+
+**Límite de validación:** este procedimiento permite trazabilidad y crítica adversarial en un proyecto de un solo humano. No mide fiabilidad interevaluador, acuerdo entre humanos ni validez empírica. Una segunda pasada del mismo humano solo puede describirse como consistencia intraevaluador. El protocolo operativo y su ficha están definidos en [single-human-ai-assisted-evaluation-protocol.md](../governance/single-human-ai-assisted-evaluation-protocol.md).
+
+La batería de la sección 9 comprueba que el procedimiento no dependa de participantes inexistentes y que la revisión de IA se mantenga en su rol auxiliar. Los resultados esperados son criterios de prueba, no resultados observados.
 
 ## 4. Horizontes temporales propuestos
 
@@ -310,12 +314,12 @@ Los siguientes casos son escenarios sintéticos de prueba. Los resultados espera
 | T13 | Fuente publica una fecha sin hora ni zona y el resultado depende de la hora exacta. | Conservar fecha; no inventar timestamp ni categoría exacta. | Asumir medianoche o zona local. |
 | T14 | Un acontecimiento tiene anuncio, aprobación, entrada en vigor e implementación en fechas distintas. | Registrar cada fase/hito y reloj por separado. | Asignar un único horizonte global o confundir publicación con ejecución. |
 | T15 | Un intervalo temporal posible cruza el límite entre dos categorías. | Conservar el intervalo y el conjunto de categorías compatibles; usar INDETERMINADO como categoría única cuando el intervalo cruce categorías. No forzar una sola categoría compatible. | Ocultar incertidumbre temporal. |
-| T16 | Dos evaluadores realmente independientes reciben el mismo paquete congelado y asignan niveles distintos; la diferencia no se explica por evidencias, unidades o escenarios distintos. | Registrar la discrepancia y clasificar su causa; revisar el anclaje/regla, documentar la resolución y repetir la evaluación sin promediar. No declarar acuerdo interevaluador. | Presentar la divergencia como consenso o resolverla con media. |
+| T16 | Un único evaluador humano registra y sella su evaluación primaria; una IA, sin conocer esa conclusión, realiza una crítica estructurada del mismo paquete congelado. | Registrar por separado ambos artefactos, clasificar diferencias y documentar la decisión del humano. La IA no cuenta como segundo evaluador ni produce acuerdo interevaluador. | Exigir una segunda persona inexistente, contar la IA como humano, promediar resultados o afirmar consenso. |
 | T17 | La información disponible es incompleta y no permite confirmar ni descartar un mecanismo material hacia la unidad evaluada. | INDETERMINADA, no I0. | Convertir ausencia de datos en evidencia de ausencia de impacto. |
 | T18 | En la zona Europe/Madrid, comparar `2026-03-28T12:00:00+01:00` con `2026-03-29T13:00:00+02:00`. Los instantes están separados por exactamente 24 horas reales, aunque la hora local de reloj difiere en 25 horas por el cambio estacional. | INMEDIATO, calculado con instantes comparables/UTC; conservar valores originales, offsets y zona IANA disponible. | Sustituir duración transcurrida por diferencia de horas locales durante un cambio horario. |
 | T19 | Con referencia `2026-01-01T00:00:00Z`, una fuente sitúa el hito en `2026-01-01T23:50:00Z` y otra en `2026-01-02T00:10:00Z`; ambas se refieren al mismo hito y no existe criterio aprobado para preferir una. El intervalo posible cruza la frontera de 24 horas. | Registrar ambas fuentes y el intervalo [23 h 50 min, 24 h 10 min]; categoría única INDETERMINADO y categorías compatibles INMEDIATO/CORTO en la justificación. | Elegir una hora sin criterio o esconder la incertidumbre de origen. |
 
-**Condición de aprobación de la batería:** todos los casos deben producir el resultado esperado o una justificación explícita de por qué el caso no permite una clasificación única. Cualquier resultado no previsto obliga a revisar el anclaje o la regla correspondiente antes de considerar cerrada la decisión. La batería debe conservar versión, paquete de evidencia, fecha de corte, respuestas independientes y resolución de discrepancias. T16 solo puede considerarse ejecutado cuando participen dos evaluadores humanos realmente independientes; una simulación, autoevaluación o revisión asistida por IA no satisface ese caso.
+**Condición de aprobación de la batería:** todos los casos deben producir el resultado esperado o una justificación explícita de por qué el caso no permite una clasificación única. Cualquier resultado no previsto obliga a revisar el anclaje o la regla correspondiente antes de considerar cerrada la decisión. La batería debe conservar versión, paquete de evidencia, fecha de corte, evaluación primaria humana sellada, crítica de IA separada y resolución humana. T16 se ejecuta conforme al protocolo de evaluador único; no produce validación interevaluador ni consenso humano.
 
 ### 9.2 Criterios adicionales de aceptación
 
@@ -323,7 +327,7 @@ Los siguientes casos son escenarios sintéticos de prueba. Los resultados espera
 - [ ] Una exposición amplia no compensa un mecanismo débil; severidad potencial y condición/probabilidad permanecen separadas.
 - [ ] Los efectos heterogéneos se clasifican por unidad, segmento y escenario, sin promedios ni máximos automáticos.
 - [ ] Las contradicciones y mitigaciones no verificadas reciben el tratamiento definido en la sección 3.5.
-- [ ] Existe un protocolo documentado de evaluación independiente y resolución de discrepancias; no se afirma acuerdo interevaluador cuando no se ha medido.
+- [ ] Existe un protocolo documentado de evaluación primaria por un único humano y crítica auxiliar de IA; no se afirma acuerdo interevaluador ni consenso humano.
 - [ ] Las fronteras temporales son exhaustivas y no solapadas, y sus extremos se prueban mediante T11 y T12; los cambios de horario y la evidencia temporal contradictoria se comprueban mediante T18 y T19.
 - [ ] Las fechas sin hora, intervalos y timestamps contradictorios no se convierten en precisión artificial.
 - [ ] Los acontecimientos con varias fases conservan un horizonte por hito/fase y distinguen los tres relojes.
