@@ -1103,3 +1103,32 @@ Se actualizó la propuesta asociada al Issue #14 para resolver dos ambigüedades
 La batería existente mantiene sus identidades y estados. T01 ya delimita explícitamente su unidad a funciones técnicas/operativas y documenta el inventario revisado; su resultado esperado I0 se limita a ese alcance. T17 conserva el resultado INDETERMINADA cuando faltan inventario de dependencias y confirmación operativa. Estos casos son compatibles con la aclaración, pero su presencia no equivale a una nueva ejecución.
 
 **Estado de ejecución tras esta revisión:** T01–T15 y T17–T19 continúan NOT_EXECUTED; T16 continúa NOT_EXECUTED conforme al protocolo de evaluador único y crítica auxiliar de IA. No se ha ejecutado PowerShell, no se ha recalculado el SHA-256 del fixture y no se declara PASS de la batería metodológica. La modificación documental requiere revisión local de formato y verificación de repositorio antes de integrar la PR.
+
+
+## 31. Revisión integral de consistencia documental de la PR #40
+
+**Tipo:** revisión estática de coherencia y trazabilidad sobre los archivos versionados de esta rama. No es ejecución de PowerShell, Markdown lint ni ejecución metodológica.
+
+### Correcciones aplicadas
+
+- Se alineó la definición principal I0, la regla general, la frontera I0/I1 y el marcador detallado: todos exigen revisión de alcance delimitado y prohíben extrapolar la conclusión fuera de la unidad/segmento/canales examinados. Las lagunas, fuentes esenciales no revisadas o búsquedas incompletas conducen a INDETERMINADA.
+- Se precisó el reloj del acontecimiento: los hitos futuros se expresan como tiempo restante; los hitos pasados conservan antigüedad/tiempo transcurrido separado, que no se etiqueta como horizonte futuro ni como latencia de transmisión.
+- Se marcó como histórico el estado T16 BLOCKED del paquete v1.1.0 y se distinguió del estado vigente NOT_EXECUTED bajo el protocolo v1.2.0.
+- Se identificó v1.2.0 como paquete vigente y se documentó el comando PowerShell explícito para validarlo. Omitir FixturePath sigue seleccionando intencionadamente el fixture histórico v1.0.0.
+- Se actualizó la revisión semántica histórica para registrar el seguimiento posterior de T01/T03/T04/T08/T10 y el cambio de gobernanza de T16, sin alterar los resultados ni estados originales de v1.0.0.
+
+### Comprobaciones estáticas realizadas
+
+- Los tres fixtures JSON v1.0.0, v1.1.0 y v1.2.0 se pudieron analizar; cada uno contiene 19 IDs únicos y secuenciales T01–T19.
+- Se comprobaron los campos y resultados esperados de T01, T16 y T17 en v1.2.0. T01 limita I0 a las funciones técnicas/operativas declaradas; T17 conserva INDETERMINADA ante información esencial ausente; T16 define evaluación humana primaria y crítica auxiliar de IA sin atribuir acuerdo interevaluador.
+- Se revisó estáticamente el validador PowerShell: conserva compatibilidad histórica, verifica el linaje y contrato de T16 en v1.2.0 y comprueba los vectores temporales T11/T12/T13/T14/T15/T18/T19. No se ejecutó el script.
+- Se resolvieron los cuatro enlaces Markdown internos detectados en los documentos revisados; todos apuntan a archivos existentes en esta rama.
+- La rama sigue basada en el HEAD actual de main observado durante la revisión; GitHub reporta la PR mergeable/clean, pero esto no sustituye la revisión ni las verificaciones locales.
+
+### Verificaciones pendientes y límites
+
+- Markdown lint aislado para los cuatro documentos: pendiente. El registro anterior informa 312 incidencias en una ejecución global que alcanzó dos archivos; no se dispone aquí de la salida detallada por regla y no se declara PASS del lint.
+- Ejecución del validador en Windows PowerShell 5.1 sobre el HEAD actual: pendiente. Los PASS locales anteriores pertenecen a commits anteriores y no se extrapolan a estos cambios.
+- Batería metodológica T01–T19: todos los casos siguen NOT_EXECUTED; T16 también NOT_EXECUTED bajo el protocolo v1.2.0.
+- No hay ejecuciones de GitHub Actions/check-runs registradas para el HEAD revisado. No se encontró un directorio de workflows en el repositorio.
+- Esta revisión no aprueba los niveles ni las ventanas, no autoriza implementación y no recomienda fusionar todavía la PR #40.
