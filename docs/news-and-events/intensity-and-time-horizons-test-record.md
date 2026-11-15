@@ -117,7 +117,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | T10 | Mitigación no verificada no reduce intensidad | NOT_EXECUTED | Intensidad base: NOT_ASSESSED; mitigación: UNVERIFIED; no reduce la evaluación base (decisión humana asistida por IA; desviación de secuencia) | Sección 20; ejecución conforme al protocolo pendiente |
 | T11 | 24 h → INMEDIATO; 7 × 24 h → CORTO; 90 × 24 h → MEDIO | NOT_EXECUTED | Fronteras inclusivas aceptadas: ≤24 h INMEDIATO; >24 h–≤7×24 h CORTO; >7×24 h–≤90×24 h MEDIO; >90×24 h LARGO (decisión humana asistida por IA; desviación de secuencia) | Sección 21; ejecución conforme al protocolo pendiente |
 | T12 | Un segundo después de cada frontera → horizonte siguiente | NOT_EXECUTED | 24 h + 1 s → CORTO; 7×24 h + 1 s → MEDIO; 90×24 h + 1 s → LARGO (decisión humana asistida por IA; desviación de secuencia) | Sección 22; ejecución conforme al protocolo pendiente |
-| T13 | Fecha sin hora/zona: no inventar timestamp ni categoría exacta | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T13 | Fecha sin hora/zona: no inventar timestamp ni categoría exacta; horizonte INDETERMINADO | NOT_EXECUTED | DATE_ONLY_PRESERVED; horizonte INDETERMINADO; conservar precisión original (decisión humana asistida por IA; desviación de secuencia) | Sección 23; ejecución conforme al protocolo pendiente |
 | T14 | Anuncio, aprobación, entrada en vigor e implementación con hitos/relojes separados | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T15 | Intervalo que cruza categorías: conservar intervalo; categoría única INDETERMINADO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T16 | Evaluación primaria de un humano + crítica IA separada; diferencias documentadas sin promediar ni afirmar acuerdo | NOT_EXECUTED | PENDIENTE | PENDIENTE |
@@ -815,3 +815,46 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 22.4 Resultado de auditoría
 
 Las tres asignaciones de T12 quedan documentadas como decisión humana asistida y son consistentes con la regla temporal aprobada en T11. Este registro no demuestra por sí mismo que una implementación de software calcule duraciones sin redondeos prematuros ni aplique correctamente los límites. **T12 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+
+## 23. Registro de decisión asistida — T13
+
+### 23.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T13 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Determinación del horizonte temporal de un evento con fecha incompleta |
+| Evidencia examinada | T13: fecha de calendario sin hora ni zona horaria |
+| Decisión humana comunicada | DATE_ONLY_PRESERVED; horizonte INDETERMINADO |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 23.2 Decisión y tratamiento de la precisión temporal
+
+El propietario aceptó conservar la fecha recibida sin completar los componentes temporales ausentes y no asignar un horizonte exacto.
+
+- Estado temporal: **DATE_ONLY_PRESERVED**.
+- Horizonte: **INDETERMINADO**.
+- Hora: no proporcionada; no se infiere.
+- Zona horaria: no proporcionada; no se infiere.
+- Timestamp: no se fabrica ni se normaliza a una hora arbitraria.
+
+Una fecha de calendario identifica un día, no un instante único. Sin hora y referencia de zona horaria suficientes no se puede determinar rigurosamente el tiempo transcurrido hasta o desde otro instante, ni decidir de forma fiable si una frontera de horizonte ha sido cruzada.
+
+La fecha original debe preservarse con su precisión de origen. Si posteriormente se obtiene una hora, zona horaria o intervalo verificable, la evaluación podrá revisarse con un nuevo corte y trazabilidad de la evidencia añadida. La nueva información no debe sobrescribir el dato original ni ocultar que la evaluación inicial se realizó con precisión limitada.
+
+### 23.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción no cumple la secuencia de evaluación primaria humana sellada antes de la crítica de IA establecida en el protocolo de evaluador único.
+
+La aceptación se conserva como **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T13.
+
+Para completar una ejecución formal conforme al protocolo, será necesaria una nueva evaluación con el paquete congelado: primero se registra y sella la evaluación humana sin conocer la salida de IA y, después, se realiza la crítica auxiliar separada. La nueva ejecución se conservará como un registro distinto, sin sobrescribir esta decisión.
+
+### 23.4 Resultado de auditoría
+
+La decisión **DATE_ONLY_PRESERVED / horizonte INDETERMINADO** queda documentada como decisión humana asistida. No se inventaron hora, zona horaria ni timestamp, y no se asignó una categoría temporal exacta que la evidencia no permite sostener. **T13 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
