@@ -173,6 +173,8 @@ jobs:
           $commit = (git rev-parse HEAD).Trim()
           $fixture = 'tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence-v1.2.0.json'
           $hash = (Get-FileHash -LiteralPath $fixture -Algorithm SHA256).Hash
+          $evidenceStandardFixture = 'tests/fixtures/methodology/evidence-standard/e01-e18-synthetic-conformance-v1.1.0.json'
+          $evidenceStandardFixtureHash = (Get-FileHash -LiteralPath $evidenceStandardFixture -Algorithm SHA256).Hash
           $evidence = [ordered]@{
             source_commit = $commit
             workflow_commit = '${{ github.sha }}'
@@ -180,8 +182,8 @@ jobs:
             psscriptanalyzer = '1.24.0'
             fixture = $fixture
             fixture_sha256 = $hash
-            evidence_standard_fixture = 'tests/fixtures/methodology/evidence-standard/e01-e18-synthetic-conformance-v1.1.0.json'
-            evidence_standard_fixture_sha256 = (Get-FileHash -LiteralPath 'tests/fixtures/methodology/evidence-standard/e01-e18-synthetic-conformance-v1.0.0.json' -Algorithm SHA256).Hash
+            evidence_standard_fixture = $evidenceStandardFixture
+            evidence_standard_fixture_sha256 = $evidenceStandardFixtureHash
             powerShell_files = @(git ls-files '*.ps1' '*.psm1').Count
             run_id = '${{ github.run_id }}'
             event = '${{ github.event_name }}'
