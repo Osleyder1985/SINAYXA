@@ -59,7 +59,9 @@
       "content_hash": null,
       "hash_algorithm": null,
       "supersedes_source_version_id": null,
-      "recorded_at": "2026-11-15T22:00:00Z"
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "first_publicly_observed_at": null,
+      "original_timestamps": []
     },
     {
       "source_version_id": "version-b1",
@@ -73,7 +75,9 @@
       "content_hash": null,
       "hash_algorithm": null,
       "supersedes_source_version_id": null,
-      "recorded_at": "2026-11-15T22:00:00Z"
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "first_publicly_observed_at": null,
+      "original_timestamps": []
     }
   ],
   "identity_assessments": [
@@ -278,7 +282,10 @@
       "assessment_cutoff": "2026-11-15T22:00:00Z",
       "methodology_version": "15-approved",
       "human_review_status": "PENDING",
-      "supersedes_assessment_id": null
+      "supersedes_assessment_id": null,
+      "independence_assessment_refs": [
+        "independence-entity"
+      ]
     }
   ],
   "retention_records": [
