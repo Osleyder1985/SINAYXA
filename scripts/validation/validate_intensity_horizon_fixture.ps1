@@ -116,7 +116,7 @@ if ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-001", "SINAYXA-IH-T0
         throw "Historical T16 fixture content was unexpectedly changed."
     }
 }
-elseif ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {
+elseif ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-003", "SINAYXA-IH-T01-T19-SYNTHETIC-004")) {
     if ($t16.expected.process -ne "ONE_HUMAN_PRIMARY_EVALUATION_WITH_AI_ASSISTED_ADVERSARIAL_REVIEW" -or
         $t16.expected.ai_review -notlike "*not a human evaluator*" -or
         $t16.expected.fixture_limit -notlike "*cannot establish inter-evaluator reliability*" -or
@@ -127,10 +127,11 @@ elseif ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {
 
 # Version 1.2.0 governance-contract checks. This validates the fixture declaration,
 # not actual human/AI execution or methodological validity.
-if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {
-    if ($fixture.supersedes.package_id -ne "SINAYXA-IH-T01-T19-SYNTHETIC-002" -or
-        $fixture.supersedes.package_version -ne "1.1.0" -or
-        $fixture.supersedes.sha256 -ne "E685D6BB4459F5A580ABFAC11979D4FCABF385EE7856EC28C16541C2AD05948C") {
+if ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-003", "SINAYXA-IH-T01-T19-SYNTHETIC-004")) {
+    if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003" -and
+        ($fixture.supersedes.package_id -ne "SINAYXA-IH-T01-T19-SYNTHETIC-002" -or
+         $fixture.supersedes.package_version -ne "1.1.0" -or
+         $fixture.supersedes.sha256 -ne "E685D6BB4459F5A580ABFAC11979D4FCABF385EE7856EC28C16541C2AD05948C")) {
         throw "v1.2.0 must identify the immutable v1.1.0 package it supersedes."
     }
     if ($t16.evidence.Count -lt 3 -or
