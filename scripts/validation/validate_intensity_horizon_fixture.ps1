@@ -19,7 +19,7 @@ function Get-FixtureCase {
     return $matches[0]
 }
 
-function ConvertTo-UtcOffset {
+function ConvertTo-DateTimeOffset {
     param([string]$Value)
     if ($Value -notmatch '(Z|[+-](0[0-9]|1[0-4]):[0-5][0-9])$') {
         throw "Timestamp must include an explicit UTC designator or numeric offset: $Value"
@@ -28,7 +28,7 @@ function ConvertTo-UtcOffset {
         $Value,
         [Globalization.CultureInfo]::InvariantCulture,
         [Globalization.DateTimeStyles]::None
-    ).ToUniversalTime()
+    )
 }
 
 function Assert-ExactCategories {
@@ -44,8 +44,8 @@ function Assert-ExactCategories {
 
 function Get-ElapsedSeconds {
     param([string]$Start, [string]$End)
-    $startInstant = ConvertTo-UtcOffset -Value $Start
-    $endInstant = ConvertTo-UtcOffset -Value $End
+    $startInstant = ConvertTo-DateTimeOffset -Value $Start
+    $endInstant = ConvertTo-DateTimeOffset -Value $End
     return ($endInstant - $startInstant).TotalSeconds
 }
 
@@ -297,13 +297,13 @@ if ($milestoneNames.Count -ne 4 -or
     throw "T14 must preserve exactly announcement, approval, effective, and implementation as separate milestones."
 }
 foreach ($milestone in $t14.evidence[0].milestones) {
-    $null = ConvertTo-UtcOffset -Value $milestone.at
+    $null = ConvertTo-DateTimeOffset -Value $milestone.at
 }
 
 $t15 = Get-FixtureCase -Id "T15"
-$t15Start = ConvertTo-UtcOffset -Value $t15.evidence[0].earliest
-$t15End = ConvertTo-UtcOffset -Value $t15.evidence[0].latest
-$t15Reference = ConvertTo-UtcOffset -Value $t15.cutoff
+$t15Start = ConvertTo-DateTimeOffset -Value $t15.evidence[0].earliest
+$t15End = ConvertTo-DateTimeOffset -Value $t15.evidence[0].latest
+$t15Reference = ConvertTo-DateTimeOffset -Value $t15.cutoff
 $t15EarliestSeconds = ($t15Start - $t15Reference).TotalSeconds
 $t15LatestSeconds = ($t15End - $t15Reference).TotalSeconds
 Assert-ExactCategories -Actual @($t15.expected.compatible_categories) -Expected @("INMEDIATO", "CORTO") -CaseId "T15"
@@ -320,8 +320,8 @@ $t18Evidence = $t18.evidence[0]
 if ($t18Evidence.timezone -ne "Europe/Madrid") {
     throw "T18 must declare the IANA timezone Europe/Madrid."
 }
-$t18Start = ConvertTo-UtcOffset -Value $t18Evidence.start
-$t18End = ConvertTo-UtcOffset -Value $t18Evidence.end
+$t18Start = ConvertTo-DateTimeOffset -Value $t18Evidence.start
+$t18End = ConvertTo-DateTimeOffset -Value $t18Evidence.end
 $t18Seconds = ($t18End - $t18Start).TotalSeconds
 # Windows PowerShell 5.1/.NET Framework uses Windows time-zone identifiers.
 # This explicit mapping validates the IANA identifier against Windows zone rules.
