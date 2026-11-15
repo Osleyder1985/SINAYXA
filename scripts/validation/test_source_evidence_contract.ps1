@@ -64,6 +64,63 @@ try {
         if (-not $historicalOutput.Contains('Result : PASS')) { throw 'Historical evidence with an independent archive timestamp must remain valid without rewriting original timestamps.' }
     }
     finally { if (Test-Path -LiteralPath $historicalFile) { Remove-Item -LiteralPath $historicalFile -Force } }
+    $independentCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
+    $independentA = $independentCopy.evidence_items[0].Clone()
+    $independentA.evidence_id = 'independent-evidence-a'
+    $independentA.information_nature = 'HECHO_OBSERVADO'
+    $independentA.content_reference = 'synthetic-observation://independent-a'
+    $independentB = $independentCopy.evidence_items[1].Clone()
+    $independentB.evidence_id = 'independent-evidence-b'
+    $independentB.information_nature = 'HECHO_OBSERVADO'
+    $independentB.content_reference = 'synthetic-observation://independent-b'
+    $independentCopy.evidence_items += @($independentA,$independentB)
+    $independentAvailabilityA = $independentCopy.evidence_availability[0].Clone()
+    $independentAvailabilityA.availability_id = 'availability-independent-a'
+    $independentAvailabilityA.evidence_id = 'independent-evidence-a'
+    $independentAvailabilityB = $independentCopy.evidence_availability[1].Clone()
+    $independentAvailabilityB.availability_id = 'availability-independent-b'
+    $independentAvailabilityB.evidence_id = 'independent-evidence-b'
+    $independentCopy.evidence_availability += @($independentAvailabilityA,$independentAvailabilityB)
+    $independentCopy.independence_assessments[0].status = 'INDEPENDIENTE'
+    $independentCopy.independence_assessments[0].supporting_evidence_refs = @('independent-evidence-a','independent-evidence-b')
+    $independentCopy.independence_assessments[0].human_review_status = 'REVIEWED'
+    $independentCopy.independence_assessments[0].reviewed_at = '2026-11-15T22:05:00Z'
+    $independentFile = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-independent-" + [guid]::NewGuid().ToString('N') + '.json')
+    try {
+        ConvertTo-Json -InputObject $independentCopy -Depth 100 | Set-Content -LiteralPath $independentFile -Encoding utf8
+        $independentOutput = (& $validator -FixturePath $independentFile | Out-String)
+        if (-not $independentOutput.Contains('Result : PASS')) { throw 'A reviewed independence assessment with evidence for both distinct sources must validate.' }
+    }
+    finally { if (Test-Path -LiteralPath $independentFile) { Remove-Item -LiteralPath $independentFile -Force } }
+
+    $dependentCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
+    $dependencyEvidence = $dependentCopy.evidence_items[0].Clone()
+    $dependencyEvidence.evidence_id = 'evidence-dependency'
+    $dependencyEvidence.information_nature = 'HECHO_OBSERVADO'
+    $dependencyEvidence.content_reference = 'synthetic-observation://source-a-cites-source-b'
+    $dependentCopy.evidence_items += $dependencyEvidence
+    $dependencyAvailability = $dependentCopy.evidence_availability[0].Clone()
+    $dependencyAvailability.availability_id = 'availability-dependency'
+    $dependencyAvailability.evidence_id = 'evidence-dependency'
+    $dependentCopy.evidence_availability += $dependencyAvailability
+    $dependentCopy.provenance_edges += @{
+        edge_id='edge-a-b'; dependent_node_id='node-version-a'; origin_node_id='node-version-b'
+        relation_type='CITA_DE'; claim_component_id='component-entity'
+        claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-dependency')
+        recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null
+    }
+    $dependentCopy.independence_assessments[0].status = 'DEPENDIENTE'
+    $dependentCopy.independence_assessments[0].dependency_edge_refs = @('edge-a-b')
+    $dependentCopy.independence_assessments[0].human_review_status = 'REVIEWED'
+    $dependentCopy.independence_assessments[0].reviewed_at = '2026-11-15T22:05:00Z'
+    $dependentFile = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-dependent-" + [guid]::NewGuid().ToString('N') + '.json')
+    try {
+        ConvertTo-Json -InputObject $dependentCopy -Depth 100 | Set-Content -LiteralPath $dependentFile -Encoding utf8
+        $dependentOutput = (& $validator -FixturePath $dependentFile | Out-String)
+        if (-not $dependentOutput.Contains('Result : PASS')) { throw 'A reviewed dependency edge connecting the exact two evaluated source versions must validate.' }
+    }
+    finally { if (Test-Path -LiteralPath $dependentFile) { Remove-Item -LiteralPath $dependentFile -Force } }
+
     $mutations = @(
         @{ Name='Orphan claim component'; Apply={ param($x) $x.claim_components[0].claim_id='missing-claim' } },
         @{ Name='Stable component identity changes owning claim'; Apply={ param($x) $newClaim=$x.claims[0].Clone(); $newClaim.claim_id='claim-other'; $newClaim.claim_version_id='claim-other-v1'; $newClaim.supersedes_claim_version_id=$null; $x.claims += $newClaim; $newComponent=$x.claim_components[0].Clone(); $newComponent.claim_id='claim-other'; $newComponent.claim_version_id='claim-other-v1'; $newComponent.claim_component_version_id='component-entity-other-v1'; $newComponent.supersedes_component_version_id=$null; $x.claim_components += $newComponent } },
