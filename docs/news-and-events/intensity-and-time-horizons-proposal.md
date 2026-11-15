@@ -39,7 +39,7 @@ La intensidad se asigna mediante juicio estructurado contra los anclajes observa
 
 | Nivel | Denominación | Anclaje operativo |
 | --- | --- | --- |
-| I0 | SIN IMPACTO MATERIAL IDENTIFICADO | La evidencia examinada permite concluir, dentro de la unidad, el escenario y la fecha de corte declarados, que no existe un mecanismo material hacia la exposición evaluada. La mera ausencia de evidencia de un mecanismo no basta para I0. Si faltan datos esenciales o la revisión no permite descartar el mecanismo, usar INDETERMINADA. |
+| I0 | SIN IMPACTO MATERIAL IDENTIFICADO | Solo puede asignarse tras una revisión de alcance delimitado que documente unidad, población/segmento, escenario, fecha de corte, fuentes y áreas examinadas y limitaciones conocidas; la evidencia debe permitir descartar mecanismos materiales plausibles dentro de ese alcance. No demuestra ausencia absoluta de efectos ni cubre canales o poblaciones no examinados. Si la revisión es incompleta, faltan fuentes esenciales o persisten lagunas que impiden descartar un mecanismo material, usar INDETERMINADA. |
 | I1 | BAJA | Existe un mecanismo plausible identificable y el efecto potencial permanece local o acotado, sin comprometer una función central. Si la justificación invoca sustitución o recuperación, debe demostrarse su disponibilidad, capacidad y acceso para la población expuesta. |
 | I2 | MODERADA | La evidencia respalda una exposición concreta y un mecanismo directo o indirecto, así como una alteración potencial apreciable de una condición relevante para el activo, protocolo, entidad o segmento; su alcance permanece limitado por condiciones, duración o alternativas demostradas. |
 | I3 | ALTA | La exposición es amplia o central para el activo/segmento y el mecanismo podría modificar materialmente una condición económica, operativa, regulatoria, de seguridad, liquidez, oferta, demanda o acceso. La evidencia debe respaldar tanto la importancia de la exposición como el canal de transmisión. |
@@ -83,7 +83,7 @@ No se exige una explicación artificial cuando los niveles adyacentes no puedan 
 - La categoría debe incluir una justificación breve que explique por qué satisface sus anclajes y por qué no corresponde el nivel inmediatamente inferior o superior.
 - Si los factores apuntan a niveles diferentes, se adopta el nivel más alto solo cuando la evidencia respalda que ese factor puede materializarse en la exposición evaluada; de lo contrario se registra el conflicto y se usa INDETERMINADA.
 - La intensidad puede diferir por activo, segmento, jurisdicción y escenario. No se fuerza una única intensidad global para impactos heterogéneos.
-- Una evaluación I0 debe explicar por qué no se identifica impacto material. La falta de información nunca se convierte en I0.
+- Una evaluación I0 debe incluir el alcance auditable de la revisión (unidad, población/segmento, escenario, fecha de corte, fuentes/áreas examinadas y limitaciones) y explicar qué canales plausibles fueron examinados y por qué se descartan dentro de ese alcance. La falta de información, una búsqueda incompleta o fuentes esenciales no examinadas nunca se convierten en I0.
 - La intensidad potencial no mide probabilidad. La posibilidad de que se cumplan condiciones debe describirse separadamente como condición pendiente, no cuantificarse sin metodología aprobada.
 
 ### 3.4 Reglas de frontera entre niveles
@@ -92,7 +92,7 @@ Los niveles forman una escala ordinal de severidad potencial para una unidad de 
 
 | Frontera | Pregunta que debe resolverse | Regla de decisión |
 | --- | --- | --- |
-| I0 / I1 | ¿Existe un mecanismo material plausible y respaldado hacia la exposición evaluada? | I0 solo cuando la evidencia examinada permite descartar, dentro de la unidad, el escenario y la fecha de corte declarados, la existencia de un mecanismo material. La mera falta de evidencia de un mecanismo no basta. Si faltan datos esenciales o la revisión no permite descartarlo, usar INDETERMINADA. I1 requiere un mecanismo plausible identificable y un efecto acotado. |
+| I0 / I1 | ¿Existe un mecanismo material plausible y respaldado hacia la exposición evaluada? | I0 solo cuando una revisión de alcance delimitado documenta unidad, población/segmento, escenario, fecha de corte, fuentes/áreas examinadas y limitaciones, y la evidencia permite descartar mecanismos materiales plausibles dentro de ese alcance. No se extrapola fuera del alcance; si la revisión es incompleta, faltan fuentes esenciales o persisten lagunas, usar INDETERMINADA. I1 requiere un mecanismo plausible identificable y un efecto acotado. |
 | I1 / I2 | ¿El mecanismo y la exposición están verificados con evidencia concreta y el cambio puede alterar apreciablemente una condición relevante? | I1 cuando el canal sigue siendo indirecto, limitado o sustituible y el efecto permanece acotado. I2 cuando la exposición concreta y el canal están verificados y existe una alteración apreciable respaldada, aunque limitada. |
 | I2 / I3 | ¿La exposición es amplia o central para la unidad definida y el mecanismo puede modificar materialmente una condición relevante de esa unidad? | I2 cuando el alcance permanece acotado o existen límites demostrados. I3 exige evidencia tanto de la centralidad/amplitud de la exposición como de la materialidad del cambio. No basta con que el acontecimiento sea importante para una entidad aislada si la unidad evaluada es el mercado. |
 | I3 / I4 | ¿Está comprometida una función esencial, continuidad, solvencia, seguridad, integridad o viabilidad, o existe una alteración sistémica documentable? | I3 cuando el cambio es material y amplio/central, pero no se acredita amenaza a una función esencial o viabilidad. I4 exige identificar la función esencial o el carácter sistémico, la vía concreta de compromiso y la evidencia que conecta ambos. |
@@ -186,7 +186,7 @@ Si la evidencia temporal es contradictoria, incompleta o solo aproximada, regist
 
 ### 4.2 Tres relojes distintos
 
-1. **Reloj del acontecimiento:** tiempo hasta el hito previsto o tiempo transcurrido desde el hito ocurrido. Se apoya en fechas y ventanas documentadas.
+1. **Reloj del acontecimiento:** para hitos futuros, tiempo restante hasta el hito previsto; para hitos ocurridos, tiempo transcurrido/antigüedad hasta la fecha de corte, registrado como dato histórico separado y no como horizonte futuro. Ambos se apoyan en fechas y ventanas documentadas.
 2. **Reloj de transmisión:** tiempo que el mecanismo necesita para modificar la exposición. Debe justificarse por las etapas reales del proceso (condición legal, despliegue, integración, liquidación, cambio de oferta, etc.).
 3. **Reloj de reacción del precio:** ventana de observación que se utilizará para estudiar el comportamiento del mercado. Es una decisión de metodología de medición y comparabilidad; no se deriva automáticamente de los dos relojes anteriores.
 
