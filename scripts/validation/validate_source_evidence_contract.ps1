@@ -348,7 +348,7 @@ foreach ($assessment in $package.independence_assessments) {
             $dependentNode = @($package.provenance_nodes | Where-Object { $_.node_id -eq $pathEdge.dependent_node_id })[0]
             $originNode = @($package.provenance_nodes | Where-Object { $_.node_id -eq $pathEdge.origin_node_id })[0]
             Test-Condition ($dependentNode.node_type -eq 'SOURCE_VERSION' -and $dependentNode.entity_ref -in @($units.source_version_id)) 'Independent path must begin at an exact evaluated source version.'
-            Test-Condition ($originNode.node_type -ne 'UNKNOWN_ORIGIN' -and $originNode.node_id -ne $dependentNode.node_id) 'Independent path cannot terminate at an unknown or self origin.'
+            Test-Condition ($originNode.node_type -eq 'EVIDENCE_ITEM' -and $originNode.entity_ref -in @($pathEdge.evidence_refs) -and $originNode.node_id -ne $dependentNode.node_id) 'Independent path must terminate at a distinct, evidence-identified origin item, not an unknown or unanchored node.'
             Test-Condition (@($package.provenance_edges | Where-Object { $_.dependent_node_id -eq $originNode.node_id }).Count -eq 0) 'Independent path origin must be a separately evidenced terminal origin, not an unresolved shared intermediary.'
             Test-Condition ($distinctOriginNodes.Add([string]$originNode.node_id)) 'Independent source paths must terminate at distinct origin nodes.'
             [void]$coveredSourceVersions.Add([string]$dependentNode.entity_ref)
