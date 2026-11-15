@@ -762,14 +762,30 @@
         "recorded_at"
       ],
       "properties": {
-        "availability_id": { "$ref": "#/$defs/id" },
-        "evidence_id": { "$ref": "#/$defs/id" },
-        "assessment_unit_id": { "$ref": "#/$defs/id" },
-        "claim_id": { "$ref": "#/$defs/id" },
-        "claim_component_id": { "$ref": "#/$defs/id" },
-        "claim_version_id": { "$ref": "#/$defs/id" },
-        "claim_component_version_id": { "$ref": "#/$defs/id" },
-        "available_at": { "$ref": "#/$defs/optionalUtc" },
+        "availability_id": {
+          "$ref": "#/$defs/id"
+        },
+        "evidence_id": {
+          "$ref": "#/$defs/id"
+        },
+        "assessment_unit_id": {
+          "$ref": "#/$defs/id"
+        },
+        "claim_id": {
+          "$ref": "#/$defs/id"
+        },
+        "claim_component_id": {
+          "$ref": "#/$defs/id"
+        },
+        "claim_version_id": {
+          "$ref": "#/$defs/id"
+        },
+        "claim_component_version_id": {
+          "$ref": "#/$defs/id"
+        },
+        "available_at": {
+          "$ref": "#/$defs/optionalUtc"
+        },
         "availability_basis": {
           "enum": [
             "SINAYXA_OBSERVATION",
@@ -778,8 +794,15 @@
             "UNKNOWN"
           ]
         },
-        "availability_reference": { "type": ["string", "null"] },
-        "recorded_at": { "$ref": "#/$defs/utc" }
+        "availability_reference": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "recorded_at": {
+          "$ref": "#/$defs/utc"
+        }
       }
     },
     "evidenceLink": {
