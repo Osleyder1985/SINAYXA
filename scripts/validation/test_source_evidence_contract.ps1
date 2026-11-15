@@ -106,6 +106,7 @@ try {
         @{ link_id='link-independent-b'; claim_id='claim-btc-purchase'; claim_component_id='component-entity'; claim_version_id='claim-btc-purchase-v1'; claim_component_version_id='component-entity-v1'; evidence_id='independent-evidence-b'; evidence_role='SUPPORTING'; scope_note='Observación independiente de la declaración.'; limitations=@('No extrapolar a otros componentes.') }
     )
     $independentCopy.claim_assessments[0].evidentiary_status='CORROBORADA'
+    $independentCopy.claim_assessments[0].corroboration_basis='CORROBORACION_INDEPENDIENTE'
     $independentCopy.claim_assessments[0].supporting_evidence_refs=@('independent-evidence-a','independent-evidence-b')
     $independentCopy.claim_assessments[0].independence_assessment_refs=@('independence-entity')
     $independentCopy.claim_assessments[0].rationale='Dos vías de origen distintas, directamente evidenciadas y revisadas, respaldan el componente.'
@@ -193,6 +194,7 @@ try {
     $primaryCorroboration.evaluation_units[0].dissemination = 'ORIGINAL'
     $primaryCorroboration.evidence_items[0].information_nature = 'HECHO_OBSERVADO'
     $primaryCorroboration.claim_assessments[0].evidentiary_status = 'CORROBORADA'
+    $primaryCorroboration.claim_assessments[0].corroboration_basis = 'EVIDENCIA_PRIMARIA_DIRECTA'
     $primaryCorroboration.claim_assessments[0].attribution_status = 'ATRIBUIDA'
     $primaryCorroboration.claim_assessments[0].supporting_evidence_refs = @('evidence-a')
     $primaryCorroboration.claim_assessments[0].independence_assessment_refs = @()
@@ -214,6 +216,7 @@ try {
         @{ link_id='link-independent-support-b'; evidence_id='independent-evidence-b'; claim_id='claim-btc-purchase'; claim_component_id='component-entity'; claim_version_id='claim-btc-purchase-v1'; claim_component_version_id='component-entity-v1'; evidence_role='SUPPORTING'; recorded_at='2026-11-15T22:01:00Z' }
     )
     $secondaryCorroboration.claim_assessments[0].evidentiary_status = 'CORROBORADA'
+    $secondaryCorroboration.claim_assessments[0].corroboration_basis = 'CORROBORACION_INDEPENDIENTE'
     $secondaryCorroboration.claim_assessments[0].attribution_status = 'ATRIBUIDA'
     $secondaryCorroboration.claim_assessments[0].supporting_evidence_refs = @('independent-evidence-a','independent-evidence-b')
     $secondaryCorroboration.claim_assessments[0].independence_assessment_refs = @('independence-entity')
@@ -334,8 +337,9 @@ try {
         @{ Name='Unsupported probative state'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='HIGH_CONFIDENCE' } },
         @{ Name='Claim assessment missing rationale'; Apply={ param($x) $x.claim_assessments[0].rationale='' } },
         @{ Name='Partial corroboration without delimited scopes'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='PARCIALMENTE_CORROBORADA'; $x.claim_assessments[0].human_review_status='REVIEWED'; $x.claim_assessments[0].reviewed_at='2026-11-15T22:05:00Z'; $x.claim_assessments[0].supported_scope=$null; $x.claim_assessments[0].unsupported_scope=$null } },
-        @{ Name='Conclusive state bypasses human review'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='CORROBORADA'; $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.claim_assessments[0].human_review_status='PENDING' } },
-        @{ Name='Secondary-source corroboration lacks reviewed independence'; Apply={ param($x) $x.evaluation_units[1].source_type='SECUNDARIA'; $x.claim_evidence_links[1].evidence_role='SUPPORTING'; $x.claim_assessments[0].evidentiary_status='CORROBORADA'; $x.claim_assessments[0].attribution_status='ATRIBUIDA'; $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b'); $x.claim_assessments[0].independence_assessment_refs=@('independence-entity'); $x.claim_assessments[0].human_review_status='REVIEWED'; $x.claim_assessments[0].reviewed_at='2026-11-15T22:05:00Z' } },
+        @{ Name='Conclusive state bypasses human review'; Apply={ param($x) $x.evaluation_units[0].source_type='PRIMARIA'; $x.claim_assessments[0].evidentiary_status='CORROBORADA'; $x.claim_assessments[0].corroboration_basis='EVIDENCIA_PRIMARIA_DIRECTA'; $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.claim_assessments[0].human_review_status='PENDING' } },
+        @{ Name='Primary direct corroboration requires authenticated evidence'; Apply={ param($x) $x.evaluation_units[0].source_type='PRIMARIA'; $x.claim_assessments[0].evidentiary_status='CORROBORADA'; $x.claim_assessments[0].corroboration_basis='EVIDENCIA_PRIMARIA_DIRECTA'; $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.evidence_items[0].authenticity_status='NO_VERIFICADA'; $x.claim_assessments[0].human_review_status='REVIEWED'; $x.claim_assessments[0].reviewed_at='2026-11-15T22:05:00Z' } },
+        @{ Name='Secondary-source corroboration lacks reviewed independence'; Apply={ param($x) $x.evaluation_units[1].source_type='SECUNDARIA'; $x.claim_evidence_links[1].evidence_role='SUPPORTING'; $x.claim_assessments[0].evidentiary_status='CORROBORADA'; $x.claim_assessments[0].corroboration_basis='CORROBORACION_INDEPENDIENTE'; $x.claim_assessments[0].attribution_status='ATRIBUIDA'; $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b'); $x.claim_assessments[0].independence_assessment_refs=@('independence-entity'); $x.claim_assessments[0].human_review_status='REVIEWED'; $x.claim_assessments[0].reviewed_at='2026-11-15T22:05:00Z' } },
         @{ Name='Unauthorized retained content'; Apply={ param($x) $x.retention_records[0].content_retained=$true } },
         @{ Name='Retention record has orphan subject'; Apply={ param($x) $x.retention_records[0].subject_ref='missing-subject' } },
         @{ Name='Audit event has orphan subject'; Apply={ param($x) $x.audit_events[0].subject_ref='missing-subject' } },
