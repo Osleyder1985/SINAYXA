@@ -85,7 +85,7 @@ No se establecen umbrales numéricos, puntuaciones ni probabilidades en este glo
 - Si la evidencia no permite decidir, el resultado es INDETERMINADO / EVIDENCIA INSUFICIENTE; no se fuerza una categoría ni se completa información ausente.
 - Un vínculo temporal entre acontecimiento y precio no demuestra causalidad. Deben mantenerse separadas reacción observada, hipótesis explicativa y atribución causal.
 
-## 4.1 Evaluación de relevancia económica
+### 4.1 Evaluación de relevancia económica
 
 La relevancia debe justificarse mediante una cadena explícita y revisable, no mediante la notoriedad de la noticia ni por una variación de precio observada:
 
@@ -98,7 +98,7 @@ La relevancia debe justificarse mediante una cadena explícita y revisable, no m
 
 La materialidad cuantitativa, las escalas de intensidad y los umbrales de clasificación quedan fuera de este Issue y requieren decisiones específicas. Tampoco se inferirá relevancia por el tamaño de un movimiento de precio posterior.
 
-## 4.2 Identidad, agrupación y deduplicación de acontecimientos
+### 4.2 Identidad, agrupación y deduplicación de acontecimientos
 
 La unidad conceptual de agrupación es el **mismo hecho o proceso subyacente**, no la publicación ni la afirmación individual. Para decidir si dos registros pertenecen al mismo acontecimiento se compararán, cuando estén disponibles:
 
