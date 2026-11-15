@@ -58,16 +58,9 @@ Representa un origen informativo, no una publicación concreta.
 
 Campos mínimos:
 - `source_id`: identificador interno opaco; nunca debe contener nombre, correo, teléfono ni otro dato identificativo.
-- `source_type`: PRIMARIA, SECUNDARIA, TERCIARIA o DESCONOCIDA.
-- `source_subtype`: catálogo aprobado en #16.
-- `knowledge_basis`: catálogo aprobado en #16.
-- `institutional_character`: OFICIAL, NO_INSTITUCIONAL o DESCONOCIDO.
-- `dissemination`: ORIGINAL, SINDICADA, REPUBLICADA, TRADUCIDA, RESUMIDA, ANÁLISIS_PROPIO, COMPILACIÓN o DESCONOCIDA.
-- `identity`: valores aprobados en #15/#16.
-- `identity_visibility`: visibilidad frente al público, editor y SINAYXA; las verificaciones de un tercero no se transfieren automáticamente.
 - `created_at` y `recorded_at`.
 
-La clasificación de tipo se refiere a la relación de la fuente con la afirmación/componente concreto, no a una reputación universal de un dominio o persona. Si el tipo varía por componente, se registra en la relación de evaluación y no se fuerza una etiqueta global.
+La entidad Source no guarda una clasificación universal de credibilidad, tipo o función. Estos atributos se evalúan en la relación con cada afirmación/componente y en el corte temporal correspondiente.
 
 ### 3.4 Source version
 
@@ -85,6 +78,17 @@ Campos mínimos:
 
 Las versiones son inmutables. Una rectificación crea otra versión y se vincula al componente corregido; no elimina la anterior.
 
+### 3.4.1 Source identity assessment
+
+La identidad y su visibilidad pueden cambiar con el tiempo. Se registran como evaluación versionada, no como verdad global mutable:
+- `source_identity_assessment_id`, `source_id`, `assessment_cutoff`.
+- `identity`: IDENTIFICADA, ANÓNIMA_PARA_EL_PÚBLICO, ANÓNIMA_PARA_SINAYXA, SEUDÓNIMA o DESCONOCIDA.
+- `anonymous_to_public`, `anonymous_to_publisher`, `anonymous_to_sinayxa`.
+- `identity_verified_by_publisher`, `identity_verified_by_sinayxa`.
+- `verification_evidence_refs`, `limitations`, `recorded_at`.
+
+La identidad real de fuentes protegidas no se almacena. Una garantía del editor no equivale a verificación por SINAYXA.
+
 ### 3.5 Evaluation unit
 
 Conserva exactamente la unidad metodológica aprobada en #16:
@@ -92,11 +96,14 @@ Conserva exactamente la unidad metodológica aprobada en #16:
 `(claim_id, claim_component_id, source_id, source_version, access_path, assessment_cutoff)`
 
 Campos obligatorios:
-- Los seis elementos anteriores.
+- Los seis elementos anteriores; `source_version` referencia de forma estable a `source_version_id`, no a un texto de versión reutilizable.
 - `assessment_unit_id`: identificador opaco.
 - `access_path`: referencia tipada a cómo se obtuvo la pieza, sin confundirla con la legalidad del acceso.
 - `assessment_cutoff`: timestamp ISO 8601 en UTC.
 - `methodology_version`.
+- `source_type`, `source_subtype`, `knowledge_basis`, `institutional_character` y `dissemination`: valores aprobados en #16, evaluados para esta afirmación/componente y esta versión/corte.
+
+La clasificación primaria/secundaria/terciaria depende de la relación de la pieza con la proposición concreta. No se copia como atributo permanente de Source. La identidad se representa mediante una evaluación versionada separada para evitar que una verificación posterior cambie retroactivamente lo que SINAYXA conocía en el corte original.
 
 La base legítima de acceso se conserva aparte con los estados de #15: PÚBLICO_LEGÍTIMO, PRIVADO_AUTORIZADO, SOSPECHA_DE_ACCESO_NO_AUTORIZADO o NO_DETERMINADO. Un acceso sospechoso no se convierte en autorizado por el mero hecho de disponer de una copia.
 
