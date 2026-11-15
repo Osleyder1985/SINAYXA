@@ -57,10 +57,36 @@ The test harness requires every expected rule to fire and verifies temporary tes
 
 This demonstrates that selected security rules are active in the pinned analyzer version. It does not establish complete detection of all credential leaks, malicious code, unsafe dependencies, runtime behavior, or supply-chain compromise. Independent secret scanning and dependency/security review remain separate controls.
 
-## 5. Integration governance
+
+## 5. Independent secret and dependency controls
+
+The separate `.github/workflows/security-quality.yml` workflow adds:
+
+- Gitleaks v3.0.0, pinned to an immutable, verified commit, scanning full Git history on pull requests and pushes to `main`, plus a weekly scheduled scan.
+- `npm ci --ignore-scripts` against the committed lockfile.
+- `npm audit --audit-level=high` across the locked dependency graph; high and critical vulnerabilities fail the check.
+- Dependency Review on pull requests, also failing on high and critical severity.
+- A 90-day JSON audit artifact for traceability.
+- Weekly Dependabot update PRs for npm dependencies and GitHub Actions.
+
+The workflow uses read-only repository permissions and disables Gitleaks PR comments. It does not print or upload secret values.
+
+These controls complement rather than replace GitHub-native secret scanning, Dependabot alerts, and code scanning. The repository settings for native alerting must be checked separately; a clean CI scan does not prove that GitHub's native protections are enabled.
+
+## 6. Main branch protection
+
+The intended ruleset is recorded in `docs/governance/main-branch-ruleset.json` and its application procedure in `docs/governance/main-branch-protection.md`.
+
+The JSON file is a specification, not an active GitHub setting. A repository administrator must apply it in Settings → Rules → Rulesets and verify that the persisted ruleset is active and blocks a merge when a required check fails. The current GitHub connection can read the ruleset collection but does not expose a write operation for repository rulesets; it also cannot read the classic branch-protection endpoint.
+
+## 7. Evidence boundaries
+
+A successful Gitleaks run proves that the pinned scanner found no configured secret patterns in the scanned history. A successful npm audit/dependency review proves that the scanned dependency graph/change set contains no vulnerabilities at or above the configured high threshold at scan time. Neither result proves absence of every secret or vulnerability. Native GitHub alerts, scheduled scans, Dependabot remediation, and the required-check ruleset provide defense in depth.
+
+## 8. Integration governance
 
 The workflow must be merged into `main` before it can act as the normal pull-request workflow. A repository ruleset must then require the successful check for protected integration. The presence of a workflow or a green bootstrap run does not itself make the check mandatory.
 
-## 6. Local execution policy
+## 9. Local execution policy
 
 GitHub Actions is the standard validation path. The project owner is not required to install PowerShell or run routine validation commands on a personal computer.
