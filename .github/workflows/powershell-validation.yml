@@ -119,6 +119,14 @@ jobs:
           }
           "PSScriptAnalyzer findings: 0"
 
+      - name: Verify PSScriptAnalyzer security-rule detection
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_powershell_security_rules.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'PSScriptAnalyzer security-rule regression tests failed.' }
+
       - name: Validate the v1.2.0 synthetic fixture
         shell: pwsh
         working-directory: source
