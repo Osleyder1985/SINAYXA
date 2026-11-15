@@ -434,16 +434,15 @@ foreach ($assessment in $package.claim_assessments) {
                 $supportingUnits += @($package.evaluation_units | Where-Object { $_.source_version_id -eq $item.source_version_id -and $_.claim_id -eq $assessment.claim_id -and $_.claim_component_id -eq $assessment.claim_component_id -and $_.claim_version_id -eq $assessment.claim_version_id -and $_.claim_component_version_id -eq $assessment.claim_component_version_id })
             }
         }
-        Test-Condition ($supportingUnits.Count -gt 0) 'CORROBORADA requires supporting evidence mapped to an evaluation unit for the exact component version.'
-        $secondaryUnits = @($supportingUnits | Where-Object { $_.source_type -in @('SECUNDARIA','TERCIARIA','DESCONOCIDA') })
-        if ($secondaryUnits.Count -gt 0) {
-            $reviewedIndependent = @($package.independence_assessments | Where-Object { $_.independence_assessment_id -in $assessment.independence_assessment_refs -and $_.status -eq 'INDEPENDIENTE' -and $_.human_review_status -eq 'REVIEWED' })
-            $covered = $false
-            foreach ($independenceRecord in $reviewedIndependent) {
-                if (@($secondaryUnits | Where-Object { $_.assessment_unit_id -notin $independenceRecord.assessment_unit_ids }).Count -eq 0) { $covered = $true; break }
-            }
-            Test-Condition $covered 'Secondary/tertiary corroboration requires reviewed INDEPENDIENTE covering all supporting source units for this component version.'
+        Test-Condition ($supportingUnits.Count -ge 2) 'CORROBORADA requires at least two supporting source units for the exact component version.'
+        $distinctSupportingSourceIds = @($supportingUnits.source_id | Sort-Object -Unique)
+        Test-Condition ($distinctSupportingSourceIds.Count -ge 2) 'CORROBORADA requires at least two distinct source identities; multiple versions of one source are not corroboration.'
+        $reviewedIndependent = @($package.independence_assessments | Where-Object { $_.independence_assessment_id -in $assessment.independence_assessment_refs -and $_.status -eq 'INDEPENDIENTE' -and $_.human_review_status -eq 'REVIEWED' })
+        $covered = $false
+        foreach ($independenceRecord in $reviewedIndependent) {
+            if (@($supportingUnits | Where-Object { $_.assessment_unit_id -notin $independenceRecord.assessment_unit_ids }).Count -eq 0) { $covered = $true; break }
         }
+        Test-Condition $covered 'CORROBORADA requires reviewed INDEPENDIENTE covering every supporting source unit, regardless of source classification.'
     }
     if ($assessment.evidentiary_status -eq 'CONTRADICHA') { Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0 -and @($assessment.contrary_evidence_refs).Count -gt 0) 'CONTRADICHA requires traceable evidence on both sides.' }
     if ($assessment.evidentiary_status -eq 'REFUTADA') { Test-Condition (@($assessment.contrary_evidence_refs).Count -gt 0) 'REFUTADA requires direct, relevant contrary evidence.' }
