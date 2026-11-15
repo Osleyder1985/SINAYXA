@@ -156,6 +156,26 @@ try {
     }
     finally { if (Test-Path -LiteralPath $retainedFile) { Remove-Item -LiteralPath $retainedFile -Force } }
 
+    $retainedCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
+    $retainedCopy.retention_records[0].content_retained = $true
+    $retainedCopy.retention_records[0].legal_basis_status = 'VERIFIED'
+    $retainedCopy.retention_records[0].disposition = 'RETAIN'
+    $retainedCopy.retention_records[0].previous_disposition = 'REFERENCE_ONLY'
+    $retainedCopy.retention_records[0].authorization_reference = 'synthetic-authorization://retention-a'
+    $retainedCopy.retention_records[0].review_at = '2026-11-15T23:00:00Z'
+    $retainedCopy.retention_records[0].expires_at = '2026-11-16T22:00:00Z'
+    $retainedCopy.audit_events[1].action = 'RETENTION_SET'
+    $retainedCopy.audit_events[1].from_disposition = 'REFERENCE_ONLY'
+    $retainedCopy.audit_events[1].to_disposition = 'RETAIN'
+    $retainedCopy.audit_events[1].occurred_at = '2026-11-15T22:01:00Z'
+    $retainedFile = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-retain-" + [guid]::NewGuid().ToString('N') + '.json')
+    try {
+        ConvertTo-Json -InputObject $retainedCopy -Depth 100 | Set-Content -LiteralPath $retainedFile -Encoding utf8
+        $retainedOutput = (& $validator -FixturePath $retainedFile | Out-String)
+        if (-not $retainedOutput.Contains('Result : PASS')) { throw 'A retention transition with verified authorization, expiry and matching audit event must validate.' }
+    }
+    finally { if (Test-Path -LiteralPath $retainedFile) { Remove-Item -LiteralPath $retainedFile -Force } }
+
     $mutations = @(
         @{ Name='Orphan claim component'; Apply={ param($x) $x.claim_components[0].claim_id='missing-claim' } },
         @{ Name='Stable component identity changes owning claim'; Apply={ param($x) $newClaim=$x.claims[0].Clone(); $newClaim.claim_id='claim-other'; $newClaim.claim_version_id='claim-other-v1'; $newClaim.supersedes_claim_version_id=$null; $x.claims += $newClaim; $newComponent=$x.claim_components[0].Clone(); $newComponent.claim_id='claim-other'; $newComponent.claim_version_id='claim-other-v1'; $newComponent.claim_component_version_id='component-entity-other-v1'; $newComponent.supersedes_component_version_id=$null; $x.claim_components += $newComponent } },
@@ -296,8 +316,9 @@ try {
         PositiveHistoricalImportCases=1
         PositiveIndependenceCases=1
         PositiveDependencyCases=1
+        PositiveRetentionSetCases=1
         NegativeMutations=$mutations.Count
-        TotalChecks=($mutations.Count + 8)
+        TotalChecks=($mutations.Count + 9)
         Scope='Deterministic synthetic contract-validator rejection tests.'
     } | Format-List
 }
