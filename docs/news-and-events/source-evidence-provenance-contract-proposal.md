@@ -29,6 +29,7 @@ Esta propuesta no selecciona PostgreSQL, documentos JSON, almacenamiento de obje
 Representa una proposición evaluable, no una noticia completa ni una conclusión del sistema.
 
 Campos mínimos:
+
 - `claim_id`: identificador estable y opaco.
 - `claim_version`: versión inmutable de la formulación.
 - `proposition`: texto preciso de la proposición.
@@ -44,6 +45,7 @@ Una reformulación material crea una nueva versión. No se modifica retrospectiv
 Divide una proposición en componentes verificables sin obligar a descomponerla artificialmente.
 
 Campos mínimos:
+
 - `claim_component_id`, `claim_id`.
 - `component_key`: clave estable, por ejemplo entity, date, amount, approval, execution o intent.
 - `proposition_fragment`: fragmento concreto evaluado.
@@ -57,6 +59,7 @@ Una evaluación limitada a amount no puede confirmar entity, date, approval ni e
 Representa un origen informativo, no una publicación concreta.
 
 Campos mínimos:
+
 - `source_id`: identificador interno opaco; nunca debe contener nombre, correo, teléfono ni otro dato identificativo.
 - `created_at` y `recorded_at`.
 
@@ -67,6 +70,7 @@ La entidad Source no guarda una clasificación universal de credibilidad, tipo o
 Representa una publicación, documento, registro, versión o pieza concreta atribuida a una fuente.
 
 Campos mínimos:
+
 - `source_version_id`, `source_id`.
 - `version_label` o identificador de versión.
 - `canonical_reference`: URI solo cuando su conservación y acceso sean legítimos.
@@ -81,6 +85,7 @@ Las versiones son inmutables. Una rectificación crea otra versión y se vincula
 ### 3.4.1 Source identity assessment
 
 La identidad y su visibilidad pueden cambiar con el tiempo. Se registran como evaluación versionada, no como verdad global mutable:
+
 - `source_identity_assessment_id`, `source_id`, `assessment_cutoff`.
 - `identity`: IDENTIFICADA, ANÓNIMA_PARA_EL_PÚBLICO, ANÓNIMA_PARA_SINAYXA, SEUDÓNIMA o DESCONOCIDA.
 - `anonymous_to_public`, `anonymous_to_publisher`, `anonymous_to_sinayxa`.
@@ -96,6 +101,7 @@ Conserva exactamente la unidad metodológica aprobada en #16:
 `(claim_id, claim_component_id, source_id, source_version, access_path, assessment_cutoff)`
 
 Campos obligatorios:
+
 - Los seis elementos anteriores; `source_version` referencia de forma estable a `source_version_id`, no a un texto de versión reutilizable.
 - `assessment_unit_id`: identificador opaco.
 - `access_path`: referencia tipada a cómo se obtuvo la pieza, sin confundirla con la legalidad del acceso.
@@ -112,6 +118,7 @@ La base legítima de acceso se conserva aparte con los estados de #15: PÚBLICO_
 `Evidence item` identifica una pieza o referencia probatoria; `claim-evidence link` especifica qué componente respalda, contradice o contextualiza.
 
 Evidence item:
+
 - `evidence_id`, `source_version_id` cuando exista.
 - `evidence_kind`: documento, registro, declaración, observación, dataset, análisis u otro tipo tipado.
 - `content_reference` o referencia externa, si su uso es legítimo.
@@ -121,6 +128,7 @@ Evidence item:
 - `recorded_at`.
 
 Claim-evidence link:
+
 - `claim_id`, `claim_component_id`, `evidence_id`.
 - `evidence_role`: SUPPORTING, CONTRARY o CONTEXTUAL.
 - `scope_note`, `limitations` y referencia de evaluación.
@@ -132,6 +140,7 @@ Una pieza puede relacionarse con varios componentes mediante enlaces separados. 
 El grafo debe permitir nodos de tipo SOURCE_VERSION, EVIDENCE_ITEM, DOCUMENT, DATASET, INTERMEDIARY o INFORMANT. Los identificadores de informantes son pseudónimos no reversibles y no almacenan identidad confidencial.
 
 Cada arista se orienta **desde el nodo dependiente hacia su antecedente/origen** y contiene:
+
 - `edge_id`.
 - `from_node_id`, `to_node_id`.
 - `relation_type`: ORIGEN_DIRECTO, CITA_DE, SINDICADA_DE, DERIVADA_DE, DOCUMENTO_COMÚN, CONTACTO_COMÚN, ORIGEN_NO_DETERMINADO o ANÁLISIS_SEPARADO_SOBRE_DATOS_COMUNES.
@@ -144,6 +153,7 @@ Las aristas se conservan aunque formen ciclos. El ciclo se marca para revisión 
 ### 3.8 Source factor assessment
 
 Una evaluación por fuente, componente y corte temporal contiene exactamente las diez dimensiones de #16:
+
 - RELATION_WITH_FACT.
 - ACCESS_AND_PROXIMITY.
 - SUBJECT_COMPETENCE.
@@ -156,6 +166,7 @@ Una evaluación por fuente, componente y corte temporal contiene exactamente las
 - TEMPORAL_ADEQUACY.
 
 Cada factor contiene:
+
 - `factor_assessment_id`, `assessment_unit_id`, `dimension`.
 - `status`: SUSTENTADA, LIMITADA, DESFAVORABLE, DESCONOCIDA o NO_APLICA.
 - `justification`.
@@ -168,6 +179,7 @@ La justificación y las referencias son obligatorias. No se admiten score, weigh
 ### 3.9 Independence assessment
 
 Campos mínimos:
+
 - `independence_assessment_id`.
 - `claim_id`, `claim_component_id`, `assessment_unit_ids`.
 - `status`: INDEPENDIENTE, DEPENDIENTE o DESCONOCIDA.
@@ -176,6 +188,7 @@ Campos mínimos:
 - `methodology_version`, `human_review_status`, `reviewed_at`.
 
 Reglas:
+
 - INDEPENDIENTE exige evidencia positiva y trazable de vías separadas para el componente.
 - DEPENDIENTE exige al menos una relación material demostrada.
 - DESCONOCIDA se conserva cuando no se demuestra ninguna de las dos situaciones.
@@ -184,6 +197,7 @@ Reglas:
 ### 3.10 Claim component assessment y revisión histórica
 
 La conclusión probatoria se conserva en una entidad separada de las evaluaciones de fuente:
+
 - `claim_assessment_id`, `claim_id`, `claim_component_id`.
 - `evidentiary_status`: exclusivamente estados aprobados en #15.
 - `attribution_status`: ATRIBUIDA, NO_ATRIBUIDA o NO_DETERMINADA.
