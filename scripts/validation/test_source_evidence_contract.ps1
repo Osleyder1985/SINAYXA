@@ -5,6 +5,19 @@ $validator = Join-Path $PSScriptRoot 'validate_source_evidence_contract.ps1'
 $fixture = Join-Path $PSScriptRoot '..\..\tests\fixtures\contracts\source-evidence-contract-v0.2.0.json'
 & $validator -FixturePath $fixture | Out-Null
 $base = Get-Content -LiteralPath $fixture -Raw -Encoding utf8 | ConvertFrom-Json -AsHashtable -Depth 100 -DateKind String
+function Set-IndependentPathsForFixture {
+    param([hashtable]$Package)
+    $Package.provenance_edges = @($Package.provenance_edges | Where-Object { $_.edge_id -ne 'edge-a-unknown' })
+    $Package.provenance_nodes += @(
+        @{ node_id='node-origin-independent-a'; node_type='DOCUMENT'; entity_ref='origin-independent-a' },
+        @{ node_id='node-origin-independent-b'; node_type='DOCUMENT'; entity_ref='origin-independent-b' }
+    )
+    $Package.provenance_edges += @(
+        @{ edge_id='edge-independent-a'; dependent_node_id='node-version-a'; origin_node_id='node-origin-independent-a'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-a'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null },
+        @{ edge_id='edge-independent-b'; dependent_node_id='node-version-b'; origin_node_id='node-origin-independent-b'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-b'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null }
+    )
+    $Package.independence_assessments[0].independent_path_edge_refs = @('edge-independent-a','edge-independent-b')
+}
 $temp = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-" + [guid]::NewGuid().ToString('N') + '.json')
 try {
     $cycleCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
@@ -200,9 +213,29 @@ try {
             $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z'
         } },
         @{ Name='Independent evidence does not cover every evaluated source'; Apply={ param($x) $x.independence_assessments[0].status='INDEPENDIENTE'; $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.independence_assessments[0].human_review_status='REVIEWED'; $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z' } },
+        @{ Name='Independent paths share one underlying origin'; Apply={
+            param($x)
+            Set-IndependentPathsForFixture -Package $x
+            ($x.provenance_nodes | Where-Object { $_.node_id -eq 'node-origin-independent-a' })[0].entity_ref='shared-origin'
+            ($x.provenance_nodes | Where-Object { $_.node_id -eq 'node-origin-independent-b' })[0].entity_ref='shared-origin'
+            $x.independence_assessments[0].status='INDEPENDIENTE'
+            $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b')
+            $x.independence_assessments[0].human_review_status='REVIEWED'
+            $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z'
+        } },
+        @{ Name='Independent path evidence comes from another source version'; Apply={
+            param($x)
+            Set-IndependentPathsForFixture -Package $x
+            ($x.provenance_edges | Where-Object { $_.edge_id -eq 'edge-independent-a' })[0].evidence_refs=@('evidence-b')
+            $x.independence_assessments[0].status='INDEPENDIENTE'
+            $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b')
+            $x.independence_assessments[0].human_review_status='REVIEWED'
+            $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z'
+        } },
         @{ Name='Dependent without dependency edge'; Apply={ param($x) $x.independence_assessments[0].status='DEPENDIENTE' } },
         @{ Name='Independent with two versions of the same source'; Apply={
             param($x)
+            Set-IndependentPathsForFixture -Package $x
             $sourceId = $x.evaluation_units[0].source_id
             $x.evaluation_units[1].source_id = $sourceId
             $versionId = $x.evaluation_units[1].source_version_id
@@ -259,11 +292,25 @@ try {
         @{ Name='Source identifier is not opaque'; Apply={ param($x) $x.sources[0].source_id='person-name' } },
         @{ Name='Source version supersedes itself'; Apply={ param($x) $x.source_versions[0].supersedes_source_version_id='version-a1' } },
         @{ Name='Source version supersedes a later version'; Apply={ param($x) $new = $x.source_versions[0].Clone(); $new.source_version_id='version-a2'; $new.version_label='v2'; $new.version_sequence=2; $new.supersedes_source_version_id='version-a1'; $x.source_versions += $new; $x.source_versions[0].supersedes_source_version_id='version-a2' } },
+        @{ Name='Source version has competing direct successors'; Apply={ param($x) $new2=$x.source_versions[0].Clone(); $new2.source_version_id='version-a2'; $new2.version_label='v2'; $new2.version_sequence=2; $new2.supersedes_source_version_id='version-a1'; $new3=$x.source_versions[0].Clone(); $new3.source_version_id='version-a3'; $new3.version_label='v3'; $new3.version_sequence=3; $new3.supersedes_source_version_id='version-a1'; $x.source_versions += @($new2,$new3) } },
         @{ Name='Three-version source supersession cycle'; Apply={ param($x) $new2 = $x.source_versions[0].Clone(); $new2.source_version_id='version-a2'; $new2.version_label='v2'; $new2.version_sequence=2; $new2.supersedes_source_version_id='version-a1'; $new3 = $x.source_versions[0].Clone(); $new3.source_version_id='version-a3'; $new3.version_label='v3'; $new3.version_sequence=3; $new3.supersedes_source_version_id='version-a2'; $x.source_versions += @($new2,$new3); $x.source_versions[0].supersedes_source_version_id='version-a3' } },
         @{ Name='Hour precision cannot be silently upgraded to minute'; Apply={ param($x) $x.source_versions[0].original_timestamps[0].precision='MINUTE' } },
         @{ Name='Factor evidence crosses dimension boundary'; Apply={ param($x) $x.factor_assessments[0].supporting_evidence_refs=@('evidence-a') } },
         @{ Name='Factor evidence crosses component version'; Apply={ param($x) $x.evidence_items[0].factor_dimensions=@('RELATION_WITH_FACT'); $x.factor_assessments[20].supporting_evidence_refs=@('evidence-a') } },
         @{ Name='Factor evidence crosses source version'; Apply={ param($x) $x.evidence_items[0].factor_dimensions=@('RELATION_WITH_FACT'); $x.factor_assessments[10].supporting_evidence_refs=@('evidence-a') } },
+        @{ Name='Factor evidence has no exact claim-evidence link'; Apply={
+            param($x)
+            $newEvidence=$x.evidence_items[0].Clone()
+            $newEvidence.evidence_id='factor-evidence-unlinked'
+            $newEvidence.factor_dimensions=@('RELATION_WITH_FACT')
+            $newEvidence.content_reference='synthetic-observation://unlinked-factor-evidence'
+            $x.evidence_items += $newEvidence
+            $newAvailability=$x.evidence_availability[0].Clone()
+            $newAvailability.availability_id='availability-factor-unlinked'
+            $newAvailability.evidence_id='factor-evidence-unlinked'
+            $x.evidence_availability += $newAvailability
+            $x.factor_assessments[0].supporting_evidence_refs=@('factor-evidence-unlinked')
+        } },
         @{ Name='Evidence availability crosses component version'; Apply={ param($x) $x.evidence_availability[0].claim_component_version_id='component-amount-v1' } },
         @{ Name='Evidence availability crosses source version'; Apply={ param($x) $x.evidence_availability[0].assessment_unit_id='unit-b-entity' } },
         @{ Name='Evidence becomes available after evaluation cutoff'; Apply={ param($x) $x.evidence_availability[0].available_at='2026-11-15T23:00:00Z' } },
