@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param()
 $ErrorActionPreference = 'Stop'
 $validator = Join-Path $PSScriptRoot 'validate_source_evidence_contract.ps1'
