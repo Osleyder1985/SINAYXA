@@ -4,7 +4,7 @@ $ErrorActionPreference = 'Stop'
 $validator = Join-Path $PSScriptRoot 'validate_source_independence_fixture.ps1'
 $fixture = Join-Path $PSScriptRoot '..\..\tests\fixtures\methodology\source-independence\s01-s16-synthetic-conformance-v1.0.0.json'
 & $validator -FixturePath $fixture
-if ($LASTEXITCODE -ne 0) { throw 'Baseline source-independence fixture validation failed.' }
+
 $base = Get-Content -LiteralPath $fixture -Raw -Encoding utf8 | ConvertFrom-Json -Depth 50
 $temp = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-source-independence-" + [guid]::NewGuid().ToString('N') + '.json')
 try {
@@ -20,8 +20,9 @@ try {
         $copy = $base | ConvertTo-Json -Depth 50 | ConvertFrom-Json -Depth 50
         & $mutation.Apply $copy
         $copy | ConvertTo-Json -Depth 50 | Set-Content -LiteralPath $temp -Encoding utf8
-        $output = & $validator -FixturePath $temp 2>&1
-        if ($LASTEXITCODE -eq 0) { throw "Mutation was not rejected: $($mutation.Name)" }
+        $rejected = $false
+        try { & $validator -FixturePath $temp | Out-Null } catch { $rejected = $true }
+        if (-not $rejected) { throw "Mutation was not rejected: $($mutation.Name)" }
     }
     [pscustomobject]@{ Result='PASS'; PositiveCases=1; NegativeMutations=$mutations.Count; TotalChecks=($mutations.Count + 1); Scope='Validator rejection behavior; synthetic only.' } | Format-List
 }
