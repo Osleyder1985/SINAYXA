@@ -66,11 +66,13 @@ try {
     finally { if (Test-Path -LiteralPath $historicalFile) { Remove-Item -LiteralPath $historicalFile -Force } }
     $mutations = @(
         @{ Name='Orphan claim component'; Apply={ param($x) $x.claim_components[0].claim_id='missing-claim' } },
+        @{ Name='Stable component identity changes owning claim'; Apply={ param($x) $newClaim=$x.claims[0].Clone(); $newClaim.claim_id='claim-other'; $newClaim.claim_version_id='claim-other-v1'; $newClaim.supersedes_claim_version_id=$null; $x.claims += $newClaim; $newComponent=$x.claim_components[0].Clone(); $newComponent.claim_id='claim-other'; $newComponent.claim_version_id='claim-other-v1'; $newComponent.claim_component_version_id='component-entity-other-v1'; $newComponent.supersedes_component_version_id=$null; $x.claim_components += $newComponent } },
         @{ Name='Duplicate claim version identifier'; Apply={ param($x) $x.claims += $x.claims[0] } },
         @{ Name='Duplicate component version identifier'; Apply={ param($x) $x.claim_components += $x.claim_components[0] } },
         @{ Name='UTC timestamp has a non-UTC offset'; Apply={ param($x) $x.created_at='2026-11-15T17:00:00-05:00' } },
         @{ Name='UTC timestamp contains an impossible calendar date'; Apply={ param($x) $x.created_at='2026-02-30T22:00:00Z' } },
         @{ Name='Evaluation unit source/version mismatch'; Apply={ param($x) $x.evaluation_units[0].source_id='src_fedcba98-7654-4321-8abc-fedcba987654' } },
+        @{ Name='Duplicate evaluation unit tuple'; Apply={ param($x) $newUnit=$x.evaluation_units[0].Clone(); $newUnit.assessment_unit_id='unit-a-entity-duplicate'; $x.evaluation_units += $newUnit } },
         @{ Name='Evaluation unit bound to a different component version'; Apply={ param($x) $x.evaluation_units[0].claim_component_version_id='component-amount-v1' } },
         @{ Name='Claim version supersedes itself'; Apply={ param($x) $x.claims[0].supersedes_claim_version_id='claim-btc-purchase-v1' } },
         @{ Name='Unknown origin edge targets ordinary node'; Apply={ param($x) $x.provenance_edges[0].origin_node_id='node-version-b' } },
@@ -101,6 +103,7 @@ try {
         @{ Name='Missing one of ten approved factors'; Apply={ param($x) $x.factor_assessments=@($x.factor_assessments | Select-Object -Skip 1) } },
         @{ Name='Duplicate factor dimension replaces required dimension'; Apply={ param($x) $x.factor_assessments[1].dimension=$x.factor_assessments[0].dimension } },
         @{ Name='Identity label conflicts with visibility flags'; Apply={ param($x) $x.identity_assessments[0].identity='ANÓNIMA_PARA_SINAYXA' } },
+        @{ Name='Duplicate identity assessment at same source cutoff'; Apply={ param($x) $newIdentity=$x.identity_assessments[0].Clone(); $newIdentity.identity_assessment_id='identity-duplicate'; $x.identity_assessments += $newIdentity } },
         @{ Name='Unsupported probative state'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='HIGH_CONFIDENCE' } },
         @{ Name='Claim assessment missing rationale'; Apply={ param($x) $x.claim_assessments[0].rationale='' } },
         @{ Name='Partial corroboration without delimited scopes'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='PARCIALMENTE_CORROBORADA'; $x.claim_assessments[0].human_review_status='REVIEWED'; $x.claim_assessments[0].reviewed_at='2026-11-15T22:05:00Z'; $x.claim_assessments[0].supported_scope=$null; $x.claim_assessments[0].unsupported_scope=$null } },
