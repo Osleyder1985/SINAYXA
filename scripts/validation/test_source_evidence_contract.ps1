@@ -230,9 +230,9 @@ try {
         @{ Name='Independent evidence does not cover every evaluated source'; Apply={ param($x) $x.independence_assessments[0].status='INDEPENDIENTE'; $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.independence_assessments[0].human_review_status='REVIEWED'; $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z' } },
         @{ Name='Independent paths share one underlying origin'; Apply={
             param($x)
-            Set-IndependentPathsForFixture -Package $x
-            ($x.provenance_nodes | Where-Object { $_.node_id -eq 'node-origin-independent-a' })[0].entity_ref='shared-origin'
-            ($x.provenance_nodes | Where-Object { $_.node_id -eq 'node-origin-independent-b' })[0].entity_ref='shared-origin'
+            Initialize-IndependentPathsForFixture -Package $x
+            ($x.provenance_nodes | Where-Object { $_.node_id -eq 'node-origin-independent-b' })[0].entity_ref='evidence-a'
+            ($x.provenance_edges | Where-Object { $_.edge_id -eq 'edge-independent-b' })[0].evidence_refs=@('evidence-a','evidence-b')
             $x.independence_assessments[0].status='INDEPENDIENTE'
             $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b')
             $x.independence_assessments[0].human_review_status='REVIEWED'
