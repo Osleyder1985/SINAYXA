@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ github.repository }}
-          ref: ${{ github.event_name == 'push' && 'fix/issue-41-fixture-validator-v1-2' || (github.event_name == 'workflow_dispatch' && inputs.target_ref || github.event.pull_request.head.sha) }}
+          ref: ${{ (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'ci/powershell-7.6.6-validation')) && 'fix/issue-41-fixture-validator-v1-2' || (github.event_name == 'workflow_dispatch' && inputs.target_ref || github.event.pull_request.head.sha) }}
           path: source
           persist-credentials: false
 
