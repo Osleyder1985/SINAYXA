@@ -44,6 +44,11 @@
       "ANÁLISIS_PROPIO",
       "COMPILACIÓN",
       "DESCONOCIDA"
+    ],
+    "institutional_character": [
+      "OFICIAL",
+      "NO_INSTITUCIONAL",
+      "DESCONOCIDO"
     ]
   },
   "cases": [
