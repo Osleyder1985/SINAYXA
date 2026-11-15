@@ -1,0 +1,42 @@
+[CmdletBinding()]
+param()
+$ErrorActionPreference = 'Stop'
+$validator = Join-Path $PSScriptRoot 'validate_source_evidence_contract.ps1'
+$fixture = Join-Path $PSScriptRoot '..\..\tests\fixtures\contracts\source-evidence-contract-v0.2.0.json'
+& $validator -FixturePath $fixture | Out-Null
+$base = Get-Content -LiteralPath $fixture -Raw -Encoding utf8 | ConvertFrom-Json -AsHashtable -Depth 100
+$temp = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-" + [guid]::NewGuid().ToString('N') + '.json')
+try {
+    $mutations = @(
+        @{ Name='Orphan claim component'; Apply={ param($x) $x.claim_components[0].claim_id='missing-claim' } },
+        @{ Name='Evaluation unit source/version mismatch'; Apply={ param($x) $x.evaluation_units[0].source_id='source-b' } },
+        @{ Name='Unknown origin edge targets ordinary node'; Apply={ param($x) $x.provenance_edges[0].origin_node_id='node-version-b' } },
+        @{ Name='Independent without positive evidence'; Apply={ param($x) $x.independence_assessments[0].status='INDEPENDIENTE' } },
+        @{ Name='Dependent without dependency edge'; Apply={ param($x) $x.independence_assessments[0].status='DEPENDIENTE' } },
+        @{ Name='Issue 15 probative state used as factor state'; Apply={ param($x) $x.factor_assessments[0].status='CONTRADICHA' } },
+        @{ Name='Unsupported probative state'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='HIGH_CONFIDENCE' } },
+        @{ Name='Unauthorized retained content'; Apply={ param($x) $x.retention_records[0].content_retained=$true } },
+        @{ Name='Integrity MATCH with different digests'; Apply={ param($x) $x.evidence_items[0].integrity_check.result='MATCH'; $x.evidence_items[0].integrity_check.expected_digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; $x.evidence_items[0].integrity_check.observed_digest='bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' } },
+        @{ Name='Retrieved before first detection'; Apply={ param($x) $x.source_versions[0].retrieved_at='2026-11-15T19:00:00Z' } },
+        @{ Name='Injected numerical score'; Apply={ param($x) $x.factor_assessments[0].score=0.99 } },
+        @{ Name='Injected confidential identity'; Apply={ param($x) $x.sources[0].real_name='Synthetic Person' } }
+    )
+    foreach ($mutation in $mutations) {
+        $copy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
+        & $mutation.Apply $copy
+        ConvertTo-Json -InputObject $copy -Depth 100 | Set-Content -LiteralPath $temp -Encoding utf8
+        $rejected = $false
+        try { & $validator -FixturePath $temp | Out-Null } catch { $rejected = $true }
+        if (-not $rejected) { throw "Mutation was not rejected: $($mutation.Name)" }
+    }
+    [pscustomobject]@{
+        Result='PASS'
+        BaselineScenarios=1
+        NegativeMutations=$mutations.Count
+        TotalChecks=($mutations.Count + 1)
+        Scope='Deterministic synthetic contract-validator rejection tests.'
+    } | Format-List
+}
+finally {
+    if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp -Force }
+}
