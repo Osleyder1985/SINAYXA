@@ -62,7 +62,7 @@ This demonstrates that selected security rules are active in the pinned analyzer
 
 The separate `.github/workflows/security-quality.yml` workflow adds:
 
-- Gitleaks Action v3.0.0, pinned to an immutable, verified commit, with Gitleaks CLI 8.24.3 pinned; scans PR changes and push ranges, plus a weekly scheduled full-history scan after the workflow is integrated into `main`.
+- Gitleaks Action v3.0.0, pinned to an immutable, verified commit, with Gitleaks CLI 8.24.3 pinned; scans PR changes and push ranges, and an explicit full-history scan on every PR plus a weekly scheduled full-history scan after the workflow is integrated into `main`.
 - A synthetic canary matched by a dedicated test rule is committed only inside a temporary Git repository; CI requires Gitleaks to report that exact rule and return the expected leak exit code, then deletes the temporary repository. This validates the scanner execution and fail-on-detection path without embedding a real credential or relying on a vendor-specific test token that may be allowlisted.
 - `npm ci --ignore-scripts` against the committed lockfile.
 - `npm audit --audit-level=high` across the locked dependency graph; high and critical vulnerabilities fail the check.
