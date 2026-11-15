@@ -30,64 +30,21 @@ Completar antes de ejecutar cada ciclo:
 
 No iniciar una ejecución reproducible si la unidad, el escenario, el corte o el contenido del paquete no están definidos. Conservar timestamps originales, offsets, zona IANA cuando esté disponible, fuente y precisión. No completar datos ausentes mediante suposiciones.
 
-## 2.1 Paquete sintético congelable
+## 2.1 Paquetes sintéticos congelados y linaje de versiones
 
-El paquete de entradas sintéticas para T01–T19 está en [t01-t19-synthetic-evidence.json](../../tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence.json). Su identificador es `SINAYXA-IH-T01-T19-SYNTHETIC-001`. Todos los nombres, acontecimientos, registros y marcas temporales son ficticios y sirven exclusivamente para probar la aplicación de las reglas.
+El paquete original v1.0.0, [t01-t19-synthetic-evidence.json](../../tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence.json), conserva el diseño histórico `SINAYXA-IH-T01-T19-SYNTHETIC-001`. Sus 19 casos, unidades, escenarios, cortes, evidencias y resultados esperados son ficticios. La versión inicial de T16 contenía un requisito de dos evaluadores humanos que fue posteriormente sustituido; por tanto, v1.0.0 es una referencia histórica inmutable, no el paquete vigente para el protocolo actual.
 
-El paquete contiene 19 casos ordenados, unidades, escenarios, cortes, elementos de evidencia y resultados esperados. Los resultados esperados son oráculos de prueba, no resultados obtenidos. En particular, el material de T16 solo describe el requisito de dos evaluadores reales; no simula sus respuestas ni satisface la validación interevaluador.
+El paquete vigente de la batería es v1.2.0, [t01-t19-synthetic-evidence-v1.2.0.json](../../tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence-v1.2.0.json), identificado como `SINAYXA-IH-T01-T19-SYNTHETIC-003`. Conserva los 19 casos, adapta T16 a un único evaluador humano con crítica auxiliar de IA y declara el linaje de v1.1.0. Las versiones anteriores v1.0.0 y v1.1.0 no se modifican.
 
-Validador estructural compatible con Windows PowerShell 5.1: `scripts/validation/validate_intensity_horizon_fixture.ps1`. Desde la raíz del repositorio:
+Validador estructural compatible con Windows PowerShell 5.1: `scripts/validation/validate_intensity_horizon_fixture.ps1`. Para validar explícitamente el paquete vigente desde la raíz del repositorio:
 
 ```powershell
-.\scripts\validation\validate_intensity_horizon_fixture.ps1
+.\scripts\validation\validate_intensity_horizon_fixture.ps1 -FixturePath .\tests\fixtures\methodology\intensity-horizons\t01-t19-synthetic-evidence-v1.2.0.json
 ```
 
-El validador comprueba la identidad del paquete, los 19 IDs únicos y ordenados, campos obligatorios y el bloqueo de T16. También ejecuta comprobaciones deterministas de los vectores temporales T11, T12, T13, T14, T15, T18 y T19: aritmética de duraciones, límites de horizonte, conservación de fecha sin hora, separación de hitos e intervalos que cruzan fronteras. También imprime el SHA-256 del archivo local. Para registrar una ejecución reproducible, copiar ese hash a la ficha de ejecución junto con el commit exacto del repositorio; no modificar el fixture después de congelarlo. Cualquier cambio debe crear una nueva versión del paquete y un nuevo hash.
+Si se omite `-FixturePath`, el validador utiliza deliberadamente el fixture original v1.0.0 para conservar compatibilidad histórica. El validador comprueba identidad y versión, 19 IDs únicos y ordenados, campos obligatorios, linaje declarado y contrato de T16; también ejecuta comprobaciones deterministas de los vectores temporales T11, T12, T13, T14, T15, T18 y T19. Imprime el SHA-256 del archivo local. Estas comprobaciones acreditan estructura y aritmética de los vectores, no la ejecución semántica de T01–T19 ni validez empírica.
 
-**Límite histórico de la versión inicial:** validar la estructura del fixture no ejecuta la batería metodológica ni convierte ningún caso a PASS. La referencia histórica a T16 como BLOCKED fue sustituida por el protocolo de evaluador único de la sección 6 y el fixture v1.2.0 de la sección 9. La matriz vigente de la sección 4 mantiene todos los casos en NOT_EXECUTED.
-
-**Alcance ampliado del validador (commit `49db0a0cbe8f534eeeb8855e82279a4055bfda2d`):** además de la estructura, el script comprueba aritméticamente los vectores temporales de T11/T12, el tratamiento date-only de T13, los cuatro hitos de T14, el intervalo de frontera de T15, las 24 horas reales de T18 y el intervalo contradictorio de T19. Estas comprobaciones son deterministas sobre los datos sintéticos. No evalúan semánticamente intensidad/dirección de T01–T10/T16/T17, ni constituyen una ejecución integral de la batería. La ejecución local de esta versión ampliada en Windows PowerShell 5.1 quedó verificada y se registra en la sección 2.3. El resultado acredita únicamente las comprobaciones deterministas descritas; no constituye una ejecución integral de la batería metodológica.
-
-### 2.2 Registro verificado de integridad del paquete
-
-**Comprobación local comunicada por el propietario:**
-
-| Campo | Resultado |
-| --- | --- |
-| Commit local | `6dcc3228578be7cd1a4d0421e51d62d823bca8d3` |
-| Resultado del validador estructural | PASS |
-| Identificador | `SINAYXA-IH-T01-T19-SYNTHETIC-001` |
-| Casos detectados | 19 |
-| T16 | Evaluación primaria humana sellada antes de crítica IA separada; IA no cuenta como segundo evaluador humano | NOT_EXECUTED | Protocolo aceptado; no afirmar acuerdo interevaluador, consenso ni independencia estadística; ejecuciones previas expuestas no cumplen secuencia (decisión humana asistida por IA; desviación documentada) | Sección 26; ejecución formal pendiente |
-| SHA-256 del fixture | `467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22` |
-| Markdown lint de los dos documentos | PASS; 0 issues |
-| `git status --short` | Sin cambios pendientes |
-
-El hash anterior corresponde al archivo local en la ruta `tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence.json`. El propietario confirmó que el comando terminó con `Fixture validation: PASS` y que el árbol de trabajo estaba limpio.
-
-**Alcance exacto de esta verificación:** acredita que el fixture local coincide con las comprobaciones estructurales implementadas y que los dos documentos Markdown pasan lint. No constituye ejecución de los resultados metodológicos T01–T19, no cambia sus estados y no valida acuerdo interevaluador. La matriz de la sección 4 permanece sin cambios.
-
-### 2.3 Registro verificado de la ejecución ampliada del validador
-
-**Ejecución local comunicada por el propietario y reproducida en Windows PowerShell 5.1:**
-
-| Campo | Resultado |
-| --- | --- |
-| Commit ejecutado | `5e5dcb69663fd8e34b22825c9374bd0c949747b5` |
-| Comando | `.\scripts\validation\validate_intensity_horizon_fixture.ps1` |
-| Validación estructural del fixture | PASS |
-| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-001` |
-| Casos detectados | 19 |
-| Comprobaciones temporales deterministas | PASS: T11, T12, T13, T14, T15, T18 y T19 |
-| T16 | Evaluación primaria humana sellada antes de crítica IA separada; IA no cuenta como segundo evaluador humano | NOT_EXECUTED | Protocolo aceptado; no afirmar acuerdo interevaluador, consenso ni independencia estadística; ejecuciones previas expuestas no cumplen secuencia (decisión humana asistida por IA; desviación documentada) | Sección 26; ejecución formal pendiente |
-| SHA-256 | `467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22` |
-| Ruta del fixture | `tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence.json` |
-| `git status --short` | Sin cambios pendientes |
-
-La salida observada fue: `Fixture structure validation: PASS`, `Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)` y `T16: BLOCKED (correctly preserved)`. El hash impreso coincide con el hash registrado para el paquete congelado.
-
-**Alcance:** este resultado verifica la estructura del fixture y los cálculos/reglas temporales deterministas implementados para los siete casos indicados. No demuestra que la clasificación semántica de intensidad/dirección de T01–T10 y T17 sea correcta, no ejecuta una evaluación integral de T01–T19, no valida acuerdo interevaluador y no satisface T16. Por tanto, los estados de la matriz de la sección 4 permanecen sin cambios: T01–T15 y T17–T19 siguen NOT_EXECUTED; T16 sigue BLOCKED. El PASS aquí registrado corresponde exclusivamente al validador de fixture y sus comprobaciones temporales.
-
+Para registrar una ejecución reproducible, conservar el hash, el commit exacto y la versión del paquete congelado. No modificar un fixture después de congelarlo; cualquier cambio debe crear una nueva versión, identificador y hash. Los estados de ejecución vigentes se resumen en la sección 1 y la matriz de la sección 4: T01–T19 permanecen NOT_EXECUTED hasta completar el procedimiento correspondiente.
 ## 3. Estados permitidos
 
 - **NOT_EXECUTED:** no existe ejecución registrada.
