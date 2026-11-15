@@ -313,6 +313,8 @@ foreach ($assessment in $package.independence_assessments) {
     foreach ($reference in @($assessment.supporting_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Independence assessment references unknown evidence.' }
     foreach ($reference in @($assessment.dependency_edge_refs)) { Test-Condition (Test-HasRef $edgeIds ([string]$reference)) 'Independence assessment references an unknown provenance edge.' }
     foreach ($reference in @($assessment.independent_path_edge_refs)) { Test-Condition (Test-HasRef $edgeIds ([string]$reference)) 'Independence assessment references an unknown independent provenance path edge.' }
+    Test-Condition (@($assessment.independent_path_edge_refs | Sort-Object -Unique).Count -eq @($assessment.independent_path_edge_refs).Count) 'Independent path edge references cannot be duplicated.'
+    Test-Condition (@($assessment.dependency_edge_refs | Sort-Object -Unique).Count -eq @($assessment.dependency_edge_refs).Count) 'Dependency edge references cannot be duplicated.'
     Test-Condition ($assessment.status -in @('INDEPENDIENTE','DEPENDIENTE','DESCONOCIDA')) 'Unsupported independence status.'
     if ($assessment.status -eq 'INDEPENDIENTE') {
         Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'INDEPENDIENTE requires positive evidence.'
