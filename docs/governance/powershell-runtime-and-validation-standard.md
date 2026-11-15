@@ -1,48 +1,52 @@
 # PowerShell runtime and validation standard
 
-**Status:** approved project runtime decision; automation implementation pending CI evidence  
+**Status:** implemented in a reviewable branch; integration into `main` pending  
 **Standard runtime:** PowerShell 7.6.6 LTS  
+**Static analyzer:** PSScriptAnalyzer 1.24.0  
 **Execution platform:** GitHub-hosted Windows runner
 
 ## 1. Runtime policy
 
-PowerShell 7.6.6 is the pinned runtime for project scripts and automated validation. A workflow must verify the exact version rather than relying on whichever PowerShell version happens to be preinstalled on a hosted runner.
+PowerShell 7.6.6 is the pinned runtime for project scripts and automated validation. The workflow installs and verifies the exact runtime instead of trusting the version preinstalled on the runner.
 
-Windows PowerShell 5.1 is not a mandatory parallel target. Add compatibility testing only when a documented requirement or an identified consumer needs it.
+Windows PowerShell 5.1 is not a mandatory parallel target. Add compatibility testing only when a documented requirement or identified consumer needs it.
 
-## 2. Automated controls
+## 2. Source selection and provenance
 
-The GitHub Actions workflow `.github/workflows/powershell-validation.yml` is responsible for:
+Every validation run must analyze the exact source revision it claims to validate:
 
-- Installing and verifying PowerShell 7.6.6.
-- Parsing every tracked PowerShell source file (`.ps1` and `.psm1`) with the PowerShell language parser.
-- Running PSScriptAnalyzer 1.24.0 recursively across the repository's PowerShell source files.
-- Blocking on analyzer findings with severity `Error`; non-error findings remain visible for review and are not silently treated as blockers.
-- Validating the versioned synthetic fixture, including schema, ordered unique case IDs, required fields, timestamp offsets, elapsed-time arithmetic, and versioned semantic contracts.
-- Running a positive control and ten negative mutation tests, including duplicate IDs, malformed date-only input, invalid timezone offsets, and daylight-saving elapsed-time inconsistencies.
-- Keeping test artifacts isolated in a unique temporary directory and removing them in a `finally` block.
-- Recording the exact source commit and fixture SHA-256 in the job log.
+- `pull_request`: the PR head SHA, not a fixed branch and not an unrelated checkout.
+- `push`: the pushed commit SHA.
+- `workflow_dispatch`: the explicitly selected branch, tag, or commit.
 
-The current validator harness is a project-specific PowerShell test script. Pester is not added as a dependency until the repository contains Pester-native test suites that benefit from it. Static analysis findings with severity `Error` block the job; non-error findings remain visible for triage and are not silently promoted to blockers. The validation scripts use the information stream for console reporting and avoid assignment to PowerShell automatic variables so that analyzer findings are actionable rather than dominated by avoidable style warnings.
+The job records the source SHA, workflow SHA, event, runtime, analyzer version, fixture path, fixture SHA-256, and run ID. A successful workflow definition without a completed successful run is not evidence.
 
-## 3. Triggers
+## 3. Automated controls
 
-The workflow supports:
+The workflow:
 
-- A bootstrap push on its dedicated CI branch, which exercises the current Issue #41 validator branch.
-- Pull requests targeting `main` that modify PowerShell scripts, the intensity/horizons fixtures, or this workflow.
-- Manual dispatch with an explicit branch or commit to validate.
+- Inventories tracked `.ps1` and `.psm1` files using Git, fails if the inventory is empty, and uploads the inventory.
+- Parses every inventoried PowerShell source file with the PowerShell language parser.
+- Runs PSScriptAnalyzer 1.24.0 on every inventoried source file.
+- Fails on any analyzer finding. Findings must be corrected; an exception requires a narrowly scoped written rationale and review, never a global suppression.
+- Validates the versioned synthetic fixture v1.2.0.
+- Runs a positive control, twelve negative mutation cases, and robustness checks for missing and malformed fixture files.
+- Uploads machine-readable findings and provenance evidence as a GitHub Actions artifact.
 
-The workflow file must first be integrated into the default branch before it can serve as the normal pull-request gate for subsequent work. The bootstrap push runs the Issue #41 validator branch before that integration decision, providing an initial real Windows-runner result.
+PSScriptAnalyzer includes useful security-oriented rules, but it is not a complete security audit, dependency scanner, secret scanner, or runtime sandbox. Those controls must be evaluated separately before claiming comprehensive security coverage.
 
-## 4. Evidence and interpretation
+## 4. Test boundaries
 
-A successful job proves only that the selected scripts passed the stated static and deterministic synthetic-fixture checks under PowerShell 7.6.6 on a GitHub-hosted Windows runner.
+A PASS proves only that the selected tracked PowerShell source passed the listed static checks and that the synthetic fixture validator behaved as expected for the tested inputs under PowerShell 7.6.6 on a GitHub-hosted Windows runner.
 
-It does **not** mean that methodological cases T01–T19 have been formally executed, that synthetic expectations are empirically valid, or that any causal market conclusion has been established.
+It does **not** prove that methodological cases T01–T19 were formally executed, that synthetic expectations are empirically valid, or that any causal conclusion has been established.
 
-Every reported PASS must identify the workflow run, source commit, runtime version, fixture version and SHA-256. A workflow definition without a completed successful run is not validation evidence.
+The current repository contains a small PowerShell surface. Coverage is reported as an absolute file inventory and count; no claim of broad application coverage is made where only a few PowerShell files exist.
 
-## 5. Local execution policy
+## 5. Integration governance
 
-The standard validation path is GitHub Actions. The project owner is not required to install PowerShell, run scripts, or reproduce CI commands on a personal computer for routine acceptance evidence.
+The workflow must be merged into `main` before it can act as the normal pull-request workflow. A repository ruleset must then require the successful check for protected integration. The presence of a workflow or a green bootstrap run does not itself make the check mandatory.
+
+## 6. Local execution policy
+
+GitHub Actions is the standard validation path. The project owner is not required to install PowerShell or run routine validation commands on a personal computer.

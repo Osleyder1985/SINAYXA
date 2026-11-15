@@ -1,8 +1,10 @@
-name: PowerShell validation
+name: PowerShell quality gate
 
 on:
   push:
     branches:
+      - main
+      - quality/powershell-analyzer-hardening
       - ci/powershell-7.6.6-validation
   pull_request:
     branches:
@@ -15,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       target_ref:
-        description: Branch or commit to validate
+        description: Branch, tag, or commit to validate
         required: true
         default: main
         type: string
@@ -24,7 +26,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: powershell-validation-${{ github.event.pull_request.number || github.ref }}
+  group: powershell-quality-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -35,19 +37,20 @@ jobs:
 
     steps:
       - name: Checkout workflow revision
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
 
-      - name: Select source revision
-        uses: actions/checkout@v5
+      - name: Checkout exact source revision
+        id: source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: ${{ github.repository }}
-          ref: ${{ (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'ci/powershell-7.6.6-validation')) && 'fix/issue-41-fixture-validator-v1-2' || (github.event_name == 'workflow_dispatch' && inputs.target_ref || github.event.pull_request.head.sha) }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || (github.event_name == 'workflow_dispatch' && inputs.target_ref || github.sha) }}
           path: source
           persist-credentials: false
 
-      - name: Install exact PowerShell 7.6.6 runtime
+      - name: Install and verify exact PowerShell 7.6.6
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -55,25 +58,17 @@ jobs:
           $archive = Join-Path $env:RUNNER_TEMP "PowerShell-$version-win-x64.zip"
           $installDirectory = Join-Path $env:RUNNER_TEMP "PowerShell-$version"
           $uri = "https://github.com/PowerShell/PowerShell/releases/download/v$version/PowerShell-$version-win-x64.zip"
-
           Invoke-WebRequest -Uri $uri -OutFile $archive
           New-Item -ItemType Directory -Path $installDirectory -Force | Out-Null
           Expand-Archive -LiteralPath $archive -DestinationPath $installDirectory -Force
-
           $pwsh = Join-Path $installDirectory 'pwsh.exe'
-          if (-not (Test-Path -LiteralPath $pwsh)) {
-            throw "PowerShell $version executable was not found after extraction."
-          }
-
-          $actualVersion = & $pwsh -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
-          if ($LASTEXITCODE -ne 0 -or $actualVersion.Trim() -ne $version) {
-            throw "Expected PowerShell $version; detected '$actualVersion'."
-          }
-
+          if (-not (Test-Path -LiteralPath $pwsh)) { throw "PowerShell $version executable was not found." }
+          $actual = & $pwsh -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
+          if ($LASTEXITCODE -ne 0 -or $actual.Trim() -ne $version) { throw "Expected PowerShell $version; detected '$actual'." }
           "SINAYXA_PWSH_PATH=$pwsh" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          Write-Host "Verified PowerShell $actualVersion"
+          "Verified PowerShell $actual"
 
-      - name: Install pinned PSScriptAnalyzer
+      - name: Install pinned PSScriptAnalyzer 1.24.0
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -85,65 +80,44 @@ jobs:
           (Get-Module PSScriptAnalyzer).Version.ToString()
           '@
           & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -Command $command
-          if ($LASTEXITCODE -ne 0) {
-            throw 'PSScriptAnalyzer installation failed.'
-          }
+          if ($LASTEXITCODE -ne 0) { throw 'PSScriptAnalyzer installation failed.' }
 
-      - name: Parse every PowerShell source file
+      - name: Inventory and parse every tracked PowerShell source file
         shell: pwsh
         working-directory: source
         run: |
           $ErrorActionPreference = 'Stop'
-          $command = @'
-          $ErrorActionPreference = 'Stop'
-          $files = @(Get-ChildItem -LiteralPath . -Recurse -File -Include '*.ps1','*.psm1' | Where-Object { $_.FullName -notmatch '[\\/](\.git|\.venv|node_modules)[\\/]' })
-          if ($files.Count -eq 0) {
-            throw 'No PowerShell source files were found.'
-          }
+          $files = @(git ls-files '*.ps1' '*.psm1' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+          if ($LASTEXITCODE -ne 0) { throw 'Could not inventory tracked PowerShell files.' }
+          if ($files.Count -eq 0) { throw 'No tracked PowerShell source files were found.' }
+          New-Item -ItemType Directory -Path "$env:RUNNER_TEMP\sinayxa-evidence" -Force | Out-Null
+          $files | Set-Content -LiteralPath "$env:RUNNER_TEMP\sinayxa-evidence\powershell-inventory.txt" -Encoding utf8
           $parseErrors = @()
           foreach ($file in $files) {
             $tokens = $null
             $errors = $null
-            [void][System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$errors)
-            if ($errors.Count -gt 0) {
-              $parseErrors += $errors | ForEach-Object { "$($file.FullName): $($_.Message) (line $($_.Extent.StartLineNumber))" }
-            }
+            [void][System.Management.Automation.Language.Parser]::ParseFile((Join-Path (Get-Location) $file), [ref]$tokens, [ref]$errors)
+            foreach ($errorItem in $errors) { $parseErrors += "${file}:$($errorItem.Extent.StartLineNumber): $($errorItem.Message)" }
           }
-          Write-Information "PowerShell files parsed: $($files.Count)" -InformationAction Continue
-          if ($parseErrors.Count -gt 0) {
-            $parseErrors | ForEach-Object { Write-Error $_ }
-            exit 1
-          }
-          '@
-          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -Command $command
-          if ($LASTEXITCODE -ne 0) {
-            throw 'PowerShell parser found syntax errors.'
-          }
+          "Tracked PowerShell files: $($files.Count)"
+          if ($parseErrors.Count -gt 0) { $parseErrors | ForEach-Object { Write-Error $_ }; exit 1 }
+          "Parser errors: 0"
 
-      - name: Run PSScriptAnalyzer
+      - name: Run PSScriptAnalyzer and enforce zero findings
         shell: pwsh
         working-directory: source
         run: |
           $ErrorActionPreference = 'Stop'
-          $command = @'
-          $ErrorActionPreference = 'Stop'
           Import-Module PSScriptAnalyzer -RequiredVersion 1.24.0
-          $results = @(Invoke-ScriptAnalyzer -Path '.' -Recurse)
-          foreach ($finding in $results) {
-            Write-Information ("{0} {1} {2}:{3} {4}" -f $finding.Severity, $finding.RuleName, $finding.ScriptName, $finding.Line, $finding.Message) -InformationAction Continue
+          $files = @(git ls-files '*.ps1' '*.psm1' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+          $findings = @()
+          foreach ($file in $files) { $findings += @(Invoke-ScriptAnalyzer -Path $file) }
+          $findings | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath "$env:RUNNER_TEMP\sinayxa-evidence\psscriptanalyzer-findings.json" -Encoding utf8
+          if ($findings.Count -gt 0) {
+            $findings | Format-List RuleName,Severity,ScriptName,Line,Message | Out-String | Write-Error
+            throw "PSScriptAnalyzer reported $($findings.Count) finding(s); all findings require correction or documented, narrowly scoped justification."
           }
-          $errors = @($results | Where-Object { $_.Severity -eq 'Error' })
-          $nonErrors = @($results | Where-Object { $_.Severity -ne 'Error' })
-          Write-Information "PSScriptAnalyzer errors: $($errors.Count)" -InformationAction Continue
-          Write-Information "PSScriptAnalyzer non-error findings: $($nonErrors.Count)" -InformationAction Continue
-          if ($errors.Count -gt 0) {
-            exit 1
-          }
-          '@
-          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -Command $command
-          if ($LASTEXITCODE -ne 0) {
-            throw 'PSScriptAnalyzer reported blocking errors.'
-          }
+          "PSScriptAnalyzer findings: 0"
 
       - name: Validate the v1.2.0 synthetic fixture
         shell: pwsh
@@ -151,24 +125,43 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/validate_intensity_horizon_fixture.ps1'
-          if ($LASTEXITCODE -ne 0) {
-            throw 'The v1.2.0 fixture validator failed.'
-          }
+          if ($LASTEXITCODE -ne 0) { throw 'The v1.2.0 fixture validator failed.' }
 
-      - name: Run positive and negative validator tests
+      - name: Run positive, negative, and robustness tests
         shell: pwsh
         working-directory: source
         run: |
           $ErrorActionPreference = 'Stop'
           & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_intensity_horizon_fixture_validator.ps1'
-          if ($LASTEXITCODE -ne 0) {
-            throw 'The validator test harness failed.'
-          }
+          if ($LASTEXITCODE -ne 0) { throw 'The validator test harness failed.' }
 
-      - name: Record validated source revision
+      - name: Record source and fixture provenance
         shell: pwsh
         working-directory: source
         run: |
           $ErrorActionPreference = 'Stop'
-          git rev-parse HEAD
-          Get-FileHash -LiteralPath 'tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence-v1.2.0.json' -Algorithm SHA256
+          $commit = (git rev-parse HEAD).Trim()
+          $fixture = 'tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence-v1.2.0.json'
+          $hash = (Get-FileHash -LiteralPath $fixture -Algorithm SHA256).Hash
+          $evidence = [ordered]@{
+            source_commit = $commit
+            workflow_commit = '${{ github.sha }}'
+            runtime = '7.6.6'
+            psscriptanalyzer = '1.24.0'
+            fixture = $fixture
+            fixture_sha256 = $hash
+            powerShell_files = @(git ls-files '*.ps1' '*.psm1').Count
+            run_id = '${{ github.run_id }}'
+            event = '${{ github.event_name }}'
+          }
+          $evidence | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath "$env:RUNNER_TEMP\sinayxa-evidence\validation-evidence.json" -Encoding utf8
+          $evidence | Format-List
+
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: powershell-validation-evidence-${{ github.run_id }}
+          path: ${{ runner.temp }}\sinayxa-evidence\
+          if-no-files-found: warn
+          retention-days: 90
