@@ -112,7 +112,19 @@ try {
         $case.evidence[0].expected_elapsed_seconds = 82800
     }
 
-    Write-Information "Negative validator tests: PASS (10 mutation cases)" -InformationAction Continue
+
+    Invoke-ExpectedFailure -Name "reject-missing-required-field" -ExpectedMessage "missing a required fixture field" -Mutation {
+        param($Fixture)
+        $Fixture.cases[0].unit = $null
+    }
+
+    Invoke-ExpectedFailure -Name "reject-invalid-timestamp-type" -ExpectedMessage "Timestamp must include an explicit UTC designator or numeric offset" -Mutation {
+        param($Fixture)
+        $case = $Fixture.cases | Where-Object { $_.id -eq "T11" }
+        $case.evidence[0].reference = "not-a-timestamp"
+    }
+
+    Write-Information "Negative validator tests: PASS (12 mutation cases)" -InformationAction Continue
 }
 finally {
     if (Test-Path -LiteralPath $tempDirectory) {
