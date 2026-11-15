@@ -41,7 +41,7 @@ function Invoke-ExpectedFailure {
     if (-not $failedAsExpected) {
         throw "$Name was not rejected with the expected validation message: $ExpectedMessage"
     }
-    Write-Host ("Negative test " + $Name + ": PASS")
+    Write-Information ("Negative test " + $Name + ": PASS") -InformationAction Continue
 }
 
 try {
@@ -51,7 +51,7 @@ try {
         throw "Validator default path does not target the v1.2.0 fixture."
     }
     & $validatorPath
-    Write-Host "Positive default-fixture test: PASS"
+    Write-Information "Positive default-fixture test: PASS" -InformationAction Continue
 
     Invoke-ExpectedFailure -Name "reject-wrong-iana-zone" -ExpectedMessage "IANA timezone Europe/Madrid" -Mutation {
         param($Fixture)
@@ -112,7 +112,7 @@ try {
         $case.evidence[0].expected_elapsed_seconds = 82800
     }
 
-    Write-Host "Negative validator tests: PASS (10 mutation cases)"
+    Write-Information "Negative validator tests: PASS (10 mutation cases)" -InformationAction Continue
 }
 finally {
     if (Test-Path -LiteralPath $tempDirectory) {
