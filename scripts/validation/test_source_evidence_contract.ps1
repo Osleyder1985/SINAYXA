@@ -48,7 +48,7 @@ try {
     try {
         ConvertTo-Json -InputObject $pendingDeletion -Depth 100 | Set-Content -LiteralPath $pendingFile -Encoding utf8
         $pendingOutput = (& $validator -FixturePath $pendingFile | Out-String)
-        if (-not $pendingOutput.Contains('Result : PASS')) { throw 'DELETE_PENDING with an unverified basis must remain representable while deletion is pending.' }
+        if (-not $pendingOutput.Contains('Result : PASS')) { throw "DELETE_PENDING positive scenario failed: $pendingOutput" }
     }
     finally { if (Test-Path -LiteralPath $pendingFile) { Remove-Item -LiteralPath $pendingFile -Force } }
     $partialCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
