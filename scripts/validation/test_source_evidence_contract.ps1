@@ -22,7 +22,7 @@ try {
         @{ Name='Unknown origin edge targets ordinary node'; Apply={ param($x) $x.provenance_edges[0].origin_node_id='node-version-b' } },
         @{ Name='Independent without positive evidence'; Apply={ param($x) $x.independence_assessments[0].status='INDEPENDIENTE' } },
         @{ Name='Dependent without dependency edge'; Apply={ param($x) $x.independence_assessments[0].status='DEPENDIENTE' } },
-        @{ Name='Claim assessment reuses independence from another component'; Apply={ param($x) $x.claim_assessments[0].independence_assessment_refs=@('independence-for-other-component') } },
+        @{ Name='Claim assessment reuses independence from another component'; Apply={ param($x) $x.claim_assessments[0].independence_assessment_refs=@('independence-amount') } },
         @{ Name='Issue 15 probative state used as factor state'; Apply={ param($x) $x.factor_assessments[0].status='CONTRADICHA' } },
         @{ Name='Unsupported probative state'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='HIGH_CONFIDENCE' } },
         @{ Name='Unauthorized retained content'; Apply={ param($x) $x.retention_records[0].content_retained=$true } },
