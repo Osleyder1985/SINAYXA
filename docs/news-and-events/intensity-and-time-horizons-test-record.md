@@ -36,7 +36,7 @@ El paquete vigente de entradas sintéticas para T01–T19 está en [t01-t19-synt
 
 El paquete vigente contiene 19 casos ordenados, unidades, escenarios, cortes, elementos de evidencia y resultados esperados. Los resultados esperados son oráculos de prueba, no resultados obtenidos. T16 define el flujo de un evaluador humano único con crítica auxiliar de IA; no simula respuestas humanas o de IA ni acredita ejecución del protocolo.
 
-Validador compatible con Windows PowerShell 5.1: `scripts/validation/validate_intensity_horizon_fixture.ps1`. Su ruta predeterminada apunta explícitamente al fixture v1.2.0; las versiones históricas requieren `-FixturePath`. Desde la raíz del repositorio:
+Validador ejecutado con **PowerShell 7.6.6**, runtime estándar del proyecto conforme a los Issues #41 y #44: `scripts/validation/validate_intensity_horizon_fixture.ps1`. Su ruta predeterminada apunta explícitamente al fixture v1.2.0; las versiones históricas requieren `-FixturePath`. Desde la raíz del repositorio:
 
 ```powershell
 .\scripts\validation\validate_intensity_horizon_fixture.ps1
@@ -90,7 +90,7 @@ La salida histórica observada en esa ejecución fue: `Fixture structure validat
 
 ### 2.4 Ejecución pendiente del validador corregido por el Issue #41
 
-El validador y el harness de pruebas negativas se han actualizado en la rama de trabajo del Issue #41. Esta modificación todavía no cuenta con ejecución local verificada en Windows PowerShell 5.1.
+El validador y el harness corregidos por el Issue #41 cuentan con ejecución verificada en GitHub Actions sobre Windows y PowerShell 7.6.6. La ejecución se realiza sobre el commit exacto de la rama fuente; no requiere una validación manual en el equipo del propietario.
 
 Comandos que debe ejecutar el propietario desde la raíz del repositorio, después de obtener la rama y revisar el commit:
 
@@ -101,7 +101,7 @@ Get-FileHash -LiteralPath .\tests\fixtures\methodology\intensity-horizons\t01-t1
 git status --short
 ```
 
-El primer comando debe identificar explícitamente `SINAYXA-IH-T01-T19-SYNTHETIC-003 v1.2.0`. El segundo ejecuta un control positivo sobre el fixture predeterminado y ocho mutaciones negativas. Solo se registrará PASS cuando se aporte la salida real completa, el hash coincida con el paquete congelado y el árbol de trabajo esté en el estado esperado. Hasta entonces, la ejecución de esta versión corregida permanece **PENDIENTE**. Las pruebas sintéticas no constituyen validación empírica ni ejecución formal de T01–T19.
+**Evidencia CI:** [GitHub Actions run #43724393184](https://github.com/Osleyder1985/SINAYXA/actions/runs/43724393184), sobre el commit `4b89c9f9c1c4752b855e14a26161745b8187ef91`. Terminaron correctamente la instalación y verificación de PowerShell 7.6.6, PSScriptAnalyzer 1.24.0, el inventario y análisis sintáctico de los scripts, el análisis estático sin findings, la validación del fixture v1.2.0 y el harness positivo/negativo/de robustez. El harness vigente contiene 12 mutaciones negativas y dos pruebas de robustez. La evidencia acredita el contrato sintético y el código de validación; no constituye validación empírica ni ejecución metodológica formal de T01–T19.
 
 ## 3. Estados permitidos
 
@@ -286,7 +286,7 @@ T16 pasa de BLOCKED por una dependencia humana imposible a NOT_EXECUTED: el proc
 
 **Alcance:** queda verificada la estructura del fixture v1.2.0, el linaje comprobado por el validador y los vectores temporales deterministas indicados. La salida de T16 confirma que el protocolo de un único humano está definido; no acredita que se haya realizado la evaluación primaria ni la crítica de IA. T01–T15 y T17–T19 siguen NOT_EXECUTED; T16 sigue NOT_EXECUTED. No se declara acuerdo interevaluador humano, consenso ni validez empírica.
 
-**Alcance histórico de esta ejecución:** corresponde al commit `bae7ae515ac64d64edf3676250a6cdde32889783` y al validador anterior a las correcciones del Issue #41. No verifica las nuevas aserciones semánticas de T01/T03/T04/T08/T10, el offset IANA de T18 ni las pruebas negativas añadidas en esta rama. La ejecución del validador corregido y de su harness de mutaciones en Windows PowerShell 5.1 queda pendiente de evidencia local.
+**Alcance histórico de esta ejecución:** corresponde al commit `bae7ae515ac64d64edf3676250a6cdde32889783` y al validador anterior a las correcciones del Issue #41. No verifica las nuevas aserciones semánticas de T01/T03/T04/T08/T10, el offset IANA de T18 ni el harness ampliado. La validación vigente de esos cambios queda registrada en la sección 2.4 mediante GitHub Actions con PowerShell 7.6.6.
 
 ### Resultado de Markdown lint comunicado por el propietario
 
