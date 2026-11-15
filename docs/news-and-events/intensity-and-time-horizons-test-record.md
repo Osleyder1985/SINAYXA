@@ -111,7 +111,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | T04 | I3; demostrar exposición amplia/central y separar efecto observado/potencial | NOT_EXECUTED | I3; NEGATIVA para el ecosistema DELTA definido (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 14; ejecución conforme al protocolo pendiente |
 | T05 | I4; amenaza concreta a función esencial o viabilidad demostrada | NOT_EXECUTED | I4; NEGATIVA para el servicio de autorización de retiros EPSILON (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 15; ejecución conforme al protocolo pendiente |
 | T06 | INDETERMINADA; exposición amplia no compensa mecanismo especulativo | NOT_EXECUTED | INDETERMINADA; dirección INDETERMINADA (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 16; ejecución conforme al protocolo pendiente |
-| T07 | I4 para escenario condicional sustentado; condición pendiente separada, sin probabilidad inventada | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T07 | I4 para escenario condicional sustentado; condición pendiente separada, sin probabilidad inventada | NOT_EXECUTED | I4; NEGATIVA para el escenario condicional (decisión humana asistida por IA; desviación de secuencia); condición PENDING / NOT CONFIRMED; probabilidad NOT_ASSIGNED | Sección 17; ejecución conforme al protocolo pendiente |
 | T08 | Separación por segmentos; MIXTA agregada solo con unidad agregada explícita y respaldada | NOT_EXECUTED | Segmento A: I2 / NEGATIVA; segmento B: I2 / POSITIVA; THETA agregado: sin clasificación (decisión humana asistida por IA; desviación de secuencia) | Sección 18; ejecución conforme al protocolo pendiente |
 | T09 | Contradicción preservada; INDETERMINADA para alcance controvertido | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T10 | Mitigación no verificada no reduce intensidad | NOT_EXECUTED | PENDIENTE | PENDIENTE |
@@ -527,6 +527,52 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 16.4 Resultado de auditoría
 
 La decisión **INDETERMINADA / INDETERMINADA** queda documentada como decisión humana asistida. **T06 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+
+## 17. Registro de decisión asistida — T07
+
+### 17.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T07 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Función de retiro del puente ficticio ETA |
+| Corte | `2026-01-10T12:00:00Z` |
+| Evidencias examinadas | T07-E1, T07-E2 y T07-E3 |
+| Decisión humana comunicada | I4 para el escenario condicional; dirección NEGATIVA para ese escenario |
+| Estado de la condición desencadenante | PENDING / NOT CONFIRMED |
+| Probabilidad | NOT_ASSIGNED |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 17.2 Razonamiento y decisión adoptada
+
+El propietario aceptó la recomendación de asignar **I4** al escenario condicional en el que se active la condición técnica de emergencia y se suspenda la única función de retiro.
+
+- T07-E1 establece que el puente dispone de una única función de retiro y que no existe una ruta alternativa para la unidad evaluada.
+- T07-E2 documenta en el plan de contingencia que la condición técnica de emergencia activa una pausa de los retiros.
+- T07-E3 indica que la condición desencadenante no está confirmada en el corte evaluado.
+
+La intensidad I4 se refiere exclusivamente a la gravedad del escenario condicional sustentado: la suspensión de la única función de retiro comprometería el acceso esencial a los activos dentro de la unidad definida. La ausencia de una ruta alternativa respalda la severidad de ese escenario.
+
+Esta clasificación **no afirma que los retiros estén actualmente suspendidos**, que el desencadenante haya ocurrido ni que la suspensión sea inminente. La condición permanece PENDING / NOT CONFIRMED. No se asigna probabilidad porque las evidencias no proporcionan una base cuantitativa o cualitativa calibrada para hacerlo.
+
+La dirección NEGATIVA se refiere al efecto que tendría la activación del escenario sobre la disponibilidad de retiros y el acceso a los activos. No describe un efecto actualmente observado ni predice el precio de un criptoactivo.
+
+### 17.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción no cumple la secuencia de evaluación primaria humana sellada antes de la crítica de IA establecida en el protocolo de evaluador único.
+
+La aceptación se conserva como **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T07.
+
+Para completar una ejecución formal conforme al protocolo, será necesaria una nueva evaluación con el paquete congelado: primero se registra y sella la evaluación humana sin conocer la salida de IA y, después, se realiza la crítica auxiliar separada. La nueva ejecución se conservará como un registro distinto, sin sobrescribir esta decisión.
+
+### 17.4 Resultado de auditoría
+
+La decisión **I4 / NEGATIVA para el escenario condicional de suspensión de retiros** queda documentada como decisión humana asistida. La condición desencadenante permanece **PENDING / NOT CONFIRMED** y la probabilidad **NOT_ASSIGNED**. **T07 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
 
 
 ## 18. Registro de decisión asistida — T08
