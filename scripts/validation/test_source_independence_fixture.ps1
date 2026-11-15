@@ -30,7 +30,11 @@ try {
         @{ Name='Missing source version'; Apply={ param($x) $x.cases[0].evaluation_units[0].source_version = '' } },
         @{ Name='Mismatched evaluation component'; Apply={ param($x) $x.cases[0].evaluation_units[0].claim_component_id = 'different-component' } },
         @{ Name='Missing provenance node evaluation'; Apply={ param($x) $x.cases[0].evaluation_units = @($x.cases[0].evaluation_units | Where-Object { $_.source_id -ne 'agency-wire' }) } },
-        @{ Name='Unreferenced independence evidence source'; Apply={ param($x) $x.cases[3].independence_evidence[0].source_ids = @('not-a-source') } }
+        @{ Name='Unreferenced independence evidence source'; Apply={ param($x) $x.cases[3].independence_evidence[0].source_ids = @('not-a-source') } },
+        @{ Name='Automated decision bypasses human review'; Apply={ param($x) $x.cases[0].assessment_record.human_review_required = $false } },
+        @{ Name='Assessment decision differs from independence'; Apply={ param($x) $x.cases[0].assessment_record.decision_state = 'INDEPENDIENTE' } },
+        @{ Name='Assessment omits limitations'; Apply={ param($x) $x.cases[0].assessment_record.limitations = @() } },
+        @{ Name='Assessment cites no supporting evidence'; Apply={ param($x) $x.cases[0].assessment_record.supporting_evidence_refs = @() } }
     )
     foreach ($mutation in $mutations) {
         $copy = $base | ConvertTo-Json -Depth 50 | ConvertFrom-Json -Depth 50
