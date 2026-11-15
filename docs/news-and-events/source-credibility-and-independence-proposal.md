@@ -270,7 +270,7 @@ La rúbrica debe rechazar, al menos, estos atajos:
 - convertir la credibilidad de una fuente en estado probatorio de una afirmación;
 - inferir causalidad o efecto de mercado a partir de una noticia o su repetición.
 
-## 13. Criterios de aceptación propuestos para #16
+## 13. Criterios de aceptación cumplidos para #16
 
 - [x] Se aprueba la evaluación multidimensional y contextual, sin nota global ni probabilidades.
 - [x] Se aprueban los estados descriptivos por dimensión.
@@ -300,6 +300,6 @@ Los asuntos jurídicos, de privacidad y seguridad deben revisarse por separado a
 
 ## 15. Registro de decisión
 
-**Estado actual: METODOLOGÍA APROBADA; CONTRATO SINTÉTICO S01–S16 INTEGRADO; AUDITORÍA FINAL DE CIERRE.**
+**Estado actual: METODOLOGÍA APROBADA; CONTRATO SINTÉTICO S01–S16 INTEGRADO; CI SUCCESS; ISSUE #16 CERRADO.**
 
-La decisión metodológica expresa del propietario quedó registrada en [el Issue #16](https://github.com/Osleyder1985/SINAYXA/issues/16#issuecomment-6900966461) el 2026-11-15. Se autoriza convertir S01–S16 en fixture y pruebas deterministas dentro del alcance aprobado. La PR #74 integró el contrato de independencia y procedencia; la PR #75 integró las diez dimensiones cualitativas con 160 evaluaciones de factor. La auditoría final de #16 verificará compatibilidad integral con #15 y consistencia documental antes del cierre. La aprobación no autoriza scoring, probabilidades, ranking universal, causalidad ni señales de inversión.
+La decisión metodológica expresa del propietario quedó registrada en [el Issue #16](https://github.com/Osleyder1985/SINAYXA/issues/16#issuecomment-6900966461) el 2026-11-15. La PR #74 integró S01–S16, procedencia, independencia, identidad, evidencia favorable/contraria, revisión humana y 30 mutaciones negativas. La PR #75 integró las diez dimensiones cualitativas con 160 evaluaciones de factor y 36 mutaciones negativas. La PR #76 actualizó todos los criterios de aceptación y añadió pruebas explícitas para impedir que CONTRADICHA y CORROBORADA del estándar #15 se usen como estados de factores. La compatibilidad se verificó: #16 conserva INDEPENDIENTE/DEPENDIENTE/DESCONOCIDA; los estados probatorios de #15, la atribución, la autenticidad y la identidad permanecen separados. CI PowerShell 7.6.6 y seguridad/dependencias SUCCESS sobre el HEAD definitivo de PR #76 `1f9cf0e5757bba3bed9ca74f2dbe02852a78668b`; la batería de #16 rechaza 38 mutaciones negativas. El Issue queda cerrado tras cumplir todos los criterios. La aprobación no autoriza scoring, probabilidades, ranking universal, causalidad ni señales de inversión.
