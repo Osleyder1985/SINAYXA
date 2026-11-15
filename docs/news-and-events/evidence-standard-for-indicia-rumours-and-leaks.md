@@ -16,7 +16,7 @@ Principios obligatorios:
 2. **Naturaleza, estado probatorio, autenticidad y procedencia son dimensiones distintas.** «Rumor», «indicio» y «posible filtración» describen la naturaleza de la información; no son grados automáticos de verdad.
 3. **La etiqueta filtración no autentica un documento.** Tampoco demuestra que el contenido sea verdadero, completo, vigente, legalmente obtenido o aprobado.
 4. **La corroboración debe respaldar el alcance exacto de la afirmación.** La confirmación de una parte no eleva automáticamente los demás detalles.
-5. **Independencia significa independencia de origen, no cantidad de publicaciones.** Republicaciones, citas circulares y medios que reproducen una misma fuente no son corroboración independiente.
+5. **La corroboración independiente exige orígenes diferenciados, no cantidad de publicaciones.** Esta propuesta fija solo el filtro mínimo contra republicaciones y fuentes comunes; la rúbrica detallada de independencia, credibilidad y ponderación se reserva al Issue #16.
 6. **Una fuente primaria puede confirmar el acto que realizó o publicó.** No confirma automáticamente todas las afirmaciones contenidas en el documento ni sus consecuencias futuras.
 7. **La ausencia de confirmación no demuestra falsedad.** La refutación requiere evidencia positiva que contradiga la proposición concreta.
 8. **El precio no corrobora la noticia.** Un movimiento de mercado puede motivar una investigación, pero no autentica fuentes, documentos ni acontecimientos.
@@ -117,7 +117,7 @@ Una afirmación puede considerarse CORROBORADA cuando se cumple una de estas con
 - existe evidencia primaria auténtica y directamente pertinente que respalda el alcance exacto de la proposición; o
 - existe corroboración independiente suficiente, con orígenes diferenciados y evidencia que respalda el mismo componente material.
 
-La corroboración no exige dos fuentes en todos los casos: un registro oficial primario puede ser suficiente para confirmar que se aprobó una resolución o que se publicó un anuncio. Sin embargo, esa misma pieza no demuestra por sí sola consecuencias, ejecución, adopción, causalidad o detalles que no documenta.
+La corroboración no exige dos fuentes en todos los casos: un registro oficial primario puede ser suficiente para confirmar que se aprobó una resolución o que se publicó un anuncio. Sin embargo, esa misma pieza no demuestra por sí sola consecuencias, ejecución, adopción, causalidad o detalles que no documenta. Cuando la conclusión dependa de fuentes secundarias, su independencia deberá evaluarse conforme a la rúbrica del Issue #16; mientras esa independencia no esté demostrada, no se elevará la afirmación a CORROBORADA.
 
 La base de la corroboración debe describirse. No se utilizará CORROBORADA como sinónimo de «muchas fuentes lo dicen».
 
@@ -163,7 +163,9 @@ No cuentan como corroboración independiente:
 - dos fuentes que recibieron el mismo documento de un único intermediario, sin acceso independiente conocido;
 - una noticia y sus republicaciones traducidas o resumidas.
 
-Cuando no pueda determinarse si los orígenes son independientes, registrar INDEPENDENCIA_DESCONOCIDA. No sumar referencias ni asumir independencia.
+Cuando no pueda determinarse si los orígenes son independientes, registrar INDEPENDENCIA_DESCONOCIDA. No sumar referencias ni asumir independencia. Tampoco basta con que dos publicaciones tengan autores o dominios distintos para afirmar que sus fuentes son independientes.
+
+Esta sección define un filtro mínimo de dependencia evidente, no una rúbrica completa. La clasificación detallada de fuentes primarias/secundarias, relaciones de sindicación, citas cruzadas, acceso directo, credibilidad e independencia corresponde al Issue #16.
 
 La independencia no sustituye la pertinencia: dos fuentes independientes que confirman detalles distintos no confirman automáticamente el conjunto de la afirmación.
 
