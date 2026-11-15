@@ -169,6 +169,24 @@ try {
     }
     finally { if (Test-Path -LiteralPath $retainedFile) { Remove-Item -LiteralPath $retainedFile -Force } }
 
+    $factorEvidenceCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
+    $factorEvidence = $factorEvidenceCopy.evidence_items[0].Clone()
+    $factorEvidence.evidence_id = 'factor-evidence-history'
+    $factorEvidence.information_nature = 'HECHO_OBSERVADO'
+    $factorEvidence.content_reference = 'synthetic-observation://source-correction-history'
+    $factorEvidence.factor_dimensions = @('RELEVANT_ACCURACY_HISTORY')
+    $factorEvidenceCopy.evidence_items += $factorEvidence
+    $factorAvailability = $factorEvidenceCopy.evidence_availability[0].Clone()
+    $factorAvailability.availability_id = 'availability-factor-history'
+    $factorAvailability.evidence_id = 'factor-evidence-history'
+    $factorEvidenceCopy.evidence_availability += $factorAvailability
+    $historyFactor = @($factorEvidenceCopy.factor_assessments | Where-Object { $_.assessment_unit_id -eq 'unit-a-entity' -and $_.dimension -eq 'RELEVANT_ACCURACY_HISTORY' })[0]
+    $historyFactor.status = 'SUSTENTADA'
+    $historyFactor.justification = 'El historial documentado de correcciones de la fuente sustenta este factor.'
+    $historyFactor.supporting_evidence_refs = @('factor-evidence-history')
+    ConvertTo-Json -InputObject $factorEvidenceCopy -Depth 100 | Set-Content -LiteralPath $temp -Encoding utf8
+    & $validator -FixturePath $temp | Out-Null
+
     $mutations = @(
         @{ Name='Orphan claim component'; Apply={ param($x) $x.claim_components[0].claim_id='missing-claim' } },
         @{ Name='Stable component identity changes owning claim'; Apply={ param($x) $newClaim=$x.claims[0].Clone(); $newClaim.claim_id='claim-other'; $newClaim.claim_version_id='claim-other-v1'; $newClaim.supersedes_claim_version_id=$null; $x.claims += $newClaim; $newComponent=$x.claim_components[0].Clone(); $newComponent.claim_id='claim-other'; $newComponent.claim_version_id='claim-other-v1'; $newComponent.claim_component_version_id='component-entity-other-v1'; $newComponent.supersedes_component_version_id=$null; $x.claim_components += $newComponent } },
@@ -343,9 +361,10 @@ try {
         PositiveHistoricalImportCases=1
         PositiveIndependenceCases=1
         PositiveDependencyCases=1
+        PositiveFactorEvidenceCases=1
         PositiveRetentionSetCases=1
         NegativeMutations=$mutations.Count
-        TotalChecks=($mutations.Count + 9)
+        TotalChecks=($mutations.Count + 10)
         Scope='Deterministic synthetic contract-validator rejection tests.'
     } | Format-List
 }
