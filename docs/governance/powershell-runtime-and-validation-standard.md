@@ -43,6 +43,20 @@ It does **not** prove that methodological cases T01–T19 were formally executed
 
 The current repository contains a small PowerShell surface. Coverage is reported as an absolute file inventory and count; no claim of broad application coverage is made where only a few PowerShell files exist.
 
+
+## 4. Security-rule regression tests
+
+In addition to analyzing production scripts, CI runs controlled, synthetic snippets to verify that PSScriptAnalyzer 1.24.0 actually detects these security patterns:
+
+- Plain-text password parameters: `AvoidUsingPlainTextForPassword`.
+- Dynamic expression execution: `AvoidUsingInvokeExpression`.
+- Plain-text input to `ConvertTo-SecureString`: `AvoidUsingConvertToSecureStringWithPlainText`.
+- Hardcoded remote computer names: `AvoidUsingComputerNameHardcoded`.
+
+The test harness requires every expected rule to fire and verifies temporary test-directory cleanup. These snippets are deliberately synthetic and are not executed; they are analyzed statically.
+
+This demonstrates that selected security rules are active in the pinned analyzer version. It does not establish complete detection of all credential leaks, malicious code, unsafe dependencies, runtime behavior, or supply-chain compromise. Independent secret scanning and dependency/security review remain separate controls.
+
 ## 5. Integration governance
 
 The workflow must be merged into `main` before it can act as the normal pull-request workflow. A repository ruleset must then require the successful check for protected integration. The presence of a workflow or a green bootstrap run does not itself make the check mandatory.
