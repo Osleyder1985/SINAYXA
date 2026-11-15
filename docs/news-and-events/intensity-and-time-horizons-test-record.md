@@ -248,7 +248,6 @@ La versión 1.1.0 y su hash permanecen inmutables. La nueva versión no contiene
 
 T16 pasa de BLOCKED por una dependencia humana imposible a NOT_EXECUTED: el proceso ya es ejecutable por el único propietario, pero todavía no se ha realizado. Los estados de los otros casos no cambian. No se afirma acuerdo entre evaluadores humanos, fiabilidad interevaluador, consenso ni validez empírica.
 
-
 ## 10. Ejecución local del fixture sintético v1.2.0
 
 ### Identificación y entorno
