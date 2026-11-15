@@ -100,6 +100,8 @@ foreach ($claim in $package.claims) {
 }
 foreach ($component in $package.claim_components) {
     Test-Condition (Test-HasRef $claimIds ([string]$component.claim_id)) 'Component references an unknown claim.'
+    $sameIdentityComponents = @($package.claim_components | Where-Object { $_.claim_component_id -eq $component.claim_component_id })
+    Test-Condition (@($sameIdentityComponents | Where-Object { $_.claim_id -ne $component.claim_id -or $_.component_key -ne $component.component_key }).Count -eq 0) 'A stable component identity cannot change its owning claim or component key.'
     Test-Condition (Test-HasRef $claimVersionIds ([string]$component.claim_version_id)) 'Component references an unknown claim version.'
     $claimVersion = @($package.claims | Where-Object { $_.claim_version_id -eq $component.claim_version_id })[0]
     Test-Condition ($claimVersion.claim_id -eq $component.claim_id) 'Component and claim version identities do not match.'
@@ -141,8 +143,11 @@ foreach ($version in $package.source_versions) {
         Test-Condition ($null -eq $version.hash_algorithm) 'Source version cannot declare a hash algorithm without a content hash.'
     }
 }
+$identityAssessmentKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($identity in $package.identity_assessments) {
     Test-Condition (Test-HasRef $sourceIds ([string]$identity.source_id)) 'Identity assessment references an unknown source.'
+    $identityKey = ([string]$identity.source_id) + '|' + ([string]$identity.assessment_cutoff)
+    Test-Condition ($identityAssessmentKeys.Add($identityKey)) 'Identity assessment must be unique per source and assessment cutoff.'
     Test-Condition (Test-Utc $identity.assessment_cutoff 'assessment_cutoff') 'Identity assessment cutoff must be UTC.'
     Test-Condition (Test-Utc $identity.recorded_at 'recorded_at') 'Identity assessment recorded_at must be UTC.'
     foreach ($reference in @($identity.verification_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Identity assessment references unknown evidence.' }
@@ -153,7 +158,10 @@ foreach ($identity in $package.identity_assessments) {
         Test-Condition (@($identity.verification_evidence_refs).Count -gt 0) 'SINAYXA identity verification requires evidence references.'
     }
 }
+$evaluationTupleKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($unit in $package.evaluation_units) {
+    $tupleKey = [string]::Join([char]31, @([string]$unit.claim_id,[string]$unit.claim_component_id,[string]$unit.source_id,[string]$unit.source_version_id,[string]$unit.access_path,[string]$unit.assessment_cutoff))
+    Test-Condition ($evaluationTupleKeys.Add($tupleKey)) 'Evaluation unit tuple must be unique; duplicate methodology units cannot be counted twice.'
     Test-Condition (Test-HasRef $claimIds ([string]$unit.claim_id)) 'Evaluation unit references an unknown claim.'
     Test-Condition (Test-HasRef $componentIds ([string]$unit.claim_component_id)) 'Evaluation unit references an unknown component.'
     Test-Condition (Test-HasRef $claimVersionIds ([string]$unit.claim_version_id)) 'Evaluation unit references an unknown claim version.'
