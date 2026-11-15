@@ -172,7 +172,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $commit = (git rev-parse HEAD).Trim()
-          $fixture = 'tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence-v1.3.0.json'
+          $fixture = 'tests/fixtures/methodology/intensity-horizons/t01-t20-synthetic-evidence-v1.3.0.json'
           $hash = (Get-FileHash -LiteralPath $fixture -Algorithm SHA256).Hash
           $evidenceStandardFixture = 'tests/fixtures/methodology/evidence-standard/e01-e18-synthetic-conformance-v1.2.2.json'
           $evidenceStandardFixtureHash = (Get-FileHash -LiteralPath $evidenceStandardFixture -Algorithm SHA256).Hash
