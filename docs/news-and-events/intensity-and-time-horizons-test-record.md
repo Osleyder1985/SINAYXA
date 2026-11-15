@@ -290,10 +290,7 @@ T16 pasa de BLOCKED por una dependencia humana imposible a NOT_EXECUTED: el proc
 
 ### Resultado de Markdown lint comunicado por el propietario
 
-El comando solicitado para cuatro documentos produjo `312 issues in 2 files`. La configuración `.markdownlint-cli2.jsonc` incluye el patrón global `**/*.md`, por lo que la ejecución también alcanzó `docs/news-and-events/catalyst-taxonomy-test-cases.md`, un documento ajeno a este cambio. El registro de intensidad mostró incidencias de formato propias, que se corrigen en esta revisión. No se interpreta el resultado global como fallo de los cuatro documentos seleccionados ni se modifica aquí el documento de taxonomía ajeno al alcance.
-
-Para una comprobación estrictamente limitada a los cuatro archivos, ejecutar markdownlint-cli2 con `--no-globs` y las cuatro rutas explícitas. El resultado de esa ejecución queda pendiente; no se declara PASS.
-
+La primera ejecución dirigida de `markdownlint-cli2` sobre los seis documentos metodológicos identificó 45 incidencias de formato en este registro. Se corrigen exclusivamente problemas de presentación Markdown (líneas en blanco, separación de listas y encabezados, énfasis usado como encabezado y tabuladores en expresiones matemáticas), sin alterar el contenido metodológico ni los estados de ejecución. La reejecución de los seis documentos en GitHub Actions queda pendiente de confirmación para este commit. El documento `catalyst-taxonomy-test-cases.md` permanece fuera de este alcance y se gestiona por separado en el Issue #38.
 
 ## 11. Registro de decisión asistida — T01
 
@@ -315,6 +312,7 @@ Para una comprobación estrictamente limitada a los cuatro archivos, ejecutar ma
 
 El propietario aceptó la recomendación metodológica de asignar **I0** para la unidad técnica y operativa delimitada. La evidencia sintética establece que:
 - el inventario revisado no identifica dependencias técnicas u operativas respecto del sitio web renombrado (T01-E1);
+
 - el alcance del inventario se declara completo para la unidad y el anuncio evaluados al corte (T01-E2);
 - los registros de despliegue, configuración, acceso, estado de servicios e incidentes no muestran cambios operativos atribuibles al anuncio (T01-E3).
 
@@ -333,7 +331,6 @@ Para completar una ejecución formal conforme al protocolo, será necesario real
 ### 11.4 Resultado de auditoría
 
 La decisión I0 / INDETERMINADA queda documentada como decisión humana asistida. **T01 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
-
 
 ## 12. Registro de decisión asistida — T02
 
@@ -375,7 +372,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 
 La decisión **I1 / INDETERMINADA** queda documentada como decisión humana asistida. **T02 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
 
-
 ## 13. Registro de decisión asistida — T03
 
 ### 13.1 Identificación del caso
@@ -416,7 +412,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 13.4 Resultado de auditoría
 
 La decisión **I2 / NEGATIVA para el segmento institucional afectado** queda documentada como decisión humana asistida. **T03 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
-
 
 ## 14. Registro de decisión asistida — T04
 
@@ -462,8 +457,8 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 
 La decisión **I3 / NEGATIVA para el ecosistema DELTA definido** queda documentada como decisión humana asistida. **T04 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
 
-
 ## 15. Registro de decisión asistida — T05
+
 ### 15.1 Identificación del caso
 
 | Campo | Registro |
@@ -501,7 +496,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 15.4 Resultado de auditoría
 
 La decisión **I4 / NEGATIVA para el servicio de autorización de retiros EPSILON** queda documentada como decisión humana asistida. **T05 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
-
 
 ## 16. Registro de decisión asistida — T06
 
@@ -545,8 +539,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 16.4 Resultado de auditoría
 
 La decisión **INDETERMINADA / INDETERMINADA** queda documentada como decisión humana asistida. **T06 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
-
-
 
 ## 17. Registro de decisión asistida — T07
 
@@ -592,7 +584,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 
 La decisión **I4 / NEGATIVA para el escenario condicional de suspensión de retiros** queda documentada como decisión humana asistida. La condición desencadenante permanece **PENDING / NOT CONFIRMED** y la probabilidad **NOT_ASSIGNED**. **T07 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
 
-
 ## 18. Registro de decisión asistida — T08
 
 ### 18.1 Identificación del caso
@@ -613,21 +604,21 @@ La decisión **I4 / NEGATIVA para el escenario condicional de suspensión de ret
 
 El propietario aceptó mantener clasificaciones independientes para los dos segmentos y no asignar una clasificación agregada al activo THETA.
 
-**Segmento A — I2 / NEGATIVA**
+### Segmento A — I2 / NEGATIVA
 
 - T08-E1 establece que el flujo de liquidación declarado depende de la integración R como única ruta soportada, según el inventario de flujos y los registros previos de transacciones exitosas.
 - T08-E2 documenta que, después del evento, R rechaza las solicitudes del flujo de Segmento A y que las transacciones afectadas no pueden completar la liquidación; no hay ruta alternativa disponible al corte.
 
 La pérdida de la única ruta soportada constituye una restricción funcional directa y material, acotada al flujo de liquidación de ese segmento. No se acredita amenaza a acceso esencial o viabilidad que justifique I4, ni exposición amplia/central fuera de la unidad delimitada que justifique I3.
 
-**Segmento B — I2 / POSITIVA**
+### Segmento B — I2 / POSITIVA
 
 - T08-E3 establece que, antes del evento, el flujo de ejecución de mercado declarado no disponía de una ruta soportada hacia el venue identificado.
 - T08-E4 documenta que la integración R pasa a estar disponible y que los registros de transacciones exitosas confirman la ejecución del flujo antes no disponible.
 
 La nueva capacidad funcional es directa y está observada, pero permanece acotada al flujo declarado. La evidencia no justifica elevar la intensidad a I3 o I4.
 
-**Activo THETA en conjunto — sin clasificación agregada**
+### Activo THETA en conjunto — sin clasificación agregada
 
 T08-E5 confirma que A y B son segmentos definidos por dependencias y poblaciones de evidencia diferentes, pero no proporciona una unidad agregada de mercado ni un denominador común para combinarlos. Por ello, no se asigna intensidad ni dirección agregada. No se utiliza el beneficio de B para cancelar el perjuicio de A, ni viceversa.
 
@@ -646,8 +637,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 18.4 Resultado de auditoría
 
 Las decisiones **I2 / NEGATIVA para el segmento A** e **I2 / POSITIVA para el segmento B**, sin clasificación agregada para THETA, quedan documentadas como decisión humana asistida. **T08 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
-
-
 
 ## 19. Registro de decisión asistida — T09
 
@@ -693,8 +682,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 
 La decisión **INDETERMINADA / INDETERMINADA** queda documentada como decisión humana asistida. La contradicción entre T09-E1 y T09-E2 permanece abierta; no se ha establecido un criterio aprobado para resolverla. **T09 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
 
-
-
 ## 20. Registro de decisión asistida — T10
 
 ### 20.1 Identificación del caso
@@ -736,8 +723,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 
 La decisión **intensidad base NOT_ASSESSED / mitigación UNVERIFIED / sin reducción de la evaluación base** queda documentada como decisión humana asistida. La ruta de recuperación no se considera disponible, capaz ni accesible con las evidencias aportadas. **T10 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
 
-
-
 ## 21. Registro de decisión asistida — T11
 
 ### 21.1 Identificación del caso
@@ -760,9 +745,9 @@ El propietario aceptó que las fronteras sean inclusivas en el extremo superior 
 | Duración transcurrida | Horizonte |
 | --- | --- |
 | (0 < d leq 24) horas | INMEDIATO |
-| (24 < d leq 7 	imes 24) horas | CORTO |
-| (7 	imes 24 < d leq 90 	imes 24) horas | MEDIO |
-| (d > 90 	imes 24) horas | LARGO |
+| (24 < d leq 7 \timesimes 24) horas | CORTO |
+| (7 \timesimes 24 < d leq 90 \timesimes 24) horas | MEDIO |
+| (d > 90 \timesimes 24) horas | LARGO |
 
 Para las duraciones exactas incluidas en T11:
 
@@ -785,8 +770,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 21.4 Resultado de auditoría
 
 La regla de fronteras inclusivas y las asignaciones de T11 quedan documentadas como decisión humana asistida. Este registro expresa una decisión metodológica sobre el tratamiento de duraciones exactas; no demuestra por sí mismo que una implementación de software la aplique correctamente. **T11 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
-
-
 
 ## 22. Registro de decisión asistida — T12
 
@@ -816,9 +799,9 @@ El propietario aceptó que una duración situada exactamente un segundo después
 Estas asignaciones son coherentes con la partición inclusiva aceptada en T11:
 
 - (0 < d leq 24) horas: INMEDIATO.
-- (24 < d leq 7 	imes 24) horas: CORTO.
-- (7 	imes 24 < d leq 90 	imes 24) horas: MEDIO.
-- (d > 90 	imes 24) horas: LARGO.
+- (24 < d leq 7 \timesimes 24) horas: CORTO.
+- (7 \timesimes 24 < d leq 90 \timesimes 24) horas: MEDIO.
+- (d > 90 \timesimes 24) horas: LARGO.
 
 El segundo adicional debe formar parte de la duración transcurrida calculada entre instantes comparables. No se redondeará la duración antes de clasificarla, pues ese redondeo podría volver a colocar el instante dentro del horizonte anterior. La precisión disponible debe ser suficiente para distinguir el segundo adicional; si no lo es, se conservará la incertidumbre y no se forzará la categoría.
 
@@ -833,8 +816,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 22.4 Resultado de auditoría
 
 Las tres asignaciones de T12 quedan documentadas como decisión humana asistida y son consistentes con la regla temporal aprobada en T11. Este registro no demuestra por sí mismo que una implementación de software calcule duraciones sin redondeos prematuros ni aplique correctamente los límites. **T12 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
-
-
 
 ## 23. Registro de decisión asistida — T13
 
@@ -876,8 +857,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 23.4 Resultado de auditoría
 
 La decisión **DATE_ONLY_PRESERVED / horizonte INDETERMINADO** queda documentada como decisión humana asistida. No se inventaron hora, zona horaria ni timestamp, y no se asignó una categoría temporal exacta que la evidencia no permite sostener. **T13 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
-
-
 
 ## 24. Registro de decisión asistida — T14
 
@@ -930,8 +909,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 
 La separación de anuncio, aprobación, entrada en vigor e implementación queda documentada como decisión humana asistida. Los cuatro hitos deben conservar fuentes y metadatos temporales propios; la ausencia o discrepancia de uno no se resuelve copiando otro. **T14 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
 
-
-
 ## 25. Registro de decisión asistida — T15
 
 ### 25.1 Identificación del caso
@@ -974,8 +951,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 
 La decisión **intervalo conservado / horizonte único INDETERMINADO / horizontes compatibles INMEDIATO y CORTO** queda documentada como decisión humana asistida. No se ha forzado una categoría única a partir de un intervalo que cruza la frontera de 24 horas. **T15 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
 
-
-
 ## 26. Registro de decisión asistida — T16
 
 ### 26.1 Identificación del caso
@@ -1014,8 +989,6 @@ Las futuras ejecuciones deberán conservar, como mínimo, los artefactos sellado
 ### 26.4 Resultado de auditoría
 
 Queda aceptado el protocolo de evaluación primaria humana sellada antes de la crítica IA separada, así como la prohibición de presentar la IA como segundo evaluador humano o de atribuir acuerdo interevaluador, consenso o independencia estadística. La desviación de secuencia en T01–T15 queda explícitamente preservada y no se corrige retroactivamente. **T16 permanece NOT_EXECUTED en la matriz formal**: la aceptación de un procedimiento no equivale a su ejecución ni demuestra su eficacia. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
-
-
 
 ## 27. Registro de decisión asistida — T17
 
@@ -1062,8 +1035,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 
 La decisión **INDETERMINADA** queda documentada porque la evidencia no permite confirmar ni descartar el mecanismo material. No se equipara ausencia de evidencia con evidencia de ausencia, ni se fuerza I0 o I1–I4. La vigilancia y la recopilación adicional pueden continuar sin elevar una hipótesis a catalizador confirmado. **T17 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
 
-
-
 ## 28. Registro de decisión asistida — T18
 
 ### 28.1 Identificación del caso
@@ -1104,8 +1075,6 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 28.4 Resultado de auditoría
 
 La decisión **instantes absolutos / zona Europe/Madrid preservada / 24 horas reales = INMEDIATO** queda documentada como decisión humana asistida. La aritmética ingenua de horas locales no se acepta como sustituto del cálculo de duración real; timestamps ambiguos o inexistentes sin offset suficiente no se resolverán por conjetura. **T18 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
-
-
 
 ## 29. Registro de decisión asistida — T19
 
