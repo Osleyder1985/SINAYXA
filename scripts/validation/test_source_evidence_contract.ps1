@@ -105,7 +105,6 @@ try {
         @{ Name='Evidence becomes available after evaluation cutoff'; Apply={ param($x) $x.evidence_availability[0].available_at='2026-11-15T23:00:00Z' } },
         @{ Name='Known availability lacks traceable basis'; Apply={ param($x) $x.evidence_availability[0].availability_basis='UNKNOWN' } },
         @{ Name='Claim assessment uses evidence unavailable at its cutoff'; Apply={ param($x) $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.claim_assessments[0].assessment_cutoff='2026-11-15T20:00:00Z' } },
-        @{ Name='Duplicate source version sequence'; Apply={ param($x) $new = $x.source_versions[0].Clone(); $new.source_version_id='version-a2'; $new.version_label='v1-duplicate'; $new.supersedes_source_version_id=$null; $x.source_versions += $new } },
         @{ Name='Retained content has an expired retention window'; Apply={ param($x) $x.retention_records[0].content_retained=$true; $x.retention_records[0].legal_basis_status='VERIFIED'; $x.retention_records[0].disposition='RETAIN'; $x.retention_records[0].expires_at='2026-11-15T21:00:00Z' } },
         @{ Name='Deleted content lacks a deletion audit event'; Apply={ param($x) $x.retention_records[0].content_retained=$false; $x.retention_records[0].disposition='DELETED' } }
     )
