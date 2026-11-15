@@ -309,14 +309,14 @@ foreach ($assessment in $package.independence_assessments) {
     $units = @($package.evaluation_units | Where-Object { $_.assessment_unit_id -in $assessment.assessment_unit_ids })
     Test-Condition (Test-Utc $assessment.assessment_cutoff 'assessment_cutoff') 'Independence assessment cutoff must be UTC.'
     Test-Condition (@($units | Where-Object { $_.assessment_cutoff -ne $assessment.assessment_cutoff }).Count -eq 0) 'Independence assessment units must share the exact assessment cutoff.'
-    Test-Condition (Test-Utc $assessment.assessment_cutoff 'assessment_cutoff') 'Independence assessment cutoff must be UTC.'
-    Test-Condition (@($units | Where-Object { $_.assessment_cutoff -ne $assessment.assessment_cutoff }).Count -eq 0) 'Independence assessment units must share the exact assessment cutoff.'
     Test-Condition (@($units | Where-Object { $_.claim_id -ne $assessment.claim_id -or $_.claim_component_id -ne $assessment.claim_component_id -or $_.claim_version_id -ne $assessment.claim_version_id -or $_.claim_component_version_id -ne $assessment.claim_component_version_id }).Count -eq 0) 'Independence assessment mixes claims or component versions.'
     foreach ($reference in @($assessment.supporting_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Independence assessment references unknown evidence.' }
     foreach ($reference in @($assessment.dependency_edge_refs)) { Test-Condition (Test-HasRef $edgeIds ([string]$reference)) 'Independence assessment references an unknown provenance edge.' }
+    foreach ($reference in @($assessment.independent_path_edge_refs)) { Test-Condition (Test-HasRef $edgeIds ([string]$reference)) 'Independence assessment references an unknown independent provenance path edge.' }
     Test-Condition ($assessment.status -in @('INDEPENDIENTE','DEPENDIENTE','DESCONOCIDA')) 'Unsupported independence status.'
     if ($assessment.status -eq 'INDEPENDIENTE') {
         Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'INDEPENDIENTE requires positive evidence.'
+        Test-Condition (@($assessment.independent_path_edge_refs).Count -ge 2) 'INDEPENDIENTE requires at least two explicit provenance paths.'
         $distinctSourceIds = @($units.source_id | Sort-Object -Unique)
         Test-Condition ($distinctSourceIds.Count -ge 2) 'INDEPENDIENTE requires at least two distinct source identities, not merely two versions of one source.'
         $evidenceSourceIds = @()
@@ -337,13 +337,24 @@ foreach ($assessment in $package.independence_assessments) {
             $available = @($package.evidence_availability | Where-Object { $_.evidence_id -eq $evidenceId -and $_.assessment_unit_id -eq $unitForEvidence.assessment_unit_id -and $_.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE') -and $null -ne $_.available_at -and [DateTimeOffset]::Parse([string]$_.available_at) -le [DateTimeOffset]::Parse([string]$assessment.assessment_cutoff) })
             Test-Condition ($available.Count -gt 0) 'INDEPENDIENTE evidence must be available by the cutoff through the exact evaluated source version.'
         }
-        Test-Condition (@($distinctSourceIds | Where-Object { $_ -notin $evidenceSourceIds }).Count -eq 0) 'INDEPENDIENTE evidence must cover every evaluated source identity.'
-        foreach ($evidenceId in @($assessment.supporting_evidence_refs)) {
-            $item = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
-            $unitForEvidence = @($units | Where-Object { $_.source_version_id -eq $item.source_version_id })[0]
-            $available = @($package.evidence_availability | Where-Object { $_.evidence_id -eq $evidenceId -and $_.assessment_unit_id -eq $unitForEvidence.assessment_unit_id -and $_.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE') -and $null -ne $_.available_at -and [DateTimeOffset]::Parse([string]$_.available_at) -le [DateTimeOffset]::Parse([string]$assessment.assessment_cutoff) })
-            Test-Condition ($available.Count -gt 0) 'INDEPENDIENTE evidence must be available by the cutoff through the exact evaluated source version.'
+        $coveredSourceVersions = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+        $distinctOriginNodes = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+        foreach ($pathEdgeId in @($assessment.independent_path_edge_refs)) {
+            $pathEdge = @($package.provenance_edges | Where-Object { $_.edge_id -eq $pathEdgeId })[0]
+            Test-Condition ($pathEdge.claim_component_id -eq $assessment.claim_component_id -and $pathEdge.claim_component_version_id -eq $assessment.claim_component_version_id) 'Independent path edge must apply to the exact assessed component version.'
+            Test-Condition ($pathEdge.relation_type -eq 'ORIGEN_DIRECTO' -and @($pathEdge.evidence_refs).Count -gt 0) 'Independent path must be a directly evidenced origin path.'
+            $dependentNode = @($package.provenance_nodes | Where-Object { $_.node_id -eq $pathEdge.dependent_node_id })[0]
+            $originNode = @($package.provenance_nodes | Where-Object { $_.node_id -eq $pathEdge.origin_node_id })[0]
+            Test-Condition ($dependentNode.node_type -eq 'SOURCE_VERSION' -and $dependentNode.entity_ref -in @($units.source_version_id)) 'Independent path must begin at an exact evaluated source version.'
+            Test-Condition ($originNode.node_type -ne 'UNKNOWN_ORIGIN' -and $originNode.node_id -ne $dependentNode.node_id) 'Independent path cannot terminate at an unknown or self origin.'
+            Test-Condition (@($package.provenance_edges | Where-Object { $_.dependent_node_id -eq $originNode.node_id }).Count -eq 0) 'Independent path origin must be a separately evidenced terminal origin, not an unresolved shared intermediary.'
+            Test-Condition ($distinctOriginNodes.Add([string]$originNode.node_id)) 'Independent source paths must terminate at distinct origin nodes.'
+            [void]$coveredSourceVersions.Add([string]$dependentNode.entity_ref)
+            foreach ($pathEvidenceId in @($pathEdge.evidence_refs)) {
+                Test-Condition ($pathEvidenceId -in $assessment.supporting_evidence_refs) 'Independent path evidence must be included in the assessment supporting evidence.'
+            }
         }
+        Test-Condition (@($units | Where-Object { $_.source_version_id -notin $coveredSourceVersions }).Count -eq 0) 'Independent paths must cover every evaluated source version.'
         Test-Condition (@($assessment.dependency_edge_refs).Count -eq 0) 'INDEPENDIENTE cannot simultaneously declare material dependency edges.'
     }
     if ($assessment.status -eq 'DEPENDIENTE') {
@@ -351,21 +362,7 @@ foreach ($assessment in $package.independence_assessments) {
         foreach ($edgeId in @($assessment.dependency_edge_refs)) {
             $dependencyEdge = @($package.provenance_edges | Where-Object { $_.edge_id -eq $edgeId })[0]
             Test-Condition ($dependencyEdge.claim_component_id -eq $assessment.claim_component_id -and $dependencyEdge.claim_component_version_id -eq $assessment.claim_component_version_id) 'Dependency edge must apply to the exact assessed component version.'
-            Test-Condition ($dependencyEdge.relation_type -ne 'ORIGEN_NO_DETERMINADO' -and @($dependencyEdge.evidence_refs).Count -gt 0) 'DEPENDIENTE requires a material, evidenced dependency relation; unknown origin alone is insufficient.'
-            $dependentNode = @($package.provenance_nodes | Where-Object { $_.node_id -eq $dependencyEdge.dependent_node_id })[0]
-            $originNode = @($package.provenance_nodes | Where-Object { $_.node_id -eq $dependencyEdge.origin_node_id })[0]
-            Test-Condition ($dependentNode.node_type -eq 'SOURCE_VERSION' -and $originNode.node_type -eq 'SOURCE_VERSION') 'DEPENDIENTE edge must connect two concrete source-version nodes, not UNKNOWN_ORIGIN.'
-            Test-Condition ($dependentNode.entity_ref -in @($units.source_version_id) -and $originNode.entity_ref -in @($units.source_version_id) -and $dependentNode.entity_ref -ne $originNode.entity_ref) 'DEPENDIENTE edge must connect two distinct source versions included in the same independence assessment.'
-            $dependentVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $dependentNode.entity_ref })[0]
-            $originVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $originNode.entity_ref })[0]
-            Test-Condition ($dependentVersion.source_id -ne $originVersion.source_id) 'DEPENDIENTE edge must connect two distinct source identities, not two versions of one source.'
-            foreach ($evidenceId in @($dependencyEdge.evidence_refs)) {
-                $edgeEvidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
-                Test-Condition ($edgeEvidence.source_version_id -in @($units.source_version_id)) 'Dependency edge evidence must originate from one of the exact evaluated source versions.'
-                $edgeUnit = @($units | Where-Object { $_.source_version_id -eq $edgeEvidence.source_version_id })[0]
-                $edgeEvidenceAvailable = @($package.evidence_availability | Where-Object { $_.evidence_id -eq $evidenceId -and $_.assessment_unit_id -eq $edgeUnit.assessment_unit_id -and $_.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE') -and $null -ne $_.available_at -and [DateTimeOffset]::Parse([string]$_.available_at) -le [DateTimeOffset]::Parse([string]$assessment.assessment_cutoff) })
-                Test-Condition ($edgeEvidenceAvailable.Count -gt 0) 'Dependency edge evidence must be available by the exact assessment cutoff.'
-            }
+            Test-Condition ($dependencyEdge.relation_type -in @('CITA_DE','SINDICADA_DE','DERIVADA_DE','DOCUMENTO_COMÚN','CONTACTO_COMÚN','ANÁLISIS_SEPARADO_SOBRE_DATOS_COMUNES') -and @($dependencyEdge.evidence_refs).Count -gt 0) 'DEPENDIENTE requires a material, evidenced dependency relation; direct or unknown origin alone is insufficient.'
             $dependentNode = @($package.provenance_nodes | Where-Object { $_.node_id -eq $dependencyEdge.dependent_node_id })[0]
             $originNode = @($package.provenance_nodes | Where-Object { $_.node_id -eq $dependencyEdge.origin_node_id })[0]
             Test-Condition ($dependentNode.node_type -eq 'SOURCE_VERSION' -and $originNode.node_type -eq 'SOURCE_VERSION') 'DEPENDIENTE edge must connect two concrete source-version nodes, not UNKNOWN_ORIGIN.'
