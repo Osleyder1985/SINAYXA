@@ -53,7 +53,7 @@ function Test-ForbiddenKey {
 }
 
 Test-Condition (Test-Path -LiteralPath $FixturePath -PathType Leaf) "Fixture not found: $FixturePath"
-$package = Get-Content -LiteralPath $FixturePath -Raw -Encoding utf8 | ConvertFrom-Json -AsHashtable -Depth 100
+$package = Get-Content -LiteralPath $FixturePath -Raw -Encoding utf8 | ConvertFrom-Json -AsHashtable -Depth 100 -DateKind String
 Test-Condition ($package.contract_version -eq '0.2.0') 'contract_version must be 0.2.0.'
 Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$package.package_id)) 'package_id is required.'
 Test-Condition (Test-Utc $package.created_at 'created_at') 'created_at must be an ISO 8601 UTC instant ending in Z.'
