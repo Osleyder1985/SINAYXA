@@ -35,13 +35,6 @@
       "DEPENDIENTE",
       "DESCONOCIDA"
     ],
-    "factor_state": [
-      "SUSTENTADA",
-      "LIMITADA",
-      "DESFAVORABLE",
-      "DESCONOCIDA",
-      "NO_APLICA"
-    ],
     "dissemination": [
       "ORIGINAL",
       "SINDICADA",
