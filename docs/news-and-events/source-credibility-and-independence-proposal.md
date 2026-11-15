@@ -49,6 +49,22 @@ Debe conservarse como mínimo:
 - evaluador, justificación y cambios respecto de evaluaciones anteriores.
 
 No se extrapola una evaluación a otras afirmaciones, materias, autores, periodos o publicaciones sin evidencia específica.
+### 3.1 Base de conocimiento, separada del tipo de fuente
+
+Además del tipo PRIMARIA/SECUNDARIA/TERCIARIA, registrar cómo se relaciona la fuente con el hecho o con el dato:
+
+- **OBSERVACIÓN_DIRECTA:** afirma haber observado el hecho.
+- **REGISTRO_ORIGINAL:** produjo o conserva el registro primario del acto o sistema.
+- **ACCESO_DIRECTO_DECLARADO:** afirma acceso directo a personas, sistemas o documentos; distinguir siempre lo declarado de lo verificado por SINAYXA.
+- **TESTIMONIO_DE_TERCEROS:** transmite lo dicho por otra persona.
+- **DOCUMENTO_DE_TERCEROS:** depende de un documento cuyo origen o custodia no controla.
+- **ANÁLISIS_REPRODUCIBLE:** interpreta datos con método, entradas y pasos examinables.
+- **OPINIÓN_O_INTERPRETACIÓN:** ofrece una valoración que no equivale a observación del hecho.
+- **REPRODUCCIÓN_SIN_VERIFICACIÓN_PROPIA:** reproduce, traduce o resume otra referencia sin corroboración diferenciada demostrada.
+- **DESCONOCIDA:** la base de conocimiento no puede establecerse.
+
+Una fuente puede combinar bases distintas para componentes diferentes de una afirmación. No presentar un acceso declarado como acceso verificado ni un análisis como registro original.
+
 
 ## 4. Rúbrica cualitativa propuesta
 
@@ -65,6 +81,7 @@ Cada dimensión se registra por separado con evidencia y justificación. No se s
 |Incentivos y conflictos|¿Existen intereses económicos, institucionales, personales o estratégicos relevantes?|Patrocinios, propiedad, relaciones declaradas, remuneración, posiciones públicas|El conflicto exige contextualizar y contrastar; no demuestra falsedad|
 |Consistencia interna|¿La afirmación es coherente con los datos y documentos presentados por la propia fuente?|Cálculos reproducibles, citas completas, documentos íntegros, coherencia temporal|Coherencia interna no equivale a corroboración externa|
 |Evidencia contraria|¿Qué datos verificables contradicen o limitan la afirmación?|Documentos incompatibles, rectificaciones, registros primarios, observaciones contrarias|Debe conservarse incluso cuando perjudique la hipótesis preferida|
+|Adecuación temporal|¿La fuente y la pieza corresponden al periodo relevante y permiten establecer la secuencia?|Fecha/versionado original, historial de edición, marcas temporales, desfase de publicación y corte|La publicación tardía o una fecha desconocida limita la cronología; no se completa por inferencia|
 
 ### 4.1 Estados descriptivos por dimensión
 
@@ -72,7 +89,7 @@ Para evitar una escala numérica o una falsa precisión, se propone registrar ca
 
 - **RESPALDADA:** existe evidencia identificable y pertinente para la dimensión concreta.
 - **LIMITADA:** existe evidencia, pero su alcance, actualidad o calidad restringe la conclusión.
-- **CONTRADICHA:** existe evidencia verificable incompatible con la evaluación provisional de esa dimensión.
+- **DESFAVORABLE:** existe evidencia verificable que limita la fuente en esa dimensión o contradice una característica que la fuente se atribuye. Este estado describe un factor de la rúbrica y **no** es el estado probatorio CONTRADICHA de la afirmación conforme al Issue #15.
 - **DESCONOCIDA:** la información disponible no permite evaluarla.
 - **NO_APLICA:** la dimensión no es pertinente a la relación fuente-afirmación evaluada.
 
@@ -86,7 +103,7 @@ Una fuente con acceso directo puede ser pertinente y aun así tener incentivos, 
 
 ## 5. Independencia: grafo de procedencia, no conteo de publicaciones
 
-La independencia se evalúa entre cadenas de obtención para una afirmación y un componente concretos, no entre nombres de medios o dominios.
+La independencia se evalúa entre cadenas de obtención para una afirmación y un componente concretos, no entre nombres de medios o dominios. El estado de independencia utiliza exactamente los valores **INDEPENDIENTE**, **DEPENDIENTE** y **DESCONOCIDA** del estándar #15; el contexto de la relación explica qué origen o vínculo permanece desconocido. No se introduce un alias adicional.
 
 ### 5.1 Relaciones propuestas
 
@@ -99,6 +116,7 @@ Cada referencia secundaria debe enlazarse, cuando se conozca, con su origen inme
 - **DOCUMENTO_COMÚN:** varias fuentes recibieron el mismo documento o paquete de un intermediario.
 - **CONTACTO_COMÚN:** las fuentes dependen del mismo informante, portavoz o grupo de informantes.
 - **ORIGEN_NO_DETERMINADO:** no se ha podido reconstruir la cadena.
+- **ANÁLISIS_SEPARADO_SOBRE_DATOS_COMUNES:** análisis producido por separado a partir de un mismo conjunto de datos o documento; puede permitir replicación analítica, pero no constituye un segundo origen independiente del dato compartido.
 
 Estas relaciones son etiquetas propuestas, no una taxonomía ya aprobada.
 
@@ -106,7 +124,7 @@ Estas relaciones son etiquetas propuestas, no una taxonomía ya aprobada.
 
 - **INDEPENDIENTE:** hay evidencia positiva de una vía de obtención separada y no se identifica dependencia material común para el componente corroborado.
 - **DEPENDIENTE:** hay evidencia de reproducción, sindicación, cita, documento/intermediario común u otra dependencia material.
-- **INDEPENDENCIA_DESCONOCIDA:** la cadena no puede reconstruirse con evidencia suficiente.
+- **DESCONOCIDA:** la cadena no puede reconstruirse con evidencia suficiente.
 
 Reglas obligatorias propuestas:
 
@@ -118,6 +136,7 @@ Reglas obligatorias propuestas:
 6. Si la independencia no puede determinarse, se mantiene DESCONOCIDA; no se presume ni se fuerza a INDEPENDIENTE.
 7. La independencia de origen no implica competencia, credibilidad ni pertinencia.
 8. La independencia se establece para el componente exacto: dos orígenes pueden corroborar fecha y entidad, pero no importe, intención o ejecución.
+9. Dos análisis reproducibles sobre un dataset común pueden ser independientes como procesos analíticos, pero permanecen dependientes respecto del origen del dato; registrar ambas relaciones por separado.
 
 ## 6. Fuentes primarias, secundarias y oficiales
 
@@ -163,7 +182,7 @@ Reglas propuestas:
 |A y B reciben el mismo documento de un intermediario|Documento/origen común, salvo verificación independiente adicional|
 |A publica un documento y B confirma directamente un registro distinto|Puede haber independencia para el componente que acredita el segundo registro|
 |Dos periodistas investigan por separado y documentan métodos distintos|Puede clasificarse INDEPENDIENTE si la separación queda sustentada|
-|Se desconoce el origen de una publicación viral|INDEPENDENCIA_DESCONOCIDA; no contar republicaciones|
+|Se desconoce el origen de una publicación viral|DESCONOCIDA; no contar republicaciones|
 
 La sindicación debe conservar proveedor, identificador del material y versión/fecha cuando estén disponibles. No se presume que una licencia de reproducción convierta al distribuidor en fuente original.
 
@@ -198,6 +217,7 @@ Todos los ejemplos son ficticios y sirven para probar consistencia del razonamie
 |S13|Un medio cita a otro que cita al primero|Dependencia circular; no hay dos orígenes|
 |S14|Dos fuentes independientes confirman entidad y fecha, pero discrepan sobre el importe|Corroboración limitada a entidad/fecha; importe permanece no resuelto|
 |S15|Una fuente anónima conocida por el editor aporta una segunda comprobación, pero SINAYXA no puede verificar separación|Independencia DESCONOCIDA para SINAYXA; no inferir independencia desde la garantía editorial|
+|S16|Dos analistas reproducen por separado un cálculo con el mismo dataset público|Registrar análisis separados y dataset común; no contar dos orígenes independientes del dato|
 
 ## 11. Evidencia mínima y trazabilidad de cada evaluación
 
