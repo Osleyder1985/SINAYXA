@@ -404,6 +404,7 @@ Los identificadores estables de una afirmación o componente no bastan para reco
 - claim_version_id identifica una formulación inmutable concreta;
 - claim_component_id identifica el componente a lo largo de su historia;
 - claim_component_version_id identifica una formulación inmutable concreta del componente.
+- source_id identifica el origen mediante un UUID opaco con prefijo src_; no admite nombres, correos ni datos de contacto.
 
 Cada componente versionado referencia exactamente a una versión de la afirmación. La unidad de evaluación aprobada en #16 conserva sus seis elementos originales y añade referencias explícitas a claim_version_id y claim_component_version_id para impedir que una evaluación histórica se interprete contra una formulación posterior.
 
