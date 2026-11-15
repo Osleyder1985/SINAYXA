@@ -264,7 +264,7 @@ La rúbrica debe rechazar, al menos, estos atajos:
 - [ ] Se resuelven explícitamente los casos de anonimato y confidencialidad.
 - [ ] Se resuelven sindicación, citas cruzadas, documentos e informantes comunes.
 - [ ] Se define el tratamiento de contradicciones, rectificaciones y ausencia de corroboración compatible con #15.
-- [ ] Los ejemplos S01–S15 se revisan y se convierten en casos de prueba sintéticos tras la aprobación.
+- [ ] Los ejemplos S01–S16 se revisan y se convierten en casos de prueba sintéticos tras la aprobación.
 - [ ] La evaluación deja trazabilidad de evidencia favorable, contraria, límites y decisión humana.
 - [ ] El propietario aprueba expresamente la versión y el alcance de la rúbrica.
 
@@ -286,4 +286,4 @@ Los asuntos jurídicos, de privacidad y seguridad deben revisarse por separado a
 
 **Estado actual: PROPUESTA NO APROBADA.**
 
-La integración de este documento, si se aprueba su PR, solo acredita que existe una propuesta revisable y trazable. #16 permanecerá abierto hasta que el propietario resuelva expresamente las decisiones metodológicas, la batería sintética se convierta en pruebas verificables y se cumplan sus criterios de cierre. No habilita todavía la implementación funcional de #4.
+La integración de este documento solo acredita que existe una propuesta revisable y trazable. #16 permanecerá abierto hasta que el propietario resuelva expresamente las decisiones metodológicas, la batería sintética se convierta en pruebas verificables y se cumplan sus criterios de cierre. No habilita todavía la implementación funcional de #4.
