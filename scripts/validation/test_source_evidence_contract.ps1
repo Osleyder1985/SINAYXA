@@ -91,6 +91,8 @@ try {
         @{ Name='Source content hash has no algorithm'; Apply={ param($x) $x.source_versions[0].content_hash='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' } },
         @{ Name='Missing source version sequence'; Apply={ param($x) $x.source_versions[1].Remove('version_sequence') } },
         @{ Name='Duplicate source version sequence within one source'; Apply={ param($x) $x.source_versions[1].source_id=$x.source_versions[0].source_id; $x.source_versions[1].version_sequence=$x.source_versions[0].version_sequence } },
+        @{ Name='Duplicate claim version number within one claim'; Apply={ param($x) $new = $x.claims[0].Clone(); $new.claim_version_id='claim-btc-purchase-v2'; $x.claims += $new } },
+        @{ Name='Duplicate component version number within one component'; Apply={ param($x) $new = $x.claim_components[0].Clone(); $new.claim_component_version_id='component-entity-v2'; $x.claim_components += $new } },
         @{ Name='Hash algorithm exists without content hash'; Apply={ param($x) $x.source_versions[0].hash_algorithm='SHA-256' } },
         @{ Name='Unsupported integrity algorithm retains digest'; Apply={ param($x) $x.evidence_items[0].integrity_check.expected_digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' } },
         @{ Name='Retrieved before first detection'; Apply={ param($x) $x.source_versions[0].retrieved_at='2026-11-15T19:00:00Z' } },
