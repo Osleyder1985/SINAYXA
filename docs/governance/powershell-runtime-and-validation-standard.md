@@ -23,7 +23,7 @@ The GitHub Actions workflow `.github/workflows/powershell-validation.yml` is res
 - Keeping test artifacts isolated in a unique temporary directory and removing them in a `finally` block.
 - Recording the exact source commit and fixture SHA-256 in the job log.
 
-The current validator harness is a project-specific PowerShell test script. Pester is not added as a dependency until the repository contains Pester-native test suites that benefit from it. Static analysis findings with severity `Error` block the job; non-error findings remain visible for triage and are not silently promoted to blockers.
+The current validator harness is a project-specific PowerShell test script. Pester is not added as a dependency until the repository contains Pester-native test suites that benefit from it. Static analysis findings with severity `Error` block the job; non-error findings remain visible for triage and are not silently promoted to blockers. The validation scripts use the information stream for console reporting and avoid assignment to PowerShell automatic variables so that analyzer findings are actionable rather than dominated by avoidable style warnings.
 
 ## 3. Triggers
 
