@@ -11,7 +11,8 @@
       "valid_time_start": null,
       "valid_time_end": null,
       "recorded_at": "2026-11-15T22:00:00Z",
-      "supersedes_claim_version_id": null
+      "supersedes_claim_version_id": null,
+      "claim_version_id": "claim-btc-purchase-v1"
     }
   ],
   "claim_components": [
@@ -22,7 +23,10 @@
       "proposition_fragment": "La entidad X realizó la acción.",
       "scope": "Identidad de la entidad; caso sintético.",
       "version": 1,
-      "recorded_at": "2026-11-15T22:00:00Z"
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "claim_component_version_id": "component-entity-v1",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "supersedes_component_version_id": null
     },
     {
       "claim_component_id": "component-amount",
@@ -31,7 +35,10 @@
       "proposition_fragment": "El importe fue el indicado.",
       "scope": "Importe; caso sintético.",
       "version": 1,
-      "recorded_at": "2026-11-15T22:00:00Z"
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "claim_component_version_id": "component-amount-v1",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "supersedes_component_version_id": null
     }
   ],
   "sources": [
@@ -113,7 +120,9 @@
       "source_subtype": "REPRODUCCION",
       "knowledge_basis": "REPRODUCCIÓN_SIN_VERIFICACIÓN_PROPIA",
       "institutional_character": "NO_INSTITUCIONAL",
-      "dissemination": "REPUBLICADA"
+      "dissemination": "REPUBLICADA",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1"
     },
     {
       "assessment_unit_id": "unit-b-entity",
@@ -129,7 +138,9 @@
       "source_subtype": "REPRODUCCION",
       "knowledge_basis": "DESCONOCIDA",
       "institutional_character": "DESCONOCIDO",
-      "dissemination": "DESCONOCIDA"
+      "dissemination": "DESCONOCIDA",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1"
     },
     {
       "assessment_unit_id": "unit-a-amount",
@@ -145,7 +156,9 @@
       "source_subtype": "REPRODUCCION",
       "knowledge_basis": "REPRODUCCIÓN_SIN_VERIFICACIÓN_PROPIA",
       "institutional_character": "NO_INSTITUCIONAL",
-      "dissemination": "REPUBLICADA"
+      "dissemination": "REPUBLICADA",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-amount-v1"
     },
     {
       "assessment_unit_id": "unit-b-amount",
@@ -161,7 +174,9 @@
       "source_subtype": "REPRODUCCION",
       "knowledge_basis": "DESCONOCIDA",
       "institutional_character": "DESCONOCIDO",
-      "dissemination": "DESCONOCIDA"
+      "dissemination": "DESCONOCIDA",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-amount-v1"
     }
   ],
   "evidence_items": [
@@ -210,7 +225,9 @@
       "scope_note": "Solo atribución de la declaración.",
       "limitations": [
         "No demuestra el hecho subyacente."
-      ]
+      ],
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1"
     },
     {
       "link_id": "link-b",
@@ -221,7 +238,9 @@
       "scope_note": "Pieza no autenticada.",
       "limitations": [
         "No puede sustentar contradicción por sí sola."
-      ]
+      ],
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1"
     }
   ],
   "provenance_nodes": [
@@ -251,7 +270,8 @@
       "evidence_refs": [],
       "recorded_at": "2026-11-15T22:00:00Z",
       "valid_from": null,
-      "valid_to": null
+      "valid_to": null,
+      "claim_component_version_id": "component-entity-v1"
     }
   ],
   "factor_assessments": [
@@ -875,7 +895,9 @@
       "assessment_cutoff": "2026-11-15T22:00:00Z",
       "methodology_version": "16-approved",
       "human_review_status": "PENDING",
-      "reviewed_at": null
+      "reviewed_at": null,
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1"
     },
     {
       "independence_assessment_id": "independence-amount",
@@ -895,7 +917,9 @@
       "assessment_cutoff": "2026-11-15T22:00:00Z",
       "methodology_version": "16-approved",
       "human_review_status": "PENDING",
-      "reviewed_at": null
+      "reviewed_at": null,
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-amount-v1"
     }
   ],
   "claim_assessments": [
@@ -922,7 +946,9 @@
       "supersedes_assessment_id": null,
       "independence_assessment_refs": [
         "independence-entity"
-      ]
+      ],
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1"
     },
     {
       "claim_assessment_id": "assessment-amount-v1",
@@ -945,7 +971,9 @@
       "assessment_cutoff": "2026-11-15T22:00:00Z",
       "methodology_version": "15-approved",
       "human_review_status": "PENDING",
-      "supersedes_assessment_id": null
+      "supersedes_assessment_id": null,
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-amount-v1"
     }
   ],
   "retention_records": [
