@@ -19,6 +19,7 @@ on:
       - "docs/news-and-events/intensity-horizons-empirical-validation-protocol.md"
       - "docs/news-and-events/evidence-standard-for-indicia-rumours-and-leaks.md"
       - ".github/workflows/powershell-validation.yml"
+      - ".github/workflows/security-quality.yml"
   workflow_dispatch:
     inputs:
       target_ref:
