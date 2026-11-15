@@ -395,3 +395,31 @@ La aprobación de esta versión requiere que CI valide el esquema formal, ejecut
 | Origen desconocido | Usar UNKNOWN_ORIGIN como nodo marcador no identificativo para evitar aristas huérfanas; no inferir independencia. | PROPUESTA |
 
 Estas resoluciones son parte de la propuesta 0.2.0 y no constituyen aprobación metodológica ni autorización para tratar datos reales. La aprobación expresa del propietario sigue siendo un criterio de salida de #78.
+
+
+## 15. Identidad de versiones y alcance exacto de las evaluaciones (v0.2.0)
+
+Los identificadores estables de una afirmación o componente no bastan para reconstruir qué formulación exacta fue evaluada. Por ello, cada versión posee un identificador opaco propio:
+
+- claim_id identifica la afirmación a lo largo de su historia;
+- claim_version_id identifica una formulación inmutable concreta;
+- claim_component_id identifica el componente a lo largo de su historia;
+- claim_component_version_id identifica una formulación inmutable concreta del componente.
+
+Cada componente versionado referencia exactamente a una versión de la afirmación. La unidad de evaluación aprobada en #16 conserva sus seis elementos originales y añade referencias explícitas a claim_version_id y claim_component_version_id para impedir que una evaluación histórica se interprete contra una formulación posterior.
+
+Los enlaces de evidencia, aristas de procedencia, evaluaciones de independencia y evaluaciones probatorias también quedan vinculados a esas versiones exactas. La relación supersedes debe apuntar a una versión anterior del mismo objeto lógico; nunca puede apuntar a sí misma ni a otra afirmación/componente.
+
+Una modificación material crea una nueva versión. Una corrección de un componente no altera los demás componentes ni invalida automáticamente sus evaluaciones.
+
+## 16. Cobertura obligatoria de factores y revisión humana
+
+Cada evaluation_unit debe contener exactamente una evaluación para cada una de las diez dimensiones aprobadas en #16. No se permite omitir una dimensión, duplicarla ni sustituirla por un factor nuevo. NO_APLICA y DESCONOCIDA se utilizan cuando corresponda, con justificación y límites.
+
+Cada factor conserva human_review_status y reviewed_at. Un estado PENDING no puede presentarse como evaluación revisada. Las conclusiones INDEPENDIENTE o DEPENDIENTE requieren revisión humana registrada; DESCONOCIDA puede permanecer pendiente.
+
+Las conclusiones probatorias CORROBORADA, PARCIALMENTE_CORROBORADA, CONTRADICHA y REFUTADA requieren revisión humana registrada. Una evaluación pendiente no puede consumirse como conclusión final.
+
+Para CORROBORADA basada en fuentes secundarias o terciarias, todas las unidades de fuente que sustentan el componente deben quedar cubiertas por una evaluación de independencia INDEPENDIENTE revisada, vinculada a la misma versión de afirmación y componente. Una evaluación de independencia de otro componente no puede reutilizarse.
+
+Estas restricciones son validaciones de integridad y flujo de revisión; no son una puntuación, regla probabilística ni automatización de la verdad.
