@@ -47,7 +47,8 @@ try {
         @{ Name='Injected confidential identity'; Apply={ param($x) $x.sources[0].real_name='Synthetic Person' } },
         @{ Name='Source identifier is not opaque'; Apply={ param($x) $x.sources[0].source_id='person-name' } },
         @{ Name='Source version supersedes itself'; Apply={ param($x) $x.source_versions[0].supersedes_source_version_id='version-a1' } },
-        @{ Name='Source version supersedes a later version'; Apply={ param($x) $new = $x.source_versions[0].Clone(); $new.source_version_id='version-a2'; $new.version_label='v2'; $new.version_sequence=2; $new.supersedes_source_version_id='version-a1'; $x.source_versions += $new; $x.source_versions[0].supersedes_source_version_id='version-a2' } }
+        @{ Name='Source version supersedes a later version'; Apply={ param($x) $new = $x.source_versions[0].Clone(); $new.source_version_id='version-a2'; $new.version_label='v2'; $new.version_sequence=2; $new.supersedes_source_version_id='version-a1'; $x.source_versions += $new; $x.source_versions[0].supersedes_source_version_id='version-a2' } },
+        @{ Name='Factor evidence crosses dimension boundary'; Apply={ param($x) $x.factor_assessments[0].supporting_evidence_refs=@('evidence-a') } }
     )
     foreach ($mutation in $mutations) {
         $copy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
