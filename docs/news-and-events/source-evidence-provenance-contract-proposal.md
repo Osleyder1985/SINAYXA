@@ -339,7 +339,7 @@ Los ciclos entre nodos diferentes se conservan. La detección de ciclos no elimi
 1. Claim component assessment es la única entidad que contiene evidentiary_status; los estados de factor de #16 y de independencia no pueden sustituirlo.
 2. CONTRADICHA requiere líneas de evidencia materialmente incompatibles y trazables en ambos sentidos; dos relatos no autenticados o dos etiquetas incompatibles no bastan.
 3. REFUTADA requiere evidencia contraria directa y pertinente respecto al componente exacto. Refutar autenticidad de un documento no refuta automáticamente el hecho subyacente.
-4. CORROBORADA exige evidencia favorable procedente de al menos dos identidades de fuente distintas y una evaluación INDEPENDIENTE revisada que cubra todas las unidades de apoyo, sin excepción por tipo de fuente. La cantidad de publicaciones o el carácter primario de una fuente no sustituyen la prueba de independencia.
+4. CORROBORADA exige evidencia favorable suficiente para el alcance del componente. Cuando la base sea secundaria, la independencia debe estar demostrada para ese mismo componente y corte; la cantidad de publicaciones no sustituye esa prueba.
 5. PARCIALMENTE_CORROBORADA exige identificar el alcance respaldado y no respaldado. No eleva automáticamente otros componentes.
 6. NO_CORROBORADA y NO_RESUELTA no significan falsedad. La ausencia de evidencia no se transforma en evidencia contraria.
 7. Una evaluación nueva es un registro nuevo que referencia la anterior mediante supersedes_assessment_id; no se modifica la evaluación histórica.
@@ -434,7 +434,7 @@ Cada factor conserva human_review_status y reviewed_at. Un estado PENDING no pue
 
 Las conclusiones probatorias CORROBORADA, PARCIALMENTE_CORROBORADA, CONTRADICHA y REFUTADA requieren revisión humana registrada. Una evaluación pendiente no puede consumirse como conclusión final.
 
-Para CORROBORADA, sin importar que las fuentes sean primarias, secundarias o terciarias, todas las unidades que sustentan el componente deben quedar cubiertas por una evaluación de independencia INDEPENDIENTE revisada, vinculada a la misma versión de afirmación y componente. Deben existir al menos dos identidades de fuente distintas. Una evaluación de independencia de otro componente no puede reutilizarse.
+Para CORROBORADA basada en fuentes secundarias o terciarias, todas las unidades de fuente que sustentan el componente deben quedar cubiertas por una evaluación de independencia INDEPENDIENTE revisada, vinculada a la misma versión de afirmación y componente. Una evaluación de independencia de otro componente no puede reutilizarse.
 
 Estas restricciones son validaciones de integridad y flujo de revisión; no son una puntuación, regla probabilística ni automatización de la verdad.
 
