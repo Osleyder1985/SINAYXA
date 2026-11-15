@@ -186,6 +186,7 @@
       "source_version_id": "version-a1",
       "evidence_kind": "DECLARACIÓN",
       "information_nature": "AFIRMACIÓN",
+      "factor_dimensions": [],
       "content_reference": "https://example.invalid/a",
       "integrity_check": {
         "algorithm": "DESCONOCIDO",
@@ -203,6 +204,7 @@
       "source_version_id": "version-b1",
       "evidence_kind": "DOCUMENTO",
       "information_nature": "POSIBLE_FILTRACIÓN",
+      "factor_dimensions": [],
       "content_reference": "https://example.invalid/b",
       "integrity_check": {
         "algorithm": "DESCONOCIDO",
