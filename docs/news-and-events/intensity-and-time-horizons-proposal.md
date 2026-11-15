@@ -100,6 +100,16 @@ Los niveles forman una escala ordinal de severidad potencial para una unidad de 
 
 La asignación se hace mediante estas reglas de suficiencia, no mediante una suma de dimensiones. Persistencia, reversibilidad y mitigaciones sirven para delimitar el escenario y su severidad; no elevan por sí solas la categoría.
 
+Para hacer observables los términos cualitativos, se aplican además estos marcadores:
+
+- **I0:** no se identifica, tras revisar la evidencia disponible para la unidad y fecha de corte, un canal material que altere una condición relevante. No equivale a «no sabemos».
+- **I1:** el efecto queda en una fricción, variación o restricción local/acotada; no compromete una función central de la unidad y existe una sustitución o recuperación ordinaria demostrada. La afectación puede describirse, pero no cambia materialmente el funcionamiento o acceso de la población definida.
+- **I2:** existe un cambio verificable en una condición relevante para una población delimitada, como acceso, disponibilidad, coste operativo, liquidez, cumplimiento, seguridad o funcionamiento; el cambio es material para esa población, pero la evidencia no demuestra que la exposición sea amplia/central para la unidad superior ni que comprometa una función esencial.
+- **I3:** además del cambio material verificable, la población o función afectada es amplia o central respecto de la unidad evaluada. La evidencia debe demostrar esa relación con el conjunto (por ejemplo, dependencia operativa central, cobertura de una parte sustancial del segmento documentada o afectación de una función principal).
+- **I4:** se acredita amenaza o pérdida de una función esencial, continuidad, solvencia, seguridad, integridad, acceso indispensable o viabilidad; o una alteración sistémica cuyo alcance está documentado. Una pérdida económica grande por sí sola no satisface este marcador si no se conecta con esas consecuencias.
+
+Estos marcadores no crean umbrales numéricos universales. La evidencia puede ser documental, operativa o cuantitativa, pero debe permitir observar la condición afectada, la población/unidad y la consecuencia. Si «local», «material», «amplia», «central» o «esencial» no puede explicarse en relación con la unidad declarada, no se presenta como hecho demostrado: se limita el alcance o se usa INDETERMINADA.
+
 Para cada nivel asignado se deben contestar las dos fronteras adyacentes. Si no puede demostrarse por qué la evidencia cruza la frontera superior, no se asigna el nivel superior. Si no puede demostrarse que cruza la frontera inferior, no se fuerza el nivel inferior: se registra INDETERMINADA cuando la laguna afecta la clasificación.
 
 **Unidad y denominador:** términos como «amplia», «central», «sistémica» o «esencial» siempre deben referirse a una unidad de análisis declarada. Si se afirma que una exposición representa una parte amplia de un conjunto, debe conservarse el denominador y la fuente cuando existan. Si no hay denominador fiable, no se inventa un porcentaje ni se usa esa afirmación como único fundamento.
