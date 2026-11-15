@@ -111,6 +111,40 @@ foreach ($case in $fixture.cases) {
     foreach ($evidenceRef in $case.assessment_record.contrary_evidence_refs) {
         Assert-Condition ($knownContraryRefs -contains [string]$evidenceRef) "${id}: assessment references unknown contrary evidence."
     }
+    Assert-Condition ($case.factor_assessments.Count -eq $fixture.factor_dimensions.Count) "${id}: all approved qualitative factors must be assessed exactly once."
+    Assert-Condition ($case.factor_evidence_records.Count -eq $fixture.factor_dimensions.Count) "${id}: each factor assessment requires one evidence-basis record."
+    $factorIds = @($case.factor_assessments | ForEach-Object { [string]$_.dimension })
+    $expectedFactorIds = @($fixture.factor_dimensions | ForEach-Object { [string]$_.id })
+    Assert-Condition (($factorIds | Sort-Object -Unique).Count -eq $expectedFactorIds.Count) "${id}: factor dimensions must be unique."
+    Assert-Condition ((@($factorIds | Sort-Object) -join ',') -eq (@($expectedFactorIds | Sort-Object) -join ',')) "${id}: factor dimensions must match the approved rubric."
+    $factorEvidenceByRef = @{}
+    foreach ($factorEvidence in $case.factor_evidence_records) {
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($factorEvidence.reference)) "${id}: factor evidence requires a reference."
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($factorEvidence.basis_type)) "${id}: factor evidence requires basis_type."
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($factorEvidence.description)) "${id}: factor evidence requires a description."
+        Assert-Condition ($factorEvidence.synthetic_only -eq $true) "${id}: factor evidence must be marked synthetic."
+        $factorEvidenceByRef[[string]$factorEvidence.reference] = $factorEvidence
+    }
+    foreach ($factor in $case.factor_assessments) {
+        Assert-Condition ($fixture.allowed.factor_status -contains [string]$factor.status) "${id}: factor '$($factor.dimension)' has unsupported status."
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($factor.justification)) "${id}: factor '$($factor.dimension)' requires justification."
+        Assert-Condition ($factor.evidence_refs.Count -gt 0) "${id}: factor '$($factor.dimension)' requires evidence/limitation references."
+        foreach ($reference in $factor.evidence_refs) {
+            Assert-Condition ($factorEvidenceByRef.ContainsKey([string]$reference)) "${id}: factor '$($factor.dimension)' references unknown evidence."
+            $basis = [string]$factorEvidenceByRef[[string]$reference].basis_type
+            $expectedBasis = switch ([string]$factor.status) {
+                'SUSTENTADA' { 'SCENARIO_SUPPORT' }
+                'LIMITADA' { 'SCOPE_LIMITATION' }
+                'DESFAVORABLE' { 'COUNTER_EVIDENCE' }
+                'DESCONOCIDA' { 'EVIDENCE_NOT_PROVIDED' }
+                'NO_APLICA' { 'NOT_APPLICABLE_REASON' }
+            }
+            Assert-Condition ($basis -eq $expectedBasis) "${id}: factor '$($factor.dimension)' status conflicts with evidence basis."
+        }
+        foreach ($forbiddenField in @('score','weight','probability','rank')) {
+            Assert-Condition (-not ($factor.PSObject.Properties.Name -contains $forbiddenField)) "${id}: numeric scoring fields are prohibited."
+        }
+    }
     Assert-Condition ($case.expected.PSObject.Properties.Name -contains 'independent_origins') "${id}: expected.independent_origins must be explicit, including null."
     Assert-Condition ($case.expected.PSObject.Properties.Name -contains 'corroboration_count_increment') "${id}: expected.corroboration_count_increment must be explicit, including null."
     Assert-Condition (-not [string]::IsNullOrWhiteSpace($case.expected.guardrail)) "${id}: expected.guardrail is required."
@@ -161,6 +195,8 @@ Assert-Condition ($byId.S15.independence -eq 'DESCONOCIDA' -and $byId.S15.identi
     Result = 'PASS'
     Package = $fixture.package_id
     Cases = $fixture.cases.Count
+    FactorDimensions = $fixture.factor_dimensions.Count
+    FactorAssessments = ($fixture.cases | ForEach-Object { $_.factor_assessments.Count } | Measure-Object -Sum).Sum
     IndependenceStates = @($fixture.cases.independence | Sort-Object -Unique).Count
     PositiveIndependenceEvidenceCases = @($fixture.cases | Where-Object { $_.independence -eq 'INDEPENDIENTE' }).Count
     Scope = 'Synthetic structural conformance only; no empirical truth or credibility scoring.'
