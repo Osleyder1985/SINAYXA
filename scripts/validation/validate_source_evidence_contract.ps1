@@ -450,22 +450,20 @@ foreach ($record in $package.retention_records) {
     Test-Condition $known 'Retention record references an unknown subject.'
     Test-Condition (Test-Utc $record.review_at 'review_at') 'Retention review_at must be UTC.'
     Test-Condition (Test-Utc $record.recorded_at 'recorded_at') 'Retention recorded_at must be UTC.'
-    $allowedTransitions = @{
-        $null = @('RETAIN','REFERENCE_ONLY','RESTRICTED')
-        'RETAIN' = @('RESTRICTED','DELETE_PENDING','DELETED','REFERENCE_ONLY')
-        'RESTRICTED' = @('RETAIN','DELETE_PENDING','DELETED','REFERENCE_ONLY')
-        'REFERENCE_ONLY' = @('RETAIN','RESTRICTED','DELETED')
-        'DELETE_PENDING' = @('DELETED','REFERENCE_ONLY')
-        'DELETED' = @()
-    }
-    $previous = $record.previous_disposition
-    Test-Condition ($record.disposition -in @('RETAIN','REFERENCE_ONLY','RESTRICTED','DELETE_PENDING','DELETED')) 'Unsupported retention disposition.'
     if ($null -eq $previous) {
-        Test-Condition ($record.disposition -in @('RETAIN','REFERENCE_ONLY','RESTRICTED')) 'DELETE_PENDING and DELETED cannot be initial retention states.'
+        $allowedNext = @('RETAIN','REFERENCE_ONLY','RESTRICTED')
     }
     else {
-        Test-Condition ($record.disposition -in $allowedTransitions[[string]$previous]) 'Invalid retention disposition transition.'
+        $allowedNext = switch ($previous) {
+            'RETAIN' { @('RESTRICTED','DELETE_PENDING','DELETED','REFERENCE_ONLY') }
+            'RESTRICTED' { @('RETAIN','DELETE_PENDING','DELETED','REFERENCE_ONLY') }
+            'REFERENCE_ONLY' { @('RETAIN','RESTRICTED','DELETED') }
+            'DELETE_PENDING' { @('DELETED','REFERENCE_ONLY') }
+            'DELETED' { @() }
+            default { @() }
+        }
     }
+    Test-Condition ($record.disposition -in $allowedNext) 'Invalid retention disposition transition.'
     if ($record.content_retained -eq $true) {
         Test-Condition ($record.disposition -in @('RETAIN','DELETE_PENDING','RESTRICTED')) 'Retained content has an incompatible disposition.'
     }
