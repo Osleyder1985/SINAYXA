@@ -54,6 +54,24 @@ foreach ($case in $fixture.cases) {
 }
 $byId = @{}
 foreach ($case in $fixture.cases) { $byId[[string]$case.id] = $case }
+
+# Scenario-specific expected outcomes: guardrails are executable, not prose-only.
+Assert-Condition ($byId.S01.expected.publication_count -eq 6 -and $byId.S01.expected.independent_origins -eq 1) 'S01 must count six publications as one origin.'
+Assert-Condition ($byId.S02.expected.shared_origin_count -eq 1 -and $byId.S02.expected.identity_scope -eq 'ANÓNIMA_PARA_EL_PÚBLICO') 'S02 must preserve the shared anonymous origin and its identity scope.'
+Assert-Condition (($byId.S03.expected.scope_confirmed -join ',') -eq 'filing' -and ($byId.S03.expected.scope_not_confirmed -join ',') -eq 'approval' -and $byId.S03.expected.evidence_effect -eq 'RECORDS_FILING_ONLY') 'S03 must not turn a filing into an approval.'
+Assert-Condition ($byId.S04.independence -eq 'INDEPENDIENTE' -and $byId.S04.expected.independent_origins -eq 2 -and $byId.S04.expected.corroboration_count_increment -eq 1) 'S04 must require and record two separately traced origins.'
+Assert-Condition ($byId.S05.expected.supports_contract_interpretation -eq $true -and $byId.S05.expected.supports_execution -eq $false) 'S05 must separate contract interpretation from execution.'
+Assert-Condition ($byId.S06.expected.version_history.preserve_prior_versions -eq $true -and $byId.S06.expected.version_history.other_components_automatically_invalidated -eq $false -and ($byId.S06.expected.version_history.corrected_components -join ',') -eq 'amount') 'S06 must preserve versions and limit correction to the affected component.'
+Assert-Condition ($byId.S07.expected.access_claim_verified -eq $false -and $byId.S07.independence -eq 'DESCONOCIDA') 'S07 must not treat declared access as verified.'
+Assert-Condition ($byId.S08.expected.shared_document_origin -eq $true -and $byId.S08.independence -eq 'DEPENDIENTE') 'S08 must preserve common-document dependency.'
+Assert-Condition ($byId.S09.expected.shared_employer_does_not_imply_dependency -eq $true -and $byId.S09.expected.independent_origins -eq 2) 'S09 must not infer dependency from shared employer.'
+Assert-Condition ($byId.S10.expected.declaration_recorded -eq $true -and $byId.S10.expected.underlying_evidence_available -eq $false -and $byId.S10.expected.probative_effect -eq 'ATTRIBUTED_DENIAL_ONLY' -and $byId.S10.expected.claim_refuted -eq $false) 'S10 must record an unsupported official denial without treating it as refutation.'
+Assert-Condition ($byId.S11.expected.document_authenticity -eq 'AUTHENTICATED' -and $byId.S11.expected.source_track_record_separate -eq $true -and $byId.S11.expected.past_errors_automatically_invalidate_document -eq $false) 'S11 must assess document authenticity separately from source history.'
+Assert-Condition ($byId.S12.expected.prestige_used_as_evidence -eq $false -and $byId.S12.knowledge_basis -eq 'DESCONOCIDA') 'S12 must not use prestige as evidence.'
+Assert-Condition ($byId.S13.expected.cycle_detected -eq $true -and $byId.S13.independence -eq 'DEPENDIENTE') 'S13 must detect circular citation dependency.'
+Assert-Condition (($byId.S14.expected.corroborated_components -join ',') -eq 'entity,date' -and ($byId.S14.expected.unresolved_components -join ',') -eq 'amount' -and $byId.S14.expected.corroboration_count_increment -eq 0) 'S14 must not corroborate the disputed amount.'
+Assert-Condition ($byId.S15.expected.editor_identity_verification_transferred -eq $false -and $byId.S15.independence -eq 'DESCONOCIDA') 'S15 must not transfer editorial identity verification to SINAYXA.'
+Assert-Condition ($byId.S16.expected.independent_analytical_processes -eq 2 -and $byId.S16.expected.independent_data_origins -eq 1) 'S16 must separate independent analytical processes from shared data origin.'
 Assert-Condition ($byId.S01.independence -eq 'DEPENDIENTE' -and $byId.S01.expected.independent_origins -eq 1) 'S01 must collapse six syndications to one origin.'
 Assert-Condition ($byId.S02.independence -eq 'DEPENDIENTE' -and $byId.S02.identity -eq 'ANÓNIMA_PARA_EL_PÚBLICO') 'S02 must preserve common anonymous spokesperson dependency.'
 Assert-Condition ($byId.S03.source_type -eq 'PRIMARIA' -and $byId.S03.institutional_character -eq 'OFICIAL') 'S03 must separate primary type from institutional character.'
