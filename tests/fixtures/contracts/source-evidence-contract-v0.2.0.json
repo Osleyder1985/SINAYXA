@@ -130,6 +130,38 @@
       "knowledge_basis": "DESCONOCIDA",
       "institutional_character": "DESCONOCIDO",
       "dissemination": "DESCONOCIDA"
+    },
+    {
+      "assessment_unit_id": "unit-a-amount",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-amount",
+      "source_id": "source-a",
+      "source_version_id": "version-a1",
+      "access_path": "PUBLIC_URL",
+      "access_status": "PÚBLICO_LEGÍTIMO",
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "source_type": "SECUNDARIA",
+      "source_subtype": "REPRODUCCION",
+      "knowledge_basis": "REPRODUCCIÓN_SIN_VERIFICACIÓN_PROPIA",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "dissemination": "REPUBLICADA"
+    },
+    {
+      "assessment_unit_id": "unit-b-amount",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-amount",
+      "source_id": "source-b",
+      "source_version_id": "version-b1",
+      "access_path": "PUBLIC_URL",
+      "access_status": "PÚBLICO_LEGÍTIMO",
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "source_type": "DESCONOCIDA",
+      "source_subtype": "REPRODUCCION",
+      "knowledge_basis": "DESCONOCIDA",
+      "institutional_character": "DESCONOCIDO",
+      "dissemination": "DESCONOCIDA"
     }
   ],
   "evidence_items": [
@@ -224,15 +256,600 @@
   ],
   "factor_assessments": [
     {
-      "factor_assessment_id": "factor-a-relation",
+      "factor_assessment_id": "factor-unit-a-entity-relation_with_fact",
       "assessment_unit_id": "unit-a-entity",
       "dimension": "RELATION_WITH_FACT",
       "status": "DESCONOCIDA",
-      "justification": "El escenario sintético no aporta evidencia sobre la relación directa con el hecho.",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
       "supporting_evidence_refs": [],
       "contrary_evidence_refs": [],
       "limitations": [
-        "No inferir relación directa."
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-access_and_proximity",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "ACCESS_AND_PROXIMITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-subject_competence",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "SUBJECT_COMPETENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-transparency_traceability",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "TRANSPARENCY_TRACEABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-relevant_accuracy_history",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "RELEVANT_ACCURACY_HISTORY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-corrections_accountability",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "CORRECTIONS_ACCOUNTABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-incentives_conflicts",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "INCENTIVES_CONFLICTS",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-internal_consistency",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "INTERNAL_CONSISTENCY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-contrary_evidence",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "CONTRARY_EVIDENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-temporal_adequacy",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "TEMPORAL_ADEQUACY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-relation_with_fact",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "RELATION_WITH_FACT",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-access_and_proximity",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "ACCESS_AND_PROXIMITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-subject_competence",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "SUBJECT_COMPETENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-transparency_traceability",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "TRANSPARENCY_TRACEABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-relevant_accuracy_history",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "RELEVANT_ACCURACY_HISTORY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-corrections_accountability",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "CORRECTIONS_ACCOUNTABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-incentives_conflicts",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "INCENTIVES_CONFLICTS",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-internal_consistency",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "INTERNAL_CONSISTENCY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-contrary_evidence",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "CONTRARY_EVIDENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-temporal_adequacy",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "TEMPORAL_ADEQUACY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-relation_with_fact",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "RELATION_WITH_FACT",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-access_and_proximity",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "ACCESS_AND_PROXIMITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-subject_competence",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "SUBJECT_COMPETENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-transparency_traceability",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "TRANSPARENCY_TRACEABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-relevant_accuracy_history",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "RELEVANT_ACCURACY_HISTORY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-corrections_accountability",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "CORRECTIONS_ACCOUNTABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-incentives_conflicts",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "INCENTIVES_CONFLICTS",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-internal_consistency",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "INTERNAL_CONSISTENCY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-contrary_evidence",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "CONTRARY_EVIDENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-temporal_adequacy",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "TEMPORAL_ADEQUACY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-relation_with_fact",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "RELATION_WITH_FACT",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-access_and_proximity",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "ACCESS_AND_PROXIMITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-subject_competence",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "SUBJECT_COMPETENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-transparency_traceability",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "TRANSPARENCY_TRACEABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-relevant_accuracy_history",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "RELEVANT_ACCURACY_HISTORY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-corrections_accountability",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "CORRECTIONS_ACCOUNTABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-incentives_conflicts",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "INCENTIVES_CONFLICTS",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-internal_consistency",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "INTERNAL_CONSISTENCY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-contrary_evidence",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "CONTRARY_EVIDENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING"
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-temporal_adequacy",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "TEMPORAL_ADEQUACY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
       ],
       "assessed_at": "2026-11-15T22:00:00Z",
       "methodology_version": "16-approved",
@@ -254,6 +871,26 @@
       "rationale": "No hay evidencia positiva de vías separadas ni de dependencia material.",
       "limitations": [
         "Origen no reconstruido."
+      ],
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "independence_assessment_id": "independence-amount",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-amount",
+      "assessment_unit_ids": [
+        "unit-a-amount",
+        "unit-b-amount"
+      ],
+      "status": "DESCONOCIDA",
+      "supporting_evidence_refs": [],
+      "dependency_edge_refs": [],
+      "rationale": "No existe evidencia suficiente para establecer independencia o dependencia respecto al importe.",
+      "limitations": [
+        "Origen del dato del importe no reconstruido."
       ],
       "assessment_cutoff": "2026-11-15T22:00:00Z",
       "methodology_version": "16-approved",
@@ -286,6 +923,29 @@
       "independence_assessment_refs": [
         "independence-entity"
       ]
+    },
+    {
+      "claim_assessment_id": "assessment-amount-v1",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-amount",
+      "evidentiary_status": "NO_RESUELTA",
+      "attribution_status": "NO_DETERMINADA",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "independence_assessment_refs": [
+        "independence-amount"
+      ],
+      "alternatives": [
+        "El importe puede ser diferente o no existir."
+      ],
+      "uncertainty": "No existe evidencia verificable suficiente sobre el importe.",
+      "limitations": [
+        "La evaluación de la entidad no se transfiere al importe."
+      ],
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "15-approved",
+      "human_review_status": "PENDING",
+      "supersedes_assessment_id": null
     }
   ],
   "retention_records": [
