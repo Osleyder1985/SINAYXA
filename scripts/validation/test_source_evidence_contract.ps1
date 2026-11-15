@@ -33,6 +33,20 @@ try {
     ConvertTo-Json -InputObject $versionCopy -Depth 100 | Set-Content -LiteralPath $temp -Encoding utf8
     & $validator -FixturePath $temp | Out-Null
 
+    $pendingDeletion = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
+    $pendingDeletion.retention_records[0].content_retained = $true
+    $pendingDeletion.retention_records[0].legal_basis_status = 'NOT_ESTABLISHED'
+    $pendingDeletion.retention_records[0].disposition = 'DELETE_PENDING'
+    $pendingDeletion.retention_records[0].expires_at = '2026-11-15T21:00:00Z'
+    $pendingDeletionOutput = (& $validator -FixturePath $fixture | Out-String)
+    if (-not $pendingDeletionOutput.Contains('Result : PASS')) { throw 'The baseline contract no longer validates before retention mutation checks.' }
+    $pendingFile = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-pending-" + [guid]::NewGuid().ToString('N') + '.json')
+    try {
+        ConvertTo-Json -InputObject $pendingDeletion -Depth 100 | Set-Content -LiteralPath $pendingFile -Encoding utf8
+        $pendingOutput = (& $validator -FixturePath $pendingFile | Out-String)
+        if (-not $pendingOutput.Contains('Result : PASS')) { throw 'DELETE_PENDING with an unverified basis must remain representable while deletion is pending.' }
+    }
+    finally { if (Test-Path -LiteralPath $pendingFile) { Remove-Item -LiteralPath $pendingFile -Force } }
     $mutations = @(
         @{ Name='Orphan claim component'; Apply={ param($x) $x.claim_components[0].claim_id='missing-claim' } },
         @{ Name='Duplicate claim version identifier'; Apply={ param($x) $x.claims += $x.claims[0] } },
