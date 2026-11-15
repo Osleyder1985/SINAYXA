@@ -15,7 +15,8 @@ try {
         @{ Name='Syndication falsely independent'; Apply={ param($x) $x.cases[0].independence = 'INDEPENDIENTE' } },
         @{ Name='Cycle no longer detected'; Apply={ param($x) $x.cases[12].expected.cycle_detected = $false } },
         @{ Name='Shared dataset counted as two origins'; Apply={ param($x) $x.cases[15].expected.independent_data_origins = 2 } },
-        @{ Name='Disputed amount falsely corroborated'; Apply={ param($x) $x.cases[13].expected.corroboration_count_increment = 1 } }
+        @{ Name='Disputed amount falsely corroborated'; Apply={ param($x) $x.cases[13].expected.corroboration_count_increment = 1 } },
+        @{ Name='Malformed provenance edge'; Apply={ param($x) $x.cases[0].provenance_edges[0].to = '' } }
     )
     foreach ($mutation in $mutations) {
         $copy = $base | ConvertTo-Json -Depth 50 | ConvertFrom-Json -Depth 50
