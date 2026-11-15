@@ -62,7 +62,7 @@ $collections = @(
     @{ Name='claims'; Id='claim_version_id' }, @{ Name='claim_components'; Id='claim_component_version_id' },
     @{ Name='sources'; Id='source_id' }, @{ Name='source_versions'; Id='source_version_id' },
     @{ Name='identity_assessments'; Id='identity_assessment_id' }, @{ Name='evaluation_units'; Id='assessment_unit_id' },
-    @{ Name='evidence_items'; Id='evidence_id' }, @{ Name='claim_evidence_links'; Id='link_id' },
+    @{ Name='evidence_items'; Id='evidence_id' }, @{ Name='evidence_availability'; Id='availability_id' }, @{ Name='claim_evidence_links'; Id='link_id' },
     @{ Name='provenance_nodes'; Id='node_id' }, @{ Name='provenance_edges'; Id='edge_id' },
     @{ Name='factor_assessments'; Id='factor_assessment_id' }, @{ Name='independence_assessments'; Id='independence_assessment_id' },
     @{ Name='claim_assessments'; Id='claim_assessment_id' }, @{ Name='retention_records'; Id='retention_id' },
@@ -174,6 +174,24 @@ foreach ($evidence in $package.evidence_items) {
         Test-Condition ($null -eq $integrity.expected_digest -and $null -eq $integrity.observed_digest) 'Digest values cannot be retained without a supported hash algorithm.'
     }
 }
+foreach ($availability in $package.evidence_availability) {
+    Test-Condition (Test-HasRef $evidenceIds ([string]$availability.evidence_id)) 'Evidence availability references unknown evidence.'
+    Test-Condition (Test-HasRef $unitIds ([string]$availability.assessment_unit_id)) 'Evidence availability references an unknown evaluation unit.'
+    $unit = @($package.evaluation_units | Where-Object { $_.assessment_unit_id -eq $availability.assessment_unit_id })[0]
+    $evidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $availability.evidence_id })[0]
+    Test-Condition ($null -ne $evidence.source_version_id -and $evidence.source_version_id -eq $unit.source_version_id) 'Evidence availability must match the exact source version in its evaluation unit.'
+    Test-Condition ($availability.claim_id -eq $unit.claim_id -and $availability.claim_component_id -eq $unit.claim_component_id -and $availability.claim_version_id -eq $unit.claim_version_id -and $availability.claim_component_version_id -eq $unit.claim_component_version_id) 'Evidence availability must match the exact claim/component version of its evaluation unit.'
+    Test-Condition (Test-Utc $availability.recorded_at 'recorded_at') 'Evidence availability recorded_at must be UTC.'
+    if ($null -eq $availability.available_at) {
+        Test-Condition ($availability.availability_basis -eq 'UNKNOWN' -and $null -eq $availability.availability_reference) 'Unknown availability requires UNKNOWN basis and no availability reference.'
+    }
+    else {
+        Test-Condition (Test-Utc $availability.available_at 'available_at') 'Evidence available_at must be UTC.'
+        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE','SOURCE_STATED')) 'Known availability requires an explicit supported basis.'
+        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'Known availability requires a traceable reference.'
+        Test-Condition ([DateTimeOffset]::Parse([string]$availability.available_at) -le [DateTimeOffset]::Parse([string]$unit.assessment_cutoff)) 'Evidence was not available by the evaluation cutoff.'
+    }
+}
 foreach ($link in $package.claim_evidence_links) {
     Test-Condition (Test-HasRef $claimIds ([string]$link.claim_id)) 'Evidence link references an unknown claim.'
     Test-Condition (Test-HasRef $componentIds ([string]$link.claim_component_id)) 'Evidence link references an unknown component.'
@@ -241,6 +259,8 @@ foreach ($factor in $package.factor_assessments) {
         Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Factor assessment references unknown evidence.'
         $factorEvidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $reference })[0]
         Test-Condition ($factor.dimension -in @($factorEvidence.factor_dimensions)) 'Factor evidence is not explicitly scoped to the assessed dimension.'
+        $availableForUnit = @($package.evidence_availability | Where-Object { $_.evidence_id -eq $reference -and $_.assessment_unit_id -eq $factor.assessment_unit_id -and $null -ne $_.available_at })
+        Test-Condition ($availableForUnit.Count -gt 0) 'Factor evidence must have a known availability observation for its exact evaluation unit.'
     }
     if ($factor.human_review_status -eq 'REVIEWED') { Test-Condition (Test-Utc $factor.reviewed_at 'reviewed_at') 'Reviewed factor assessment requires UTC reviewed_at.' }
     if ($factor.human_review_status -eq 'PENDING') { Test-Condition ($null -eq $factor.reviewed_at) 'Pending factor assessment cannot carry reviewed_at.' }
@@ -313,6 +333,14 @@ foreach ($assessment in $package.claim_assessments) {
     $linkedContrary = @($package.claim_evidence_links | Where-Object { $_.claim_id -eq $assessment.claim_id -and $_.claim_component_id -eq $assessment.claim_component_id -and $_.claim_version_id -eq $assessment.claim_version_id -and $_.claim_component_version_id -eq $assessment.claim_component_version_id -and $_.evidence_role -eq 'CONTRARY' } | ForEach-Object { $_.evidence_id })
     foreach ($reference in @($assessment.supporting_evidence_refs)) { Test-Condition ($reference -in $linkedSupport) 'Supporting evidence has no SUPPORTING link for this exact component version.' }
     foreach ($reference in @($assessment.contrary_evidence_refs)) { Test-Condition ($reference -in $linkedContrary) 'Contrary evidence has no CONTRARY link for this exact component version.' }
+    foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) {
+        $availableForAssessment = @($package.evidence_availability | Where-Object {
+            $_.evidence_id -eq $reference -and $_.claim_id -eq $assessment.claim_id -and $_.claim_component_id -eq $assessment.claim_component_id -and
+            $_.claim_version_id -eq $assessment.claim_version_id -and $_.claim_component_version_id -eq $assessment.claim_component_version_id -and
+            $_.available_at -and [DateTimeOffset]::Parse([string]$_.available_at) -le [DateTimeOffset]::Parse([string]$assessment.assessment_cutoff)
+        })
+        Test-Condition ($availableForAssessment.Count -gt 0) 'Claim assessment uses evidence without a matching availability observation at or before its cutoff.'
+    }
     if ($assessment.evidentiary_status -eq 'CORROBORADA') {
         Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'CORROBORADA requires supporting evidence.'
         $supportingUnits = @()
