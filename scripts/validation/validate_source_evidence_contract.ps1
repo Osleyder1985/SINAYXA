@@ -43,7 +43,7 @@ function Test-ForbiddenKey {
     }
     elseif ($Value -is [System.Collections.IEnumerable] -and $Value -isnot [string]) {
         $index = 0
-        foreach ($entry in $Value) { Test-ForbiddenKey -Value $entry -Path "$Path[$index]"; $index++ }
+        foreach ($entry in $Value) { Test-ForbiddenKey -Value $entry -Path "${Path}[$index]"; $index++ }
     }
 }
 
