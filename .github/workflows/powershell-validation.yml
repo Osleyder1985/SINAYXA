@@ -96,7 +96,7 @@ jobs:
             $tokens = $null
             $errors = $null
             [void][System.Management.Automation.Language.Parser]::ParseFile((Join-Path (Get-Location) $file), [ref]$tokens, [ref]$errors)
-            foreach ($errorItem in $errors) { $parseErrors += "$file:$($errorItem.Extent.StartLineNumber): $($errorItem.Message)" }
+            foreach ($errorItem in $errors) { $parseErrors += "${file}:$($errorItem.Extent.StartLineNumber): $($errorItem.Message)" }
           }
           "Tracked PowerShell files: $($files.Count)"
           if ($parseErrors.Count -gt 0) { $parseErrors | ForEach-Object { Write-Error $_ }; exit 1 }
