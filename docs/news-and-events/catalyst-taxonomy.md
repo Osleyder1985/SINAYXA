@@ -62,6 +62,7 @@ Estas subfamilias deben quedar cubiertas por la taxonomía, aunque se clasifique
 - **Custodia, pagos y adopción de infraestructura:** servicios, integraciones bancarias, redes de pago, proveedores críticos y cambios de acceso institucional o minorista.
 - **Ciberseguridad:** vulnerabilidades e incidentes en protocolos, aplicaciones, custodios, proveedores o usuarios/fondos. Deben distinguirse vulnerabilidad, explotación, pérdida estimada y recuperación.
 - **Materias primas, energía y tecnología fuera del sector:** acontecimientos que transmitan efectos a minería, costes, liquidez, inflación, crecimiento o apetito por riesgo.
+- **Filtraciones e información anticipatoria:** documentos filtrados, declaraciones atribuidas, indicios públicos y reportes identificables anteriores al anuncio oficial que anticipen un acontecimiento, decisión o hito potencialmente relevante para cripto. Se conserva la pieza original y su procedencia, autoría/atribución, fechas conocidas, contenido concreto, estado de corroboración, contradicciones y relación temporal con el anuncio oficial. La familia transversal identifica el carácter anticipatorio de la información; no sustituye la categoría principal, que corresponde a la naturaleza del hecho anticipado. La ausencia de corroboración no demuestra falsedad y no es necesario esperar al anuncio oficial posterior para registrar una señal anticipatoria trazable, siempre que exista evidencia identificable y fechable.
 
 ## 4. Tipos y temporalidad de los acontecimientos
 
