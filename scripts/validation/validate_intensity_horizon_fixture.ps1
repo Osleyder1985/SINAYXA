@@ -71,7 +71,7 @@ $allowedPackages = @{
     "SINAYXA-IH-T01-T19-SYNTHETIC-001" = "1.0.0"
     "SINAYXA-IH-T01-T19-SYNTHETIC-002" = "1.1.0"
     "SINAYXA-IH-T01-T19-SYNTHETIC-003" = "1.2.0"
-    "SINAYXA-IH-T01-T19-SYNTHETIC-004" = "1.3.0"
+    "SINAYXA-IH-T01-T20-SYNTHETIC-004" = "1.3.0"
 }
 if (-not $allowedPackages.ContainsKey([string]$fixture.package_id)) {
     throw "Unexpected package_id."
@@ -80,7 +80,7 @@ if ([string]$fixture.package_version -ne $allowedPackages[[string]$fixture.packa
     throw "Package ID/version mismatch."
 }
 
-$expectedCaseCount = if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-004") { 20 } else { 19 }
+$expectedCaseCount = if ($fixture.package_id -eq "SINAYXA-IH-T01-T20-SYNTHETIC-004") { 20 } else { 19 }
 $expectedIds = 1..$expectedCaseCount | ForEach-Object { "T{0:D2}" -f $_ }
 $actualIds = @($fixture.cases | ForEach-Object { $_.id })
 
@@ -116,7 +116,7 @@ if ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-001", "SINAYXA-IH-T0
         throw "Historical T16 fixture content was unexpectedly changed."
     }
 }
-elseif ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-003", "SINAYXA-IH-T01-T19-SYNTHETIC-004")) {
+elseif ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-003", "SINAYXA-IH-T01-T20-SYNTHETIC-004")) {
     if ($t16.expected.process -ne "ONE_HUMAN_PRIMARY_EVALUATION_WITH_AI_ASSISTED_ADVERSARIAL_REVIEW" -or
         $t16.expected.ai_review -notlike "*not a human evaluator*" -or
         $t16.expected.fixture_limit -notlike "*cannot establish inter-evaluator reliability*" -or
@@ -127,7 +127,7 @@ elseif ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-003", "SINAYXA-I
 
 # Version 1.2.0 governance-contract checks. This validates the fixture declaration,
 # not actual human/AI execution or methodological validity.
-if ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-003", "SINAYXA-IH-T01-T19-SYNTHETIC-004")) {
+if ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-003", "SINAYXA-IH-T01-T20-SYNTHETIC-004")) {
     if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003" -and
         ($fixture.supersedes.package_id -ne "SINAYXA-IH-T01-T19-SYNTHETIC-002" -or
          $fixture.supersedes.package_version -ne "1.1.0" -or
@@ -250,7 +250,7 @@ if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {
 
 # Version 1.3.0 adds a dedicated past-milestone age contract. The age is
 # descriptive chronology only; it must never be classified as a future horizon.
-if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-004") {
+if ($fixture.package_id -eq "SINAYXA-IH-T01-T20-SYNTHETIC-004") {
     if ($fixture.supersedes.package_id -ne "SINAYXA-IH-T01-T19-SYNTHETIC-003" -or
         $fixture.supersedes.package_version -ne "1.2.0" -or
         $fixture.supersedes.sha256 -ne "5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB") {
@@ -392,10 +392,10 @@ Write-Information "Fixture structure and semantic contract validation: PASS" -In
 Write-Information "Package: $($fixture.package_id) v$($fixture.package_version)" -InformationAction Continue
 Write-Information "Cases: $($actualIds.Count)" -InformationAction Continue
 $temporalChecks = "T11,T12,T13,T14,T15,T18,T19"
-if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-004") { $temporalChecks += ",T20" }
+if ($fixture.package_id -eq "SINAYXA-IH-T01-T20-SYNTHETIC-004") { $temporalChecks += ",T20" }
 Write-Information "Temporal fixture checks: PASS ($temporalChecks)" -InformationAction Continue
 Write-Information "Semantic fixture checks: PASS (T01,T03,T04,T08,T10 where applicable)" -InformationAction Continue
-if ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-003", "SINAYXA-IH-T01-T19-SYNTHETIC-004")) {
+if ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-003", "SINAYXA-IH-T01-T20-SYNTHETIC-004")) {
     Write-Information "T16: SINGLE-HUMAN PROTOCOL DEFINED (not an execution result)" -InformationAction Continue
 }
 else {
