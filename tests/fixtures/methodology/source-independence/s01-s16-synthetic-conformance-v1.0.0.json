@@ -1195,13 +1195,13 @@
       "expected": {
         "independent_origins": 2,
         "corroboration_count_increment": 0,
-        "guardrail": "Independencia y coincidencia se limitan a entidad y fecha; importe no resuelto.",
-        "corroborated_components": [
-          "entity",
-          "date"
-        ],
+        "guardrail": "Las vías de obtención pueden ser independientes, pero discrepan en el importe; este componente no se corrobora. Entidad y fecha quedan fuera del alcance de esta unidad y se evalúan por separado.",
         "unresolved_components": [
           "amount"
+        ],
+        "components_outside_scope": [
+          "entity",
+          "date"
         ]
       },
       "independence_basis": [
@@ -1277,7 +1277,7 @@
           "synthetic-fixture://S14-C01"
         ],
         "limitations": [
-          "Independencia y coincidencia se limitan a entidad y fecha; importe no resuelto."
+          "Las vías de obtención son independientes; el importe discrepa y no se corrobora. Entidad y fecha requieren unidades de evaluación separadas."
         ],
         "human_review_required": true,
         "automated_credibility_decision": false,
