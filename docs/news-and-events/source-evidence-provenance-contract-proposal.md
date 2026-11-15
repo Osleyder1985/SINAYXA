@@ -452,3 +452,9 @@ La batería amplía sus pruebas positivas y negativas para proteger ambos invari
 Cada Source version contiene `version_sequence`, entero positivo y único dentro de su `source_id`. La primera versión usa la secuencia inicial; una versión que sustituye otra debe tener una secuencia estrictamente superior. El identificador `source_version_id` sigue siendo la clave inmutable de la pieza. Esta secuencia no sustituye `published_at`, `first_detected_at` ni `recorded_at` y no expresa orden causal entre fuentes distintas.
 
 La propiedad se declara en JSON Schema y se valida también semánticamente; el fixture y las mutaciones negativas comprueban su obligatoriedad y unicidad por fuente.
+
+## 19. Justificación probatoria, alcance parcial y disponibilidad verificada
+
+Cada evaluación de componente debe incluir una `rationale` no vacía que explique por qué la evidencia y sus límites sostienen el estado elegido. `PARCIALMENTE_CORROBORADA` exige delimitar por separado `supported_scope` y `unsupported_scope`; no basta una etiqueta de parcialidad.
+
+Los registros de disponibilidad son únicos por pareja `(evidence_id, assessment_unit_id)`. Una fecha declarada por la propia fuente (`SOURCE_STATED`) se conserva como declaración temporal, pero no prueba por sí sola que la pieza estuviera disponible en el corte histórico. Solo `SINAYXA_OBSERVATION` o `INDEPENDENT_ARCHIVE`, con referencia trazable, pueden aportar un `available_at` verificado para una evaluación. La evidencia de independencia debe corresponder a todas las identidades de fuente que integran la evaluación, no a publicaciones ajenas al conjunto evaluado.
