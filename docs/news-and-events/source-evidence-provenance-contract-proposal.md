@@ -213,7 +213,7 @@ Cada reevaluación crea un registro nuevo. No se sobrescriben estado histórico,
 ## 4. Matriz de trazabilidad con #4, #15 y #16
 
 |Requisito|Entidades/campos del contrato|Base normativa|
-| --- | --- | --- |
+|---|---|---|
 |#4 — conservar afirmación y separar sus componentes verificables|Claim, Claim component, Claim component assessment|#15: estado por proposición; #16: evaluación por afirmación/componente|
 |#4 — identificar origen y publicaciones derivadas|Source, Source version, Source identity assessment|#15: atribución/identidad separadas; #16: tipo, subtipo, base de conocimiento y difusión|
 |#4 — reconstruir republicaciones, citas y origen común|Provenance node/edge, Independence assessment|#15: no contar republicaciones; #16: genealogía y dependencia por componente|
@@ -286,7 +286,7 @@ Hasta entonces, #4 está desbloqueado metodológicamente, pero no se implementan
 Los campos temporales no son intercambiables. Todos los instantes normalizados se expresan en ISO 8601 UTC con sufijo Z. Cuando la fuente aporta una fecha con zona u offset distinto, se conserva además la representación original en original_timestamps; la normalización no debe destruir el texto, zona ni precisión originales.
 
 | Campo | Significado normativo | No significa |
-|---|---|---|
+| --- | --- | --- |
 | valid_time_start / valid_time_end | Intervalo del mundo real al que se refiere la proposición o componente. | Fecha de publicación o fecha de registro. |
 | published_at | Instante declarado o verificable de publicación de esa versión. | Primera vez que SINAYXA la vio. |
 | first_publicly_observed_at | Primera observación pública sustentada por una referencia/archivo independiente identificable. | Fecha necesariamente conocida por SINAYXA en ese momento. |
