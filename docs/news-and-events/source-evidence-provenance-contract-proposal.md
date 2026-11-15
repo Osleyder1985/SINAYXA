@@ -139,7 +139,7 @@ Una pieza puede relacionarse con varios componentes mediante enlaces separados. 
 
 ### 3.6.1 Evidence availability
 
-Cada disponibilidad probatoria se registra por pieza, unidad de evaluación y versión exacta de afirmación/componente. El registro contiene `available_at`, `availability_basis` (SINAYXA_OBSERVATION, INDEPENDENT_ARCHIVE, SOURCE_STATED o UNKNOWN), una referencia trazable y `recorded_at`. Si la disponibilidad es desconocida, `available_at` y la referencia quedan nulos y la base es UNKNOWN. Una pieza solo puede sustentar un factor o una evaluación si existe un registro de disponibilidad para la unidad exacta y `available_at` no supera `assessment_cutoff`. La mera fecha de publicación declarada no sustituye una observación sustentada.
+Cada disponibilidad probatoria se registra por pieza, unidad de evaluación y versión exacta de afirmación/componente. El registro contiene `available_at`, `availability_basis` (SINAYXA_OBSERVATION, INDEPENDENT_ARCHIVE, SOURCE_STATED o UNKNOWN), una referencia trazable y `recorded_at`. Si la disponibilidad es desconocida, `available_at` y la referencia quedan nulos y la base es UNKNOWN. Una pieza solo puede sustentar un factor o una evaluación si existe un registro de disponibilidad para la unidad exacta y `available_at` no supera `assessment_cutoff`. Solo `SINAYXA_OBSERVATION` o `INDEPENDENT_ARCHIVE` acreditan disponibilidad temporal para una evaluación histórica; `SOURCE_STATED` conserva una fecha declarada, pero no prueba por sí sola que la pieza estuviera disponible en ese corte. La mera fecha de publicación declarada no sustituye una observación sustentada.
 
 ### 3.7 Provenance node y provenance edge
 
