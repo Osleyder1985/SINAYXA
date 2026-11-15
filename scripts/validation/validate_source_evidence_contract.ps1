@@ -115,6 +115,8 @@ $sourceVersionSequences = [System.Collections.Generic.HashSet[string]]::new([Sys
 foreach ($version in $package.source_versions) {
     Test-Condition (Test-HasRef $sourceIds ([string]$version.source_id)) 'Source version references an unknown source.'
     Test-Condition ([int]$version.version_sequence -ge 1) 'Source version sequence must be a positive integer.'
+    $successors = @($package.source_versions | Where-Object { $_.supersedes_source_version_id -eq $version.source_version_id })
+    Test-Condition ($successors.Count -le 1) 'A source version cannot have multiple competing direct successors; represent distinct sources/variants explicitly.'
     $duplicateSourceSequence = @($package.source_versions | Where-Object { $_.source_id -eq $version.source_id -and $_.version_sequence -eq $version.version_sequence -and $_.source_version_id -ne $version.source_version_id })
     Test-Condition ($duplicateSourceSequence.Count -eq 0) 'Source version sequence must be unique within the same source.'
     $sequenceKey = ([string]$version.source_id) + '|' + ([string][int]$version.version_sequence)
@@ -283,6 +285,9 @@ foreach ($factor in $package.factor_assessments) {
         Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Factor assessment references unknown evidence.'
         $factorEvidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $reference })[0]
         Test-Condition ($factor.dimension -in @($factorEvidence.factor_dimensions)) 'Factor evidence is not explicitly scoped to the assessed dimension.'
+        $factorUnit = @($package.evaluation_units | Where-Object { $_.assessment_unit_id -eq $factor.assessment_unit_id })[0]
+        $factorEvidenceLinks = @($package.claim_evidence_links | Where-Object { $_.evidence_id -eq $reference -and $_.claim_id -eq $factorUnit.claim_id -and $_.claim_component_id -eq $factorUnit.claim_component_id -and $_.claim_version_id -eq $factorUnit.claim_version_id -and $_.claim_component_version_id -eq $factorUnit.claim_component_version_id })
+        Test-Condition ($factorEvidenceLinks.Count -gt 0) 'Factor evidence must have a claim-evidence link for the exact claim and component version of its evaluation unit.'
         $availableForUnit = @($package.evidence_availability | Where-Object { $_.evidence_id -eq $reference -and $_.assessment_unit_id -eq $factor.assessment_unit_id -and $null -ne $_.available_at -and $_.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE') })
         Test-Condition ($availableForUnit.Count -gt 0) 'Factor evidence must have a known availability observation for its exact evaluation unit.'
     }
@@ -341,6 +346,7 @@ foreach ($assessment in $package.independence_assessments) {
         }
         $coveredSourceVersions = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
         $distinctOriginNodes = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+        $distinctOriginRefs = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
         foreach ($pathEdgeId in @($assessment.independent_path_edge_refs)) {
             $pathEdge = @($package.provenance_edges | Where-Object { $_.edge_id -eq $pathEdgeId })[0]
             Test-Condition ($pathEdge.claim_component_id -eq $assessment.claim_component_id -and $pathEdge.claim_component_version_id -eq $assessment.claim_component_version_id) 'Independent path edge must apply to the exact assessed component version.'
@@ -351,9 +357,16 @@ foreach ($assessment in $package.independence_assessments) {
             Test-Condition ($originNode.node_type -eq 'EVIDENCE_ITEM' -and $originNode.entity_ref -in @($pathEdge.evidence_refs) -and $originNode.node_id -ne $dependentNode.node_id) 'Independent path must terminate at a distinct, evidence-identified origin item, not an unknown or unanchored node.'
             Test-Condition (@($package.provenance_edges | Where-Object { $_.dependent_node_id -eq $originNode.node_id }).Count -eq 0) 'Independent path origin must be a separately evidenced terminal origin, not an unresolved shared intermediary.'
             Test-Condition ($distinctOriginNodes.Add([string]$originNode.node_id)) 'Independent source paths must terminate at distinct origin nodes.'
+            $originIdentity = if ([string]::IsNullOrWhiteSpace([string]$originNode.entity_ref)) { [string]$originNode.node_id } else { [string]$originNode.entity_ref }
+            Test-Condition ($distinctOriginRefs.Add($originIdentity)) 'Independent source paths cannot resolve to the same underlying origin identity.'
             [void]$coveredSourceVersions.Add([string]$dependentNode.entity_ref)
             foreach ($pathEvidenceId in @($pathEdge.evidence_refs)) {
                 Test-Condition ($pathEvidenceId -in $assessment.supporting_evidence_refs) 'Independent path evidence must be included in the assessment supporting evidence.'
+                $pathEvidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $pathEvidenceId })[0]
+                Test-Condition ($pathEvidence.source_version_id -eq $dependentNode.entity_ref) 'Independent path evidence must originate from the exact source version represented by its path.'
+                $pathUnit = @($units | Where-Object { $_.source_version_id -eq $dependentNode.entity_ref })[0]
+                $pathAvailability = @($package.evidence_availability | Where-Object { $_.evidence_id -eq $pathEvidenceId -and $_.assessment_unit_id -eq $pathUnit.assessment_unit_id -and $_.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE') -and $null -ne $_.available_at -and [DateTimeOffset]::Parse([string]$_.available_at) -le [DateTimeOffset]::Parse([string]$assessment.assessment_cutoff) })
+                Test-Condition ($pathAvailability.Count -gt 0) 'Independent path evidence must be available by the exact assessment cutoff.'
             }
         }
         Test-Condition (@($units | Where-Object { $_.source_version_id -notin $coveredSourceVersions }).Count -eq 0) 'Independent paths must cover every evaluated source version.'
