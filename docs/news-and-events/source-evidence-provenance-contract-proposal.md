@@ -444,3 +444,9 @@ La auditoría de la primera implementación identificó dos invariantes que deb�
 - INDEPENDIENTE requiere al menos dos identidades de fuente distintas y evidencia positiva vinculada a esas fuentes; dos versiones de una misma fuente no constituyen independencia. DEPENDIENTE requiere una arista material, sustentada y aplicable a la versión exacta del componente; UNKNOWN_ORIGIN por sí solo no demuestra dependencia.
 
 La batería amplía sus pruebas positivas y negativas para proteger ambos invariantes. Estas reglas no modifican la metodología aprobada en #15/#16; hacen ejecutables sus restricciones dentro del contrato 0.2.0.
+
+## 18. Secuencia explícita de versiones de fuente
+
+Cada Source version contiene `version_sequence`, entero positivo y único dentro de su `source_id`. La primera versión usa la secuencia inicial; una versión que sustituye otra debe tener una secuencia estrictamente superior. El identificador `source_version_id` sigue siendo la clave inmutable de la pieza. Esta secuencia no sustituye `published_at`, `first_detected_at` ni `recorded_at` y no expresa orden causal entre fuentes distintas.
+
+La propiedad se declara en JSON Schema y se valida también semánticamente; el fixture y las mutaciones negativas comprueban su obligatoriedad y unicidad por fuente.
