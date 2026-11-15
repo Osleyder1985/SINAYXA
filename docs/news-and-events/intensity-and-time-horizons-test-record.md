@@ -88,20 +88,24 @@ La salida histórica observada en esa ejecución fue: `Fixture structure validat
 
 **Alcance histórico:** este resultado verifica únicamente la estructura del fixture v1.0.0 y los cálculos temporales ejecutados entonces. No demuestra corrección semántica, no ejecuta la batería T01–T19 y no satisface T16. La referencia a T16 como BLOCKED describe el requisito de la versión histórica, no el estado vigente del protocolo v1.2.0. El estado formal actual de T16 es NOT_EXECUTED.
 
-### 2.4 Ejecución pendiente del validador corregido por el Issue #41
+### 2.4 Ejecución CI del validador corregido por el Issue #41
 
-El validador y el harness corregidos por el Issue #41 cuentan con ejecución verificada en GitHub Actions sobre Windows y PowerShell 7.6.6. La ejecución se realiza sobre el commit exacto de la rama fuente; no requiere una validación manual en el equipo del propietario.
+La validación del código corregido se ejecutó en GitHub Actions sobre runner Windows, con PowerShell **7.6.6** verificado explícitamente. No requiere comandos ni comprobaciones manuales en el equipo del propietario.
 
-Comandos que debe ejecutar el propietario desde la raíz del repositorio, después de obtener la rama y revisar el commit:
+**Evidencia principal:** [GitHub Actions run #43730040376](https://github.com/Osleyder1985/SINAYXA/actions/runs/43730040376), sobre el commit fuente `27378b72543f0f078e75b3f6e404875889c3290e`.
 
-```powershell
-.\scripts\validation\validate_intensity_horizon_fixture.ps1
-.\scripts\validation\test_intensity_horizon_fixture_validator.ps1
-Get-FileHash -LiteralPath .\tests\fixtures\methodology\intensity-horizons\t01-t19-synthetic-evidence-v1.2.0.json -Algorithm SHA256
-git status --short
-```
+Resultados registrados:
+- PowerShell 7.6.6: versión exacta verificada.
+- PSScriptAnalyzer 1.24.0: cero findings.
+- Inventario de scripts versionados y análisis sintáctico: PASS.
+- Reglas de seguridad del analizador: pruebas de regresión PASS.
+- Fixture `SINAYXA-IH-T01-T19-SYNTHETIC-003 v1.2.0`: 19 casos; contratos semánticos T01/T03/T04/T08/T10 y vectores temporales T11/T12/T13/T14/T15/T18/T19: PASS.
+- SHA-256 del fixture: `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB`.
+- Control positivo del fixture predeterminado: PASS.
+- Pruebas negativas: 12/12 PASS.
+- Pruebas de robustez (archivo ausente y JSON malformado): 2/2 PASS.
 
-**Evidencia CI:** [GitHub Actions run #43724393184](https://github.com/Osleyder1985/SINAYXA/actions/runs/43724393184), sobre el commit `4b89c9f9c1c4752b855e14a26161745b8187ef91`. Terminaron correctamente la instalación y verificación de PowerShell 7.6.6, PSScriptAnalyzer 1.24.0, el inventario y análisis sintáctico de los scripts, el análisis estático sin findings, la validación del fixture v1.2.0 y el harness positivo/negativo/de robustez. El harness vigente contiene 12 mutaciones negativas y dos pruebas de robustez. La evidencia acredita el contrato sintético y el código de validación; no constituye validación empírica ni ejecución metodológica formal de T01–T19.
+La evidencia valida el código y los contratos sintéticos. No constituye validación empírica ni ejecución metodológica formal de T01–T19.
 
 ## 3. Estados permitidos
 
@@ -290,7 +294,7 @@ T16 pasa de BLOCKED por una dependencia humana imposible a NOT_EXECUTED: el proc
 
 ### Resultado de Markdown lint comunicado por el propietario
 
-La primera ejecución dirigida de `markdownlint-cli2` sobre los seis documentos metodológicos identificó 45 incidencias de formato en este registro. Se corrigen exclusivamente problemas de presentación Markdown (líneas en blanco, separación de listas y encabezados, énfasis usado como encabezado y tabuladores en expresiones matemáticas), sin alterar el contenido metodológico ni los estados de ejecución. La reejecución de los seis documentos en GitHub Actions queda pendiente de confirmación para este commit. El documento `catalyst-taxonomy-test-cases.md` permanece fuera de este alcance y se gestiona por separado en el Issue #38.
+La primera ejecución dirigida identificó 45 incidencias de formato en este registro. Se corrigieron sin alterar el contenido metodológico ni los estados de ejecución. La reejecución [GitHub Actions run #43730040651](https://github.com/Osleyder1985/SINAYXA/actions/runs/43730040651) utilizó `markdownlint-cli2` v0.24.1 sobre los seis documentos metodológicos y terminó con **0 issues en 0 archivos**. El documento `catalyst-taxonomy-test-cases.md` permanece fuera de este alcance y se gestiona por separado en el Issue #38.
 
 ## 11. Registro de decisión asistida — T01
 
