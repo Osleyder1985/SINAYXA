@@ -119,6 +119,8 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Lint all repository Markdown documentation
         run: npm run lint:markdown
+      - name: Run automated Python test suite
+        run: python -m unittest discover -s tests -p 'test_*.py'
       - name: Audit all direct and transitive dependencies
         shell: bash
         run: |
