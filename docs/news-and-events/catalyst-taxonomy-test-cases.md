@@ -13,11 +13,8 @@ La unidad de evaluación se declara en cada caso: **publicación/fuente**, **afi
 ### 1.1 Decisiones
 
 - **INCLUIR:** el objeto evaluado es trazable, satisface la cobertura taxonómica y tiene relevancia potencial explicada mediante un mecanismo plausible. No exige reacción de precio observada ni causalidad demostrada.
-
 - **EXCLUIR:** la evidencia permite concluir que el objeto examinado no satisface el criterio pertinente: por ejemplo, duplicado sin novedad, contenido irrelevante, cambio cosmético o afirmación demostrablemente falsa.
-
 - **INDETERMINADO:** falta evidencia necesaria para resolver existencia, atribución, alcance, clasificación o relevancia. Se identifica el dato exacto que falta.
-
 - **NO APLICA:** campo que no corresponde al escenario. **DESCONOCIDO:** dato aplicable que no está disponible. No se sustituyen por inferencias.
 
 **No corroborada no significa falsa; no confirmada no significa irrelevante; no observada no significa inexistente.** La falta de evidencia suficiente no justifica por sí sola EXCLUIR. Cuando se excluya el acontecimiento alegado pero la publicación o transacción sí exista, se conserva ese objeto y se identifica exactamente qué afirmación/hecho se excluye. **NINGUNA** significa que no se asigna categoría principal al supuesto catalizador no acreditado; no significa borrar la publicación, observación o evidencia de su circulación.
@@ -95,13 +92,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### MAC-P — Decisión monetaria nueva
 
 - **Entrada/objeto:** acontecimiento/hito. Un banco central publica una decisión de tipos y orientación de política, con fecha y documento oficial identificables.
-
 - **Salida:** INCLUIR; principal MAC; secundarias NINGUNA salvo dimensión económica adicional documentada; mecanismo potencial por liquidez, coste de capital o financiación; vínculo indirecto o condicional según el canal descrito.
-
 - **Evidencia mínima:** decisión y comunicado primarios, fecha efectiva y jurisdicción.
-
 - **INDETERMINADO si:** no se identifica el documento, la autoridad o el contenido de la decisión.
-
 - **No inferir:** reacción del mercado, cambio efectivo de expectativas, dirección del precio cripto ni causalidad sin evidencia separada.
 
 **Requisitos H-OWNER consolidados — MAC-P:** Decisión expresa del propietario: aprueba el escenario con la mejora recomendada de contemplar también decisiones de mantener tipos cuando la orientación o comunicación modifica expectativas. Observaciones: ninguna.
@@ -109,13 +102,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### MAC-N — Repetición de opinión antigua
 
 - **Entrada/objeto:** publicación/afirmación. Un comentarista reproduce una opinión antigua sobre posibles recortes, sin decisión, dato ni comunicación monetaria nueva.
-
 - **Salida:** EXCLUIR la publicación como nuevo acontecimiento MAC; categoría principal NINGUNA.
-
 - **Evidencia mínima:** publicación original fechada y comparación verificable con el material anterior que demuestra que no añade un hito ni información material nueva.
-
 - **INDETERMINADO si:** no se puede acceder al original o comprobar si el contenido aporta una novedad.
-
 - **No inferir:** que no haya habido decisiones monetarias separadas no mencionadas en la publicación.
 
 **Requisitos H-OWNER consolidados — MAC-N:** Decisión expresa del propietario: aprueba el escenario con la mejora recomendada de evaluar por separado la posible relevancia de una nueva difusión cuando aporte información material, cambie la atribución, el contexto o el alcance. Observaciones: ninguna.
@@ -123,13 +112,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### ECO-P — Dato macroeconómico oficial
 
 - **Entrada/objeto:** acontecimiento/hito. Se publica un dato oficial de inflación o empleo; el contexto documenta un canal potencial hacia condiciones financieras, apetito por riesgo o financiación cripto.
-
 - **Salida:** INCLUIR; principal ECO; mecanismo potencial descrito; vínculo indirecto o condicional.
-
 - **Evidencia mínima:** publicación estadística oficial, período de referencia, hora de publicación y contexto verificable del canal.
-
 - **INDETERMINADO si:** no se identifica la serie, el dato publicado o el canal relevante.
-
 - **No inferir:** que las expectativas cambiaron, que hubo reacción de precio o que el dato causó un movimiento. Registrar reacción observada solo con evidencia independiente.
 
 **Requisitos H-OWNER consolidados — ECO-P:** Decisión expresa del propietario: aprueba el escenario con la mejora recomendada de registrar valor publicado, consenso previo si existe, valor anterior y revisiones, sorpresa macroeconómica cuando sea comparable, contexto de expectativas, mecanismo de transmisión potencial a cripto y reacción observada separada. La falta de consenso no excluye el acontecimiento; se registra DESCONOCIDO. Observaciones: ninguna.
@@ -137,13 +122,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### ECO-N — Indicador local sin exposición
 
 - **Entrada/objeto:** acontecimiento/publicación. Un indicador local menor se publica, pero el expediente del caso no identifica exposición ni mecanismo razonable hacia financiación, comercio, energía, divisas o cripto.
-
 - **Salida:** EXCLUIR como catalizador cripto dentro del alcance evaluado; categoría principal NINGUNA para el supuesto catalizador no acreditado; conservar el indicador y su publicación como objetos económicos verificables.
-
 - **Evidencia mínima:** publicación y jurisdicción identificadas más análisis de exposición que sustente la ausencia de un canal plausible en el contexto disponible.
-
 - **INDETERMINADO si:** faltan datos de exposición o contexto económico que podrían cambiar esa conclusión.
-
 - **No inferir:** irrelevancia global a partir de que la noticia no mencione cripto.
 
 **Requisitos H-OWNER consolidados — ECO-N:** Decisión expresa del propietario: aprueba el escenario con la mejora de limitar la exclusión al alcance geográfico, económico y temporal evaluado; examinar canales directos, indirectos y efectos de segundo orden; documentar canales examinados y evidencia; utilizar INDETERMINADO cuando falte información decisiva; permitir reclasificación ante nueva evidencia. Observaciones: ninguna.
@@ -151,13 +132,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### REG-P — Propuesta normativa identificable
 
 - **Entrada/objeto:** acontecimiento/hito. Una autoridad competente publica una propuesta que, de aprobarse, modificaría obligaciones, acceso o costes de participantes cripto.
-
 - **Salida:** INCLUIR; principal REG; estado PROPUESTA; mecanismo regulatorio potencial; vínculo directo, indirecto o condicional según sujetos y alcance.
-
 - **Evidencia mínima:** expediente, texto o publicación oficial; autoridad, jurisdicción y fase identificables.
-
 - **INDETERMINADO si:** no puede verificarse la autoridad, el texto o la fase procedimental.
-
 - **No inferir:** aprobación, vigencia, aplicación ni cumplimiento futuro.
 
 **Requisitos H-OWNER consolidados — REG-P:** Decisión expresa del propietario: aprueba el escenario con la mejora de registrar autoridad competente, jurisdicción, texto y versión oficial, fase procedimental exacta, plazos y consultas, sujetos/activos/servicios afectados, posibles efectos directos e indirectos y respuestas o modificaciones posteriores; distinguir siempre propuesta de obligación vigente. Observaciones: ninguna.
@@ -165,13 +142,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### REG-N — Opinión sin acto regulatorio
 
 - **Entrada/objeto:** publicación/afirmación. Un funcionario expresa una opinión general sin propuesta, expediente, procedimiento ni decisión identificable.
-
 - **Salida:** EXCLUIR como acontecimiento o avance regulatorio; categoría principal NINGUNA para el acto regulatorio no acreditado; conservar la declaración atribuida como publicación/afirmación si es trazable.
-
 - **Evidencia mínima:** declaración íntegra, identidad/cargo y contexto; comprobación del procedimiento al que se refiere, si alguno.
-
 - **INDETERMINADO si:** no se puede identificar jurisdicción, autoridad o posible procedimiento relacionado.
-
 - **No inferir:** inexistencia de iniciativas separadas no examinadas.
 
 **Requisitos H-OWNER consolidados — REG-N:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar funcionario, cargo, autoridad y competencia; conservar declaración original, fecha, contexto y fuente; distinguir opinión personal, comentario institucional, intención política y anuncio formal; verificar expedientes o procedimientos oficiales; no atribuir decisiones no anunciadas; admitir señal anticipatoria solo con evidencia suficiente y vincular acontecimientos posteriores sin fusionar registros. Observaciones: ninguna.
@@ -179,13 +152,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### ETF-P — Hito formal de producto cotizado
 
 - **Entrada/objeto:** acontecimiento/hito. Un regulador registra una solicitud o publica una decisión formal relativa a un producto cotizado vinculado a criptoactivos.
-
 - **Salida:** INCLUIR; principal ETF; fase exacta registrada (solicitud, modificación, aprobación, rechazo, suspensión, restricción o lanzamiento).
-
 - **Evidencia mínima:** expediente o resolución oficial, identificador del producto y fecha del hito.
-
 - **INDETERMINADO si:** no se puede consultar el registro competente o determinar jurisdicción/producto.
-
 - **No inferir:** aprobación a partir de solicitud, lanzamiento a partir de aprobación ni flujos de capital.
 
 **Requisitos H-OWNER consolidados — ETF-P:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar producto, emisor, solicitante, bolsa, subyacente, autoridad y jurisdicción; distinguir solicitud, revisión, aplazamiento, aprobación, rechazo, autorización de negociación y lanzamiento; registrar fechas y condiciones; no inferir demanda ni flujos; analizar activos relacionados y expectativas previas cuando haya evidencia. Observaciones: ninguna.
@@ -193,13 +162,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### ETF-N — Especulación sin expediente acreditado
 
 - **Entrada/objeto:** publicación/afirmación. Una publicación pregunta si podría existir un ETF, sin afirmar solicitud ni aportar dato nuevo de expediente.
-
 - **Salida:** EXCLUIR la publicación como acontecimiento ETF confirmado; categoría principal NINGUNA para la solicitud/decisión no acreditada; conservarla como contenido especulativo trazable. No declarar falso un expediente que no se haya podido verificar.
-
 - **Evidencia mínima:** publicación original y consulta del registro competente para producto, jurisdicción y período de la afirmación.
-
 - **INDETERMINADO si:** no se identifica o no se puede consultar el registro competente.
-
 - **No inferir:** que la ausencia de evidencia en una consulta incompleta prueba que no existe solicitud.
 
 **Requisitos H-OWNER consolidados — ETF-N:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar publicación original, autor, fecha, gestora, producto, activo y jurisdicción; consultar registros oficiales y documentar fuentes, momento y resultado; distinguir ausencia de evidencia de evidencia de inexistencia; conservar afirmaciones relevantes pendientes de verificación y actualizar ante nueva evidencia; vincular movimientos de precio sin presumir causalidad. Observaciones: ninguna.
@@ -207,13 +172,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### INS-P — Operación institucional ejecutada
 
 - **Entrada/objeto:** acontecimiento. Una empresa comunica mediante documento regulatorio o comunicación corporativa verificable una compra o venta de criptoactivos ya ejecutada.
-
 - **Salida:** INCLUIR; principal INS; distinguir ejecución de intención, negociación o aprobación interna.
-
 - **Evidencia mínima:** documento primario o confirmación corporativa verificable que identifique la operación y su estado.
-
 - **INDETERMINADO si:** solo hay declaración ambigua de intención o no se puede comprobar ejecución.
-
 - **No inferir:** tamaño, fecha, activo o precio de operación que no estén publicados.
 
 **Requisitos H-OWNER consolidados — INS-P:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar entidad, relaciones corporativas y fuente primaria; distinguir operaciones ejecutadas, transferencias, compromisos, autorizaciones e intenciones; registrar cantidad, precio y fecha solo con evidencia; separar tenencia directa e indirecta; comprobar novedad frente a expectativas; evitar doble conteo; documentar incertidumbre de titularidad, custodia y atribución; separar hecho de hipótesis de impacto. Observaciones: ninguna.
@@ -221,13 +182,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### INS-N — Opinión empresarial genérica
 
 - **Entrada/objeto:** publicación/afirmación. Un ejecutivo comenta el interés de blockchain sin decisión corporativa, activo, inversión, adopción ni cambio verificable.
-
 - **Salida:** EXCLUIR como compra, inversión o adopción ejecutada; categoría principal NINGUNA para la operación no acreditada; conservar la declaración atribuida como publicación/afirmación si es trazable.
-
 - **Evidencia mínima:** declaración íntegra y contexto suficiente para determinar qué se dijo y qué no se afirmó.
-
 - **INDETERMINADO si:** se desconoce si existe una decisión corporativa separada fuera del material examinado.
-
 - **No inferir:** inexistencia de decisiones internas no publicadas ni adopción efectiva.
 
 **Requisitos H-OWNER consolidados — INS-N:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar ejecutivo, cargo y capacidad de comprometer a la empresa; conservar declaración original, fecha, medio y contexto; distinguir interés personal, exploración, intención, propuesta interna y decisión formal; verificar autorizaciones y comunicaciones posteriores cuando existan; no inferir operaciones ni cantidades; vincular declaraciones y operaciones posteriores sin fusionarlas; evaluar novedad informativa. Observaciones: ninguna.
@@ -235,13 +192,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### COM-P — Acuerdo firmado con cambio operativo
 
 - **Entrada/objeto:** acontecimiento/hito. Dos empresas anuncian acuerdo firmado de integración, distribución, financiación o servicios que cambia de forma verificable acceso o capacidad de un servicio cripto.
-
 - **Salida:** INCLUIR; principal COM; secundarias solo si una dimensión material adicional está probada.
-
 - **Evidencia mínima:** contrato, comunicado conjunto o confirmación verificable de las partes; alcance, condiciones y estado.
-
 - **INDETERMINADO si:** no se puede establecer si el acuerdo es vinculante, firmado o ejecutable.
-
 - **No inferir:** lanzamiento, adopción de clientes, volumen ni disponibilidad antes de la fecha efectiva.
 
 **Requisitos H-OWNER consolidados — COM-P:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar partes y relaciones corporativas; distinguir contrato firmado, memorando, piloto, alianza y anuncio; registrar productos, servicios, redes, activos, territorio, alcance, duración y condiciones; diferenciar anuncio, integración, lanzamiento y uso efectivo; verificar exclusividad y compromisos; analizar canales potenciales sin presumir beneficios; evitar duplicados y registrar cancelaciones, cambios o retrasos. Observaciones: ninguna.
@@ -249,13 +202,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### COM-N — Asociación promocional sin compromiso
 
 - **Entrada/objeto:** publicación. Dos empresas aparecen juntas en un evento o material promocional, sin acuerdo, compromiso, integración ni cambio operativo acreditado.
-
 - **Salida:** EXCLUIR como acuerdo comercial; categoría principal NINGUNA.
-
 - **Evidencia mínima:** material original y contexto de las entidades que permita comprobar que no anuncia un compromiso.
-
 - **INDETERMINADO si:** hay indicios de acuerdo fuera del material examinado y no pueden verificarse.
-
 - **No inferir:** relación contractual a partir de logotipos, fotografías o presencia compartida.
 
 **Requisitos H-OWNER consolidados — COM-N:** Decisión expresa del propietario: aprueba el escenario con la mejora de conservar publicación original y contexto; identificar autor y capacidad de representación; buscar confirmación de las partes; distinguir publicidad, conversaciones, memorandos, pilotos y contratos; no inferir asociación por logotipos, tecnología o menciones; registrar indicios y permitir reclasificación; no tratar la falta de contrato público como prueba de inexistencia de acuerdo privado. Observaciones: ninguna.
@@ -263,13 +212,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### EXC-P — Incidente material de intermediario
 
 - **Entrada/objeto:** acontecimiento. Un exchange o custodio confirma incidente que interrumpe retiros, compromete fondos o afecta materialmente disponibilidad/solvencia.
-
 - **Salida:** INCLUIR; principal EXC; activos y alcance solo cuando se acrediten.
-
 - **Evidencia mínima:** aviso del operador, autoridad o investigación técnica verificable; intervalo y servicio afectado.
-
 - **INDETERMINADO si:** no se puede verificar autenticidad, alcance o naturaleza del incidente.
-
 - **No inferir:** pérdida definitiva, insolvencia, hackeo, activos afectados o recuperación sin evidencia.
 
 **Requisitos H-OWNER consolidados — EXC-P:** Decisión expresa del propietario: aprueba el escenario con la mejora de clasificar tipo de incidente; identificar operador, infraestructura, servicios y activos; separar inicio, detección, divulgación, contención y resolución; distinguir fuentes primarias y verificaciones; documentar alcance confirmado, alegado y desconocido; probar pérdidas, fondos comprometidos, recuperación y reembolsos; investigar efectos indirectos; evitar doble conteo y mantener historial de actualizaciones. Observaciones: ninguna.
@@ -277,13 +222,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### EXC-N — Actualización rutinaria sin afectación
 
 - **Entrada/objeto:** acontecimiento/publicación. Un intermediario anuncia actualización rutinaria de interfaz sin cambio de acceso, disponibilidad, riesgo, solvencia u operación.
-
 - **Salida:** EXCLUIR como catalizador EXC; categoría principal NINGUNA para un incidente/afectación no acreditado; conservar la actualización y sus notas como publicación y cambio de interfaz verificable.
-
 - **Evidencia mínima:** notas oficiales de versión y descripción del alcance operativo que respalden que el cambio es cosmético/rutinario.
-
 - **INDETERMINADO si:** no se conoce el efecto real sobre acceso o servicio.
-
 - **No inferir:** ausencia de incidentes distintos no incluidos en la actualización.
 
 **Requisitos H-OWNER consolidados — EXC-N:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar fuente original, autor, fecha y relación con el operador; buscar evidencias técnicas y confirmaciones oficiales; diferenciar rumores, denuncias, sospechas e incidentes confirmados; evaluar credibilidad sin equipararla a prueba; separar cantidades alegadas y verificadas; investigar posibles campañas coordinadas solo ante indicios; mantener INDETERMINADO cuando proceda; conservar historial y analizar reacción de mercado separadamente de la veracidad del incidente. Observaciones: ninguna.
@@ -291,13 +232,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### TEC-P — Actualización de protocolo activada
 
 - **Entrada/objeto:** acontecimiento/hitos relacionados. Un protocolo publica y activa actualización que cambia consenso, seguridad, escalabilidad o funcionamiento económico.
-
 - **Salida:** INCLUIR; principal TEC; registrar anuncio, activación y resultados como hitos distintos.
-
 - **Evidencia mínima:** propuesta o especificación, release/documentación técnica y registro verificable de activación.
-
 - **INDETERMINADO si:** no se puede verificar qué versión se activó o cuándo.
-
 - **No inferir:** éxito, adopción, mejora de rendimiento o ausencia de fallos por el mero anuncio.
 
 **Requisitos H-OWNER consolidados — TEC-P:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar protocolo, red, versión y componentes; distinguir investigación, propuesta, desarrollo, pruebas, despliegue, activación y adopción; verificar cambios mediante documentación, código, auditorías y datos; evaluar mejoras, regresiones, dependencias y riesgos; identificar activos con exposición económica demostrable; investigar mecanismos económicos; comparar expectativas y resultados sin presuponer impacto alcista; registrar retrasos, cancelaciones, reversiones y resultados inferiores a lo anunciado; separar promoción, capacidad demostrada e hipótesis económica. Observaciones: ninguna.
@@ -305,13 +242,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### TEC-N — Cambio cosmético
 
 - **Entrada/objeto:** publicación/acontecimiento. Un proyecto cambia diseño o identidad visual del sitio sin cambio técnico, operativo o económico.
-
 - **Salida:** EXCLUIR como catalizador TEC; categoría principal NINGUNA para un acontecimiento técnico/económico material no acreditado; conservar el cambio cosmético como publicación/actualización verificable.
-
 - **Evidencia mínima:** comparación de versiones y documentación disponible que delimite el cambio a la presentación visual.
-
 - **INDETERMINADO si:** no puede determinarse si el cambio visual acompaña una modificación funcional.
-
 - **No inferir:** que el proyecto no haya realizado otros cambios técnicos independientes.
 
 **Requisitos H-OWNER consolidados — TEC-N:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar fuente y emisor; conservar afirmaciones y cifras como alegaciones; investigar repositorios, documentación, versiones, pruebas y redes; distinguir demostración, prototipo, testnet y producción; comprobar reproducibilidad y comparabilidad; registrar auditorías disponibles sin inferir fraude por su ausencia; examinar contradicciones; separar anuncio, veracidad e implementación; actualizar ante nueva evidencia y estudiar la reacción de mercado separadamente. Observaciones: ninguna.
@@ -319,13 +252,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### GEO-P — Medida geopolítica con canal económico
 
 - **Entrada/objeto:** acontecimiento. Una medida geopolítica o sanción afecta de forma verificable comercio, energía, flujos de capital o acceso financiero con canal documentable hacia condiciones cripto.
-
 - **Salida:** INCLUIR; principal GEO si el hecho inmediato es geopolítico; secundarias ECO/REG solo si existe dimensión material adicional.
-
 - **Evidencia mínima:** instrumento o comunicación oficial y evidencia del canal económico/financiero relevante.
-
 - **INDETERMINADO si:** falta jurisdicción, alcance de la medida o evidencia de exposición.
-
 - **No inferir:** impacto cripto agregado, activos afectados ni causalidad de precio.
 
 **Requisitos H-OWNER consolidados — GEO-P:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar actores, países y territorios; registrar cronología y fases; diferenciar declaraciones, amenazas, negociaciones, decisiones y acciones; documentar efectos verificables sobre comercio, energía, transporte, finanzas y cadenas de suministro; investigar sanciones y restricciones; analizar canales directos, indirectos y de segundo orden sobre segmentos cripto; seguir respuestas institucionales y mercados; registrar escenarios alternativos y desescalada; separar consecuencias confirmadas de previsiones; evaluar temporalidad sin afirmar causalidad no demostrada; incluir elecciones, cambios de gobierno, tratados, rupturas diplomáticas y políticas internacionales. Observaciones: ninguna.
@@ -333,13 +262,9 @@ La columna «Reglas normativas» enlaza cada ID con las reglas definidas en §1.
 #### GEO-N — Notoriedad sin transmisión acreditada
 
 - **Entrada/objeto:** acontecimiento/publicación. Un hecho diplomático recibe cobertura amplia, pero el análisis del caso no identifica exposición económica, financiera, comercial, energética o regulatoria relevante para cripto.
-
 - **Salida:** EXCLUIR como catalizador GEO en el contexto evaluado; categoría principal NINGUNA para un catalizador cripto no acreditado; conservar el acontecimiento diplomático y las publicaciones como objetos independientes, sin atribuirles transmisión al mercado cripto.
-
 - **Evidencia mínima:** hecho y jurisdicciones identificados; análisis de exposición que sustente ausencia de canal.
-
 - **INDETERMINADO si:** no hay datos suficientes para evaluar exposición o posibles medidas derivadas.
-
 - **No inferir:** que un hecho internacional carece de consecuencias futuras por no tenerlas demostradas en el momento.
 
 ### 3.2 Familias transversales obligatorias
@@ -351,13 +276,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### DeFi-P — Exploit confirmado en protocolo DeFi
 
 - **Entrada/objeto:** acontecimiento. Evidencia técnica o transaccional confirma exploit y exposición de protocolo, colateral, liquidez o fondos.
-
 - **Salida:** INCLUIR; TEC principal + familia DeFi; EXC secundaria solo si afecta también a intermediario/infraestructura de mercado.
-
 - **Evidencia mínima:** análisis técnico reproducible, transacciones verificables o confirmación del protocolo.
-
 - **INDETERMINADO si:** solo existe alerta, sin confirmar explotación ni componente afectado.
-
 - **No inferir:** pérdida neta, contagio, protocolo adicional afectado o recuperación sin evidencia.
 
 **Requisitos H-OWNER consolidados — DeFi-P:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar protocolo, versión, red, contratos y entidades; clasificar el tipo de incidente o cambio; identificar transacciones y bloques; distinguir fondos expuestos, comprometidos, pérdidas realizadas y recuperados; analizar dependencias entre protocolos, puentes, oráculos, stablecoins y garantías; investigar contagio mediante exposiciones demostrables; medir TVL, liquidez, deuda, garantías y utilización con datos comparables; separar actividad real de movimientos internos y duplicaciones; evaluar exposición económica de tokens sin presumir transmisión de valor; registrar respuestas, pausas, medidas de emergencia y cambios; investigar señales públicas anticipatorias; conservar historial. Observaciones: ninguna.
@@ -365,13 +286,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### DeFi-N — Ajuste rutinario sin efecto material
 
 - **Entrada/objeto:** acontecimiento. Protocolo modifica parámetro rutinario y documentación/evidencia indica que no cambia materialmente riesgo, liquidez, colateral, funcionamiento ni incentivos.
-
 - **Salida:** EXCLUIR como catalizador DeFi; familia DeFi; categoría principal NINGUNA para el evento irrelevante.
-
 - **Evidencia mínima:** propuesta/cambio y análisis del parámetro y su efecto.
-
 - **INDETERMINADO si:** no se conoce el efecto real sobre riesgo o liquidez.
-
 - **No inferir:** neutralidad por el nombre “rutinario” ni ausencia de efectos no medidos.
 
 **Requisitos H-OWNER consolidados — DeFi-N:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar fuente, autor, fecha y protocolo; diferenciar vulnerabilidad teórica, reproducible, explotación efectiva y pérdida confirmada; investigar contratos, transacciones, direcciones y bloques; consultar avisos, auditorías e investigadores; comprobar si afecta a versión desplegada o experimental; separar fondos en riesgo, retiros voluntarios, fondos comprometidos y pérdidas; investigar efectos sobre liquidez y dependencias; registrar desinformación y correcciones; mantener historial; analizar reacción de mercado separadamente de la veracidad. Observaciones: ninguna.
@@ -379,13 +296,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Stablecoins-P — Disfunción de emisor o redención
 
 - **Entrada/objeto:** acontecimiento. Emisor suspende redenciones, revela insuficiencia de reservas o existe pérdida material de paridad respaldada por evidencia.
-
 - **Salida:** INCLUIR + familia stablecoins; principal según hecho inmediato: INS para reservas/solvencia/redenciones del emisor; TEC para fallo técnico/de protocolo; REG para acto regulatorio.
-
 - **Evidencia mínima:** aviso del emisor/autoridad, informe de reservas o datos verificables de mercado/redenciones.
-
 - **INDETERMINADO si:** no se puede verificar reservas, redenciones, paridad o causa.
-
 - **No inferir:** insolvencia, pérdida definitiva ni alcance de contagio a partir de una cotización aislada.
 
 **Requisitos H-OWNER consolidados — Stablecoins-P:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar activo, emisor, jurisdicción, respaldo y contratos; diferenciar modelos de respaldo; investigar composición, custodia, liquidez, vencimientos y concentración de reservas; distinguir declaraciones, certificaciones, auditorías y verificaciones; medir paridad con fuentes, mercados, pares y períodos definidos; investigar causas de desviación; separar solicitudes, redenciones ejecutadas, retrasos y restricciones; analizar contagio en exchanges, DeFi, garantías y pares; distinguir desviación temporal, persistente, insolvencia y pérdida definitiva; registrar intervenciones, recuperación y cambios de respaldo; evaluar efectos sobre cripto; conservar mediciones históricas; incluir crecimiento, adopción, integraciones, autorizaciones y mejoras de infraestructura como posibles catalizadores positivos. Observaciones: ninguna.
@@ -393,13 +306,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Stablecoins-N — Oscilación ordinaria sin disfunción probada
 
 - **Entrada/objeto:** observación de mercado y publicación/datos asociados. Se observa oscilación transitoria sin evidencia de problema en reservas, redenciones, liquidez, solvencia o funcionamiento.
-
 - **Salida:** EXCLUIR como catalizador stablecoin en el supuesto delimitado; categoría principal NINGUNA para un acontecimiento de disfunción no acreditado; conservar la observación y sus publicaciones como registros de mercado/fuentes; familia transversal STABLECOINS.
-
 - **Evidencia mínima:** datos de mercado con fuente y período más evidencia disponible sobre funcionamiento normal de redenciones/reservas o ausencia de indicios de disfunción.
-
 - **INDETERMINADO si:** datos de paridad, reservas o redenciones son insuficientes.
-
 - **No inferir:** normalidad a partir de una sola cotización ni aplicar umbral numérico no aprobado.
 
 **Requisitos H-OWNER consolidados — Stablecoins-N:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar fuente original, autor, fecha y difusión; diferenciar rumores sobre reservas, restricciones bancarias, insolvencia, redenciones y pérdida de paridad; investigar informes, certificaciones, auditorías y comunicaciones regulatorias; verificar cotizaciones entre mercados y redes; analizar datos on-chain sin atribuirles significado automáticamente; verificar restricciones con fuentes competentes; separar existencia de reservas, disponibilidad, liquidez y capacidad operativa; registrar contradicciones y datos desconocidos; investigar movimientos anticipatorios; conservar rumores desmentidos y rectificaciones; analizar la reacción de mercado separadamente de la veracidad. Observaciones: ninguna.
@@ -407,13 +316,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Tokenomics-P — Cambio verificable de reglas de oferta
 
 - **Entrada/objeto:** acontecimiento/hito. Protocolo anuncia y ejecuta cambio verificable de emisión, quema, vesting, desbloqueo o incentivos.
-
 - **Salida:** INCLUIR + familia tokenomics; TEC principal para regla/protocolo; distinguir anuncio y ejecución.
-
 - **Evidencia mínima:** documentación del protocolo, contrato o datos on-chain verificables y estado de ejecución.
-
 - **INDETERMINADO si:** no se puede comprobar regla, contrato, cantidad o estado aplicable.
-
 - **No inferir:** venta, distribución a mercado ni presión vendedora por desbloqueo o transferencia aislados.
 
 **Requisitos H-OWNER consolidados — Tokenomics-P:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar activo, protocolo, red, contratos y reglas de emisión; registrar suministro máximo, total y circulante con definición y fuente; diferenciar emisión programada, ejecutada y potencial; documentar desbloqueos, destinatarios, cantidades, fechas y vesting; separar tokens desbloqueados, transferidos, depositados en exchanges y vendidos; registrar quemas ejecutadas frente a propuestas; investigar recompensas e incentivos; evaluar inflación, dilución y distribución con metodología explícita; investigar recompras, comisiones y redistribución; analizar concentración y control solo con atribución sustentada; comparar expectativas y ejecución; estudiar oferta disponible, liquidez y comportamiento; conservar historial y separar hechos de hipótesis. Añade distinguir tokens existentes, desbloqueados, negociables y liquidez efectiva. Observaciones: ninguna.
@@ -421,13 +326,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Tokenomics-N — Transferencia sin cambio económico demostrado
 
 - **Entrada/objeto:** observación de transacción on-chain. Una dirección transfiere tokens, sin evidencia de cambio de oferta, venta, distribución, desbloqueo o incentivos.
-
 - **Salida:** EXCLUIR como acontecimiento de tokenomics solo si evidencia suficiente permite establecer que no existe cambio material; categoría principal NINGUNA para una venta/cambio de oferta no acreditados; conservar la transacción como observación on-chain y la atribución como afirmación separada; familia transversal TOKENOMICS Y OFERTA.
-
 - **Evidencia mínima:** datos on-chain, atribución/control de direcciones y documentación de propósito cuando se afirme que es interno.
-
 - **INDETERMINADO si:** control, propósito o destino económico son desconocidos.
-
 - **No inferir:** venta, identidad del titular o cambio de oferta por el mero movimiento.
 
 **Requisitos H-OWNER consolidados — Tokenomics-N:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar fuente original, autor, fecha y cadena de difusión; investigar rumores de emisión, desbloqueos, quemas, recompras e incentivos; consultar contratos, repositorios, gobernanza y documentación; distinguir intención, propuesta, aprobación, programación y ejecución; verificar transacciones, bloques y direcciones; evitar atribuciones no demostradas; diferenciar transferencias internas, movimientos de custodios, depósitos en exchanges y ventas; investigar filtraciones y cronología; contrastar cifras; conservar desmentidos y rectificaciones; examinar conflictos de interés o campañas coordinadas solo con indicios; separar reacción de mercado y veracidad; mantener INDETERMINADO ante evidencia insuficiente; actualizar sin borrar historial. Añade comparar la cronología de difusión y movimientos con calendarios de desbloqueos, propuestas y anuncios, sin inferir filtraciones ni uso de información privilegiada por mera precedencia temporal. Observaciones: ninguna.
@@ -435,13 +336,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Minería-P — Decisión operativa de minería
 
 - **Entrada/objeto:** acontecimiento. Operador confirma cierre o expansión de instalaciones por costes energéticos, regulación o rentabilidad; exposición operativa documentada.
-
 - **Salida:** INCLUIR + familia minería/validación; principal según hecho inmediato: INS para decisión del operador; ECO para shock energético externo; REG para restricción legal; TEC para cambio de protocolo/consenso.
-
 - **Evidencia mínima:** comunicación del operador o autoridad, instalación/operación identificable y evidencia del factor declarado.
-
 - **INDETERMINADO si:** no se identifica operador, instalación, decisión o causa.
-
 - **No inferir:** variación global de hashrate, seguridad de red o impacto de precio desde una instalación aislada.
 
 **Requisitos H-OWNER consolidados — Minería-P:** Decisión expresa del propietario: aprueba el escenario Minería-P presentado como Mining-Validation-P, con la mejora de identificar red, protocolo, consenso y versión; registrar cierres, aperturas, migraciones y ampliaciones de instalaciones; verificar hashrate, dificultad y producción de bloques, distinguiendo estimaciones y mediciones; investigar energía, costes y restricciones; registrar recompensas, comisiones e incentivos; investigar entradas y salidas de mineros y validadores sin atribuciones no demostradas; analizar concentración con métricas y períodos definidos; investigar slashing, interrupciones, ataques y reorganizaciones; diferenciar fallos locales de problemas de consenso o seguridad global; estudiar factores regulatorios, energéticos, geográficos y tecnológicos; analizar consecuencias potenciales sobre oferta, seguridad y liquidez; investigar señales anticipatorias; conservar series y revisiones; separar hechos, estimaciones, hipótesis y efectos observados. Añade que el hashrate no es indicador universal de seguridad: en PoS deben evaluarse participación efectiva, concentración y distribución del stake, validadores, penalizaciones y finality; no comparar directamente métricas de consenso diferentes. Observaciones: ninguna.
@@ -449,13 +346,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Minería-N — Ajuste automático ordinario acreditado
 
 - **Entrada/objeto:** observación de red y documentación del protocolo. El ajuste de dificultad sigue el mecanismo automático previsto y no hay evidencia de cambio anómalo de operación, seguridad, costes o capacidad.
-
 - **Salida:** EXCLUIR como catalizador anómalo solo si la normalidad está acreditada; categoría principal NINGUNA para el supuesto de anomalía/catalizador no demostrado; conservar la observación técnica y su contexto; familia transversal MINERÍA Y VALIDACIÓN.
-
 - **Evidencia mínima:** reglas del protocolo y datos contextualizados de dificultad, hashrate, intervalo/producción de bloques y capacidad operativa.
-
 - **INDETERMINADO si:** falta contexto temporal/técnico u operativo. Hashrate es magnitud observada/estimada; no describirlo como parámetro que el protocolo ajusta automáticamente del mismo modo que la dificultad.
-
 - **No inferir:** normalidad ni anomalía a partir de una métrica aislada.
 
 **Requisitos H-OWNER consolidados — Minería-N:** Decisión expresa del propietario: aprueba el escenario con la mejora de diferenciar ajustes automáticos previstos de cambios extraordinarios; comparar con períodos históricos y versiones de protocolo comparables; no interpretar cambios de dificultad como prueba de crisis; distinguir variaciones temporales de hashrate de cambios persistentes de capacidad; buscar respaldo en indicadores independientes; investigar explicaciones como mantenimiento, estacionalidad energética y migraciones; separar datos confirmados de hipótesis; mantener INDETERMINADO si no se acredita normalidad; no descartar un acontecimiento extraordinario por coincidir con un ajuste automático; analizar la reacción del precio por separado. Observaciones: ninguna.
@@ -463,13 +356,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Gobernanza-P — Propuesta, voto y ejecución
 
 - **Entrada/objeto:** hitos. Propuesta verificable pasa a votación y obtiene resultado que cambia reglas, liderazgo, roadmap o asignación de recursos.
-
 - **Salida:** INCLUIR + familia gobernanza; TEC principal cuando el cambio corresponde a reglas/protocolo; diferenciar propuesta, votación, resultado y ejecución.
-
 - **Evidencia mínima:** propuesta, registro de votación y prueba de ejecución cuando se afirme que fue ejecutada.
-
 - **INDETERMINADO si:** no se puede verificar validez del proceso, resultado o ejecución.
-
 - **No inferir:** implementación por aprobación ni efectos económicos no observados.
 
 **Requisitos H-OWNER consolidados — Gobernanza-P:** Decisión expresa del propietario: aprueba el escenario con la mejora de identificar protocolo, DAO, entidad y jurisdicción cuando corresponda; registrar propuesta, autor, fecha y versión; diferenciar discusión, propuesta formal, votación, aprobación, rechazo y ejecución; verificar quórum, umbrales, delegaciones y períodos; investigar concentración de voto y conflictos con evidencia; verificar resultados en contratos, registros y transacciones; comparar parámetros anteriores, aprobados y ejecutados; estudiar efectos sobre emisión, recompensas, comisiones, tesorería, staking, seguridad e ingresos; analizar derechos económicos y de gobernanza; investigar disputas, bifurcaciones y controversias; registrar propuestas retiradas, aplazadas, rechazadas o parcialmente ejecutadas; evaluar efectos potenciales sin presumir dirección del precio; conservar versiones y cronología; investigar señales anticipatorias; separar decisión formal, ejecución técnica y consecuencias. Añade detectar decisiones no ejecutadas, parcialmente ejecutadas o modificadas durante implementación, y estudiar concentración de votos considerando delegación, vetos y restricciones. Observaciones: ninguna.
@@ -477,13 +366,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Gobernanza-N — Sugerencia informal sin proceso decisorio
 
 - **Entrada/objeto:** publicación/afirmación. Participante publica sugerencia sin propuesta formal, respaldo, proceso de decisión ni efecto verificable.
-
 - **Salida:** EXCLUIR como hito de gobernanza; categoría principal NINGUNA para un proceso decisorio no acreditado; conservar la sugerencia como publicación/afirmación atribuida si es trazable; familia transversal GOBERNANZA solo si el contenido trata efectivamente del ecosistema.
-
 - **Evidencia mínima:** publicación original y contexto del foro/proceso consultado.
-
 - **INDETERMINADO si:** no puede descartarse una propuesta formal paralela.
-
 - **No inferir:** ausencia de debate o decisión fuera del ámbito consultado.
 
 **Requisitos H-OWNER consolidados — Gobernanza-N:** Decisión expresa del propietario: aprueba el escenario con controles para diferenciar opiniones, conversaciones, borradores, intenciones, propuestas formales y decisiones; verificar autenticidad de documentos y publicaciones; determinar autoridad/capacidad del autor; corroborar en canales oficiales y registros on-chain; conservar versiones y cambios; detectar afirmaciones falsas o atribuciones incorrectas; investigar cronología de filtraciones sin presumir autenticidad; clasificar estados posibles, probables, aprobados o ejecutados; conservar desmentidos y rectificaciones; separar reacción del precio de veracidad; usar INDETERMINADO ante evidencia insuficiente. Mejora adicional: estudiar relaciones, delegaciones y poder de voto sin inferir coordinación o manipulación por votos coincidentes. Observaciones: ninguna.
@@ -491,13 +376,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Custodia-P — Incorporación o retirada efectiva de servicio
 
 - **Entrada/objeto:** acontecimiento/hito. Banco, custodio o red de pagos confirma incorporación o retirada de servicio cripto que cambia efectivamente acceso.
-
 - **Salida:** INCLUIR + familia custodia/pagos/infraestructura; principal COM, INS o EXC según naturaleza inmediata.
-
 - **Evidencia mínima:** comunicación primaria y confirmación operativa del servicio, alcance y fecha efectiva.
-
 - **INDETERMINADO si:** solo hay anuncio sin fecha, alcance o confirmación de disponibilidad.
-
 - **No inferir:** uso real, número de clientes o volumen transaccionado.
 
 **Requisitos H-OWNER consolidados — Custodia-P:** Decisión expresa del propietario: aprueba el escenario con controles para identificar entidad, propietarios y relaciones corporativas; licencias, autorizaciones y jurisdicciones; servicios de custodia, pagos, liquidación, transferencias, tokenización y gestión de activos; activos, redes y clientes; distinguir anuncio, autorización, desarrollo, lanzamiento y operación efectiva; identificar socios y proveedores; verificar seguridad, auditorías, seguros, segregación patrimonial y controles; medir cobertura, capacidad y restricciones; verificar integraciones y uso real, volúmenes y clientes cuando exista evidencia; analizar efectos directos e indirectos, competencia, riesgos y concentración; conservar cambios, cancelaciones e interrupciones; investigar señales anticipatorias. Mejora adicional: diferenciar custodia propia, de terceros y autocustodia; verificar control de claves, régimen jurídico, insolvencia, garantías y responsabilidades; distinguir capacidad anunciada de capacidad operativa; identificar dependencias y puntos únicos de fallo; separar clientes potenciales, contratos, clientes activos y activos efectivamente custodiados; exigir evidencia de integración, disponibilidad y utilización antes de atribuir flujos institucionales o efectos económicos. Observaciones: ninguna.
@@ -505,13 +386,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Custodia-N — Material promocional o especulación sin procedencia
 
 - **Entrada/objeto:** publicación/afirmación. Se especula sobre integración futura sin fuente identificada ni evidencia verificable de conversaciones, acuerdo o lanzamiento.
-
 - **Salida:** EXCLUIR como integración efectiva; categoría principal NINGUNA para una integración/servicio no acreditado; si la publicación es trazable, conservarla como afirmación no corroborada y no como servicio disponible; familia transversal CUSTODIA/PAGOS solo cuando el contenido trate realmente de ese ámbito.
-
 - **Evidencia mínima:** publicación original y comprobación de que no atribuye conversaciones a fuente identificada ni aporta documentación del proceso.
-
 - **INDETERMINADO si:** existe fuente identificada que confirma conversaciones exploratorias o no puede verificarse si hay proceso paralelo.
-
 - **No inferir:** que una conversación confirmada es irrelevante; en ese caso se clasifica como proceso anticipatorio/en desarrollo, no como integración ejecutada.
 
 **Requisitos H-OWNER consolidados — Custodia-N:** Decisión expresa del propietario: aprueba el escenario con controles para identificar fuente original, autor, fecha y relación con la entidad; clasificar rumor, denuncia, declaración atribuida, evidencia documental y hecho confirmado; contrastar comunicados, registros regulatorios y documentos judiciales; verificar acceso directo de la fuente; diferenciar problemas técnicos, operativos, financieros y regulatorios; distinguir indisponibilidad temporal, restricción contractual, iliquidez e insolvencia; no inferir insolvencia por retrasos de retirada; verificar titularidad y disponibilidad de activos; determinar alcance por clientes, servicios y jurisdicciones; identificar exposición y contagio directo e indirecto; conservar contradicciones, incertidumbre, desmentidos y rectificaciones; usar INDETERMINADO si no hay corroboración suficiente; separar reacción del mercado de veracidad. Mejora adicional: construir cronología de señales operativas, financieras y regulatorias previas a comunicaciones públicas, preservando fuentes y fiabilidad, sin inferir filtración ni uso de información privilegiada por precedencia temporal. Observaciones: ninguna.
@@ -519,13 +396,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Ciberseguridad-P — Vulnerabilidad explotada confirmada
 
 - **Entrada/objeto:** acontecimiento. Vulnerabilidad ha sido explotada en sistema cripto; componente y alcance técnico están respaldados.
-
 - **Salida:** INCLUIR + familia ciberseguridad; TEC principal; EXC secundaria si afecta a intermediario/infraestructura de mercado.
-
 - **Evidencia mínima:** informe técnico, aviso del responsable, transacciones o evidencia reproducible de explotación.
-
 - **INDETERMINADO si:** existe alerta pero no se confirma exposición o explotación.
-
 - **No inferir:** pérdida, cantidad robada, fondos recuperados o usuarios afectados sin evidencia.
 
 **Requisitos H-OWNER consolidados — Ciberseguridad-P:** Decisión expresa del propietario: aprueba el escenario con controles para identificar protocolo, red, contratos, versiones y componentes; vulnerabilidad y severidad; fuente del hallazgo; auditores e investigadores, alcance, metodología y fecha; reproducibilidad; correcciones, parches y cambios; verificar que el código auditado coincide con el desplegado; comprobar despliegue, pruebas posteriores y riesgos residuales; distinguir vulnerabilidad corregida, mitigada, aceptada o pendiente; evaluar fondos y usuarios expuestos, incidentes previos, recuperación, mitigación y dependencias; investigar señales anticipatorias y divulgación responsable; analizar consecuencias potenciales sobre confianza, adopción y actividad económica; conservar cambios y resultados. Mejora adicional: distinguir auditoría, revisión formal, pruebas automatizadas y pruebas de explotación; evaluar si la solución introduce vulnerabilidades nuevas o afecta disponibilidad, costes, rendimiento o funcionalidades; limitar toda afirmación de seguridad al alcance efectivamente examinado; seguir la secuencia descubrimiento, notificación, corrección, despliegue y divulgación pública, sin presumir filtración. Observaciones: ninguna.
@@ -533,13 +406,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Ciberseguridad-N — Falso positivo demostrado
 
 - **Entrada/objeto:** afirmación/alerta. Auditoría técnica identifica alerta inicial como falso positivo y demuestra que el componente/versión examinado no contiene la vulnerabilidad alegada ni estuvo expuesto.
-
 - **Salida:** EXCLUIR como incidente confirmado; categoría principal NINGUNA para el incidente alegado que no existió en el componente/versión examinados; conservar alerta, informe y análisis como publicaciones/afirmaciones relacionadas; familia transversal CIBERSEGURIDAD.
-
 - **Evidencia mínima:** informe reproducible que identifique componente, versión, método y conclusión.
-
 - **INDETERMINADO si:** solo existe alerta sin análisis suficiente para confirmar o descartar.
-
 - **No inferir:** que todo el sistema está libre de vulnerabilidades distintas.
 
 **Requisitos H-OWNER consolidados — Ciberseguridad-N:** Decisión expresa del propietario: aprueba controles para identificar fuente original, investigador, fecha y contexto; protocolo, contratos, redes y versiones afectadas; naturaleza de la vulnerabilidad y condiciones de explotación; recopilar código, pruebas, transacciones y evidencias; distinguir vulnerabilidad teórica, reproducible y explotación real; corroborar con responsables, investigadores y auditores; verificar componente realmente desplegado; diferenciar fondos expuestos, comprometidos, sustraídos, congelados y recuperados; registrar pausas y mitigaciones; identificar dependencias y contagio; no atribuir ataques sin evidencia; conservar cronología, contradicciones y rectificaciones; separar impacto potencial de reacción de mercado; mantener INDETERMINADO si la evidencia es insuficiente. Mejora adicional: relacionar divulgaciones técnicas, actividad on-chain, pausas de servicios y comunicaciones oficiales en una cronología, sin inferir explotación anticipada, filtración ni causalidad. Observaciones: ninguna.
@@ -547,13 +416,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Materias primas/energía/tecnología-P — Shock energético con exposición
 
 - **Entrada/objeto:** acontecimiento. Interrupción documentada del suministro energético eleva costes de operadores de minería identificables o altera condiciones macrofinancieras mediante canal explicado.
-
 - **Salida:** INCLUIR + familia materias primas/energía/tecnología; ECO principal para shock económico/energético; TEC o INS secundarias solo si impacto operativo específico probado.
-
 - **Evidencia mínima:** fuente primaria/sectorial del suministro afectado y datos verificables de exposición o canal macro.
-
 - **INDETERMINADO si:** faltan localización, duración, exposición o datos de transmisión.
-
 - **No inferir:** costes de mineros concretos, cierres ni impacto cripto global sin evidencia.
 
 **Requisitos H-OWNER consolidados — Materias primas/energía/tecnología-P:** Decisión H-OWNER: aprobar el escenario positivo de acontecimientos externos verificables que alteren condiciones económicas, tecnológicas u operativas con posibles efectos sobre cripto. Mejora aprobada: documentar la cadena de transmisión acontecimiento externo → variable económica/tecnológica → sector afectado → participante cripto → activo digital → posible efecto en precio; respaldar cada enlace con evidencia o marcarlo como hipótesis. Distinguir anuncio, contrato, inversión, construcción, puesta en marcha y producción efectiva; comparar referencias históricas y geográficas; evaluar impacto local, regional o global, precios nominales y reales, sustitución de recursos y costes marginales/competitividad; separar PoW y PoS; analizar dependencias entre energía, semiconductores, centros de datos, IA y minería; identificar ganadores y perjudicados sin presuponer efecto neto positivo; conservar escenarios alternativos y datos desconocidos.
@@ -561,13 +426,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Materias primas/energía/tecnología-N — Producto sin canal cripto
 
 - **Entrada/objeto:** publicación/acontecimiento. Noticia sobre nuevo dispositivo de consumo sin relación demostrable con minería, infraestructura, costes, inflación, liquidez o adopción cripto.
-
 - **Salida:** EXCLUIR como catalizador de esa familia; categoría principal NINGUNA para un canal cripto no acreditado; conservar el producto y la noticia como objetos tecnológicos/comerciales, sin atribuirles exposición cripto.
-
 - **Evidencia mínima:** fuente original y análisis de las características del producto y de los canales de exposición pertinentes.
-
 - **INDETERMINADO si:** faltan detalles técnicos o comerciales que podrían revelar exposición relevante.
-
 - **No inferir:** irrelevancia futura permanente.
 
 **Requisitos H-OWNER consolidados — Materias primas/energía/tecnología-N:** Decisión H-OWNER: aprobar el escenario negativo de rumores, afirmaciones no verificadas y señales sobre materias primas, energía, semiconductores y tecnología. Mejora aprobada: distinguir escasez anunciada de confirmada; restricciones anunciadas, aprobadas y aplicadas; contrastar producción, inventarios, demanda y precios con períodos históricos; identificar sustitutos tecnológicos y proveedores alternativos; separar exposición directa e indirecta; diferenciar vulnerabilidad potencial de interrupción operativa real; utilizar INDETERMINADO ante evidencia insuficiente; mantener separadas la confirmación del acontecimiento y la reacción del mercado. Investigar fuente original, autor, fecha, cadena de difusión, corroboración, alcance geográfico/sectorial, exposición cripto, duración, rectificaciones y posibles señales anticipatorias sin presumir filtraciones ni uso de información privilegiada.
@@ -575,13 +436,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Filtraciones-P — Información anticipatoria trazable
 
 - **Entrada/objeto:** publicación/afirmación anticipatoria anterior al anuncio oficial; pieza fechada y atribuible a fuente identificada, con contenido concreto.
-
 - **Salida:** INCLUIR como información anticipatoria + familia filtraciones; categoría principal según naturaleza del hecho anticipado; estado no corroborado/atribuido si no existe corroboración.
-
 - **Evidencia mínima:** publicación o documento original, fecha, procedencia y comparación temporal con anuncio oficial si este ya ocurrió.
-
 - **INDETERMINADO si:** no se puede verificar origen, fecha o contenido concreto.
-
 - **No inferir:** veracidad, confirmación oficial ni que el anuncio posterior valide todos los detalles. No exigir anuncio oficial posterior para registrar la señal anticipatoria trazable.
 
 **Requisitos H-OWNER consolidados — Filtraciones-P:** Decisión H-OWNER: aprobar el escenario positivo de detección e investigación de información potencialmente difundida antes de un anuncio oficial. Mejora aprobada: diferenciar filtración auténtica, rumor, especulación, investigación periodística y coincidencia temporal; registrar por separado fecha del acontecimiento, fecha de conocimiento por una fuente y fecha de publicación; conservar evidencia original y huellas criptográficas cuando existan; comparar información anticipada con anuncio posterior, incluidas coincidencias y diferencias parciales; investigar explicaciones alternativas para movimientos de mercado; evaluar credibilidad sin convertirla en certeza; clasificar INDETERMINADO cuando falte corroboración; no atribuir acceso privilegiado, manipulación o conducta ilegal sin evidencia específica. Investigar autenticidad, cronología, cadena de difusión, fuentes, posibles participantes con acceso acreditado, actividad de mercado/on-chain y confirmación posterior.
@@ -589,13 +446,9 @@ En cada caso de esta sección se exige tanto la categoría principal como la eti
 #### Filtraciones-N — Atribución falsa o material manipulado demostrados
 
 - **Entrada/objeto:** publicación/afirmación. Cuenta anónima difunde supuesta filtración y evidencia posterior verificable demuestra manipulación del documento o atribución falsa.
-
 - **Salida:** EXCLUIR la afirmación como evidencia del acontecimiento alegado; categoría principal NINGUNA para el hecho alegado que la evidencia desmiente; conservar la publicación, rectificación y análisis como objetos separados; familia transversal FILTRACIONES solo como clasificación de la afirmación anticipatoria examinada.
-
 - **Evidencia mínima:** publicación original y análisis del documento o rectificación fiable que demuestre manipulación/atribución falsa.
-
 - **INDETERMINADO si:** solo falta corroboración, la fuente es anónima o no se ha probado falsedad.
-
 - **No inferir:** que una filtración es fabricada por ser anónima o no corroborada.
 
 **Requisitos H-OWNER consolidados — Filtraciones-N:** Decisión H-OWNER: aprobar el escenario negativo destinado a evitar clasificar como filtración cualquier rumor, movimiento de mercado o publicación anterior a un acontecimiento oficial. Mejora aprobada: distinguir documentos auténticos, manipulados, incompletos y de autenticidad desconocida; separar fechas de creación, modificación, publicación, descubrimiento y verificación; investigar suplantación, cuentas falsas, coordinación y contenido generado artificialmente; no contar publicaciones que replican una fuente como corroboraciones independientes; comprobar si la información ya era pública o deducible; separar coincidencia entre afirmación y anuncio posterior de prueba de conocimiento de información no pública; mantener hipótesis alternativas y evidencia contraria; utilizar INDETERMINADO cuando no se establezcan origen o autenticidad; preservar evidencia para revisión posterior. Investigar cronología, origen, corroboración, contradicciones, explicaciones alternativas de mercado y atribución sin presumir acceso privilegiado, manipulación o conducta ilícita.
@@ -650,15 +503,10 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 ### BND-01 — Solicitud ETF registrada frente a especulación
 
 - **Entrada/objeto:** dos publicaciones: una enlaza expediente oficial de solicitud; otra especula sin expediente ni fuente.
-
 - **Salida:** INCLUIR el hito de solicitud si registro, producto y jurisdicción coinciden; conservar la especulación como afirmación, no como solicitud.
-
 - **Categoría/familia:** ETF; familia transversal NINGUNA salvo que el supuesto añada otra dimensión acreditada.
-
 - **Evidencia mínima:** registro oficial y publicación original.
-
 - **INDETERMINADO si:** no puede consultarse el registro competente o no se identifica producto/jurisdicción.
-
 - **No inferir:** aprobación, lanzamiento ni probabilidad de aprobación.
 
 **Requisitos H-OWNER consolidados — BND-01:** Decisión H-OWNER: aprobar la distinción entre una solicitud ETF registrada oficialmente y la especulación sin expediente verificable. Mejora aprobada: conservar y versionar la cronología de expedientes cuando una solicitud sea modificada, retirada, sustituida o presentada nuevamente; verificar si las versiones están relacionadas para no contarlas como solicitudes independientes; mantener diferenciadas solicitud, revisión, aprobación, autorización de negociación y lanzamiento; no inferir aprobación ni lanzamiento a partir de la presentación.
@@ -666,15 +514,10 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 ### BND-02 — Filtración atribuida sin corroboración
 
 - **Entrada/objeto:** documento o declaración fechada, fuente identificada, anterior al anuncio y sin corroboración independiente al momento de primera detección.
-
 - **Salida:** INCLUIR como anticipatoria con estado ATRIBUIDA o NO CORROBORADA; nunca como hecho confirmado.
-
 - **Categoría/familia:** categoría del hecho anticipado + familia filtraciones.
-
 - **Evidencia mínima:** copia o registro de la pieza original, fecha y atribución verificable.
-
 - **INDETERMINADO si:** origen, fecha o integridad no pueden verificarse.
-
 - **No inferir:** veracidad ni validación retrospectiva por un anuncio posterior.
 
 **Requisitos H-OWNER consolidados — BND-02:** Decisión H-OWNER: aprobar el registro de una información anticipatoria atribuida a una fuente identificable aunque carezca de corroboración independiente al detectarse, sin elevarla a hecho confirmado. Mejora aprobada: exigir que la corroboración sea independiente de la fuente original y de sus republicaciones; no contar múltiples medios que reproducen una misma fuente como confirmaciones independientes; conservar qué información estaba disponible en cada momento para evitar contaminación retrospectiva; registrar identidad atribuida frente a identidad verificada, fechas, versiones, evidencia original, rectificaciones y contradicciones; mantener estados ATRIBUIDA/NO CORROBORADA hasta evidencia suficiente.
@@ -682,15 +525,10 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 ### BND-03 — Filtración anónima sin procedencia
 
 - **Entrada/objeto:** publicación anónima sin documento, atribución ni procedencia rastreable.
-
 - **Salida:** INDETERMINADO respecto del acontecimiento alegado; EXCLUIR como evidencia confirmatoria. Solo excluir la afirmación como falsa si aparece prueba positiva de falsedad.
-
 - **Categoría/familia:** ninguna asignación afirmativa; familia filtraciones puede etiquetar la pieza en cuarentena si el registro conserva publicaciones no corroboradas.
-
 - **Evidencia mínima:** publicación original para probar que circuló, no para probar su contenido.
-
 - **INDETERMINADO si:** no existe evidencia adicional de autenticidad o falsedad.
-
 - **No inferir:** que anonimato equivale a falsedad.
 
 **Requisitos H-OWNER consolidados — BND-03:** Decisión H-OWNER: aprobar el tratamiento de publicaciones anónimas sin procedencia rastreable como INDETERMINADO respecto del acontecimiento alegado y excluirlas como evidencia confirmatoria, sin calificarlas como falsas por el mero anonimato. Mejora aprobada: separar cuatro dimensiones independientes: existencia de la publicación, autenticidad/identidad de la fuente, veracidad del contenido y evidencia de acceso anticipado a información no pública. Registrar URL/identificador, fecha de captura, contenido original y huellas criptográficas cuando existan; investigar historial de la cuenta sin tratarlo como prueba del caso actual; buscar fuentes primarias y corroboración independiente; detectar republicaciones coordinadas, manipulación, suplantación y contenido sintético; mantener en cuarentena informativa y actualizar el estado con evidencia posterior, conservando rectificaciones.
@@ -698,15 +536,10 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 ### BND-04 — Conversaciones exploratorias verificadas frente a rumor
 
 - **Entrada/objeto:** caso A: fuente identificada confirma conversaciones exploratorias de custodia; caso B: rumor sin fuente afirma integración.
-
 - **Salida:** A INCLUIR como proceso anticipatorio/en desarrollo, no como integración efectiva. B INDETERMINADO como afirmación no corroborada.
-
 - **Categoría/familia:** categoría según naturaleza inmediata (COM/INS/EXC cuando proceda) + familia custodia/pagos/infraestructura.
-
 - **Evidencia mínima:** declaración atribuida verificable para A; publicación original para registrar B.
-
 - **INDETERMINADO si:** no se puede comprobar la fuente o el contenido de las conversaciones.
-
 - **No inferir:** contrato, fecha de lanzamiento, servicio disponible o adopción.
 
 **Requisitos H-OWNER consolidados — BND-04:** Decisión H-OWNER: incluir conversaciones exploratorias verificadas como proceso anticipatorio/en desarrollo, sin clasificarlas como integración efectiva. Mejora aprobada: distinguir conversaciones, negociaciones, memorandos, acuerdos preliminares y contratos firmados; identificar fuente, autoridad y capacidad de representación; registrar autorizaciones de divulgación; separar integración técnica, pruebas piloto, disponibilidad comercial y uso efectivo; contrastar declaraciones de ambas partes, alcance, condiciones, exclusividad, plazos, dependencias y cancelaciones; no inferir clientes, ingresos, activos bajo custodia ni flujos institucionales sin evidencia.
@@ -714,15 +547,10 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 ### BND-05 — Transferencia con control común probado frente a control desconocido
 
 - **Entrada/objeto:** transacción on-chain; caso A tiene evidencia de control común de direcciones y ausencia de cambio económico; caso B carece de atribución fiable.
-
 - **Salida:** A EXCLUIR como venta/cambio de oferta si no hay otra modificación material. B INDETERMINADO.
-
 - **Categoría/familia:** tokenomics solo si se prueba cambio de oferta/reglas; familia tokenomics cuando corresponda.
-
 - **Evidencia mínima:** transacción, atribución de control y contexto de propósito para A.
-
 - **INDETERMINADO si:** control o propósito desconocidos.
-
 - **No inferir:** venta, titularidad ni intención por el mero movimiento.
 
 **Requisitos H-OWNER consolidados — BND-05:** Decisión H-OWNER: excluir como venta/cambio de oferta la transferencia entre direcciones con control común probado y sin cambio económico material; mantener INDETERMINADO cuando la atribución o el propósito no estén acreditados. Mejora aprobada: distinguir control técnico, custodia y titularidad económica; documentar evidencia y estado de atribución (confirmada, probable, disputada o desconocida); investigar propósito sin inferirlo por patrones; diferenciar movimientos internos, cambios de custodio, transferencias entre entidades y operaciones comerciales; evitar doble conteo; conservar atribuciones históricas revisables y no convertir volumen en señal de venta institucional sin evidencia.
@@ -730,15 +558,10 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 ### BND-06 — Desbloqueo on-chain sin venta probada
 
 - **Entrada/objeto:** hito de desbloqueo verificable según contrato/vesting; no hay evidencia de transferencia a exchange o venta.
-
 - **Salida:** INCLUIR desbloqueo como hito de tokenomics si material y documentado; no registrar venta.
-
 - **Categoría/familia:** TEC principal cuando el hecho inmediato sea regla del protocolo + familia tokenomics.
-
 - **Evidencia mínima:** contrato, calendario/regla y transacción o estado de desbloqueo.
-
 - **INDETERMINADO si:** no se puede comprobar que el saldo quedó efectivamente desbloqueado.
-
 - **No inferir:** venta, distribución al mercado o presión vendedora realizada.
 
 **Requisitos H-OWNER consolidados — BND-06:** Decisión H-OWNER: incluir el desbloqueo on-chain como hito de tokenomics cuando sea material y esté documentado, sin registrarlo como venta ni presión vendedora realizada. Mejora aprobada: distinguir desbloqueo programado, ejecutado y disponibilidad efectiva para transferir; identificar destinatarios/beneficiarios solo con evidencia; registrar cantidades, fechas, contratos y reglas de vesting; separar tokens desbloqueados, transferidos, depositados en exchanges y vendidos; comprobar restricciones posteriores; investigar movimientos sin presumir ventas; conservar modificaciones/retrasos del calendario; evaluar presión vendedora como hipótesis prospectiva y diferenciar oferta potencialmente negociable de oferta que llega al mercado.
@@ -746,15 +569,10 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 ### BND-07 — Dificultad automática frente a caída de hashrate sin contexto
 
 - **Entrada/objeto:** caso A: ajuste de dificultad conforme a regla y datos contextualizados; caso B: caída de hashrate sin causa ni alcance identificados.
-
 - **Salida:** A EXCLUIR como anomalía/catalizador si se acredita normalidad; B INDETERMINADO.
-
 - **Categoría/familia:** minería/validación como familia; TEC solo si hay cambio técnico/protocolo material.
-
 - **Evidencia mínima:** regla del protocolo y series/contexto de dificultad, hashrate, bloques y capacidad.
-
 - **INDETERMINADO si:** falta contexto técnico/temporal o causa.
-
 - **No inferir:** que hashrate sea un parámetro ajustado automáticamente como dificultad ni que una caída aislada pruebe pérdida de seguridad.
 
 **Requisitos H-OWNER consolidados — BND-07:** Decisión H-OWNER: excluir como anomalía/catalizador el ajuste automático de dificultad cuando los datos contextualizados acrediten normalidad; mantener INDETERMINADO ante caída de hashrate sin causa, alcance o duración identificados. Mejora aprobada: distinguir dificultad, hashrate estimado, tiempos y producción de bloques; comparar series históricas y ciclos de ajuste; analizar magnitud, duración y persistencia; investigar energía, regulación, migraciones, mantenimiento, rentabilidad y fallos; diferenciar efectos locales y de red; verificar consecuencias observables sobre bloques, finality, reorganizaciones y seguridad; no interpretar ajustes ordinarios como eventos extraordinarios; usar INDETERMINADO si falta contexto; no aplicar métricas PoW a PoS, donde deben evaluarse stake, participación y distribución de validadores, penalizaciones y finality.
@@ -762,15 +580,10 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 ### BND-08 — Dato macro sin reacción observada
 
 - **Entrada/objeto:** publicación estadística oficial; mecanismo potencial documentado; no hay datos que acrediten reacción de mercado.
-
 - **Salida:** INCLUIR el acontecimiento macro; registrar reacción como NO OBSERVADA/NO DISPONIBLE.
-
 - **Categoría/familia:** ECO o MAC según hecho inmediato; ninguna familia transversal obligatoria.
-
 - **Evidencia mínima:** publicación oficial y explicación del canal potencial.
-
 - **INDETERMINADO si:** el dato o el canal no se pueden verificar.
-
 - **No inferir:** reacción, cambio de expectativas ni causalidad.
 
 **Requisitos H-OWNER consolidados — BND-08:** Decisión H-OWNER: incluir el acontecimiento macroeconómico confirmado aunque no exista reacción observada; registrar la reacción como NO OBSERVADA/NO DISPONIBLE y no inferir causalidad ni cambio de expectativas. Mejora aprobada: registrar organismo, publicación original y fecha/hora; comparar valor publicado con consenso verificable y revisiones; documentar canales de transmisión hacia cripto; separar impacto potencial de impacto observado; registrar reacciones de BTC, ETH, otros activos digitales y mercados relacionados solo con datos disponibles; evaluar si el evento estaba descontado; conservar revisiones de expectativas y utilizar estados explícitos de incertidumbre sin estimaciones inventadas.
@@ -778,17 +591,11 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 ### BND-09 — Alerta de vulnerabilidad frente a exploit confirmado
 
 - **Entrada/objeto:** caso A: alerta de vulnerabilidad sin evidencia de explotación; caso B: explotación respaldada por evidencia técnica o transaccional reproducible.
-
 - **Salida A:** registrar la alerta como PUBLICACIÓN/AFIRMACIÓN de ciberseguridad, con el estado de evidencia disponible. **No declarar acontecimiento de explotación ni asignar estado EXPLOTADO.** Si la vulnerabilidad y el componente están verificados, conservar el acontecimiento «vulnerabilidad identificada» como tal; su explotación permanece NO DEMOSTRADA.
-
 - **Salida B:** **INCLUIR** el acontecimiento de explotación confirmada como catalizador de ciberseguridad.
-
 - **Categoría/familia:** TEC principal cuando el hecho inmediato sea una vulnerabilidad o explotación técnica; familia transversal CIBERSEGURIDAD. EXC secundaria únicamente si existe afectación material acreditada a un exchange, custodio o intermediario. Para A sin vulnerabilidad verificada, categoría principal NINGUNA y solo registro de la alerta como publicación/afirmación.
-
 - **Evidencia mínima:** A: aviso técnico original con componente/versión y procedencia identificables; para afirmar vulnerabilidad, análisis técnico verificable. B: evidencia reproducible de explotación, transacciones atribuibles o confirmación técnica del responsable.
-
 - **INDETERMINADO si:** no se puede resolver autenticidad de la alerta, componente/versión afectado, exposición o existencia de explotación. La ausencia de prueba de explotación no permite concluir que la alerta sea falsa.
-
 - **No inferir:** pérdidas, fondos robados, usuarios afectados, alcance, explotación o recuperación desde la mera existencia de una vulnerabilidad.
 
 **Requisitos H-OWNER consolidados — BND-09:** Decisión H-OWNER: distinguir alerta, vulnerabilidad identificada, prueba de concepto y explotación real; no asignar estado EXPLOTADO sin evidencia técnica o transaccional reproducible. Mejora aprobada: identificar protocolo, contrato, componente y versión; verificar despliegue/exposición; registrar descubridor, notificación y cronología; investigar señales previas sin inferir filtración; distinguir fondos expuestos, comprometidos, sustraídos, congelados y recuperados; evaluar efectos sobre liquidez, garantías, confianza y dependencias; conservar pruebas técnicas y transacciones; no atribuir pérdidas, responsables ni explotación anticipada sin evidencia y actualizar el estado ante nuevas pruebas.
@@ -796,15 +603,10 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 ### BND-10 — Repetición mediática frente a hito posterior
 
 - **Entrada/objeto:** caso A: múltiples medios reproducen la misma fuente original; caso B: aparece una decisión/resultado posterior que cambia el estado del proceso.
-
 - **Salida:** A un acontecimiento/afirmación con varias referencias; B nuevo hito relacionado, con identidad y fecha propias.
-
 - **Categoría/familia:** categoría según hecho inmediato; familia transversal solo si aplica al hecho.
-
 - **Evidencia mínima:** fuentes originales y cronología de publicación; para B, documento/registro del hito posterior.
-
 - **INDETERMINADO si:** no se puede determinar si la nueva publicación aporta un hito material o solo repite.
-
 - **No inferir:** independencia por cantidad de medios ni equivalencia entre hitos sucesivos.
 
 **Requisitos H-OWNER consolidados — BND-10:** Decisión H-OWNER: agrupar publicaciones que reproducen una misma fuente como un acontecimiento/afirmación con múltiples referencias; registrar como nuevo hito relacionado una decisión o resultado posterior que cambie materialmente el estado del proceso. Mejora aprobada: identificar fuentes originales y relaciones de republicación; distinguir corroboración independiente de repetición; conservar publicaciones y fechas sin duplicar acontecimientos; identificar decisiones, modificaciones, aprobaciones, rechazos, aplazamientos y cancelaciones; asignar identidad a cada hito material y relacionarlo con el proceso; reconstruir qué información estaba disponible en cada momento; reevaluar impacto sin atribuir automáticamente reacciones previas al nuevo hito; conservar rectificaciones y versiones contradictorias.
@@ -812,19 +614,12 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 ## 5. Reglas de precedencia y casos indeterminados
 
 1. El objeto se clasifica antes de decidir si constituye un acontecimiento: conservar la publicación no obliga a incluir el hecho alegado.
-
 2. La categoría principal se asigna por la naturaleza inmediata del acontecimiento/hito, no por todas sus consecuencias posibles.
-
 3. La etiqueta transversal se registra separadamente y no crea duplicados.
-
 4. Un dato macro oficial puede ser INCLUIDO por mecanismo potencial sin que se haya observado reacción del mercado.
-
 5. Una solicitud, conversación, desbloqueo, vulnerabilidad o propuesta se registra en su fase real; no se eleva a aprobación, integración, venta, exploit o ejecución.
-
 6. La ausencia de un registro solo respalda una conclusión negativa si se identifica el registro competente, jurisdicción, cobertura y período consultado.
-
 7. Repeticiones de una misma fuente no son corroboración independiente.
-
 8. Los estados de evidencia y las decisiones deben conservar la perspectiva temporal: qué se sabía en la primera detección y qué cambió posteriormente.
 
 ## 6. Revisión documental
@@ -836,15 +631,10 @@ A: recorrido de los 36 IDs y 10 BND contra los dos documentos normativos; compro
 Comprobaciones aplicadas:
 
 - definición de categoría principal y familia transversal;
-
 - separación publicación/afirmación/acontecimiento/hito;
-
 - salida esperada y evidencia mínima;
-
 - condición explícita de INDETERMINADO;
-
 - no-inferencias y límites de causalidad;
-
 - coherencia con la matriz de los 18 casos del documento de validación.
 
 ### Revisión B — revisión adversarial asistida
@@ -854,17 +644,11 @@ B: recorrido adversarial separado de los 46 casos, buscando exclusiones por mera
 Pruebas adversariales aplicadas:
 
 - conclusiones EXCLUIR sustentadas únicamente en falta de evidencia;
-
 - inclusión que presuponga confirmación oficial posterior;
-
 - inferencias de venta, pérdida, explotación, adopción, reacción o causalidad;
-
 - clasificación principal por consecuencia y no por hecho inmediato;
-
 - uso de categoría transversal como principal;
-
 - campos desconocidos rellenados implícitamente;
-
 - confusión entre repetición y corroboración.
 
 **Estado de ejecución de revisiones:** las revisiones A y B se ejecutaron sobre los 46 escenarios y sus resultados están resumidos arriba y en la tabla de registro. Son dos pasadas analíticas del mismo asistente, no dos revisores independientes. Por tanto, satisfacen únicamente la revisión asistida interna. En el estado documental de aquella revisión, H-OWNER seguía pendiente; posteriormente, el propietario completó H-OWNER para los 46 casos el 2026-11-14, según el registro de §7.1. No se exige ni se simula una segunda persona independiente para este alcance interno conforme a la política aprobada.
@@ -995,11 +779,8 @@ M-13 comprueba que cada decisión H-OWNER permanezca dentro de la ficha original
 Estados de conformidad permitidos:
 
 - `PASS — SINGLE-HUMAN COMPENSATING CONTROLS`: únicamente cuando H-OWNER, AI-ADVERSARIAL, AUTO-VALIDATION y ADVERSARIAL-TEST estén ejecutados, documentados y sin defectos bloqueantes.
-
 - `PASS WITH LIMITATION — EXTERNAL REVIEW PENDING`: controles compensatorios ejecutados, pero una revisión externa exigible o recomendada para el uso previsto sigue pendiente; el uso afectado no se autoriza si la revisión es obligatoria.
-
 - `NOT CONFORMANT`: falta un control obligatorio o existe un defecto bloqueante.
-
 - `INDEPENDENT HUMAN REVIEW VERIFIED`: reservado exclusivamente a dos personas humanas distintas, con identidades y evidencias separadas verificables. No se asigna en este proyecto mientras no existan esas dos revisiones.
 
 La aprobación del propietario de la política no es una revisión de los 46 casos ni una revisión externa. A/B son dos pasadas del mismo asistente y no equivalen a dos revisiones humanas independientes.
@@ -1033,49 +814,29 @@ No se declara Markdown lint, CI ni revisión humana independiente. AD-01 está c
 ## 8. Límites y supuestos
 
 - Los escenarios son sintéticos y prueban reglas documentales; no afirman que los hechos hayan ocurrido.
-
 - No se mide rendimiento predictivo, precisión, recall, impacto, intensidad, duración ni probabilidad.
-
 - No se implementa búsqueda/captura de noticias, evaluación de fuentes, detección automática de filtraciones, deduplicación, grafo, clasificador, ranking, señales ni CI.
-
 - No se demuestra causalidad entre acontecimientos y precios.
-
 - La ausencia de datos se conserva como desconocida; la evidencia necesaria depende de la jurisdicción, protocolo, entidad y fase.
-
 - Los ejemplos no sustituyen el juicio documentado ni autorizan ampliar el alcance de la taxonomía.
 
 ## 9. Criterios de conformidad para este documento
 
 - [x] Se enumeran los 36 IDs originales: un positivo y un negativo por cada una de las 18 filas.
-
 - [x] Se enumeran los 10 casos BND-01 a BND-10.
-
 - [x] Cada escenario contiene entrada/objeto, decisión, clasificación, evidencia mínima, condición de indeterminación y no-inferencias.
-
 - [x] Los casos transversales exigen etiqueta de familia además de categoría principal.
-
 - [x] Se aplican las correcciones normativas de ECO-P, ETF-N, INS-N, Custodia-N, Filtraciones-P, Tokenomics-N y Minería-N.
-
 - [x] Se distinguen publicación, afirmación, acontecimiento e hito.
-
 - [x] Se explicita EXCLUIR frente a INDETERMINADO.
-
 - [x] Revisión A y B asistidas completadas y registradas históricamente; no equivalen a revisores humanos independientes.
-
 - [x] Política de participante único aprobada e integrada mediante PR #31; no se afirma independencia humana.
-
 - [x] H-OWNER completada para los 46 casos (36 escenarios + 10 BND), con decisión y evidencia por ID.
-
 - [x] AI-ADVERSARIAL repetida y registrada para el SHA `4df01d8af2d67ca4c72ff0113b146ca977ece3ad` (asistida, no independiente).
-
 - [x] AUTO-VALIDATION versionada ejecutada y con salida reproducible sobre `76974e94fcef15f795905088b43365de7757d59f`; resultado `PASS`, registrado en §7.2. Repetir si se modifican el documento, el validador o sus dependencias.
-
 - [x] Pruebas adversariales M-01…M-13 ejecutadas sobre `76974e94fcef15f795905088b43365de7757d59f`; 13/13 `OK`, registrado en §7.2. Repetir si se modifican el documento, la suite o el validador.
-
 - [x] Referencias internas a los dos documentos normativos comprobadas contra los archivos existentes en `main`.
-
 - [x] Comprobaciones programáticas puntuales de estructura y cobertura ejecutadas sobre el contenido recuperado de la rama; alcance y límites registrados en §6.3.
-
 - [ ] Markdown lint y validaciones CI del repositorio ejecutadas; no se declaran como realizadas.
 
 ## 10. Referencias
