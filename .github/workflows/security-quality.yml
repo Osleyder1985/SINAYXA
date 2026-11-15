@@ -136,7 +136,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m venv "${RUNNER_TEMP}/contract-schema-venv"
-          "${RUNNER_TEMP}/contract-schema-venv/bin/python" -m pip install --disable-pip-version-check --no-input "jsonschema==4.25.1"
+          "${RUNNER_TEMP}/contract-schema-venv/bin/python" -m pip install --disable-pip-version-check --no-input -r requirements-contract-validation.txt
           "${RUNNER_TEMP}/contract-schema-venv/bin/python" scripts/validation/validate_source_evidence_contract_schema.py
       # Retain dependency audit results for traceability and later review.
       - name: Upload dependency audit evidence
