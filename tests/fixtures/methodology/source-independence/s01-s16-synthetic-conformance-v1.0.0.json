@@ -49,6 +49,15 @@
       "OFICIAL",
       "NO_INSTITUCIONAL",
       "DESCONOCIDO"
+    ],
+    "source_subtype": [
+      "REGISTRO_ORIGINAL",
+      "TESTIMONIO_PRIMERA_MANO",
+      "INVESTIGACION_SECUNDARIA",
+      "ANALISIS_TECNICO",
+      "COMENTARIO",
+      "COMPILACION",
+      "REPRODUCCION"
     ]
   },
   "cases": [
@@ -184,6 +193,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "REPRODUCCION",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     },
     {
@@ -259,6 +276,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "TESTIMONIO_PRIMERA_MANO",
+      "identity_visibility": {
+        "anonymous_to_public": true,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": null,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     },
     {
@@ -324,6 +349,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "REGISTRO_ORIGINAL",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     },
     {
@@ -423,6 +456,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "INVESTIGACION_SECUNDARIA",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     },
     {
@@ -483,6 +524,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "ANALISIS_TECNICO",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     },
     {
@@ -550,6 +599,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "INVESTIGACION_SECUNDARIA",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     },
     {
@@ -609,6 +666,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "TESTIMONIO_PRIMERA_MANO",
+      "identity_visibility": {
+        "anonymous_to_public": true,
+        "anonymous_to_publisher": null,
+        "anonymous_to_sinayxa": true,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": false
       }
     },
     {
@@ -683,6 +748,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "REPRODUCCION",
+      "identity_visibility": {
+        "anonymous_to_public": null,
+        "anonymous_to_publisher": null,
+        "anonymous_to_sinayxa": null,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     },
     {
@@ -791,6 +864,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "INVESTIGACION_SECUNDARIA",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     },
     {
@@ -853,6 +934,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "REGISTRO_ORIGINAL",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     },
     {
@@ -914,6 +1003,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "REGISTRO_ORIGINAL",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     },
     {
@@ -974,6 +1071,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "COMENTARIO",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     },
     {
@@ -1040,6 +1145,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "REPRODUCCION",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     },
     {
@@ -1156,6 +1269,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "INVESTIGACION_SECUNDARIA",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     },
     {
@@ -1215,6 +1336,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "TESTIMONIO_PRIMERA_MANO",
+      "identity_visibility": {
+        "anonymous_to_public": true,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": true,
+        "identity_verified_by_publisher": true,
+        "identity_verified_by_sinayxa": false
       }
     },
     {
@@ -1290,6 +1419,14 @@
         "human_review_required": true,
         "automated_credibility_decision": false,
         "synthetic_only": true
+      },
+      "source_subtype": "ANALISIS_TECNICO",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
       }
     }
   ]
