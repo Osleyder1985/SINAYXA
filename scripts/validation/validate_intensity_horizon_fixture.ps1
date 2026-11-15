@@ -195,9 +195,9 @@ if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-002") {
     }
 }
 
-# Version 1.2.0 semantic-input contract checks. These assertions validate the
-# declared synthetic case contracts; they do not prove real-world impact or causality.
-if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {
+# Version 1.2.0 semantic-input contract checks. These assertions remain applicable
+# to v1.3.0; they do not prove real-world impact or causality.
+if ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-003", "SINAYXA-IH-T01-T20-SYNTHETIC-004")) {
     $t01 = Get-FixtureCase -Id "T01"
     if ($t01.expected.intensity -ne "I0" -or
         $t01.expected.direction -notlike "INDETERMINADA*" -or
