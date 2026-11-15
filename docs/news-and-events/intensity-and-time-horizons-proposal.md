@@ -298,7 +298,7 @@ Los siguientes casos son escenarios sintéticos de prueba. Los resultados espera
 
 | ID | Evidencia y escenario congelados | Resultado esperado | Error que debe detectar |
 | --- | --- | --- | --- |
-| T01 | Acontecimiento registrado; tras revisar la exposición y los canales relevantes, la evidencia permite concluir que no existe mecanismo material hacia la unidad evaluada. | I0; dirección NEUTRAL o NO APLICABLE según el registro definido. | Confundir ausencia de impacto identificado con falta de información. |
+| T01 | Acontecimiento registrado; tras revisar la exposición y los canales relevantes, la evidencia permite concluir que no existe mecanismo material hacia la unidad evaluada. | I0; dirección NEUTRAL únicamente cuando la evidencia también respalde ausencia de cambio direccional material; si la dirección no puede establecerse, INDETERMINADA. | Confundir ausencia de impacto identificado con falta de información. |
 | T02 | Exposición pequeña, canal indirecto plausible, efecto acotado y sustituto operativo documentado. | I1 para esa unidad/escenario. | Elevar intensidad solo por el tono de la noticia. |
 | T03 | Exposición concreta, canal directo verificado, cambio apreciable pero limitado a una entidad/segmento y con alcance acotado. | I2 para esa unidad/escenario. | Saltar a I3 sin demostrar amplitud o centralidad. |
 | T04 | Exposición amplia o central demostrada, canal verificado y cambio material en una condición relevante; no se acredita amenaza a función esencial o viabilidad. | I3. | Confundir materialidad amplia con criticidad I4. |
