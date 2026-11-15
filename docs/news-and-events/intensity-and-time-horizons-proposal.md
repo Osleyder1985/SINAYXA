@@ -163,7 +163,7 @@ Se propone una convención común de ventanas para facilitar el registro y la co
 | INMEDIATO | Desde el momento de referencia hasta 24 horas | Efectos que pueden transmitirse dentro de la misma sesión o del siguiente día; por ejemplo, interrupción operativa, anuncio inesperado con ejecución inmediata o cambio de acceso ya efectivo. |
 | CORTO | Más de 24 horas y hasta 7 × 24 horas | Efectos cuya transmisión requiere varios días, confirmación próxima, ejecución inicial o ajuste operativo de corto recorrido. |
 | MEDIO | Más de 7 × 24 horas y hasta 90 × 24 horas | Efectos que dependen de implementación, decisiones intermedias, adopción inicial, vencimientos o ajustes que se desarrollan durante semanas o meses. |
-| LARGO | Más de 90 días | Efectos estructurales, regulatorios, tecnológicos, de adopción o inversión cuyo mecanismo requiere más de un trimestre para materializarse o evaluarse. |
+| LARGO | Más de 90 × 24 horas | Efectos estructurales, regulatorios, tecnológicos, de adopción o inversión cuyo mecanismo requiere más de 90 días de 24 horas para materializarse o evaluarse. |
 | FECHA/VENTANA CONCRETA | Fecha o intervalo respaldado por fuente | Debe conservarse además de la categoría cuando exista un calendario o hito verificable. No convertir una estimación en fecha confirmada. |
 | INDETERMINADO | Sin ventana justificable | No existe base suficiente para estimar cuándo ocurrirá el hito o se transmitirá el efecto. |
 
@@ -337,6 +337,6 @@ Los siguientes casos son escenarios sintéticos de prueba. Los resultados espera
 - [ ] Las fechas sin hora, intervalos y timestamps contradictorios no se convierten en precisión artificial.
 - [x] La cobertura sintética incluye T20 en el fixture v1.3.0: la antigüedad de un hito pasado se registra como dato descriptivo y no se clasifica como horizonte. Esta casilla acredita la presencia contractual del caso, no su ejecución formal ni la aprobación metodológica.
 - [ ] Los acontecimientos con varias fases conservan un horizonte por hito/fase y distinguen los tres relojes.
-- [ ] La batería T01–T19 se ejecuta y sus resultados quedan registrados antes de la aprobación metodológica.
+- [ ] La batería T01–T20 se ejecuta y sus resultados quedan registrados antes de la aprobación metodológica.
 
 **Gobernanza:** esta versión es una propuesta. Ningún nivel, ventana o criterio se considera aprobado hasta que el propietario lo acepte expresamente. La aprobación documental no autoriza implementación automática; cualquier implementación requerirá un Issue funcional y un PR con pruebas.
