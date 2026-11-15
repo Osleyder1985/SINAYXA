@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param()
 $ErrorActionPreference = 'Stop'
 $validator = Join-Path $PSScriptRoot 'validate_evidence_standard_fixture.ps1'
@@ -30,52 +30,52 @@ try {
     Write-Information 'Positive fixture validation: PASS' -InformationAction Continue
 
     $mut = Copy-Fixture; $mut.cases = @($mut.cases | Select-Object -SkipLast 1)
-    Invoke-ExpectedFailure 'missing-case' $mut 'Expected 18 cases'
+    Invoke-ExpectedFailure -Name 'missing-case' -Data $mut -ExpectedMessage 'Expected 18 cases'
 
     $mut = Copy-Fixture; $mut.cases[1].id = 'E01'
-    Invoke-ExpectedFailure 'duplicate-case-id' $mut 'unique'
+    Invoke-ExpectedFailure -Name 'duplicate-case-id' -Data $mut -ExpectedMessage 'unique'
 
     $mut = Copy-Fixture; $mut.cases[0].expected.evidentiary_status = 'PROBABLE'
-    Invoke-ExpectedFailure 'unsupported-status' $mut 'unsupported evidentiary status'
+    Invoke-ExpectedFailure -Name 'unsupported-status' -Data $mut -ExpectedMessage 'unsupported evidentiary status'
 
     $mut = Copy-Fixture; $mut.cases[0].nature = 'UNCLASSIFIED'
-    Invoke-ExpectedFailure 'unsupported-nature' $mut 'unsupported information nature'
+    Invoke-ExpectedFailure -Name 'unsupported-nature' -Data $mut -ExpectedMessage 'unsupported information nature'
 
     $mut = Copy-Fixture; $mut.cases[0].expected.source_identity = 'ANÓNIMA_PARA_EL_PÚBLICO'; $mut.cases[0].expected.document_authenticity = 'ANÓNIMA_PARA_EL_PÚBLICO'
-    Invoke-ExpectedFailure 'source-identity-not-authenticity' $mut 'unsupported document-authenticity'
+    Invoke-ExpectedFailure -Name 'source-identity-not-authenticity' -Data $mut -ExpectedMessage 'unsupported document-authenticity'
 
     $mut = Copy-Fixture; $mut.cases[4].expected.source_identity = 'ANONYMOUS'
-    Invoke-ExpectedFailure 'invalid-source-identity' $mut 'unsupported source-identity value'
+    Invoke-ExpectedFailure -Name 'invalid-source-identity' -Data $mut -ExpectedMessage 'unsupported source-identity value'
 
     $mut = Copy-Fixture; $mut.cases[3].expected.independence_of_origin = 'UNVERIFIED'
-    Invoke-ExpectedFailure 'invalid-independence-state' $mut 'unsupported independence-of-origin'
+    Invoke-ExpectedFailure -Name 'invalid-independence-state' -Data $mut -ExpectedMessage 'unsupported independence-of-origin'
 
     $mut = Copy-Fixture; $mut.cases[14].expected.access_provenance = 'UNAUTHORIZED'
-    Invoke-ExpectedFailure 'invalid-access-provenance' $mut 'unsupported access-provenance value'
+    Invoke-ExpectedFailure -Name 'invalid-access-provenance' -Data $mut -ExpectedMessage 'unsupported access-provenance value'
 
     $mut = Copy-Fixture; $mut.cases[14].expected.sensitive_information_review = 'LEGAL_REVIEW'
-    Invoke-ExpectedFailure 'invalid-sensitive-review-state' $mut 'unsupported sensitive-information review value'
+    Invoke-ExpectedFailure -Name 'invalid-sensitive-review-state' -Data $mut -ExpectedMessage 'unsupported sensitive-information review value'
 
     $mut = Copy-Fixture; $mut.cases[14].expected.access_provenance = 'PÚBLICO_LEGÍTIMO'
-    Invoke-ExpectedFailure 'erase-suspicious-access' $mut 'E15 must preserve'
+    Invoke-ExpectedFailure -Name 'erase-suspicious-access' -Data $mut -ExpectedMessage 'E15 must preserve'
 
     $mut = Copy-Fixture; $mut.cases[14].expected.sensitive_information_review = 'NO_EVALUADA'
-    Invoke-ExpectedFailure 'erase-legal-review' $mut 'E15 must preserve'
+    Invoke-ExpectedFailure -Name 'erase-legal-review' -Data $mut -ExpectedMessage 'E15 must preserve'
 
     $mut = Copy-Fixture; $mut.cases[2].invariants.republishing_is_independent = $true
-    Invoke-ExpectedFailure 'republication-as-independent' $mut 'republication must never imply independence'
+    Invoke-ExpectedFailure -Name 'republication-as-independent' -Data $mut -ExpectedMessage 'republication must never imply independence'
 
     $mut = Copy-Fixture; $mut.cases[12].invariants.retroactive_confirmation = $true
-    Invoke-ExpectedFailure 'retroactive-confirmation' $mut 'historical state must not be rewritten'
+    Invoke-ExpectedFailure -Name 'retroactive-confirmation' -Data $mut -ExpectedMessage 'historical state must not be rewritten'
 
     $mut = Copy-Fixture; $mut.cases[13].invariants.price_is_corrobative = $true
-    Invoke-ExpectedFailure 'price-as-proof' $mut 'price must never be corroborative'
+    Invoke-ExpectedFailure -Name 'price-as-proof' -Data $mut -ExpectedMessage 'price must never be corroborative'
 
     $mut = Copy-Fixture; $mut.cases[14].invariants.unauthorized_acquisition = $true
-    Invoke-ExpectedFailure 'unauthorized-acquisition' $mut 'unauthorized acquisition must remain prohibited'
+    Invoke-ExpectedFailure -Name 'unauthorized-acquisition' -Data $mut -ExpectedMessage 'unauthorized acquisition must remain prohibited'
 
     $mut = Copy-Fixture; $mut.cases[6].expected.evidentiary_status = 'CORROBORADA'
-    Invoke-ExpectedFailure 'partial-to-full-overclaim' $mut 'E07: status does not match'
+    Invoke-ExpectedFailure -Name 'partial-to-full-overclaim' -Data $mut -ExpectedMessage 'E07: status does not match'
 
     Write-Information 'Evidence-standard fixture tests: PASS (1 positive + 16 negative mutations).' -InformationAction Continue
 }
