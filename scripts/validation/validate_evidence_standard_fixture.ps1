@@ -80,7 +80,7 @@ foreach ($case in $fixture.cases) {
 
 Assert-Condition ($caseById.E01.nature -eq 'PUBLICACIÓN_OFICIAL' -and $caseById.E01.expected.document_authenticity -eq 'AUTENTICADA') 'E01 must represent the authenticated official resolution.'
 Assert-Condition ($caseById.E03.expected.independence_of_origin -eq 'DEPENDIENTE') 'E03 must represent the eight republications as one dependent origin.'
-Assert-Condition ($caseById.E04.expected.independence_of_origin -eq 'INDEPENDIENTE' -and $caseById.E04.expected.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') 'E04 must corroborate only the date and entity, not the amount.'
+Assert-Condition ($caseById.E04.expected.independence_of_origin -eq 'INDEPENDIENTE' -and $caseById.E04.expected.source_identity -eq 'DESCONOCIDA' -and $caseById.E04.expected.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') 'E04 must preserve independent origin without inventing source identities and corroborate only date and entity.'
 Assert-Condition ($caseById.E07.expected.document_authenticity -eq 'AUTENTICADA' -and $caseById.E07.expected.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') 'E07 must preserve the authenticated draft status without implying approval.'
 Assert-Condition ($caseById.E08.expected.temporal_assessment.historical_status -eq 'NO_CORROBORADA' -and $caseById.E08.expected.temporal_assessment.post_announcement_status -eq 'CORROBORADA' -and $caseById.E08.expected.temporal_assessment.retroactive_rewrite -eq $false) 'E08 must preserve the pre-announcement state and record later corroboration separately.'
 Assert-Condition ($caseById.E09.expected.evidentiary_status -eq 'CONTRADICHA' -and $caseById.E09.expected.document_authenticity -eq 'NO_VERIFICADA') 'E09 must preserve unresolved contradiction with an unauthenticated document.'
@@ -90,7 +90,7 @@ Assert-Condition ($caseById.E12.expected.evidentiary_status -eq 'REFUTADA' -and 
 Assert-Condition ($caseById.E13.expected.access_provenance -eq 'SOSPECHA_DE_ACCESO_NO_AUTORIZADO' -and $caseById.E13.expected.sensitive_information_review -eq 'REVISIÓN_LEGAL_REQUERIDA') 'E13 must stop substantive review and require legal review.'
 Assert-Condition ($caseById.E14.expected.source_identity -eq 'ANÓNIMA_PARA_EL_PÚBLICO' -and $caseById.E14.expected.evidentiary_status -eq 'NO_CORROBORADA') 'E14 must preserve the anonymous attribution without upgrading corroboration.'
 Assert-Condition ($caseById.E15.expected.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') 'E15 must confirm filing only, not approval.'
-Assert-Condition ($caseById.E16.expected.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') 'E16 must preserve the preliminary proposal without treating it as an executed agreement.'
+Assert-Condition ($caseById.E16.expected.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA' -and $caseById.E16.expected.document_authenticity -eq 'NO_VERIFICADA') 'E16 must preserve the preliminary proposal without assuming document authenticity or an executed agreement.'
 Assert-Condition ($caseById.E17.expected.evidentiary_status -eq 'CONTRADICHA' -and $caseById.E17.expected.independence_of_origin -eq 'DESCONOCIDA') 'E17 must preserve incompatible anonymous versions without assuming independence.'
 Assert-Condition ($caseById.E18.expected.evidentiary_status -eq 'NO_RESUELTA') 'E18 must not infer corroboration or refutation from a correction alone.'
 
