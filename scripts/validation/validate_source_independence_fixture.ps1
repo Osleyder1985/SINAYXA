@@ -34,6 +34,18 @@ foreach ($case in $fixture.cases) {
     foreach ($visibilityField in @("anonymous_to_public","anonymous_to_publisher","anonymous_to_sinayxa","identity_verified_by_publisher","identity_verified_by_sinayxa")) {
         Assert-Condition ($case.identity_visibility.PSObject.Properties.Name -contains $visibilityField) "${id}: identity visibility field '$visibilityField' is required."
     }
+    if ([string]$case.identity -eq 'ANÓNIMA_PARA_EL_PÚBLICO') {
+        Assert-Condition ($case.identity_visibility.anonymous_to_public -eq $true) "${id}: public-anonymous identity state conflicts with identity_visibility."
+    }
+    if ([string]$case.identity -eq 'ANÓNIMA_PARA_SINAYXA') {
+        Assert-Condition ($case.identity_visibility.anonymous_to_sinayxa -eq $true) "${id}: SINAYXA-anonymous identity state conflicts with identity_visibility."
+    }
+    if ($case.identity_visibility.anonymous_to_publisher -eq $true) {
+        Assert-Condition ($case.identity_visibility.identity_verified_by_publisher -ne $true) "${id}: publisher cannot both lack the identity and verify it."
+    }
+    if ($case.identity_visibility.anonymous_to_sinayxa -eq $true) {
+        Assert-Condition ($case.identity_visibility.identity_verified_by_sinayxa -ne $true) "${id}: SINAYXA cannot verify an identity marked anonymous to SINAYXA."
+    }
     Assert-Condition ($allowedInstitutional -contains [string]$case.institutional_character) "${id}: invalid institutional_character."
     Assert-Condition ($fixture.allowed.dissemination -contains [string]$case.dissemination) "${id}: invalid dissemination."
     Assert-Condition ($allowedIndependence -contains [string]$case.independence) "${id}: invalid independence."
