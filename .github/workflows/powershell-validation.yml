@@ -129,11 +129,13 @@ jobs:
           $ErrorActionPreference = 'Stop'
           Import-Module PSScriptAnalyzer -RequiredVersion 1.24.0
           $results = @(Invoke-ScriptAnalyzer -Path '.' -Recurse)
-          $results | Format-Table -AutoSize
+          foreach ($finding in $results) {
+            Write-Information ("{0} {1} {2}:{3} {4}" -f $finding.Severity, $finding.RuleName, $finding.ScriptName, $finding.Line, $finding.Message) -InformationAction Continue
+          }
           $errors = @($results | Where-Object { $_.Severity -eq 'Error' })
-          $warnings = @($results | Where-Object { $_.Severity -ne 'Error' })
-          Write-Host "PSScriptAnalyzer errors: $($errors.Count)"
-          Write-Host "PSScriptAnalyzer non-error findings: $($warnings.Count)"
+          $nonErrors = @($results | Where-Object { $_.Severity -ne 'Error' })
+          Write-Information "PSScriptAnalyzer errors: $($errors.Count)" -InformationAction Continue
+          Write-Information "PSScriptAnalyzer non-error findings: $($nonErrors.Count)" -InformationAction Continue
           if ($errors.Count -gt 0) {
             exit 1
           }
