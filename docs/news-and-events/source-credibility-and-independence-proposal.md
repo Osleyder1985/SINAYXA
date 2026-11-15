@@ -45,6 +45,8 @@ Debe conservarse como mínimo:
 - referencia exacta y versión de la publicación/documento;
 - fecha de publicación, fecha de acceso y fecha de corte de la evaluación;
 - identidad conocida por SINAYXA y visibilidad de esa identidad para el público, con acceso restringido cuando proceda;
+- tipo de fuente (PRIMARIA, SECUNDARIA, TERCIARIA o DESCONOCIDA) relativo a la afirmación y al componente evaluado;
+- subtipo/función, base de conocimiento, carácter oficial/institucional y modo de difusión, registrados como atributos separados;
 - relación declarada de la fuente con el hecho: observación directa, participación, documento recibido, testimonio indirecto, análisis, comentario o reproducción;
 - cadena de obtención conocida y sus incertidumbres;
 - evidencias favorables, limitaciones y evidencias contrarias;
