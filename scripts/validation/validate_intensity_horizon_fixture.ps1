@@ -255,6 +255,11 @@ Write-Host "Fixture structure validation: PASS"
 Write-Host "Package: $($fixture.package_id) v$($fixture.package_version)"
 Write-Host "Cases: $($actualIds.Count)"
 Write-Host "Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)"
-if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {\n    Write-Host "T16: SINGLE-HUMAN PROTOCOL DEFINED (not an execution result)"\n}\nelse {\n    Write-Host "T16: BLOCKED (historical fixture requirement correctly preserved)"\n}
+if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {
+    Write-Host "T16: SINGLE-HUMAN PROTOCOL DEFINED (not an execution result)"
+}
+else {
+    Write-Host "T16: BLOCKED (historical fixture requirement correctly preserved)"
+}
 Write-Host "SHA256: $hash"
 Write-Host "Path: $resolvedPath"
