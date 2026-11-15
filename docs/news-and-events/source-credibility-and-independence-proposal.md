@@ -159,6 +159,8 @@ Registrar por separado:
 - anonimato frente al medio/editor;
 - anonimato frente a SINAYXA;
 - identidad verificada por un tercero, si existe evidencia legítima y utilizable;
+
+Para mantener compatibilidad con el estándar #15, la dimensión de identidad debe conservar exactamente sus valores: **IDENTIFICADA**, **ANÓNIMA_PARA_EL_PÚBLICO**, **ANÓNIMA_PARA_SINAYXA**, **SEUDÓNIMA** y **DESCONOCIDA**. Si la identidad es conocida por el editor pero no por SINAYXA, registrar esa circunstancia como metadato de procedencia y no inferir que SINAYXA verificó la identidad.
 - relación declarada con el hecho;
 - método de comprobación de identidad y acceso, sin almacenar datos personales innecesarios;
 - número de fuentes distintas solo cuando su separación esté sustentada, nunca inferido de expresiones como «varias fuentes».
