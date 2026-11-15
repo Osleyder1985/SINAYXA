@@ -109,7 +109,7 @@
         "independence_of_origin": "DESCONOCIDA",
         "access_provenance": "NO_DETERMINADO",
         "sensitive_information_review": "NO_EVALUADA",
-        "attribution_status": "ATRIBUIDA"
+        "attribution_status": "NO_DETERMINADA"
       },
       "invariants": {
         "price_is_corrobative": false,
@@ -130,7 +130,7 @@
         "independence_of_origin": "DESCONOCIDA",
         "access_provenance": "NO_DETERMINADO",
         "sensitive_information_review": "NO_EVALUADA",
-        "attribution_status": "ATRIBUIDA"
+        "attribution_status": "NO_DETERMINADA"
       },
       "invariants": {
         "price_is_corrobative": false,
@@ -151,7 +151,7 @@
         "independence_of_origin": "DESCONOCIDA",
         "access_provenance": "NO_DETERMINADO",
         "sensitive_information_review": "NO_EVALUADA",
-        "attribution_status": "ATRIBUIDA"
+        "attribution_status": "NO_DETERMINADA"
       },
       "invariants": {
         "price_is_corrobative": false,
@@ -199,7 +199,7 @@
         "independence_of_origin": "DESCONOCIDA",
         "access_provenance": "NO_DETERMINADO",
         "sensitive_information_review": "NO_EVALUADA",
-        "attribution_status": "ATRIBUIDA"
+        "attribution_status": "NO_DETERMINADA"
       },
       "invariants": {
         "price_is_corrobative": false,
@@ -220,7 +220,7 @@
         "independence_of_origin": "DESCONOCIDA",
         "access_provenance": "PÚBLICO_LEGÍTIMO",
         "sensitive_information_review": "NO_EVALUADA",
-        "attribution_status": "ATRIBUIDA"
+        "attribution_status": "NO_DETERMINADA"
       },
       "invariants": {
         "price_is_corrobative": false,
@@ -241,7 +241,7 @@
         "independence_of_origin": "DESCONOCIDA",
         "access_provenance": "PÚBLICO_LEGÍTIMO",
         "sensitive_information_review": "NO_EVALUADA",
-        "attribution_status": "ATRIBUIDA"
+        "attribution_status": "NO_DETERMINADA"
       },
       "invariants": {
         "price_is_corrobative": false,
@@ -262,7 +262,7 @@
         "independence_of_origin": "DESCONOCIDA",
         "access_provenance": "NO_DETERMINADO",
         "sensitive_information_review": "NO_EVALUADA",
-        "attribution_status": "ATRIBUIDA"
+        "attribution_status": "NO_DETERMINADA"
       },
       "invariants": {
         "price_is_corrobative": false,
@@ -283,7 +283,7 @@
         "independence_of_origin": "DESCONOCIDA",
         "access_provenance": "SOSPECHA_DE_ACCESO_NO_AUTORIZADO",
         "sensitive_information_review": "REVISIÓN_LEGAL_REQUERIDA",
-        "attribution_status": "ATRIBUIDA"
+        "attribution_status": "NO_DETERMINADA"
       },
       "invariants": {
         "price_is_corrobative": false,
@@ -346,7 +346,7 @@
         "independence_of_origin": "DESCONOCIDA",
         "access_provenance": "NO_DETERMINADO",
         "sensitive_information_review": "NO_EVALUADA",
-        "attribution_status": "ATRIBUIDA"
+        "attribution_status": "NO_DETERMINADA"
       },
       "invariants": {
         "price_is_corrobative": false,
