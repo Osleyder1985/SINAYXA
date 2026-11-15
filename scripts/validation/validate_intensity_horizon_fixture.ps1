@@ -61,7 +61,7 @@ function Get-ProposedHorizon {
 }
 
 $resolvedPath = (Resolve-Path -LiteralPath $FixturePath).Path
-$fixture = Get-Content -LiteralPath $resolvedPath -Raw -Encoding UTF8 | ConvertFrom-Json
+$fixture = Get-Content -LiteralPath $resolvedPath -Raw -Encoding UTF8 | ConvertFrom-Json -DateKind String
 
 if ($fixture.status -ne "SYNTHETIC_TEST_FIXTURE_NOT_REAL_WORLD_EVIDENCE") {
     throw "Fixture status is missing or does not identify the data as synthetic."
