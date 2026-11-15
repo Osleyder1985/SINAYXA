@@ -215,61 +215,71 @@
           "reference": "synthetic-fixture://S01/factor/relation_with_fact",
           "basis_type": "SCOPE_LIMITATION",
           "description": "La cadena de sindicación está identificada en el escenario; la reproducción no acredita observación propia de cada portal. Evaluación acotada de relación con el hecho.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S01/factor/access_and_proximity",
           "basis_type": "SCOPE_LIMITATION",
           "description": "La cadena de sindicación está identificada en el escenario; la reproducción no acredita observación propia de cada portal. Evaluación acotada de acceso y proximidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S01/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S01/factor/transparency_traceability",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "La cadena de sindicación está identificada en el escenario; la reproducción no acredita observación propia de cada portal. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S01/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S01/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S01/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S01/factor/internal_consistency",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar consistencia interna; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S01/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S01/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
@@ -441,70 +451,80 @@
       "factor_evidence_records": [
         {
           "reference": "synthetic-fixture://S02/factor/relation_with_fact",
-          "basis_type": "SCENARIO_SUPPORT",
-          "description": "El escenario identifica un portavoz común; los medios no constituyen orígenes independientes de esa declaración. Evaluación acotada de relación con el hecho.",
-          "synthetic_only": true
+          "basis_type": "EVIDENCE_NOT_PROVIDED",
+          "description": "El portavoz común está identificado como origen de la declaración, pero el escenario no acredita que observara, ejecutara, registrara o participara directamente en el hecho subyacente.",
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S02/factor/access_and_proximity",
           "basis_type": "SCOPE_LIMITATION",
           "description": "El escenario identifica un portavoz común; los medios no constituyen orígenes independientes de esa declaración. Evaluación acotada de acceso y proximidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S02/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S02/factor/transparency_traceability",
-          "basis_type": "SCENARIO_SUPPORT",
-          "description": "El escenario identifica un portavoz común; los medios no constituyen orígenes independientes de esa declaración. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "basis_type": "SCOPE_LIMITATION",
+          "description": "La atribución permite reconocer un portavoz común, pero su anonimato limita la trazabilidad de identidad y la verificación de la cadena.",
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S02/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S02/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S02/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S02/factor/internal_consistency",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar consistencia interna; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S02/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S02/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
         {
           "dimension": "RELATION_WITH_FACT",
-          "status": "SUSTENTADA",
-          "justification": "El escenario identifica un portavoz común; los medios no constituyen orígenes independientes de esa declaración. Evaluación acotada de relación con el hecho.",
+          "status": "DESCONOCIDA",
+          "justification": "El portavoz común está identificado como origen de la declaración, pero el escenario no acredita que observara, ejecutara, registrara o participara directamente en el hecho subyacente.",
           "evidence_refs": [
             "synthetic-fixture://S02/factor/relation_with_fact"
           ]
@@ -527,8 +547,8 @@
         },
         {
           "dimension": "TRANSPARENCY_TRACEABILITY",
-          "status": "SUSTENTADA",
-          "justification": "El escenario identifica un portavoz común; los medios no constituyen orígenes independientes de esa declaración. Evaluación acotada de transparencia y trazabilidad.",
+          "status": "LIMITADA",
+          "justification": "La atribución permite reconocer un portavoz común, pero su anonimato limita la trazabilidad de identidad y la verificación de la cadena.",
           "evidence_refs": [
             "synthetic-fixture://S02/factor/transparency_traceability"
           ]
@@ -661,61 +681,71 @@
           "reference": "synthetic-fixture://S03/factor/relation_with_fact",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "El registro original acredita la presentación de la solicitud, no su aprobación ni consecuencias posteriores. Evaluación acotada de relación con el hecho.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S03/factor/access_and_proximity",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "El registro original acredita la presentación de la solicitud, no su aprobación ni consecuencias posteriores. Evaluación acotada de acceso y proximidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S03/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S03/factor/transparency_traceability",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "El registro original acredita la presentación de la solicitud, no su aprobación ni consecuencias posteriores. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S03/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S03/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S03/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S03/factor/internal_consistency",
           "basis_type": "SCOPE_LIMITATION",
           "description": "El registro original acredita la presentación de la solicitud, no su aprobación ni consecuencias posteriores. Evaluación acotada de consistencia interna.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S03/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S03/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
@@ -913,61 +943,71 @@
           "reference": "synthetic-fixture://S04/factor/relation_with_fact",
           "basis_type": "SCOPE_LIMITATION",
           "description": "La separación de entrevistas y documentos se describe en el escenario como vías distintas; la naturaleza de cada hecho sigue acotada. Evaluación acotada de relación con el hecho.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S04/factor/access_and_proximity",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "La separación de entrevistas y documentos se describe en el escenario como vías distintas; la naturaleza de cada hecho sigue acotada. Evaluación acotada de acceso y proximidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S04/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S04/factor/transparency_traceability",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "La separación de entrevistas y documentos se describe en el escenario como vías distintas; la naturaleza de cada hecho sigue acotada. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S04/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S04/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S04/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S04/factor/internal_consistency",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar consistencia interna; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S04/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S04/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
@@ -1126,61 +1166,71 @@
           "reference": "synthetic-fixture://S05/factor/relation_with_fact",
           "basis_type": "SCOPE_LIMITATION",
           "description": "El análisis del contrato permite interpretar su texto, pero no observar ejecución ni cumplimiento. Evaluación acotada de relación con el hecho.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S05/factor/access_and_proximity",
           "basis_type": "SCOPE_LIMITATION",
           "description": "El análisis del contrato permite interpretar su texto, pero no observar ejecución ni cumplimiento. Evaluación acotada de acceso y proximidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S05/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S05/factor/transparency_traceability",
-          "basis_type": "SCOPE_LIMITATION",
-          "description": "El análisis del contrato permite interpretar su texto, pero no observar ejecución ni cumplimiento. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "basis_type": "EVIDENCE_NOT_PROVIDED",
+          "description": "El escenario acredita que el analista interpreta un contrato público, pero no describe metodología, atribución detallada ni límites publicados que permitan evaluar la transparencia de su trabajo.",
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S05/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S05/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S05/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S05/factor/internal_consistency",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar consistencia interna; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S05/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S05/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
@@ -1210,8 +1260,8 @@
         },
         {
           "dimension": "TRANSPARENCY_TRACEABILITY",
-          "status": "LIMITADA",
-          "justification": "El análisis del contrato permite interpretar su texto, pero no observar ejecución ni cumplimiento. Evaluación acotada de transparencia y trazabilidad.",
+          "status": "DESCONOCIDA",
+          "justification": "El escenario acredita que el analista interpreta un contrato público, pero no describe metodología, atribución detallada ni límites publicados que permitan evaluar la transparencia de su trabajo.",
           "evidence_refs": [
             "synthetic-fixture://S05/factor/transparency_traceability"
           ]
@@ -1346,61 +1396,71 @@
           "reference": "synthetic-fixture://S06/factor/relation_with_fact",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar relación con el hecho; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S06/factor/access_and_proximity",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar acceso y proximidad; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S06/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S06/factor/transparency_traceability",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "La corrección se limita al importe y conserva las versiones anterior y corregida. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S06/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S06/factor/corrections_accountability",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "La corrección se limita al importe y conserva las versiones anterior y corregida. Evaluación acotada de correcciones y rendición de cuentas.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S06/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S06/factor/internal_consistency",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar consistencia interna; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S06/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S06/factor/temporal_adequacy",
-          "basis_type": "SCENARIO_SUPPORT",
-          "description": "La corrección se limita al importe y conserva las versiones anterior y corregida. Evaluación acotada de adecuación temporal.",
-          "synthetic_only": true
+          "basis_type": "EVIDENCE_NOT_PROVIDED",
+          "description": "Conservar versiones y documentar la corrección respalda la trazabilidad editorial, pero el escenario no aporta fechas ni datos suficientes para evaluar si la pieza corresponde al periodo del hecho.",
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
@@ -1478,8 +1538,8 @@
         },
         {
           "dimension": "TEMPORAL_ADEQUACY",
-          "status": "SUSTENTADA",
-          "justification": "La corrección se limita al importe y conserva las versiones anterior y corregida. Evaluación acotada de adecuación temporal.",
+          "status": "DESCONOCIDA",
+          "justification": "Conservar versiones y documentar la corrección respalda la trazabilidad editorial, pero el escenario no aporta fechas ni datos suficientes para evaluar si la pieza corresponde al periodo del hecho.",
           "evidence_refs": [
             "synthetic-fixture://S06/factor/temporal_adequacy"
           ]
@@ -1558,61 +1618,71 @@
           "reference": "synthetic-fixture://S07/factor/relation_with_fact",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar relación con el hecho; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S07/factor/access_and_proximity",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar acceso y proximidad; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S07/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S07/factor/transparency_traceability",
           "basis_type": "SCOPE_LIMITATION",
           "description": "El acceso directo se declara, pero el escenario no aporta soporte verificable de ese acceso. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S07/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S07/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S07/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S07/factor/internal_consistency",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar consistencia interna; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S07/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S07/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
@@ -1785,61 +1855,71 @@
           "reference": "synthetic-fixture://S08/factor/relation_with_fact",
           "basis_type": "SCOPE_LIMITATION",
           "description": "Las publicaciones remiten al mismo documento de intermediario; se conserva una sola cadena documental. Evaluación acotada de relación con el hecho.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S08/factor/access_and_proximity",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar acceso y proximidad; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S08/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S08/factor/transparency_traceability",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "Las publicaciones remiten al mismo documento de intermediario; se conserva una sola cadena documental. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S08/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S08/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S08/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S08/factor/internal_consistency",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar consistencia interna; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S08/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S08/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
@@ -2044,78 +2124,88 @@
       "factor_evidence_records": [
         {
           "reference": "synthetic-fixture://S09/factor/relation_with_fact",
-          "basis_type": "SCENARIO_SUPPORT",
-          "description": "Las observaciones de los reporteros se describen como vías separadas; compartir empleador no prueba dependencia. Evaluación acotada de relación con el hecho.",
-          "synthetic_only": true
+          "basis_type": "EVIDENCE_NOT_PROVIDED",
+          "description": "Las vías de obtención están documentadas por separado, pero el escenario no especifica si los reporteros observaron, ejecutaron, registraron o participaron directamente en el hecho.",
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S09/factor/access_and_proximity",
-          "basis_type": "SCENARIO_SUPPORT",
-          "description": "Las observaciones de los reporteros se describen como vías separadas; compartir empleador no prueba dependencia. Evaluación acotada de acceso y proximidad.",
-          "synthetic_only": true
+          "basis_type": "SCOPE_LIMITATION",
+          "description": "Las vías de obtención separadas están descritas, aunque no se detalla la distancia de cada reportero respecto del hecho ni la naturaleza de su acceso.",
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S09/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S09/factor/transparency_traceability",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "Las observaciones de los reporteros se describen como vías separadas; compartir empleador no prueba dependencia. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S09/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S09/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S09/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S09/factor/internal_consistency",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar consistencia interna; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S09/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S09/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
         {
           "dimension": "RELATION_WITH_FACT",
-          "status": "SUSTENTADA",
-          "justification": "Las observaciones de los reporteros se describen como vías separadas; compartir empleador no prueba dependencia. Evaluación acotada de relación con el hecho.",
+          "status": "DESCONOCIDA",
+          "justification": "Las vías de obtención están documentadas por separado, pero el escenario no especifica si los reporteros observaron, ejecutaron, registraron o participaron directamente en el hecho.",
           "evidence_refs": [
             "synthetic-fixture://S09/factor/relation_with_fact"
           ]
         },
         {
           "dimension": "ACCESS_AND_PROXIMITY",
-          "status": "SUSTENTADA",
-          "justification": "Las observaciones de los reporteros se describen como vías separadas; compartir empleador no prueba dependencia. Evaluación acotada de acceso y proximidad.",
+          "status": "LIMITADA",
+          "justification": "Las vías de obtención separadas están descritas, aunque no se detalla la distancia de cada reportero respecto del hecho ni la naturaleza de su acceso.",
           "evidence_refs": [
             "synthetic-fixture://S09/factor/access_and_proximity"
           ]
@@ -2259,70 +2349,80 @@
       "factor_evidence_records": [
         {
           "reference": "synthetic-fixture://S10/factor/relation_with_fact",
-          "basis_type": "SCENARIO_SUPPORT",
-          "description": "La entidad emitió una negación atribuible, pero el escenario no aporta evidencia subyacente que refute la proposición. Evaluación acotada de relación con el hecho.",
-          "synthetic_only": true
+          "basis_type": "EVIDENCE_NOT_PROVIDED",
+          "description": "La entidad emitió una negación atribuible; el escenario no establece que observara, ejecutara, registrara o participara directamente en el hecho subyacente.",
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S10/factor/access_and_proximity",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar acceso y proximidad; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S10/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S10/factor/transparency_traceability",
           "basis_type": "SCOPE_LIMITATION",
           "description": "La entidad emitió una negación atribuible, pero el escenario no aporta evidencia subyacente que refute la proposición. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S10/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S10/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S10/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S10/factor/internal_consistency",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar consistencia interna; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S10/factor/contrary_evidence",
-          "basis_type": "SCOPE_LIMITATION",
-          "description": "La entidad emitió una negación atribuible, pero el escenario no aporta evidencia subyacente que refute la proposición. Evaluación acotada de evidencia contraria.",
-          "synthetic_only": true
+          "basis_type": "EVIDENCE_NOT_PROVIDED",
+          "description": "La negación oficial es una declaración atribuible, no evidencia subyacente que contradiga el hecho; el escenario no aporta datos contrarios verificables.",
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S10/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
         {
           "dimension": "RELATION_WITH_FACT",
-          "status": "SUSTENTADA",
-          "justification": "La entidad emitió una negación atribuible, pero el escenario no aporta evidencia subyacente que refute la proposición. Evaluación acotada de relación con el hecho.",
+          "status": "DESCONOCIDA",
+          "justification": "La entidad emitió una negación atribuible; el escenario no establece que observara, ejecutara, registrara o participara directamente en el hecho subyacente.",
           "evidence_refs": [
             "synthetic-fixture://S10/factor/relation_with_fact"
           ]
@@ -2385,8 +2485,8 @@
         },
         {
           "dimension": "CONTRARY_EVIDENCE",
-          "status": "LIMITADA",
-          "justification": "La entidad emitió una negación atribuible, pero el escenario no aporta evidencia subyacente que refute la proposición. Evaluación acotada de evidencia contraria.",
+          "status": "DESCONOCIDA",
+          "justification": "La negación oficial es una declaración atribuible, no evidencia subyacente que contradiga el hecho; el escenario no aporta datos contrarios verificables.",
           "evidence_refs": [
             "synthetic-fixture://S10/factor/contrary_evidence"
           ]
@@ -2473,70 +2573,80 @@
       "factor_evidence_records": [
         {
           "reference": "synthetic-fixture://S11/factor/relation_with_fact",
-          "basis_type": "SCENARIO_SUPPORT",
-          "description": "El documento original está autenticado; los errores previos de la fuente se evalúan separadamente. Evaluación acotada de relación con el hecho.",
-          "synthetic_only": true
+          "basis_type": "EVIDENCE_NOT_PROVIDED",
+          "description": "La autenticación acredita la genuinidad del documento, pero el escenario no especifica qué relación tuvo la fuente con el hecho documentado.",
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S11/factor/access_and_proximity",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar acceso y proximidad; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S11/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S11/factor/transparency_traceability",
-          "basis_type": "SCENARIO_SUPPORT",
-          "description": "El documento original está autenticado; los errores previos de la fuente se evalúan separadamente. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "basis_type": "EVIDENCE_NOT_PROVIDED",
+          "description": "La autenticidad del documento está establecida, pero el escenario no describe la metodología, atribución o trazabilidad de la actuación de la fuente más allá de esa pieza.",
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S11/factor/relevant_accuracy_history",
           "basis_type": "COUNTER_EVIDENCE",
           "description": "El documento original está autenticado; los errores previos de la fuente se evalúan separadamente. Evaluación acotada de historial de exactitud pertinente.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S11/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S11/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S11/factor/internal_consistency",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar consistencia interna; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S11/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S11/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
         {
           "dimension": "RELATION_WITH_FACT",
-          "status": "SUSTENTADA",
-          "justification": "El documento original está autenticado; los errores previos de la fuente se evalúan separadamente. Evaluación acotada de relación con el hecho.",
+          "status": "DESCONOCIDA",
+          "justification": "La autenticación acredita la genuinidad del documento, pero el escenario no especifica qué relación tuvo la fuente con el hecho documentado.",
           "evidence_refs": [
             "synthetic-fixture://S11/factor/relation_with_fact"
           ]
@@ -2559,8 +2669,8 @@
         },
         {
           "dimension": "TRANSPARENCY_TRACEABILITY",
-          "status": "SUSTENTADA",
-          "justification": "El documento original está autenticado; los errores previos de la fuente se evalúan separadamente. Evaluación acotada de transparencia y trazabilidad.",
+          "status": "DESCONOCIDA",
+          "justification": "La autenticidad del documento está establecida, pero el escenario no describe la metodología, atribución o trazabilidad de la actuación de la fuente más allá de esa pieza.",
           "evidence_refs": [
             "synthetic-fixture://S11/factor/transparency_traceability"
           ]
@@ -2688,61 +2798,71 @@
           "reference": "synthetic-fixture://S12/factor/relation_with_fact",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar relación con el hecho; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S12/factor/access_and_proximity",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar acceso y proximidad; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S12/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S12/factor/transparency_traceability",
           "basis_type": "SCOPE_LIMITATION",
           "description": "El prestigio de la publicación no sustituye atribución, acceso ni evidencia identificable. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S12/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S12/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S12/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S12/factor/internal_consistency",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar consistencia interna; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S12/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S12/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
@@ -2907,61 +3027,71 @@
           "reference": "synthetic-fixture://S13/factor/relation_with_fact",
           "basis_type": "SCOPE_LIMITATION",
           "description": "La cadena contiene citas recíprocas; el ciclo no crea un segundo origen. Evaluación acotada de relación con el hecho.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S13/factor/access_and_proximity",
           "basis_type": "SCOPE_LIMITATION",
           "description": "La cadena contiene citas recíprocas; el ciclo no crea un segundo origen. Evaluación acotada de acceso y proximidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S13/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S13/factor/transparency_traceability",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "La cadena contiene citas recíprocas; el ciclo no crea un segundo origen. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S13/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S13/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S13/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S13/factor/internal_consistency",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar consistencia interna; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S13/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S13/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
@@ -3186,78 +3316,88 @@
       "factor_evidence_records": [
         {
           "reference": "synthetic-fixture://S14/factor/relation_with_fact",
-          "basis_type": "SCENARIO_SUPPORT",
-          "description": "Las dos observaciones tienen vías separadas, pero discrepan en el importe; el componente importe queda sin corroborar. Evaluación acotada de relación con el hecho.",
-          "synthetic_only": true
+          "basis_type": "SCOPE_LIMITATION",
+          "description": "Las fuentes presentan vías separadas y coinciden en entidad y fecha, pero el escenario no especifica observación, ejecución o registro directo del hecho por cada fuente.",
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S14/factor/access_and_proximity",
-          "basis_type": "SCENARIO_SUPPORT",
-          "description": "Las dos observaciones tienen vías separadas, pero discrepan en el importe; el componente importe queda sin corroborar. Evaluación acotada de acceso y proximidad.",
-          "synthetic_only": true
+          "basis_type": "SCOPE_LIMITATION",
+          "description": "La separación de las vías está establecida, pero no se describe la proximidad de cada fuente al hecho ni el tipo concreto de acceso.",
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S14/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S14/factor/transparency_traceability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar transparencia y trazabilidad; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S14/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S14/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S14/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S14/factor/internal_consistency",
           "basis_type": "SCOPE_LIMITATION",
           "description": "Las dos observaciones tienen vías separadas, pero discrepan en el importe; el componente importe queda sin corroborar. Evaluación acotada de consistencia interna.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S14/factor/contrary_evidence",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "Las dos observaciones tienen vías separadas, pero discrepan en el importe; el componente importe queda sin corroborar. Evaluación acotada de evidencia contraria.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S14/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
         {
           "dimension": "RELATION_WITH_FACT",
-          "status": "SUSTENTADA",
-          "justification": "Las dos observaciones tienen vías separadas, pero discrepan en el importe; el componente importe queda sin corroborar. Evaluación acotada de relación con el hecho.",
+          "status": "LIMITADA",
+          "justification": "Las fuentes presentan vías separadas y coinciden en entidad y fecha, pero el escenario no especifica observación, ejecución o registro directo del hecho por cada fuente.",
           "evidence_refs": [
             "synthetic-fixture://S14/factor/relation_with_fact"
           ]
         },
         {
           "dimension": "ACCESS_AND_PROXIMITY",
-          "status": "SUSTENTADA",
-          "justification": "Las dos observaciones tienen vías separadas, pero discrepan en el importe; el componente importe queda sin corroborar. Evaluación acotada de acceso y proximidad.",
+          "status": "LIMITADA",
+          "justification": "La separación de las vías está establecida, pero no se describe la proximidad de cada fuente al hecho ni el tipo concreto de acceso.",
           "evidence_refs": [
             "synthetic-fixture://S14/factor/access_and_proximity"
           ]
@@ -3400,61 +3540,71 @@
           "reference": "synthetic-fixture://S15/factor/relation_with_fact",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar relación con el hecho; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S15/factor/access_and_proximity",
-          "basis_type": "SCOPE_LIMITATION",
-          "description": "El editor afirma conocer la identidad, pero SINAYXA no puede verificarla ni transferir esa comprobación. Evaluación acotada de acceso y proximidad.",
-          "synthetic_only": true
+          "basis_type": "EVIDENCE_NOT_PROVIDED",
+          "description": "El editor afirma conocer la identidad, pero SINAYXA no puede verificarla ni establecer que la fuente sea distinta; esa garantía no acredita acceso o proximidad al hecho.",
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S15/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S15/factor/transparency_traceability",
           "basis_type": "SCOPE_LIMITATION",
           "description": "El editor afirma conocer la identidad, pero SINAYXA no puede verificarla ni transferir esa comprobación. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S15/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S15/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S15/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S15/factor/internal_consistency",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar consistencia interna; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S15/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S15/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
@@ -3468,8 +3618,8 @@
         },
         {
           "dimension": "ACCESS_AND_PROXIMITY",
-          "status": "LIMITADA",
-          "justification": "El editor afirma conocer la identidad, pero SINAYXA no puede verificarla ni transferir esa comprobación. Evaluación acotada de acceso y proximidad.",
+          "status": "DESCONOCIDA",
+          "justification": "El editor afirma conocer la identidad, pero SINAYXA no puede verificarla ni establecer que la fuente sea distinta; esa garantía no acredita acceso o proximidad al hecho.",
           "evidence_refs": [
             "synthetic-fixture://S15/factor/access_and_proximity"
           ]
@@ -3628,61 +3778,71 @@
           "reference": "synthetic-fixture://S16/factor/relation_with_fact",
           "basis_type": "SCOPE_LIMITATION",
           "description": "Los análisis son reproducibles y separados, pero comparten el mismo dataset de origen. Evaluación acotada de relación con el hecho.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELATION_WITH_FACT"
         },
         {
           "reference": "synthetic-fixture://S16/factor/access_and_proximity",
-          "basis_type": "SCENARIO_SUPPORT",
-          "description": "Los análisis son reproducibles y separados, pero comparten el mismo dataset de origen. Evaluación acotada de acceso y proximidad.",
-          "synthetic_only": true
+          "basis_type": "SCOPE_LIMITATION",
+          "description": "Los analistas acceden al mismo dataset público y reproducen el cálculo, pero esa proximidad al conjunto de datos no equivale a proximidad directa al hecho subyacente.",
+          "synthetic_only": true,
+          "dimension": "ACCESS_AND_PROXIMITY"
         },
         {
           "reference": "synthetic-fixture://S16/factor/subject_competence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar competencia temática; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "SUBJECT_COMPETENCE"
         },
         {
           "reference": "synthetic-fixture://S16/factor/transparency_traceability",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "Los análisis son reproducibles y separados, pero comparten el mismo dataset de origen. Evaluación acotada de transparencia y trazabilidad.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TRANSPARENCY_TRACEABILITY"
         },
         {
           "reference": "synthetic-fixture://S16/factor/relevant_accuracy_history",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar historial de exactitud pertinente; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "RELEVANT_ACCURACY_HISTORY"
         },
         {
           "reference": "synthetic-fixture://S16/factor/corrections_accountability",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar correcciones y rendición de cuentas; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CORRECTIONS_ACCOUNTABILITY"
         },
         {
           "reference": "synthetic-fixture://S16/factor/incentives_conflicts",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar incentivos y conflictos; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INCENTIVES_CONFLICTS"
         },
         {
           "reference": "synthetic-fixture://S16/factor/internal_consistency",
           "basis_type": "SCENARIO_SUPPORT",
           "description": "Los análisis son reproducibles y separados, pero comparten el mismo dataset de origen. Evaluación acotada de consistencia interna.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "INTERNAL_CONSISTENCY"
         },
         {
           "reference": "synthetic-fixture://S16/factor/contrary_evidence",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar evidencia contraria; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "CONTRARY_EVIDENCE"
         },
         {
           "reference": "synthetic-fixture://S16/factor/temporal_adequacy",
           "basis_type": "EVIDENCE_NOT_PROVIDED",
           "description": "El escenario sintético no aporta evidencia suficiente para evaluar adecuación temporal; no se infiere una conclusión.",
-          "synthetic_only": true
+          "synthetic_only": true,
+          "dimension": "TEMPORAL_ADEQUACY"
         }
       ],
       "factor_assessments": [
@@ -3696,8 +3856,8 @@
         },
         {
           "dimension": "ACCESS_AND_PROXIMITY",
-          "status": "SUSTENTADA",
-          "justification": "Los análisis son reproducibles y separados, pero comparten el mismo dataset de origen. Evaluación acotada de acceso y proximidad.",
+          "status": "LIMITADA",
+          "justification": "Los analistas acceden al mismo dataset público y reproducen el cálculo, pero esa proximidad al conjunto de datos no equivale a proximidad directa al hecho subyacente.",
           "evidence_refs": [
             "synthetic-fixture://S16/factor/access_and_proximity"
           ]

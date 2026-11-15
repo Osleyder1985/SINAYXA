@@ -123,6 +123,9 @@ foreach ($case in $fixture.cases) {
         Assert-Condition (-not [string]::IsNullOrWhiteSpace($factorEvidence.basis_type)) "${id}: factor evidence requires basis_type."
         Assert-Condition (-not [string]::IsNullOrWhiteSpace($factorEvidence.description)) "${id}: factor evidence requires a description."
         Assert-Condition ($factorEvidence.synthetic_only -eq $true) "${id}: factor evidence must be marked synthetic."
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($factorEvidence.dimension)) "${id}: factor evidence must identify its rubric dimension."
+        Assert-Condition ($expectedFactorIds -contains [string]$factorEvidence.dimension) "${id}: factor evidence references an unsupported rubric dimension."
+        Assert-Condition (-not $factorEvidenceByRef.ContainsKey([string]$factorEvidence.reference)) "${id}: factor evidence references must be unique."
         $factorEvidenceByRef[[string]$factorEvidence.reference] = $factorEvidence
     }
     foreach ($factor in $case.factor_assessments) {
@@ -131,6 +134,7 @@ foreach ($case in $fixture.cases) {
         Assert-Condition ($factor.evidence_refs.Count -gt 0) "${id}: factor '$($factor.dimension)' requires evidence/limitation references."
         foreach ($reference in $factor.evidence_refs) {
             Assert-Condition ($factorEvidenceByRef.ContainsKey([string]$reference)) "${id}: factor '$($factor.dimension)' references unknown evidence."
+            Assert-Condition ([string]$factorEvidenceByRef[[string]$reference].dimension -eq [string]$factor.dimension) "${id}: factor '$($factor.dimension)' references evidence for a different dimension."
             $basis = [string]$factorEvidenceByRef[[string]$reference].basis_type
             $expectedBasis = switch ([string]$factor.status) {
                 'SUSTENTADA' { 'SCENARIO_SUPPORT' }
@@ -188,6 +192,22 @@ Assert-Condition ($byId.S04.expected.independent_origins -eq 2) 'S04 must repres
 Assert-Condition ($byId.S09.independence -eq 'INDEPENDIENTE' -and $byId.S09.independence_basis.Count -gt 0) 'S09 must require evidence despite shared employer.'
 Assert-Condition ($byId.S13.independence -eq 'DEPENDIENTE' -and $byId.S13.expected.cycle_detected -eq $true) 'S13 must detect citation cycles.'
 Assert-Condition ($byId.S16.expected.independent_analytical_processes -eq 2 -and $byId.S16.expected.independent_data_origins -eq 1 -and $byId.S16.expected.corroboration_count_increment -eq 0) 'S16 must separate analytical replication from data-origin independence.'
+
+# Qualitative factor outcomes must not infer access, direct involvement, temporal fit,
+# or contrary evidence from facts that only establish attribution, authenticity,
+# publication history, or reproducibility.
+Assert-Condition (($byId.S02.factor_assessments | Where-Object dimension -eq 'RELATION_WITH_FACT').status -eq 'DESCONOCIDA') 'S02 must not infer direct relation to the underlying fact from a shared anonymous spokesperson.'
+Assert-Condition (($byId.S02.factor_assessments | Where-Object dimension -eq 'TRANSPARENCY_TRACEABILITY').status -eq 'LIMITADA') 'S02 must preserve the traceability limitation caused by anonymous attribution.'
+Assert-Condition (($byId.S05.factor_assessments | Where-Object dimension -eq 'TRANSPARENCY_TRACEABILITY').status -eq 'DESCONOCIDA') 'S05 must not infer transparency of method from the mere existence of a public contract analysis.'
+Assert-Condition (($byId.S06.factor_assessments | Where-Object dimension -eq 'TEMPORAL_ADEQUACY').status -eq 'DESCONOCIDA') 'S06 must not infer temporal adequacy from version preservation alone.'
+Assert-Condition (($byId.S09.factor_assessments | Where-Object dimension -eq 'RELATION_WITH_FACT').status -eq 'DESCONOCIDA') 'S09 must not infer direct involvement from separately documented acquisition paths.'
+Assert-Condition (($byId.S10.factor_assessments | Where-Object dimension -eq 'RELATION_WITH_FACT').status -eq 'DESCONOCIDA') 'S10 must not infer direct relation to the underlying fact from an attributed official denial.'
+Assert-Condition (($byId.S10.factor_assessments | Where-Object dimension -eq 'CONTRARY_EVIDENCE').status -eq 'DESCONOCIDA') 'S10 must not treat an unsupported official denial as underlying contrary evidence.'
+Assert-Condition (($byId.S11.factor_assessments | Where-Object dimension -eq 'RELATION_WITH_FACT').status -eq 'DESCONOCIDA') 'S11 must not infer the source relationship to the fact from document authenticity alone.'
+Assert-Condition (($byId.S11.factor_assessments | Where-Object dimension -eq 'TRANSPARENCY_TRACEABILITY').status -eq 'DESCONOCIDA') 'S11 must not infer source transparency from document authenticity alone.'
+Assert-Condition (($byId.S14.factor_assessments | Where-Object dimension -eq 'ACCESS_AND_PROXIMITY').status -eq 'LIMITADA') 'S14 must not infer direct access or proximity from independent source paths alone.'
+Assert-Condition (($byId.S15.factor_assessments | Where-Object dimension -eq 'ACCESS_AND_PROXIMITY').status -eq 'DESCONOCIDA') 'S15 must not infer source access from an editor identity assurance.'
+Assert-Condition (($byId.S16.factor_assessments | Where-Object dimension -eq 'ACCESS_AND_PROXIMITY').status -eq 'LIMITADA') 'S16 must distinguish access to a shared dataset from proximity to the underlying fact.'
 Assert-Condition ($byId.S14.independence -eq 'INDEPENDIENTE' -and $byId.S14.claim_component_id -eq 'amount' -and $byId.S14.expected.corroboration_count_increment -eq 0) 'S14 must leave the disputed amount uncorroborated.'
 Assert-Condition (($byId.S14.expected.components_outside_scope -join ',') -eq 'entity,date' -and ($byId.S14.expected.unresolved_components -join ',') -eq 'amount') 'S14 must keep entity/date outside this unit and leave amount unresolved.'
 Assert-Condition ($byId.S15.independence -eq 'DESCONOCIDA' -and $byId.S15.identity -eq 'ANÓNIMA_PARA_SINAYXA') 'S15 must not transfer editor identity verification to SINAYXA.'
