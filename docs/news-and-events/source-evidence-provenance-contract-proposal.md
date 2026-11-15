@@ -373,9 +373,12 @@ Un hash, una URL, un identificador o un log también pueden revelar información
 
 ## 13. Evidencia de conformidad y límites
 
+Esquema formal: schemas/source-evidence-contract-0.2.0.schema.json.  
 Fixture sintético: tests/fixtures/contracts/source-evidence-contract-v0.2.0.json.  
 Validador de integridad semántica: scripts/validation/validate_source_evidence_contract.ps1.  
-Pruebas de mutación negativa: scripts/validation/test_source_evidence_contract.ps1.
+Pruebas de mutación negativa y ciclo positivo: scripts/validation/test_source_evidence_contract.ps1.  
+Validación Draft 2020-12 y compatibilidad #15/#16: scripts/validation/validate_source_evidence_contract_schema.py.  
+Dependencias de validación fijadas: requirements-contract-validation.txt.
 
 La conformidad estructural y semántica demuestra que el paquete cumple el contrato y sus invariantes. No demuestra que las afirmaciones sintéticas sean verdaderas, que una fuente real sea creíble, que el acceso a una fuente concreta sea legal ni que una evaluación automatizada pueda sustituir revisión humana.
 
