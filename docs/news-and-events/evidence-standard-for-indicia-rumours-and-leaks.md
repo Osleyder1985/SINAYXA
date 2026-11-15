@@ -25,12 +25,14 @@ Principios obligatorios:
 
 ## 2. Separación de dimensiones
 
-Cada evaluación debe mantener conceptualmente separadas estas dimensiones. La tabla es una propuesta semántica, no un contrato de API ni una decisión de implementación.
+Cada evaluación debe mantener conceptualmente separadas estas dimensiones. La tabla es una propuesta semántica, no un contrato de API ni una decisión de implementación. `ATRIBUIDA` describe la relación entre una afirmación y una fuente; no es un estado probatorio ni implica que la fuente esté identificada públicamente. `source_identity` conserva por separado cuánto se conoce de esa identidad.
 
 | Dimensión | Valores descriptivos propuestos | Qué responde |
 | --- | --- | --- |
 | Naturaleza de la información | AFIRMACIÓN, INDICIO, RUMOR, POSIBLE_FILTRACIÓN, PUBLICACIÓN_OFICIAL, HECHO_OBSERVADO | Qué tipo de pieza o señal se está evaluando |
 | Estado probatorio | NO_CORROBORADA, PARCIALMENTE_CORROBORADA, CORROBORADA, CONTRADICHA, REFUTADA, NO_RESUELTA | Qué respaldo tiene la afirmación concreta |
+| Atribución de la afirmación | ATRIBUIDA, NO_ATRIBUIDA, NO_DETERMINADA | Si la proposición está vinculada a una fuente concreta, sin afirmar que sea verdadera |
+
 | Autenticidad del documento | NO_APLICA, NO_VERIFICADA, AUTENTICADA, DISPUTADA, AUTENTICIDAD_REFUTADA | Si la pieza documental es genuina, sin confundirlo con la verdad de su contenido |
 | Identidad de la fuente | IDENTIFICADA, ANÓNIMA_PARA_EL_PÚBLICO, ANÓNIMA_PARA_SINAYXA, SEUDÓNIMA, DESCONOCIDA | Qué se conoce de la identidad y ante quién |
 | Independencia de origen | INDEPENDIENTE, DEPENDIENTE, DESCONOCIDA | Si dos referencias proceden de cadenas de información realmente separadas |
@@ -48,7 +50,7 @@ La correspondencia propuesta es:
 | CORROBORADA | Refina el principio de confirmación mediante evidencia primaria y/o corroboración independiente. | Registrar siempre la base: evidencia primaria o fuentes secundarias cuya independencia haya sido demostrada. No presentar una corroboración secundaria como «evidencia primaria». |
 | PARCIALMENTE_CORROBORADA | Equivale a **Parcialmente corroborada**. | Delimitar exactamente los componentes respaldados y los que siguen sin respaldo. |
 | NO_CORROBORADA | Equivale a **No corroborada**. | No convertir ausencia de corroboración en falsedad. |
-| AFIRMACIÓN ATRIBUIDA | Equivale a **Atribuida a fuente identificada**, cuando la fuente sea identificable. | La atribución acredita quién sostiene la afirmación, no su veracidad. |
+| Atribución = ATRIBUIDA | Representa **Atribuida a fuente identificada** cuando la identidad sea conocida, o una atribución explícita a fuente anónima cuando no lo sea. | Es una dimensión independiente del estado probatorio. No se incluye en `permitted_evidentiary_states`; una afirmación atribuida puede seguir NO_CORROBORADA o NO_RESUELTA. |
 | CONTRADICHA | Refinamiento propuesto para una incompatibilidad probatoria todavía no resuelta. | No equivale automáticamente a **Posteriormente desmentida** ni a REFUTADA. |
 | REFUTADA | Refinamiento propuesto cuando evidencia directa y pertinente demuestra que la proposición concreta es falsa. | Solo podrá describirse como **Posteriormente desmentida** cuando la evidencia sea posterior; conservar el alcance exacto refutado. |
 | NO_RESUELTA | Indicador propuesto de que la evaluación no permite resolver la discrepancia o insuficiencia. | Es una condición de resolución, no un sinónimo de NO_CORROBORADA ni una conclusión de falsedad. |
@@ -141,9 +143,11 @@ La base de la corroboración debe describirse. No se utilizará CORROBORADA como
 
 ### 3.7 Contradicha, refutada y no resuelta
 
-- **CONTRADICHA:** existe evidencia creíble incompatible con una o más partes de la afirmación, pero la discrepancia todavía no permite resolver cuál versión es correcta.
-- **REFUTADA:** evidencia suficientemente directa y pertinente demuestra que la proposición concreta es falsa o que el documento atribuido no es auténtico. Debe explicarse qué componente queda refutado y por qué.
-- **NO_RESUELTA:** la evidencia es insuficiente, contradictoria, incompleta o inaccesible para decidir. Se conservan las versiones y no se fuerza una conclusión.
+- **CONTRADICHA:** existen dos líneas de evidencia materialmente incompatibles, cada una con una base verificable suficiente para ser considerada evidencia pertinente; la discrepancia permanece abierta y no permite decidir cuál versión es correcta. Deben identificarse por separado las proposiciones enfrentadas, su evidencia y el alcance exacto del conflicto. La mera existencia de dos relatos incompatibles no basta.
+- **Límite para documentos no autenticados:** un documento cuya autenticidad no está verificada no constituye, por sí solo, evidencia suficiente para asignar CONTRADICHA a la proposición que contiene. Puede registrarse como pieza o alegación pendiente, pero no eleva el caso por encima de NO_CORROBORADA o NO_RESUELTA. Si existe una declaración oficial verificable que niega la proposición y un documento no autenticado que parece contradecirla, se registra la declaración como acto de negación y el documento como no verificado; el estado de la proposición será NO_RESUELTA salvo que otra evidencia verificable sustente ambos lados del conflicto.
+- **Fuentes anónimas:** la anonimidad no excluye automáticamente CONTRADICHA, pero exige evidencia verificable de las dos líneas enfrentadas; dos medios que atribuyen versiones incompatibles a fuentes anónimas, sin independencia ni corroboración verificables, no bastan.
+- **REFUTADA:** evidencia suficientemente directa y pertinente demuestra que la proposición concreta es falsa o que el documento atribuido no es auténtico. La falsificación de una pieza refuta su autenticidad y las proposiciones que dependan exclusivamente de ella, no automáticamente el hecho subyacente. Debe explicarse qué componente queda refutado y por qué.
+- **NO_RESUELTA:** la evidencia es insuficiente, contradictoria, incompleta o inaccesible para decidir. Se conservan las versiones y no se fuerza una conclusión. Es el estado preferible cuando hay relatos incompatibles, pero no se alcanza el umbral probatorio para CONTRADICHA.
 
 La falta de respuesta de una entidad, la ausencia de anuncio oficial o el paso del tiempo no bastan por sí solos para marcar REFUTADA.
 
@@ -292,7 +296,7 @@ Las transiciones, caducidad, cierre y reapertura del ciclo de vida se reservan a
 | E06 | Un PDF tiene hash estable y metadatos coherentes, pero no hay origen verificable | Integridad de la copia preservada; autenticidad NO_VERIFICADA | Confundir hash o metadatos con autenticidad |
 | E07 | Un documento auténtico es un borrador sujeto a aprobación | Autenticar el documento y conservar estado de borrador/condiciones | Presentarlo como decisión aprobada |
 | E08 | El anuncio oficial posterior confirma el hecho anticipado días antes | Confirmar el hecho desde la fecha de la evidencia oficial; conservar el estado no corroborado que tenía la pieza anticipatoria antes del anuncio | Reescribir la incertidumbre histórica |
-| E09 | La entidad niega una afirmación y existe un documento contradictorio aún no autenticado | CONTRADICHA o NO_RESUELTA, según alcance; revisar autenticidad y procedencia | Elegir automáticamente la fuente oficial o el documento filtrado sin análisis |
+| E09 | La entidad niega una afirmación y existe un documento aparentemente contradictorio aún no autenticado | NO_RESUELTA; registrar la negación como declaración verificable y el documento como pieza no autenticada, sin tratarlo como evidencia suficiente de la proposición | Marcar CONTRADICHA solo por la coexistencia de una negación y un documento no verificado |
 | E10 | No existe anuncio oficial después de varias semanas | Mantener NO_CORROBORADA o NO_RESUELTA según evidencia; no marcar REFUTADA solo por silencio | Confundir ausencia de confirmación con falsedad |
 | E11 | El precio sube antes de circular un rumor | Registrar la anomalía de mercado por separado; el rumor sigue sin corroborar | Usar el precio como confirmación |
 | E12 | Un documento demuestra ser una falsificación | AUTENTICIDAD_REFUTADA; refutar solo las afirmaciones que dependían de esa pieza, salvo evidencia adicional | Generalizar la falsedad a todas las afirmaciones relacionadas |
@@ -300,14 +304,15 @@ Las transiciones, caducidad, cierre y reapertura del ciclo de vida se reservan a
 | E14 | Un medio cita una fuente anónima que afirma haber participado directamente en una negociación | Registrar atribución, anonimidad y conocimiento declarado; no elevar por sí solo a CORROBORADA | Tratar la descripción del medio como acceso verificable de SINAYXA |
 | E15 | Una fuente primaria confirma que se presentó una solicitud, pero no que será aprobada | Corroborar la presentación; aprobación permanece no confirmada | Convertir solicitud en aprobación |
 | E16 | Una filtración anticipa un acuerdo, pero el documento solo recoge una propuesta preliminar y no está autenticado ni corroborado por otra vía | Mantener NO_CORROBORADA/NO_RESUELTA; la pieza no acredita por sí sola ni la existencia de la propuesta. Si esta se acredita independientemente, corroborar solo la propuesta y mantener negociación/ejecución separadas | Elevar una pieza no autenticada a corroboración parcial o convertir una propuesta en acuerdo ejecutado |
-| E17 | Dos medios publican versiones incompatibles y ambos citan fuentes anónimas distintas | CONTRADICHA / NO_RESUELTA; documentar diferencias y origen conocido | Resolver por mayoría de publicaciones |
+| E17 | Dos medios publican versiones incompatibles y ambos citan fuentes anónimas distintas, sin corroboración verificable de sus orígenes | NO_RESUELTA; conservar ambas atribuciones sin asumir independencia ni contradicción probatoria suficiente | Convertir versiones incompatibles en CONTRADICHA o resolver por mayoría de publicaciones |
 | E18 | Una publicación se rectifica y elimina un dato | Registrar rectificación atribuida y preservar versión anterior; reevaluar solo el componente afectado | Suponer que la rectificación invalida todo el acontecimiento |
 
 Los resultados esperados son criterios de revisión, no pruebas ejecutadas ni afirmaciones sobre acontecimientos reales.
 
 ## 10. Criterios de aceptación propuestos para el Issue #15
 
-- [ ] Se distingue la naturaleza de la información del estado probatorio, autenticidad, procedencia y legalidad de acceso.
+- [ ] Se distingue la naturaleza de la información del estado probatorio, atribución, autenticidad, procedencia y legalidad de acceso.
+- [ ] AFIRMACIÓN ATRIBUIDA se representa como dimensión de atribución y nunca como estado probatorio.
 - [ ] Indicio, rumor y posible filtración no se utilizan como sinónimos ni como grados automáticos de veracidad.
 - [ ] Cada estado probatorio se aplica a afirmaciones concretas y conserva el alcance respaldado.
 - [ ] La corroboración independiente se basa en orígenes diferenciados; republicaciones y fuentes comunes no se cuentan como independencia.
@@ -319,6 +324,7 @@ Los resultados esperados son criterios de revisión, no pruebas ejecutadas ni af
 - [ ] Los movimientos de precio no se utilizan como corroboración de rumores o filtraciones.
 - [ ] Existe un procedimiento de parada y revisión jurídica para material potencialmente ilícito o información privilegiada.
 - [ ] Se preservan versiones, contradicciones, rectificaciones y estados históricos sin sobrescritura.
+- [ ] CONTRADICHA exige dos líneas de evidencia materialmente incompatibles con base verificable; un documento no autenticado o relatos anónimos sin corroboración no bastan por sí solos.
 - [ ] Los casos E01–E18 cubren fuentes anónimas, documentos no autenticados, corroboración parcial, independencia, falsificación, confirmación posterior y salvaguardas legales.
 - [ ] Se mantiene la separación con los Issues #16 (credibilidad/ponderación de fuentes) y #25 (ciclo de vida/caducidad).
 - [ ] El propietario aprueba o modifica expresamente los criterios y el estándar probatorio antes de cualquier implementación.
