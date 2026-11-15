@@ -2,7 +2,7 @@
 param()
 $ErrorActionPreference = 'Stop'
 $validator = Join-Path $PSScriptRoot 'validate_evidence_standard_fixture.ps1'
-$fixture = Join-Path $PSScriptRoot '..\..\tests\fixtures\methodology\evidence-standard\e01-e18-synthetic-conformance-v1.2.0.json'
+$fixture = Join-Path $PSScriptRoot '..\..\tests\fixtures\methodology\evidence-standard\e01-e18-synthetic-conformance-v1.2.2.json'
 $fixture = (Resolve-Path -LiteralPath $fixture).Path
 $temp = Join-Path ([IO.Path]::GetTempPath()) ('sinayxa-evidence-tests-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $temp | Out-Null
@@ -34,6 +34,9 @@ try {
 
     $mut = Copy-Fixture; $mut.cases[1].id = 'E01'
     Invoke-ExpectedFailure -Name 'duplicate-case-id' -Data $mut -ExpectedMessage 'unique'
+
+    $mut = Copy-Fixture; $mut.cases[0].expected.attribution_status = 'UNATTRIBUTED'
+    Invoke-ExpectedFailure -Name 'invalid-attribution-status' -Data $mut -ExpectedMessage 'unsupported attribution-status'
 
     $mut = Copy-Fixture; $mut.cases[0].expected.evidentiary_status = 'PROBABLE'
     Invoke-ExpectedFailure -Name 'unsupported-status' -Data $mut -ExpectedMessage 'unsupported evidentiary status'
@@ -77,8 +80,17 @@ try {
     $mut = Copy-Fixture; $mut.cases[3].expected.source_identity = 'IDENTIFICADA'
     Invoke-ExpectedFailure -Name 'invent-source-identity' -Data $mut -ExpectedMessage 'E04 must preserve independent origin'
 
+    $mut = Copy-Fixture; $mut.cases[8].expected.evidentiary_status = 'CONTRADICHA'
+    Invoke-ExpectedFailure -Name 'unauthenticated-document-as-contradiction' -Data $mut -ExpectedMessage 'E09: evidentiary status does not match'
+
+    $mut = Copy-Fixture; $mut.cases[16].expected.evidentiary_status = 'CONTRADICHA'
+    Invoke-ExpectedFailure -Name 'anonymous-reports-as-contradiction' -Data $mut -ExpectedMessage 'E17: evidentiary status does not match'
+
     $mut = Copy-Fixture; $mut.cases[15].expected.document_authenticity = 'AUTENTICADA'
-    Invoke-ExpectedFailure -Name 'invent-document-authenticity' -Data $mut -ExpectedMessage 'E16 must preserve the preliminary proposal'
+    Invoke-ExpectedFailure -Name 'invent-document-authenticity' -Data $mut -ExpectedMessage 'E16 must not corroborate an unauthenticated proposal'
+
+    $mut = Copy-Fixture; $mut.cases[15].expected.evidentiary_status = 'PARCIALMENTE_CORROBORADA'
+    Invoke-ExpectedFailure -Name 'unauthenticated-proposal-overclaim' -Data $mut -ExpectedMessage 'E16: evidentiary status does not match'
 
     $mut = Copy-Fixture; $mut.cases[14].expected.evidentiary_status = 'CORROBORADA'
     Invoke-ExpectedFailure -Name 'filing-to-approval-overclaim' -Data $mut -ExpectedMessage 'E15: evidentiary status does not match'
@@ -92,10 +104,10 @@ try {
     $mut = Copy-Fixture; $mut.cases[0].nature = 'RUMOR'
     Invoke-ExpectedFailure -Name 'official-resolution-misclassified' -Data $mut -ExpectedMessage 'E01 must represent the authenticated official resolution'
 
-    $mut = Copy-Fixture; $mut.cases[16].expected.evidentiary_status = 'NO_CORROBORADA'
+    $mut = Copy-Fixture; $mut.cases[16].expected.evidentiary_status = 'CONTRADICHA'
     Invoke-ExpectedFailure -Name 'incompatible-versions-not-contradicted' -Data $mut -ExpectedMessage 'E17: evidentiary status does not match'
 
-    Write-Information 'Evidence-standard fixture tests: PASS (1 positive + 22 negative mutations).' -InformationAction Continue
+    Write-Information 'Evidence-standard fixture tests: PASS (1 positive + 26 negative mutations).' -InformationAction Continue
 }
 finally {
     Remove-Item -LiteralPath $temp -Recurse -Force -ErrorAction SilentlyContinue
