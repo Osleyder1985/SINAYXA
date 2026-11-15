@@ -85,7 +85,8 @@
       "supersedes_source_version_id": null,
       "recorded_at": "2026-11-15T22:00:00Z",
       "first_publicly_observed_at": null,
-      "original_timestamps": []
+      "original_timestamps": [],
+      "version_sequence": 1
     }
   ],
   "identity_assessments": [
