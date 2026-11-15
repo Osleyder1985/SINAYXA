@@ -155,6 +155,33 @@ foreach ($edge in $package.provenance_edges) {
         Stop-IfFalse ([DateTimeOffset]::Parse([string]$edge.valid_to) -ge [DateTimeOffset]::Parse([string]$edge.valid_from)) 'Provenance edge valid_to precedes valid_from.'
     }
 }
+$adjacency = @{}
+$inDegree = @{}
+foreach ($node in $package.provenance_nodes) {
+    $adjacency[[string]$node.node_id] = [System.Collections.Generic.List[string]]::new()
+    $inDegree[[string]$node.node_id] = 0
+}
+foreach ($edge in $package.provenance_edges) {
+    $dependent = [string]$edge.dependent_node_id
+    $origin = [string]$edge.origin_node_id
+    $adjacency[$dependent].Add($origin)
+    $inDegree[$origin]++
+}
+$queue = [System.Collections.Generic.Queue[string]]::new()
+foreach ($nodeId in $inDegree.Keys) {
+    if ($inDegree[$nodeId] -eq 0) { $queue.Enqueue([string]$nodeId) }
+}
+$processedNodes = 0
+while ($queue.Count -gt 0) {
+    $current = $queue.Dequeue()
+    $processedNodes++
+    foreach ($nextNode in $adjacency[$current]) {
+        $inDegree[$nextNode]--
+        if ($inDegree[$nextNode] -eq 0) { $queue.Enqueue($nextNode) }
+    }
+}
+$cyclesDetected = ($processedNodes -lt $package.provenance_nodes.Count)
+
 foreach ($factor in $package.factor_assessments) {
     Stop-IfFalse (Test-HasRef $unitIds ([string]$factor.assessment_unit_id)) 'Factor assessment references an unknown evaluation unit.'
     Stop-IfFalse ($factor.dimension -in @('RELATION_WITH_FACT','ACCESS_AND_PROXIMITY','SUBJECT_COMPETENCE','TRANSPARENCY_TRACEABILITY','RELEVANT_ACCURACY_HISTORY','CORRECTIONS_ACCOUNTABILITY','INCENTIVES_CONFLICTS','INTERNAL_CONSISTENCY','CONTRARY_EVIDENCE','TEMPORAL_ADEQUACY')) 'Unsupported factor dimension.'
@@ -233,6 +260,7 @@ Test-ForbiddenKeys -Value $package
     EvaluationUnits = @($package.evaluation_units).Count
     EvidenceItems = @($package.evidence_items).Count
     ProvenanceEdges = @($package.provenance_edges).Count
+    CycleReviewRequired = $cyclesDetected
     SyntheticOnly = $true
     Scope = 'Structural and cross-reference conformance; not empirical truth, legal advice, or authorization to capture.'
 } | Format-List
