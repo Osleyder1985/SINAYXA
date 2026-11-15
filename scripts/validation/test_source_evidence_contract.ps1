@@ -6,6 +6,22 @@ $fixture = Join-Path $PSScriptRoot '..\..\tests\fixtures\contracts\source-eviden
 & $validator -FixturePath $fixture | Out-Null
 $base = Get-Content -LiteralPath $fixture -Raw -Encoding utf8 | ConvertFrom-Json -AsHashtable -Depth 100 -DateKind String
 $temp = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-" + [guid]::NewGuid().ToString('N') + '.json')
+
+function Initialize-IndependentPathsForFixture {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][System.Collections.IDictionary]$Package)
+
+    $Package.provenance_edges = @($Package.provenance_edges | Where-Object { $_.edge_id -ne 'edge-a-unknown' })
+    $Package.provenance_nodes += @(
+        @{ node_id='node-origin-independent-a'; node_type='EVIDENCE_ITEM'; entity_ref='evidence-a' },
+        @{ node_id='node-origin-independent-b'; node_type='EVIDENCE_ITEM'; entity_ref='evidence-b' }
+    )
+    $Package.provenance_edges += @(
+        @{ edge_id='edge-independent-a'; dependent_node_id='node-version-a'; origin_node_id='node-origin-independent-a'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-a'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null },
+        @{ edge_id='edge-independent-b'; dependent_node_id='node-version-b'; origin_node_id='node-origin-independent-b'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-b'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null }
+    )
+    $Package.independence_assessments[0].independent_path_edge_refs = @('edge-independent-a','edge-independent-b')
+}
 try {
     $cycleCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
     $cycleEdges = @(
@@ -292,7 +308,7 @@ try {
         } },
         @{ Name='Independent path evidence comes from another source version'; Apply={
             param($x)
-            Set-IndependentPathsForFixture -Package $x
+            Initialize-IndependentPathsForFixture -Package $x
             ($x.provenance_edges | Where-Object { $_.edge_id -eq 'edge-independent-a' })[0].evidence_refs=@('evidence-b')
             $x.independence_assessments[0].status='INDEPENDIENTE'
             $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b')
@@ -302,7 +318,7 @@ try {
         @{ Name='Dependent without dependency edge'; Apply={ param($x) $x.independence_assessments[0].status='DEPENDIENTE' } },
         @{ Name='Independent with two versions of the same source'; Apply={
             param($x)
-            Set-IndependentPathsForFixture -Package $x
+            Initialize-IndependentPathsForFixture -Package $x
             $sourceId = $x.evaluation_units[0].source_id
             $x.evaluation_units[1].source_id = $sourceId
             $versionId = $x.evaluation_units[1].source_version_id
