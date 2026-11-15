@@ -452,6 +452,7 @@ foreach ($record in $package.retention_records) {
     Test-Condition $known 'Retention record references an unknown subject.'
     Test-Condition (Test-Utc $record.review_at 'review_at') 'Retention review_at must be UTC.'
     Test-Condition (Test-Utc $record.recorded_at 'recorded_at') 'Retention recorded_at must be UTC.'
+    $previous = $record.previous_disposition
     if ($null -eq $previous) {
         $allowedNext = @('RETAIN','REFERENCE_ONLY','RESTRICTED')
     }
