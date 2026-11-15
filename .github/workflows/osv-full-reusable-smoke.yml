@@ -1,0 +1,27 @@
+name: OSV full reusable workflow validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/osv-full-reusable-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  osv-full-reusable-smoke:
+    name: OSV full reusable workflow / v2.7.1
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@d3c1414ded37de590f207572e37a7d180f1d0ef7
+    with:
+      scan-args: |-
+        --include-git-root
+        -r
+        ./
+      upload-sarif: false
+      fail-on-vuln: true
