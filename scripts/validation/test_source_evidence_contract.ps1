@@ -16,8 +16,27 @@ try {
     ConvertTo-Json -InputObject $cycleCopy -Depth 100 | Set-Content -LiteralPath $temp -Encoding utf8
     $cycleOutput = (& $validator -FixturePath $temp | Out-String)
     if (-not $cycleOutput.Contains('CycleReviewRequired : True')) { throw 'A provenance cycle was not detected and preserved for review.' }
+    $versionCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
+    $versionCopy.claims += @{
+        claim_id='claim-btc-purchase'; claim_version_id='claim-btc-purchase-v2'; claim_version=2
+        proposition='Una entidad X aprobó una compra de BTC por un importe revisado.'
+        scope='Caso sintético; versión corregida.'; valid_time_start=$null; valid_time_end=$null
+        recorded_at='2026-11-15T22:10:00Z'; supersedes_claim_version_id='claim-btc-purchase-v1'
+    }
+    $versionCopy.claim_components += @{
+        claim_component_id='component-entity'; claim_component_version_id='component-entity-v2'
+        claim_id='claim-btc-purchase'; claim_version_id='claim-btc-purchase-v2'
+        component_key='entity'; proposition_fragment='La entidad X realizó la acción revisada.'
+        scope='Identidad de la entidad; versión sintética.'; version=2
+        recorded_at='2026-11-15T22:10:00Z'; supersedes_component_version_id='component-entity-v1'
+    }
+    ConvertTo-Json -InputObject $versionCopy -Depth 100 | Set-Content -LiteralPath $temp -Encoding utf8
+    & $validator -FixturePath $temp | Out-Null
+
     $mutations = @(
         @{ Name='Orphan claim component'; Apply={ param($x) $x.claim_components[0].claim_id='missing-claim' } },
+        @{ Name='Duplicate claim version identifier'; Apply={ param($x) $x.claims += $x.claims[0] } },
+        @{ Name='Duplicate component version identifier'; Apply={ param($x) $x.claim_components += $x.claim_components[0] } },
         @{ Name='UTC timestamp has a non-UTC offset'; Apply={ param($x) $x.created_at='2026-11-15T17:00:00-05:00' } },
         @{ Name='UTC timestamp contains an impossible calendar date'; Apply={ param($x) $x.created_at='2026-02-30T22:00:00Z' } },
         @{ Name='Evaluation unit source/version mismatch'; Apply={ param($x) $x.evaluation_units[0].source_id='src_fedcba98-7654-4321-8abc-fedcba987654' } },
@@ -28,6 +47,24 @@ try {
         @{ Name='Provenance edge references missing evidence'; Apply={ param($x) $x.provenance_edges[0].evidence_refs=@('missing-evidence') } },
         @{ Name='Independent without positive evidence'; Apply={ param($x) $x.independence_assessments[0].status='INDEPENDIENTE' } },
         @{ Name='Dependent without dependency edge'; Apply={ param($x) $x.independence_assessments[0].status='DEPENDIENTE' } },
+        @{ Name='Independent with two versions of the same source'; Apply={
+            param($x)
+            $sourceId = $x.evaluation_units[0].source_id
+            $x.evaluation_units[1].source_id = $sourceId
+            $versionId = $x.evaluation_units[1].source_version_id
+            ($x.source_versions | Where-Object { $_.source_version_id -eq $versionId })[0].source_id = $sourceId
+            $x.independence_assessments[0].status='INDEPENDIENTE'
+            $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b')
+            $x.independence_assessments[0].human_review_status='REVIEWED'
+            $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z'
+        } },
+        @{ Name='Unknown origin incorrectly asserted as material dependence'; Apply={
+            param($x)
+            $x.independence_assessments[0].status='DEPENDIENTE'
+            $x.independence_assessments[0].dependency_edge_refs=@('edge-a-unknown')
+            $x.independence_assessments[0].human_review_status='REVIEWED'
+            $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z'
+        } },
         @{ Name='Claim assessment reuses independence from another component'; Apply={ param($x) $x.claim_assessments[0].independence_assessment_refs=@('independence-amount') } },
         @{ Name='Issue 15 probative state used as factor state'; Apply={ param($x) $x.factor_assessments[0].status='CONTRADICHA' } },
         @{ Name='Missing one of ten approved factors'; Apply={ param($x) $x.factor_assessments=@($x.factor_assessments | Select-Object -Skip 1) } },
@@ -62,8 +99,9 @@ try {
         Result='PASS'
         BaselineScenarios=1
         PositiveCycleCases=1
+        PositiveMultiVersionCases=1
         NegativeMutations=$mutations.Count
-        TotalChecks=($mutations.Count + 2)
+        TotalChecks=($mutations.Count + 3)
         Scope='Deterministic synthetic contract-validator rejection tests.'
     } | Format-List
 }
