@@ -87,6 +87,7 @@ jobs:
           mkdir -p "$evidence_dir"
           gitleaks detect --source "$GITHUB_WORKSPACE" --redact --exit-code=2 --report-format=json --report-path="$evidence_dir/full-history-report.json"
           echo "Gitleaks full-history scan: PASS"
+      # Retain redacted scan results as downloadable audit evidence.
       - name: Upload full-history secret scan evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -152,6 +153,7 @@ jobs:
             exit "$audit_status"
           fi
           echo "npm audit: no high or critical vulnerabilities."
+      # Retain dependency audit results for traceability and later review.
       - name: Upload dependency audit evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
