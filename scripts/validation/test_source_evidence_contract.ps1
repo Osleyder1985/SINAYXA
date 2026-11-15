@@ -136,8 +136,9 @@ try {
         PositiveCycleCases=1
         PositiveMultiVersionCases=1
         PositivePartialScopeCases=1
+        PositiveRetentionPendingDeletionCases=1
         NegativeMutations=$mutations.Count
-        TotalChecks=($mutations.Count + 4)
+        TotalChecks=($mutations.Count + 5)
         Scope='Deterministic synthetic contract-validator rejection tests.'
     } | Format-List
 }
