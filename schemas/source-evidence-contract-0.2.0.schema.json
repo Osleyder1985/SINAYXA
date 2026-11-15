@@ -273,7 +273,7 @@
       ],
       "properties": {
         "source_id": {
-          "$ref": "#/$defs/id"
+          "$ref": "#/$defs/sourceId"
         },
         "created_at": {
           "$ref": "#/$defs/utc"
@@ -357,7 +357,7 @@
           "$ref": "#/$defs/id"
         },
         "source_id": {
-          "$ref": "#/$defs/id"
+          "$ref": "#/$defs/sourceId"
         },
         "version_label": {
           "$ref": "#/$defs/nonEmpty"
@@ -439,7 +439,7 @@
           "$ref": "#/$defs/id"
         },
         "source_id": {
-          "$ref": "#/$defs/id"
+          "$ref": "#/$defs/sourceId"
         },
         "assessment_cutoff": {
           "$ref": "#/$defs/utc"
@@ -514,7 +514,7 @@
           "$ref": "#/$defs/id"
         },
         "source_id": {
-          "$ref": "#/$defs/id"
+          "$ref": "#/$defs/sourceId"
         },
         "source_version_id": {
           "$ref": "#/$defs/id"
@@ -1220,6 +1220,10 @@
           "$ref": "#/$defs/nonEmpty"
         }
       }
+    },
+    "sourceId": {
+      "type": "string",
+      "pattern": "^src_[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
     }
   }
 }
