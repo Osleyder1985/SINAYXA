@@ -390,10 +390,15 @@ foreach ($record in $package.retention_records) {
     Test-Condition (Test-Utc $record.recorded_at 'recorded_at') 'Retention recorded_at must be UTC.'
     if ($record.content_retained -eq $true) {
         Test-Condition ($record.disposition -in @('RETAIN','DELETE_PENDING','RESTRICTED')) 'Retained content has an incompatible disposition.'
-        Test-Condition ($record.legal_basis_status -eq 'VERIFIED') 'Retained content requires a verified legal/access basis.'
-        Test-Condition ($null -ne $record.expires_at -and (Test-Utc $record.expires_at 'expires_at')) 'Retained content requires a reviewable UTC expiry.'
-        Test-Condition ([DateTimeOffset]::Parse([string]$record.expires_at) -gt [DateTimeOffset]::Parse([string]$record.recorded_at)) 'Retained content expiry must be later than its retention record.'
-        Test-Condition ([DateTimeOffset]::Parse([string]$record.review_at) -le [DateTimeOffset]::Parse([string]$record.expires_at)) 'Retention review must occur no later than expiry.'
+        if ($record.disposition -in @('RETAIN','RESTRICTED')) {
+            Test-Condition ($record.legal_basis_status -eq 'VERIFIED') 'Retained content requires a verified legal/access basis unless it is under deletion.'
+            Test-Condition ($null -ne $record.expires_at -and (Test-Utc $record.expires_at 'expires_at')) 'Retained content requires a reviewable UTC expiry.'
+            Test-Condition ([DateTimeOffset]::Parse([string]$record.expires_at) -gt [DateTimeOffset]::Parse([string]$record.recorded_at)) 'Retained content expiry must be later than its retention record.'
+            Test-Condition ([DateTimeOffset]::Parse([string]$record.review_at) -le [DateTimeOffset]::Parse([string]$record.expires_at)) 'Retention review must occur no later than expiry.'
+        }
+        if ($record.disposition -eq 'DELETE_PENDING') {
+            Test-Condition ($null -ne $record.expires_at -and (Test-Utc $record.expires_at 'expires_at')) 'DELETE_PENDING requires a recorded expiry/deletion deadline.'
+        }
     }
     else {
         Test-Condition ($record.disposition -in @('REFERENCE_ONLY','DELETED','RESTRICTED')) 'Content not retained must use REFERENCE_ONLY, DELETED or RESTRICTED disposition.'
