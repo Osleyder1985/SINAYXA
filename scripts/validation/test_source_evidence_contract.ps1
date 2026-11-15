@@ -77,6 +77,8 @@ try {
         @{ Name='Audit event has orphan subject'; Apply={ param($x) $x.audit_events[0].subject_ref='missing-subject' } },
         @{ Name='Integrity MATCH with different digests'; Apply={ param($x) $x.evidence_items[0].integrity_check.result='MATCH'; $x.evidence_items[0].integrity_check.expected_digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; $x.evidence_items[0].integrity_check.observed_digest='bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' } },
         @{ Name='Source content hash has no algorithm'; Apply={ param($x) $x.source_versions[0].content_hash='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' } },
+        @{ Name='Missing source version sequence'; Apply={ param($x) $x.source_versions[1].Remove('version_sequence') } },
+        @{ Name='Duplicate source version sequence within one source'; Apply={ param($x) $x.source_versions[1].source_id=$x.source_versions[0].source_id; $x.source_versions[1].version_sequence=$x.source_versions[0].version_sequence } },
         @{ Name='Hash algorithm exists without content hash'; Apply={ param($x) $x.source_versions[0].hash_algorithm='SHA-256' } },
         @{ Name='Unsupported integrity algorithm retains digest'; Apply={ param($x) $x.evidence_items[0].integrity_check.expected_digest='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' } },
         @{ Name='Retrieved before first detection'; Apply={ param($x) $x.source_versions[0].retrieved_at='2026-11-15T19:00:00Z' } },
