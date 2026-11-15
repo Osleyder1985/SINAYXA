@@ -106,7 +106,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | ID | Resultado esperado resumido | Estado inicial | Resultado obtenido | Evidencia/registro |
 | --- | --- | --- | --- | --- |
 | T01 | I0; dirección NEUTRAL solo si está respaldada independientemente | NOT_EXECUTED | I0; INDETERMINADA (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 11; ejecución conforme al protocolo pendiente |
-| T02 | I1; sustituto solo atenúa si disponibilidad, capacidad y acceso están demostrados | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T02 | I1; sustituto solo atenúa si disponibilidad, capacidad y acceso están demostrados | NOT_EXECUTED | I1; INDETERMINADA (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 12; ejecución conforme al protocolo pendiente |
 | T03 | I2; separar efecto observado de efecto potencial restante | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T04 | I3; demostrar exposición amplia/central y separar efecto observado/potencial | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T05 | I4; amenaza concreta a función esencial o viabilidad demostrada | NOT_EXECUTED | PENDIENTE | PENDIENTE |
@@ -317,3 +317,44 @@ Para completar una ejecución formal conforme al protocolo, será necesario real
 ### 11.4 Resultado de auditoría
 
 La decisión I0 / INDETERMINADA queda documentada como decisión humana asistida. **T01 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+## 12. Registro de decisión asistida — T02
+
+### 12.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T02 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Servicio de atención de la plataforma ficticia BETA |
+| Corte | `2026-01-10T12:00:00Z` |
+| Evidencias examinadas | T02-E1, T02-E2 y T02-E3 |
+| Decisión humana comunicada | I1; dirección INDETERMINADA |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 12.2 Razonamiento y decisión adoptada
+
+El propietario aceptó la recomendación metodológica de asignar **I1 (BAJA)** para la unidad de servicio de atención definida.
+
+- T02-E1 documenta una interrupción efectiva y localizada en un único endpoint de soporte. También indica que trading, custodia, depósitos, retiros y liquidación continúan operativos.
+- T02-E2 documenta que el canal alternativo acepta la misma clase de solicitudes bajo la carga de prueba medida.
+- T02-E3 documenta que la población afectada puede autenticarse y acceder al canal alternativo.
+
+La alternativa no se considera eficaz por el mero hecho de haber sido anunciada: el fixture aporta evidencia sintética específica de capacidad y acceso. El efecto queda acotado al servicio de soporte y no se acredita una alteración apreciable más amplia que justifique I2, ni exposición amplia/central para I3, ni amenaza a una función esencial para I4.
+
+La dirección se registra como **INDETERMINADA**. La existencia de una interrupción no demuestra por sí sola la dirección neta de sus consecuencias dentro de la unidad, y la mitigación disponible no constituye evidencia de un efecto positivo o neutral.
+
+### 12.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción no cumple la secuencia de evaluación primaria sellada antes de la crítica de IA establecida en el protocolo de evaluador único.
+
+La aceptación se conserva como **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T02.
+
+Para completar una ejecución formal conforme al protocolo, será necesaria una nueva evaluación con el paquete congelado: primero se registra y sella la evaluación humana sin conocer la salida de IA y, después, se realiza la crítica auxiliar separada. La nueva ejecución se conservará como un registro distinto, sin sobrescribir esta decisión.
+
+### 12.4 Resultado de auditoría
+
+La decisión **I1 / INDETERMINADA** queda documentada como decisión humana asistida. **T02 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
