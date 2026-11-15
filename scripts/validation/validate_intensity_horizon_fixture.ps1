@@ -211,7 +211,7 @@ if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {
         $t03.evidence.Count -lt 4 -or
         $t03.expected.observed_effect -notlike "*uncredited*" -or
         $t03.expected.potential_effect -notlike "*not established*" -or
-        $t03.evidence[3].content -notlike "*not central to the exchange as a whole*") {
+        $t03.evidence[3].content -notlike "*no evidence establishes that this segment or this deposit path is central to the exchange as a whole*") {
         throw "T03 v1.2.0 must preserve the bounded segment, observed effect, and unestablished future duration."
     }
 
