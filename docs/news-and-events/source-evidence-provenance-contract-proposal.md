@@ -462,3 +462,9 @@ Los registros de disponibilidad son únicos por pareja `(evidence_id, assessment
 ## 20. Unicidad de unidades y estabilidad de identidades
 
 La tupla metodológica `(claim_id, claim_component_id, source_id, source_version_id, access_path, assessment_cutoff)` identifica una única unidad de evaluación. No se permite duplicarla con otro `assessment_unit_id`, porque eso podría duplicar el peso aparente de una misma observación. Una identidad estable de componente no puede cambiar de afirmación propietaria ni de `component_key` entre versiones. Las evaluaciones de identidad también son únicas por fuente y corte temporal.
+
+## 21. Evidencia explícita de vías independientes
+
+El estado `INDEPENDIENTE` requiere `independent_path_edge_refs`: al menos una arista `ORIGEN_DIRECTO` por cada `source_version_id` evaluado, con evidencia disponible al corte, origen terminal conocido y distinto para cada vía. Las aristas deben pertenecer a la versión exacta del componente y su evidencia debe formar parte de la evaluación. Si el origen es `UNKNOWN_ORIGIN`, si las vías convergen en un mismo nodo o si no se cubre alguna versión de fuente, el contrato no permite afirmar independencia; el estado debe permanecer `DESCONOCIDA` hasta reconstruir evidencia suficiente.
+
+El estado `DEPENDIENTE` requiere aristas materiales y evidenciadas (`CITA_DE`, `SINDICADA_DE`, `DERIVADA_DE`, `DOCUMENTO_COMÚN`, `CONTACTO_COMÚN` o `ANÁLISIS_SEPARADO_SOBRE_DATOS_COMUNES`) que conecten dos versiones de fuente distintas incluidas en la misma evaluación. `ORIGEN_DIRECTO` no se interpreta como dependencia. Estas reglas son deliberadamente conservadoras: las cadenas complejas aún no reconstruidas no se convierten automáticamente en independencia ni dependencia.
