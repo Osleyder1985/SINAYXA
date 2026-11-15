@@ -171,7 +171,17 @@ try {
         @{ Name='Provenance node references missing source version'; Apply={ param($x) $x.provenance_nodes[0].entity_ref='missing-version' } },
         @{ Name='Provenance edge references missing evidence'; Apply={ param($x) $x.provenance_edges[0].evidence_refs=@('missing-evidence') } },
         @{ Name='Independent without positive evidence'; Apply={ param($x) $x.independence_assessments[0].status='INDEPENDIENTE' } },
-        @{ Name='Independent assessment uses unknown origin instead of separate paths'; Apply={ param($x) $x.independence_assessments[0].status='INDEPENDIENTE'; $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b'); $x.independence_assessments[0].independent_path_edge_refs=@('edge-a-unknown','edge-a-unknown'); $x.independence_assessments[0].human_review_status='REVIEWED'; $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z' } },
+        @{ Name='Independent assessment uses unknown origin instead of separate paths'; Apply={
+            param($x)
+            $x.provenance_edges[0].relation_type='ORIGEN_DIRECTO'
+            $x.provenance_edges[0].evidence_refs=@('evidence-a')
+            $x.provenance_edges += @{ edge_id='edge-b-unknown'; dependent_node_id='node-version-b'; origin_node_id='node-unknown-origin'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-b'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null }
+            $x.independence_assessments[0].status='INDEPENDIENTE'
+            $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b')
+            $x.independence_assessments[0].independent_path_edge_refs=@('edge-a-unknown','edge-b-unknown')
+            $x.independence_assessments[0].human_review_status='REVIEWED'
+            $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z'
+        } },
         @{ Name='Independent evidence does not cover every evaluated source'; Apply={ param($x) $x.independence_assessments[0].status='INDEPENDIENTE'; $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.independence_assessments[0].human_review_status='REVIEWED'; $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z' } },
         @{ Name='Dependent without dependency edge'; Apply={ param($x) $x.independence_assessments[0].status='DEPENDIENTE' } },
         @{ Name='Independent with two versions of the same source'; Apply={
