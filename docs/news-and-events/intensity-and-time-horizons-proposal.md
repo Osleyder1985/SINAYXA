@@ -325,6 +325,6 @@ Los siguientes casos son escenarios sintéticos de prueba. Los resultados espera
 - [ ] Las fronteras temporales son exhaustivas y no solapadas, y sus extremos se prueban mediante T11 y T12.
 - [ ] Las fechas sin hora, intervalos y timestamps contradictorios no se convierten en precisión artificial.
 - [ ] Los acontecimientos con varias fases conservan un horizonte por hito/fase y distinguen los tres relojes.
-- [ ] La batería T01–T16 se ejecuta y sus resultados quedan registrados antes de la aprobación metodológica.
+- [ ] La batería T01–T17 se ejecuta y sus resultados quedan registrados antes de la aprobación metodológica.
 
 **Gobernanza:** esta versión es una propuesta. Ningún nivel, ventana o criterio se considera aprobado hasta que el propietario lo acepte expresamente. La aprobación documental no autoriza implementación automática; cualquier implementación requerirá un Issue funcional y un PR con pruebas.
