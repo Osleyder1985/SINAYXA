@@ -133,7 +133,7 @@ try {
     Invoke-ExpectedFailure -Name "reject-t20-future-horizon-label" -ExpectedMessage "T20 must preserve past-event age" -Mutation {
         param($Fixture)
         $case = $Fixture.cases | Where-Object { $_.id -eq "T20" }
-        $case.expected.horizon = "LARGO"
+        Add-Member -InputObject $case.expected -NotePropertyName "horizon" -NotePropertyValue "LARGO" -Force
     }
 
     Invoke-ExpectedFailure -Name "reject-t20-negative-past-age" -ExpectedMessage "T20 past-event chronology cannot be negative" -Mutation {
