@@ -15,7 +15,7 @@ Se aprueba una rúbrica cualitativa, multidimensional y trazable para responder 
 4. ¿Las referencias que repiten la afirmación proceden de cadenas de obtención realmente independientes?
 5. ¿Qué parte exacta de la afirmación queda respaldada por cada origen?
 
-La propuesta no asigna una puntuación total a una fuente. La credibilidad es contextual a una afirmación, materia, periodo y modalidad de acceso; no es una propiedad universal ni permanente de un dominio, marca, periodista o persona.
+La rúbrica aprobada no asigna una puntuación total a una fuente. La credibilidad es contextual a una afirmación, materia, periodo y modalidad de acceso; no es una propiedad universal ni permanente de un dominio, marca, periodista o persona.
 
 ## 2. Invariantes heredados del estándar #15
 
@@ -70,7 +70,7 @@ Además del tipo PRIMARIA/SECUNDARIA/TERCIARIA, registrar cómo se relaciona la 
 
 Una fuente puede combinar bases distintas para componentes diferentes de una afirmación. No presentar un acceso declarado como acceso verificado ni un análisis como registro original.
 
-## 4. Rúbrica cualitativa propuesta
+## 4. Rúbrica cualitativa aprobada
 
 Cada dimensión se registra por separado con evidencia y justificación. No se suman dimensiones ni se calcula una nota global.
 
@@ -109,7 +109,7 @@ Una fuente con acceso directo puede ser pertinente y aun así tener incentivos, 
 
 La independencia se evalúa entre cadenas de obtención para una afirmación y un componente concretos, no entre nombres de medios o dominios. El estado de independencia utiliza exactamente los valores **INDEPENDIENTE**, **DEPENDIENTE** y **DESCONOCIDA** del estándar #15; el contexto de la relación explica qué origen o vínculo permanece desconocido. No se introduce un alias adicional.
 
-### 5.1 Relaciones propuestas
+### 5.1 Relaciones de procedencia aprobadas
 
 Cada referencia secundaria debe enlazarse, cuando se conozca, con su origen inmediato y con el origen primario alegado. Las relaciones de procedencia aprobadas para documentar son:
 
@@ -180,7 +180,7 @@ Registrar por separado:
 
 Para mantener compatibilidad con el estándar #15, la dimensión de identidad debe conservar exactamente sus valores: **IDENTIFICADA**, **ANÓNIMA_PARA_EL_PÚBLICO**, **ANÓNIMA_PARA_SINAYXA**, **SEUDÓNIMA** y **DESCONOCIDA**. Si la identidad es conocida por el editor pero no por SINAYXA, registrar esa circunstancia como metadato de procedencia y no inferir que SINAYXA verificó la identidad.
 
-Reglas propuestas:
+Reglas aprobadas:
 
 1. Una fuente anónima no se descarta automáticamente, pero la anonimidad reduce la verificabilidad externa y obliga a explicitar límites.
 2. Un medio que conoce la identidad no transfiere automáticamente esa verificación a SINAYXA.
@@ -217,7 +217,7 @@ La sindicación debe conservar proveedor, identificador del material y versión/
 
 Todos los ejemplos son ficticios y sirven para probar consistencia del razonamiento, no para demostrar tasas de acierto.
 
-|Caso|Escenario|Evaluación propuesta|
+|Caso|Escenario|Evaluación esperada|
 |---|---|---|
 |S01|Seis portales publican el mismo cable de agencia|Una cadena; cinco reproducciones no elevan independencia|
 |S02|Dos medios citan al mismo portavoz anónimo|Origen común; identidad anónima; no hay doble corroboración|
@@ -286,7 +286,7 @@ La rúbrica debe rechazar, al menos, estos atajos:
 
 ## 14. Límites y asuntos que permanecen abiertos
 
-Esta propuesta no decide:
+Esta metodología aprobada no decide:
 
 - arquitectura, esquema de base de datos ni nombres definitivos de campos;
 - automatización de evaluación, extracción o clasificación;
