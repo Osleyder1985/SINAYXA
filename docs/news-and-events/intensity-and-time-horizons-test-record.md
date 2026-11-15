@@ -116,7 +116,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | T09 | Contradicción preservada; INDETERMINADA para alcance controvertido | NOT_EXECUTED | INDETERMINADA; dirección INDETERMINADA (decisión humana asistida por IA; desviación de secuencia) | Sección 19; ejecución conforme al protocolo pendiente |
 | T10 | Mitigación no verificada no reduce intensidad | NOT_EXECUTED | Intensidad base: NOT_ASSESSED; mitigación: UNVERIFIED; no reduce la evaluación base (decisión humana asistida por IA; desviación de secuencia) | Sección 20; ejecución conforme al protocolo pendiente |
 | T11 | 24 h → INMEDIATO; 7 × 24 h → CORTO; 90 × 24 h → MEDIO | NOT_EXECUTED | Fronteras inclusivas aceptadas: ≤24 h INMEDIATO; >24 h–≤7×24 h CORTO; >7×24 h–≤90×24 h MEDIO; >90×24 h LARGO (decisión humana asistida por IA; desviación de secuencia) | Sección 21; ejecución conforme al protocolo pendiente |
-| T12 | Instante posterior a cada frontera → categoría siguiente | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T12 | Un segundo después de cada frontera → horizonte siguiente | NOT_EXECUTED | 24 h + 1 s → CORTO; 7×24 h + 1 s → MEDIO; 90×24 h + 1 s → LARGO (decisión humana asistida por IA; desviación de secuencia) | Sección 22; ejecución conforme al protocolo pendiente |
 | T13 | Fecha sin hora/zona: no inventar timestamp ni categoría exacta | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T14 | Anuncio, aprobación, entrada en vigor e implementación con hitos/relojes separados | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T15 | Intervalo que cruza categorías: conservar intervalo; categoría única INDETERMINADO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
@@ -767,3 +767,51 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 21.4 Resultado de auditoría
 
 La regla de fronteras inclusivas y las asignaciones de T11 quedan documentadas como decisión humana asistida. Este registro expresa una decisión metodológica sobre el tratamiento de duraciones exactas; no demuestra por sí mismo que una implementación de software la aplique correctamente. **T11 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+
+## 22. Registro de decisión asistida — T12
+
+### 22.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T12 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Clasificación de horizontes por duración transcurrida |
+| Evidencias examinadas | T12: duraciones sintéticas de un segundo después de 24 h, 7 × 24 h y 90 × 24 h |
+| Decisión humana comunicada | Aceptación de las tres asignaciones al horizonte siguiente |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 22.2 Regla temporal y decisión adoptada
+
+El propietario aceptó que una duración situada exactamente un segundo después de cada frontera pase al siguiente horizonte:
+
+| Duración transcurrida | Horizonte |
+| --- | --- |
+| 24 horas + 1 segundo | CORTO |
+| 7 × 24 horas + 1 segundo | MEDIO |
+| 90 × 24 horas + 1 segundo | LARGO |
+
+Estas asignaciones son coherentes con la partición inclusiva aceptada en T11:
+
+- (0 < d leq 24) horas: INMEDIATO.
+- (24 < d leq 7 	imes 24) horas: CORTO.
+- (7 	imes 24 < d leq 90 	imes 24) horas: MEDIO.
+- (d > 90 	imes 24) horas: LARGO.
+
+El segundo adicional debe formar parte de la duración transcurrida calculada entre instantes comparables. No se redondeará la duración antes de clasificarla, pues ese redondeo podría volver a colocar el instante dentro del horizonte anterior. La precisión disponible debe ser suficiente para distinguir el segundo adicional; si no lo es, se conservará la incertidumbre y no se forzará la categoría.
+
+### 22.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción no cumple la secuencia de evaluación primaria humana sellada antes de la crítica de IA establecida en el protocolo de evaluador único.
+
+La aceptación se conserva como **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T12.
+
+Para completar una ejecución formal conforme al protocolo, será necesaria una nueva evaluación con el paquete congelado: primero se registra y sella la evaluación humana sin conocer la salida de IA y, después, se realiza la crítica auxiliar separada. La nueva ejecución se conservará como un registro distinto, sin sobrescribir esta decisión.
+
+### 22.4 Resultado de auditoría
+
+Las tres asignaciones de T12 quedan documentadas como decisión humana asistida y son consistentes con la regla temporal aprobada en T11. Este registro no demuestra por sí mismo que una implementación de software calcule duraciones sin redondeos prematuros ni aplique correctamente los límites. **T12 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
