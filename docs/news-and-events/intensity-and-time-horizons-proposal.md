@@ -283,7 +283,7 @@ Tampoco define puntuación compuesta, pesos, probabilidad, retorno esperado, se�
 - [ ] Los instantes temporales conservan ISO 8601 con offset, zona horaria identificada cuando esté disponible, tipo de instante, fuente y precisión; no se inventan horas ni zonas.
 - [ ] El propietario aprueba o modifica los niveles I0–I4 y sus anclajes observables.
 - [ ] El propietario aprueba o modifica la regla de indeterminación y confirma que ausencia de evidencia no equivale a impacto nulo.
-- [ ] El propietario aprueba o modifica las ventanas INMEDIATO (hasta 24 h), CORTO (>24 h–7 días), MEDIO (>7–90 días) y LARGO (>90 días), entendidas como convenciones operativas.
+- [ ] El propietario aprueba o modifica las ventanas INMEDIATO (duración ≤24 horas), CORTO (24 horas < duración ≤7 × 24 horas), MEDIO (7 × 24 horas < duración ≤90 × 24 horas) y LARGO (duración >90 × 24 horas), entendidas como convenciones operativas y calculadas como tiempo transcurrido, no como días calendario.
 - [ ] Se acepta la separación entre horizonte del acontecimiento, horizonte de transmisión y horizonte de reacción del precio.
 - [ ] Se acepta la separación entre dirección, intensidad y probabilidad, sin puntuaciones ni probabilidades inventadas.
 - [ ] Los casos ilustrativos se consideran suficientes y no contradicen el glosario del Issue #13.
