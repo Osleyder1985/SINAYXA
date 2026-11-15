@@ -49,7 +49,7 @@ try {
     try {
         ConvertTo-Json -InputObject $pendingDeletion -Depth 100 | Set-Content -LiteralPath $pendingFile -Encoding utf8
         $pendingOutput = (& $validator -FixturePath $pendingFile | Out-String)
-        if (-not $pendingOutput -match '(?m)^Result\s*:\s*PASS\s*) { throw "DELETE_PENDING positive scenario failed: $pendingOutput" }
+        if ($pendingOutput -notmatch '(?m)^Result\s*:\s*PASS\s*$') { { throw "DELETE_PENDING positive scenario failed: $pendingOutput" }
     }
     finally { if (Test-Path -LiteralPath $pendingFile) { Remove-Item -LiteralPath $pendingFile -Force } }
     $partialCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
@@ -438,7 +438,7 @@ finally {
     try {
         ConvertTo-Json -InputObject $historicalImport -Depth 100 | Set-Content -LiteralPath $historicalFile -Encoding utf8
         $historicalOutput = (& $validator -FixturePath $historicalFile | Out-String)
-        if (-not $historicalOutput -match '(?m)^Result\s*:\s*PASS\s*) { throw 'Historical evidence with an independent archive timestamp must remain valid without rewriting original timestamps.' }
+        if ($historicalOutput -notmatch '(?m)^Result\s*:\s*PASS\s*$') { { throw 'Historical evidence with an independent archive timestamp must remain valid without rewriting original timestamps.' }
     }
     finally { if (Test-Path -LiteralPath $historicalFile) { Remove-Item -LiteralPath $historicalFile -Force } }
     $independentCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
@@ -838,7 +838,7 @@ finally {
     try {
         ConvertTo-Json -InputObject $independentCopy -Depth 100 | Set-Content -LiteralPath $independentFile -Encoding utf8
         $independentOutput = (& $validator -FixturePath $independentFile | Out-String)
-        if (-not $independentOutput -match '(?m)^Result\s*:\s*PASS\s*) { throw 'A reviewed independence assessment with evidence for both distinct sources must validate.' }
+        if ($independentOutput -notmatch '(?m)^Result\s*:\s*PASS\s*$') { { throw 'A reviewed independence assessment with evidence for both distinct sources must validate.' }
     }
     finally { if (Test-Path -LiteralPath $independentFile) { Remove-Item -LiteralPath $independentFile -Force } }
 
@@ -1168,7 +1168,7 @@ finally {
     try {
         ConvertTo-Json -InputObject $dependentCopy -Depth 100 | Set-Content -LiteralPath $dependentFile -Encoding utf8
         $dependentOutput = (& $validator -FixturePath $dependentFile | Out-String)
-        if (-not $dependentOutput -match '(?m)^Result\s*:\s*PASS\s*) { throw 'A reviewed dependency edge connecting the exact two evaluated source versions must validate.' }
+        if ($dependentOutput -notmatch '(?m)^Result\s*:\s*PASS\s*$') { { throw 'A reviewed dependency edge connecting the exact two evaluated source versions must validate.' }
     }
     finally { if (Test-Path -LiteralPath $dependentFile) { Remove-Item -LiteralPath $dependentFile -Force } }
 
@@ -1462,7 +1462,7 @@ finally {
     try {
         ConvertTo-Json -InputObject $retainedCopy -Depth 100 | Set-Content -LiteralPath $retainedFile -Encoding utf8
         $retainedOutput = (& $validator -FixturePath $retainedFile | Out-String)
-        if (-not $retainedOutput -match '(?m)^Result\s*:\s*PASS\s*) { throw 'A retention transition with verified authorization, expiry and matching audit event must validate.' }
+        if ($retainedOutput -notmatch '(?m)^Result\s*:\s*PASS\s*$') { { throw 'A retention transition with verified authorization, expiry and matching audit event must validate.' }
     }
     finally { if (Test-Path -LiteralPath $retainedFile) { Remove-Item -LiteralPath $retainedFile -Force } }
 
@@ -1761,7 +1761,7 @@ finally {
     try {
         ConvertTo-Json -InputObject $primaryCorroboration -Depth 100 | Set-Content -LiteralPath $primaryFile -Encoding utf8
         $primaryOutput = (& $validator -FixturePath $primaryFile | Out-String)
-        if (-not $primaryOutput -match '(?m)^Result\s*:\s*PASS\s*) { throw 'A single directly relevant primary source must not be forced through a secondary-source independence rule.' }
+        if ($primaryOutput -notmatch '(?m)^Result\s*:\s*PASS\s*$') { { throw 'A single directly relevant primary source must not be forced through a secondary-source independence rule.' }
     }
     finally { if (Test-Path -LiteralPath $primaryFile) { Remove-Item -LiteralPath $primaryFile -Force } }
 
@@ -1992,7 +1992,7 @@ finally {
     try {
         ConvertTo-Json -InputObject $secondaryCorroboration -Depth 100 | Set-Content -LiteralPath $secondaryFile -Encoding utf8
         $secondaryOutput = (& $validator -FixturePath $secondaryFile | Out-String)
-        if (-not $secondaryOutput -match '(?m)^Result\s*:\s*PASS\s*) { throw 'Secondary-source corroboration with reviewed independent paths for every supporting unit must validate.' }
+        if ($secondaryOutput -notmatch '(?m)^Result\s*:\s*PASS\s*$') { { throw 'Secondary-source corroboration with reviewed independent paths for every supporting unit must validate.' }
     }
     finally { if (Test-Path -LiteralPath $secondaryFile) { Remove-Item -LiteralPath $secondaryFile -Force } }
 
