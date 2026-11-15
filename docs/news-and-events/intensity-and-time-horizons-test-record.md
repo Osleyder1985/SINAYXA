@@ -108,7 +108,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | T01 | I0; dirección NEUTRAL solo si está respaldada independientemente | NOT_EXECUTED | I0; INDETERMINADA (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 11; ejecución conforme al protocolo pendiente |
 | T02 | I1; sustituto solo atenúa si disponibilidad, capacidad y acceso están demostrados | NOT_EXECUTED | I1; INDETERMINADA (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 12; ejecución conforme al protocolo pendiente |
 | T03 | I2; separar efecto observado de efecto potencial restante | NOT_EXECUTED | I2; NEGATIVA para el segmento institucional afectado (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 13; ejecución conforme al protocolo pendiente |
-| T04 | I3; demostrar exposición amplia/central y separar efecto observado/potencial | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T04 | I3; demostrar exposición amplia/central y separar efecto observado/potencial | NOT_EXECUTED | I3; NEGATIVA para el ecosistema DELTA definido (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 14; ejecución conforme al protocolo pendiente |
 | T05 | I4; amenaza concreta a función esencial o viabilidad demostrada | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T06 | INDETERMINADA; exposición amplia no compensa mecanismo especulativo | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T07 | I4 para escenario condicional sustentado; condición pendiente separada, sin probabilidad inventada | NOT_EXECUTED | PENDIENTE | PENDIENTE |
@@ -400,3 +400,48 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 13.4 Resultado de auditoría
 
 La decisión **I2 / NEGATIVA para el segmento institucional afectado** queda documentada como decisión humana asistida. **T03 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+## 14. Registro de decisión asistida — T04
+
+### 14.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T04 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Ecosistema ficticio de aplicaciones dependientes de oráculos del protocolo DELTA |
+| Corte | `2026-01-10T12:00:00Z` |
+| Evidencias examinadas | T04-E1, T04-E2, T04-E3, T04-E4 y T04-E5 |
+| Decisión humana comunicada | I3; dirección NEGATIVA para el ecosistema DELTA definido |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 14.2 Razonamiento y decisión adoptada
+
+El propietario aceptó la recomendación metodológica de asignar **I3** y dirección **NEGATIVA** para el ecosistema DELTA definido.
+
+- T04-E1 establece el denominador completo de cinco aplicaciones dentro de la unidad y acredita que cuatro dependen de la misma ruta de publicación del oráculo.
+- T04-E2 registra que las actualizaciones del feed incumplen durante 38 minutos consecutivos la condición documentada de frescura, y que las cuatro aplicaciones dependientes registran el incumplimiento.
+- T04-E3 confirma mediante registros de aplicación la suspensión de nuevas operaciones de lending y borrowing en las cuatro aplicaciones. Se trata de una alteración observada de una capacidad operativa material.
+- T04-E4 documenta límites de continuidad: las posiciones existentes siguen siendo consultables, el feed secundario mantiene los controles de seguridad de esas posiciones y los retiros y el acceso de usuarios permanecen disponibles. No se acredita compromiso de custodia, liquidación, acceso esencial, viabilidad del protocolo ni interrupción general del sistema.
+- T04-E5 confirma que el inventario de cinco aplicaciones está completo para la unidad definida y que las cuatro aplicaciones afectadas son componentes centrales de ese ecosistema. No se extrapola el resultado a aplicaciones externas a esa unidad.
+
+La clasificación I3 se fundamenta en la exposición amplia y central dentro del ecosistema delimitado y en el cambio operativo material efectivamente observado. I2 no representa adecuadamente ese alcance. I4 no está respaldado porque las evidencias describen mecanismos de continuidad activos y no acreditan amenaza a la viabilidad, solvencia, custodia, liquidación o acceso esencial.
+
+El efecto observado es la suspensión de nuevas operaciones de lending y borrowing en cuatro de las cinco aplicaciones al corte. El efecto potencial es que la suspensión continúe mientras se incumpla la condición de frescura del oráculo; no se establece duración posterior a los 38 minutos observados.
+
+La dirección NEGATIVA se refiere exclusivamente a la condición operativa del ecosistema definido. No constituye una predicción del precio de un activo ni una conclusión sobre todo el mercado DeFi.
+
+### 14.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción no cumple la secuencia de evaluación primaria humana sellada antes de la crítica de IA establecida en el protocolo de evaluador único.
+
+La aceptación se conserva como **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T04.
+
+Para completar una ejecución formal conforme al protocolo, será necesaria una nueva evaluación con el paquete congelado: primero se registra y sella la evaluación humana sin conocer la salida de IA y, después, se realiza la crítica auxiliar separada. La nueva ejecución se conservará como un registro distinto, sin sobrescribir esta decisión.
+
+### 14.4 Resultado de auditoría
+
+La decisión **I3 / NEGATIVA para el ecosistema DELTA definido** queda documentada como decisión humana asistida. **T04 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
