@@ -74,7 +74,7 @@ El hash anterior corresponde al archivo local en la ruta `tests/fixtures/methodo
 | Campo | Resultado |
 | --- | --- |
 | Commit ejecutado | `5e5dcb69663fd8e34b22825c9374bd0c949747b5` |
-| Comando | `.scripts\validation\validate_intensity_horizon_fixture.ps1` |
+| Comando | `.\\scripts\validation\validate_intensity_horizon_fixture.ps1` |
 | Validación estructural del fixture | PASS |
 | Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-001` |
 | Casos detectados | 19 |
