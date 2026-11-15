@@ -119,7 +119,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | T12 | Un segundo después de cada frontera → horizonte siguiente | NOT_EXECUTED | 24 h + 1 s → CORTO; 7×24 h + 1 s → MEDIO; 90×24 h + 1 s → LARGO (decisión humana asistida por IA; desviación de secuencia) | Sección 22; ejecución conforme al protocolo pendiente |
 | T13 | Fecha sin hora/zona: no inventar timestamp ni categoría exacta; horizonte INDETERMINADO | NOT_EXECUTED | DATE_ONLY_PRESERVED; horizonte INDETERMINADO; conservar precisión original (decisión humana asistida por IA; desviación de secuencia) | Sección 23; ejecución conforme al protocolo pendiente |
 | T14 | Anuncio, aprobación, entrada en vigor e implementación son cuatro hitos/relojes separados | NOT_EXECUTED | Cuatro hitos independientes; timestamps, fuentes, zona horaria y verificación por separado; ausencias no inferidas (decisión humana asistida por IA; desviación de secuencia) | Sección 24; ejecución conforme al protocolo pendiente |
-| T15 | Intervalo que cruza categorías: conservar intervalo; categoría única INDETERMINADO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T15 | Intervalo cruza frontera 24 h: conservar intervalo; horizonte único INDETERMINADO; compatibles INMEDIATO y CORTO | NOT_EXECUTED | Conservar límites 23 h 50 min–24 h 10 min; horizonte único INDETERMINADO; compatibles INMEDIATO y CORTO (decisión humana asistida por IA; desviación de secuencia) | Sección 25; ejecución conforme al protocolo pendiente |
 | T16 | Evaluación primaria de un humano + crítica IA separada; diferencias documentadas sin promediar ni afirmar acuerdo | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T17 | INDETERMINADA, no I0, cuando no se puede confirmar ni descartar mecanismo material | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T18 | Exactamente 24 h reales durante cambio horario → INMEDIATO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
@@ -911,3 +911,47 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 24.4 Resultado de auditoría
 
 La separación de anuncio, aprobación, entrada en vigor e implementación queda documentada como decisión humana asistida. Los cuatro hitos deben conservar fuentes y metadatos temporales propios; la ausencia o discrepancia de uno no se resuelve copiando otro. **T14 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+
+## 25. Registro de decisión asistida — T15
+
+### 25.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T15 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Clasificación de horizonte cuando el intervalo de duración cruza una frontera |
+| Evidencia examinada | T15: intervalo de duración que cruza la frontera de 24 horas |
+| Decisión humana comunicada | Conservar el intervalo; horizonte único INDETERMINADO; horizontes compatibles INMEDIATO y CORTO |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 25.2 Decisión y tratamiento del intervalo
+
+El propietario aceptó conservar el intervalo temporal completo cuando sus límites se sitúan a ambos lados de una frontera de horizonte. No se debe sustituir el intervalo por un punto estimado ni elegir una categoría única que los datos no permiten establecer.
+
+Para el intervalo sintético de T15:
+
+- Límite inferior: 23 horas y 50 minutos.
+- Límite superior: 24 horas y 10 minutos.
+- Horizonte único: **INDETERMINADO**.
+- Horizontes compatibles con el intervalo: **INMEDIATO** y **CORTO**.
+
+El límite inferior cae dentro de INMEDIATO y el superior dentro de CORTO, conforme a las fronteras inclusivas definidas en T11. Por ello, la evidencia no permite asignar un único horizonte con precisión suficiente. Los horizontes compatibles describen las categorías que el intervalo permite; no son dos clasificaciones simultáneas de un mismo valor conocido.
+
+Se conservarán los límites originales, la unidad, la precisión y la procedencia del intervalo. No se utilizará el punto medio, el redondeo ni una estimación arbitraria para forzar una clasificación. Si evidencia posterior reduce el intervalo a un rango contenido íntegramente en un horizonte, podrá realizarse una nueva evaluación con un nuevo corte, preservando el registro anterior y explicando el cambio.
+
+### 25.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción no cumple la secuencia de evaluación primaria humana sellada antes de la crítica de IA establecida en el protocolo de evaluador único.
+
+La aceptación se conserva como **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T15.
+
+Para completar una ejecución formal conforme al protocolo, será necesaria una nueva evaluación con el paquete congelado: primero se registra y sella la evaluación humana sin conocer la salida de IA y, después, se realiza la crítica auxiliar separada. La nueva ejecución se conservará como un registro distinto, sin sobrescribir esta decisión.
+
+### 25.4 Resultado de auditoría
+
+La decisión **intervalo conservado / horizonte único INDETERMINADO / horizontes compatibles INMEDIATO y CORTO** queda documentada como decisión humana asistida. No se ha forzado una categoría única a partir de un intervalo que cruza la frontera de 24 horas. **T15 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
