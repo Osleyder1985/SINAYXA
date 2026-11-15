@@ -547,25 +547,25 @@ foreach ($record in $package.retention_records) {
         'DELETED' { 'DELETED' }
     }
     $transitionEvents = @($package.audit_events | Where-Object {
-        $_.retention_id -eq $record.retention_id -and $_.subject_ref -eq $record.subject_ref -and
-        $_.from_disposition -eq $record.previous_disposition -and $_.to_disposition -eq $record.disposition -and
+        $_['retention_id'] -eq $record.retention_id -and $_.subject_ref -eq $record.subject_ref -and
+        $_['from_disposition'] -eq $record.previous_disposition -and $_['to_disposition'] -eq $record.disposition -and
         $_.action -eq $expectedAction -and (Test-Utc $_.occurred_at 'occurred_at') -and
         [DateTimeOffset]::Parse([string]$_.occurred_at) -ge [DateTimeOffset]::Parse([string]$record.recorded_at)
     })
     Test-Condition ($transitionEvents.Count -eq 1) 'Every retention disposition transition requires exactly one matching audit event.'
-    $priorDeletionEvents = @($package.audit_events | Where-Object { $_.subject_ref -eq $record.subject_ref -and $_.to_disposition -eq 'DELETED' -and $_.retention_id -ne $record.retention_id -and (Test-Utc $_.occurred_at 'occurred_at') -and [DateTimeOffset]::Parse([string]$_.occurred_at) -lt [DateTimeOffset]::Parse([string]$record.recorded_at) })
+    $priorDeletionEvents = @($package.audit_events | Where-Object { $_.subject_ref -eq $record.subject_ref -and $_['to_disposition'] -eq 'DELETED' -and $_['retention_id'] -ne $record.retention_id -and (Test-Utc $_.occurred_at 'occurred_at') -and [DateTimeOffset]::Parse([string]$_.occurred_at) -lt [DateTimeOffset]::Parse([string]$record.recorded_at) })
     Test-Condition ($priorDeletionEvents.Count -eq 0) 'A deleted evidence subject cannot be retained again; a newly authorized copy requires a new evidence subject.'
 }
 foreach ($auditEvent in $package.audit_events) {
     $known = (Test-HasRef $claimIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $claimVersionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $componentIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $componentVersionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sourceIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $versionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $evidenceIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.claim_assessments ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.identity_assessments ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.evaluation_units ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.claim_evidence_links ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.provenance_nodes ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.provenance_edges ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.factor_assessments ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.independence_assessments ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.retention_records ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.evidence_availability ([string]$auditEvent.subject_ref))
     Test-Condition $known 'Audit event references an unknown subject.'
     Test-Condition (Test-Utc $auditEvent.occurred_at 'occurred_at') 'Audit event occurred_at must be UTC.'
-    if ($null -ne $auditEvent.retention_id) {
-        Test-Condition (Test-HasRef $sets.retention_records ([string]$auditEvent.retention_id)) 'Retention audit event references an unknown retention record.'
-        $retention = @($package.retention_records | Where-Object { $_.retention_id -eq $auditEvent.retention_id })[0]
-        Test-Condition ($retention.subject_ref -eq $auditEvent.subject_ref -and $retention.previous_disposition -eq $auditEvent.from_disposition -and $retention.disposition -eq $auditEvent.to_disposition) 'Retention audit event does not match its retention transition.'
+    if ($null -ne $auditEvent['retention_id']) {
+        Test-Condition (Test-HasRef $sets.retention_records ([string]$auditEvent['retention_id'])) 'Retention audit event references an unknown retention record.'
+        $retention = @($package.retention_records | Where-Object { $_['retention_id'] -eq $auditEvent['retention_id'] })[0]
+        Test-Condition ($retention.subject_ref -eq $auditEvent.subject_ref -and $retention.previous_disposition -eq $auditEvent['from_disposition'] -and $retention.disposition -eq $auditEvent['to_disposition']) 'Retention audit event does not match its retention transition.'
     }
-    elseif ($null -ne $auditEvent.from_disposition -or $null -ne $auditEvent.to_disposition) { Test-Condition $false 'Retention transition audit fields require retention_id.' }
+    elseif ($null -ne $auditEvent['from_disposition'] -or $null -ne $auditEvent['to_disposition']) { Test-Condition $false 'Retention transition audit fields require retention_id.' }
 }
 Test-ForbiddenKey -Value $package
 [pscustomobject]@{
