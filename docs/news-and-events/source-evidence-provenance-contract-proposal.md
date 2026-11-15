@@ -3,8 +3,8 @@
 - **Issue:** #78
 - **Consumidor funcional:** #4
 - **Dependencias metodológicas:** #15 y #16 (cerrados)
-- **Versión de propuesta:** 0.1.0
-- **Estado:** PROPUESTA TÉCNICA NO APROBADA
+- **Versión de propuesta:** 0.2.0 (evolución de 0.1.0; pendiente de aprobación expresa)
+- **Estado:** PROPUESTA TÉCNICA 0.2.0 — PENDIENTE DE APROBACIÓN EXPRESA
 - **Alcance:** contrato lógico neutral respecto al motor de persistencia; no es un esquema físico ni una autorización de captura.
 
 ## 1. Objetivo y límites
@@ -280,3 +280,103 @@ La matriz no crea estados nuevos. Cada valor se interpreta únicamente en la dim
 - Decisión expresa del propietario registrada en #78.
 
 Hasta entonces, #4 está desbloqueado metodológicamente, pero no se implementan persistencia, captura ni automatización.
+
+
+## 9. Especificación temporal normativa (v0.2.0)
+
+Los campos temporales no son intercambiables. Todos los instantes normalizados se expresan en ISO 8601 UTC con sufijo Z. Cuando la fuente aporta una fecha con zona u offset distinto, se conserva además la representación original en original_timestamps; la normalización no debe destruir el texto, zona ni precisión originales.
+
+| Campo | Significado normativo | No significa |
+|---|---|---|
+| valid_time_start / valid_time_end | Intervalo del mundo real al que se refiere la proposición o componente. | Fecha de publicación o fecha de registro. |
+| published_at | Instante declarado o verificable de publicación de esa versión. | Primera vez que SINAYXA la vio. |
+| first_publicly_observed_at | Primera observación pública sustentada por una referencia/archivo independiente identificable. | Fecha necesariamente conocida por SINAYXA en ese momento. |
+| first_detected_at | Primer instante en que SINAYXA detectó esa versión; exige evidencia de observación o registro de captura. | Fecha de publicación si no existe evidencia de publicación. |
+| retrieved_at | Instante en que SINAYXA obtuvo la pieza mediante una vía legítima. | Primera detección ni fecha del acontecimiento. |
+| recorded_at | Instante en que el registro/versionado se incorporó al sistema. | Fecha del hecho o de la publicación. |
+| assessment_cutoff | Límite temporal de la información que podía utilizarse en una evaluación concreta. | Fecha de ejecución actual ni fecha de la fuente. |
+| valid_from / valid_to | Vigencia atribuida a una relación de procedencia, si puede establecerse. | Momento de registro de la arista. |
+
+Reglas:
+
+1. Un valor temporal desconocido se representa como null únicamente en campos declarados opcionales; se conserva el motivo de desconocimiento en limitations o en la observación temporal aplicable. No se inventa una fecha.
+2. Una fecha parcial no se transforma en un instante exacto. original_timestamps.precision conserva YEAR, MONTH, DAY, MINUTE, SECOND, MILLISECOND o UNKNOWN.
+3. first_detected_at y first_publicly_observed_at son distintos. Una publicación anticipada puede ser detectada por SINAYXA antes de un anuncio oficial posterior; el anuncio posterior no modifica el corte histórico anterior.
+4. No se exige que published_at preceda siempre a first_detected_at: puede haber timestamps de publicación corregidos, contenido republicado o evidencias de primera observación distintas. La discrepancia debe conservarse y explicarse, no normalizarse silenciosamente.
+5. Cuando ambos son conocidos, retrieved_at no puede preceder a first_detected_at para la misma adquisición. Una excepción exige modelar una captura/importación histórica distinta, no alterar el timestamp.
+6. El corte de evaluación es inclusivo: solo puede utilizar evidencia disponible en o antes de assessment_cutoff. Evidencia posterior crea una nueva evaluación; nunca reescribe la anterior.
+7. La correlación temporal no demuestra causalidad. El contrato solo registra secuencia y límites de conocimiento.
+
+## 10. Contrato formal e integridad semántica (v0.2.0)
+
+El esquema normativo se encuentra en schemas/source-evidence-contract-0.2.0.schema.json y usa JSON Schema Draft 2020-12. El paquete raíz contiene colecciones tipadas para afirmaciones, componentes, fuentes, versiones, evaluaciones, evidencias, enlaces, nodos/aristas de procedencia, factores, independencia, evaluaciones probatorias, retención y auditoría.
+
+El esquema define tipos, campos requeridos, catálogos cerrados, límites básicos y rechazo de propiedades adicionales. El validador semántico complementario comprueba las relaciones que JSON Schema no puede expresar por sí solo:
+
+- unicidad de identificadores dentro de cada colección;
+- integridad referencial y coherencia claim/componente;
+- correspondencia entre fuente y versión en la unidad de evaluación;
+- referencias de evidencia, factores y evaluaciones;
+- orientación dependiente → origen y destino UNKNOWN_ORIGIN para ORIGEN_NO_DETERMINADO;
+- reglas positivas para INDEPENDIENTE y DEPENDIENTE;
+- igualdad de digests para MATCH y desigualdad para MISMATCH;
+- secuencia de detección/adquisición y validez de intervalos;
+- restricciones de retención y autorización;
+- prohibición de campos de score, weight, probability, rank e identidad confidencial.
+
+Los ciclos entre nodos diferentes se conservan. La detección de ciclos no elimina aristas ni añade orígenes; todo ciclo debe quedar disponible para revisión. Una arista no puede apuntarse a sí misma.
+
+### 10.1 Reglas de evaluación probatoria y no herencia
+
+1. Claim component assessment es la única entidad que contiene evidentiary_status; los estados de factor de #16 y de independencia no pueden sustituirlo.
+2. CONTRADICHA requiere líneas de evidencia materialmente incompatibles y trazables en ambos sentidos; dos relatos no autenticados o dos etiquetas incompatibles no bastan.
+3. REFUTADA requiere evidencia contraria directa y pertinente respecto al componente exacto. Refutar autenticidad de un documento no refuta automáticamente el hecho subyacente.
+4. CORROBORADA exige evidencia favorable suficiente para el alcance del componente. Cuando la base sea secundaria, la independencia debe estar demostrada para ese mismo componente y corte; la cantidad de publicaciones no sustituye esa prueba.
+5. PARCIALMENTE_CORROBORADA exige identificar el alcance respaldado y no respaldado. No eleva automáticamente otros componentes.
+6. NO_CORROBORADA y NO_RESUELTA no significan falsedad. La ausencia de evidencia no se transforma en evidencia contraria.
+7. Una evaluación nueva es un registro nuevo que referencia la anterior mediante supersedes_assessment_id; no se modifica la evaluación histórica.
+8. Los estados finales no se derivan automáticamente de una regla numérica. Se conserva la justificación humana, evidencia favorable/contraria, alternativas, incertidumbre, limitaciones y corte temporal.
+
+## 11. Política de conservación y ciclo de vida (v0.2.0)
+
+La política predeterminada es **no conservar copias del contenido**. Se conserva una referencia y metadatos mínimos solo cuando su registro sea legítimo y no exponga material protegido.
+
+La conservación de contenido requiere conjuntamente:
+
+- base de acceso/conservación verificada (legal_basis_status=VERIFIED);
+- propósito concreto y necesario;
+- responsable funcional identificable por rol, no por datos personales innecesarios;
+- fecha de revisión y vencimiento revisable;
+- alcance de contenido autorizado y controles de acceso adecuados;
+- registro de auditoría de la decisión.
+
+No se fija un plazo universal. El vencimiento se determina por la base jurídica, jurisdicción, licencia, autorización y propósito aplicables. Una autorización pendiente, sospechosa o no establecida no permite conservar una copia.
+
+Al vencer o perderse la base legítima:
+1. restringir la copia cuando sea necesario para impedir uso adicional;
+2. evaluar si corresponde eliminarla;
+3. eliminar el contenido cuando la obligación/condición aplicable lo exija;
+4. registrar un evento no identificativo de eliminación, sin conservar una copia del contenido ni datos que permitan reconstruir una fuente protegida;
+5. mantener solo referencias/metadatos que sigan siendo legítimos.
+
+Un hash, una URL, un identificador o un log también pueden revelar información protegida; no se consideran automáticamente inocuos. La política de retención no autoriza adquirir, descargar ni conservar material privado o ilícitamente obtenido.
+
+## 12. Interoperabilidad y evolución
+
+- El formato canónico de intercambio es JSON UTF-8 validable con JSON Schema Draft 2020-12.
+- contract_version identifica la versión semántica del contrato; no se reutiliza para versionar metodología #15/#16.
+- Los identificadores son opacos, estables y no contienen datos personales ni secretos.
+- Las versiones de afirmaciones, piezas y evaluaciones son inmutables; una corrección crea una nueva versión y referencia explícitamente a la anterior.
+- Las propiedades no declaradas se rechazan en el esquema 0.2.0. La evolución compatible añade una versión nueva del esquema o una migración explícita; no se amplía silenciosamente un catálogo cerrado.
+- Las fechas se serializan como strings ISO 8601 UTC; los valores originales y su precisión se preservan en observaciones separadas.
+- No se prescribe base de datos, motor de grafo, almacenamiento de objetos ni arquitectura de despliegue.
+
+## 13. Evidencia de conformidad y límites
+
+Fixture sintético: tests/fixtures/contracts/source-evidence-contract-v0.2.0.json.  
+Validador de integridad semántica: scripts/validation/validate_source_evidence_contract.ps1.  
+Pruebas de mutación negativa: scripts/validation/test_source_evidence_contract.ps1.
+
+La conformidad estructural y semántica demuestra que el paquete cumple el contrato y sus invariantes. No demuestra que las afirmaciones sintéticas sean verdaderas, que una fuente real sea creíble, que el acceso a una fuente concreta sea legal ni que una evaluación automatizada pueda sustituir revisión humana.
+
+La aprobación de esta versión requiere que CI valide el esquema formal, ejecute el validador y rechace todas las mutaciones negativas. El estado metodológico de #15 y #16 permanece inalterado; la propuesta 0.2.0 sigue pendiente de aprobación expresa.
