@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [Parameter()]
     [string]$FixturePath
@@ -31,7 +31,7 @@ function ConvertTo-DateTimeOffset {
     )
 }
 
-function Assert-ExactCategories {
+function Assert-ExactCategory {
     param(
         [string[]]$Actual,
         [string[]]$Expected,
@@ -42,7 +42,7 @@ function Assert-ExactCategories {
     }
 }
 
-function Get-ElapsedSeconds {
+function Get-ElapsedTimeInSeconds {
     param([string]$Start, [string]$End)
     $startInstant = ConvertTo-DateTimeOffset -Value $Start
     $endInstant = ConvertTo-DateTimeOffset -Value $End
@@ -250,7 +250,7 @@ if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {
 $t11 = Get-FixtureCase -Id "T11"
 $t11Actual = @()
 for ($index = 0; $index -lt $t11.evidence[0].targets.Count; $index++) {
-    $seconds = Get-ElapsedSeconds -Start $t11.evidence[0].reference -End $t11.evidence[0].targets[$index]
+    $seconds = Get-ElapsedTimeInSeconds -Start $t11.evidence[0].reference -End $t11.evidence[0].targets[$index]
     if ([Math]::Abs($seconds - [double]$t11.evidence[0].elapsed_seconds[$index]) -gt 0.001) {
         throw "T11 elapsed-seconds mismatch at vector $($index + 1)."
     }
@@ -263,7 +263,7 @@ if (($t11Actual -join ",") -ne ($t11.expected.horizons -join ",")) {
 $t12 = Get-FixtureCase -Id "T12"
 $t12Actual = @()
 for ($index = 0; $index -lt $t12.evidence[0].targets.Count; $index++) {
-    $seconds = Get-ElapsedSeconds -Start $t12.evidence[0].reference -End $t12.evidence[0].targets[$index]
+    $seconds = Get-ElapsedTimeInSeconds -Start $t12.evidence[0].reference -End $t12.evidence[0].targets[$index]
     if ([Math]::Abs($seconds - [double]$t12.evidence[0].elapsed_seconds[$index]) -gt 0.001) {
         throw "T12 elapsed-seconds mismatch at vector $($index + 1)."
     }
@@ -306,7 +306,7 @@ $t15End = ConvertTo-DateTimeOffset -Value $t15.evidence[0].latest
 $t15Reference = ConvertTo-DateTimeOffset -Value $t15.cutoff
 $t15EarliestSeconds = ($t15Start - $t15Reference).TotalSeconds
 $t15LatestSeconds = ($t15End - $t15Reference).TotalSeconds
-Assert-ExactCategories -Actual @($t15.expected.compatible_categories) -Expected @("INMEDIATO", "CORTO") -CaseId "T15"
+Assert-ExactCategory -Actual @($t15.expected.compatible_categories) -Expected @("INMEDIATO", "CORTO") -CaseId "T15"
 if ($t15EarliestSeconds -ge 86400 -or
     $t15LatestSeconds -le 86400 -or
     $t15.expected.horizon -ne "INDETERMINADO as a single category" -or
@@ -343,9 +343,9 @@ if ($startMadrid.Offset -ne $t18Start.Offset -or
 
 $t19 = Get-FixtureCase -Id "T19"
 $t19Reference = $t19.evidence[2].at
-$t19SourceASeconds = Get-ElapsedSeconds -Start $t19Reference -End $t19.evidence[0].at
-$t19SourceBSeconds = Get-ElapsedSeconds -Start $t19Reference -End $t19.evidence[1].at
-Assert-ExactCategories -Actual @($t19.expected.compatible_categories) -Expected @("INMEDIATO", "CORTO") -CaseId "T19"
+$t19SourceASeconds = Get-ElapsedTimeInSeconds -Start $t19Reference -End $t19.evidence[0].at
+$t19SourceBSeconds = Get-ElapsedTimeInSeconds -Start $t19Reference -End $t19.evidence[1].at
+Assert-ExactCategory -Actual @($t19.expected.compatible_categories) -Expected @("INMEDIATO", "CORTO") -CaseId "T19"
 if ([Math]::Abs($t19SourceASeconds - 85800) -gt 0.001 -or
     [Math]::Abs($t19SourceBSeconds - 87000) -gt 0.001 -or
     $t19SourceASeconds -ge 86400 -or
