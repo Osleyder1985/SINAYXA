@@ -11,13 +11,15 @@ function Invoke-ExpectedFailure {
     param([string]$Name, [object]$Data)
     $path = Join-Path $temp ($Name + '.json')
     $Data | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $path -Encoding utf8
-    & $validator -FixturePath $path *> $null
-    if ($LASTEXITCODE -eq 0) { throw "Negative test '$Name' unexpectedly passed." }
+    $failed = $false
+    try { & $validator -FixturePath $path *> $null }
+    catch { $failed = $true }
+    if (-not $failed) { throw "Negative test '$Name' unexpectedly passed." }
 }
 
 try {
-    & $validator -FixturePath $fixture
-    if ($LASTEXITCODE -ne 0) { throw 'Positive fixture validation failed.' }
+    try { & $validator -FixturePath $fixture }
+    catch { throw "Positive fixture validation failed: $($_.Exception.Message)" }
     $base = Get-Content -LiteralPath $fixture -Raw -Encoding utf8 | ConvertFrom-Json -Depth 30
 
     $mut = $base | ConvertTo-Json -Depth 30 | ConvertFrom-Json -Depth 30
