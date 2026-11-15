@@ -213,7 +213,7 @@ Cada reevaluación crea un registro nuevo. No se sobrescriben estado histórico,
 ## 4. Matriz de trazabilidad con #4, #15 y #16
 
 |Requisito|Entidades/campos del contrato|Base normativa|
-|---|---|---|
+| --- | --- | --- |
 |#4 — conservar afirmación y separar sus componentes verificables|Claim, Claim component, Claim component assessment|#15: estado por proposición; #16: evaluación por afirmación/componente|
 |#4 — identificar origen y publicaciones derivadas|Source, Source version, Source identity assessment|#15: atribución/identidad separadas; #16: tipo, subtipo, base de conocimiento y difusión|
 |#4 — reconstruir republicaciones, citas y origen común|Provenance node/edge, Independence assessment|#15: no contar republicaciones; #16: genealogía y dependencia por componente|
@@ -380,7 +380,6 @@ Pruebas de mutación negativa: scripts/validation/test_source_evidence_contract.
 La conformidad estructural y semántica demuestra que el paquete cumple el contrato y sus invariantes. No demuestra que las afirmaciones sintéticas sean verdaderas, que una fuente real sea creíble, que el acceso a una fuente concreta sea legal ni que una evaluación automatizada pueda sustituir revisión humana.
 
 La aprobación de esta versión requiere que CI valide el esquema formal, ejecute el validador y rechace todas las mutaciones negativas. El estado metodológico de #15 y #16 permanece inalterado; la propuesta 0.2.0 sigue pendiente de aprobación expresa.
-
 
 ## 14. Resolución propuesta de las decisiones de §7
 
