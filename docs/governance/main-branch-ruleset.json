@@ -46,7 +46,7 @@
             "integration_id": null
           },
           {
-            "context": "OSV dependency scan / PR",
+            "context": "OSV dependency scan / PR / osv-scan",
             "integration_id": null
           }
         ]
