@@ -336,8 +336,8 @@ try {
         } },
         @{ Name='Dependency edge points outside evaluated source set'; Apply={
             param($x)
-            $newSource=$x.sources[0].Clone(); $newSource.source_id='src_11111111-1111-4111-8111-111111111111'; $x.sources += $newSource
-            $newVersion=$x.source_versions[0].Clone(); $newVersion.source_version_id='version-c1'; $newVersion.source_id='src_11111111-1111-4111-8111-111111111111'; $newVersion.version_label='v1'; $newVersion.version_sequence=1; $newVersion.supersedes_source_version_id=$null; $x.source_versions += $newVersion
+            $newSource=$x.sources[0].Clone(); $newSource['source_id']='src_11111111-1111-4111-8111-111111111111'; $x.sources += $newSource
+            $newVersion=$x.source_versions[0].Clone(); $newVersion['source_version_id']='version-c1'; $newVersion['source_id']='src_11111111-1111-4111-8111-111111111111'; $newVersion['version_label']='v1'; $newVersion['version_sequence']=1; $newVersion['supersedes_source_version_id']=$null; $x.source_versions += $newVersion
             $x.provenance_nodes += @{ node_id='node-version-c'; node_type='SOURCE_VERSION'; entity_ref='version-c1' }
             $x.provenance_edges += @{ edge_id='edge-a-c'; dependent_node_id='node-version-a'; origin_node_id='node-version-c'; relation_type='CITA_DE'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-a'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null }
             $x.independence_assessments[0].status='DEPENDIENTE'; $x.independence_assessments[0].dependency_edge_refs=@('edge-a-c'); $x.independence_assessments[0].human_review_status='REVIEWED'; $x.independence_assessments[0].reviewed_at='2026-11-15T22:05:00Z'
