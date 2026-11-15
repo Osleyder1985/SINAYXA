@@ -1,0 +1,383 @@
+{
+  "schema_version": "1.2.1",
+  "package_id": "SINAYXA-EVIDENCE-E01-E18-SYNTHETIC-004",
+  "status": "SYNTHETIC_TEST_FIXTURE_NOT_REAL_WORLD_EVIDENCE",
+  "source_standard": "docs/news-and-events/evidence-standard-for-indicia-rumours-and-leaks.md",
+  "scope": "Structural and rule-conformance checks only; not legal advice, source credibility scoring, empirical validation, or automated truth determination.",
+  "permitted_evidentiary_states": [
+    "NO_CORROBORADA",
+    "PARCIALMENTE_CORROBORADA",
+    "CORROBORADA",
+    "CONTRADICHA",
+    "REFUTADA",
+    "NO_RESUELTA"
+  ],
+  "cases": [
+    {
+      "id": "E01",
+      "scenario": "La entidad publica una resolución firmada en su sitio oficial.",
+      "nature": "PUBLICACIÓN_OFICIAL",
+      "expected": {
+        "evidentiary_status": "CORROBORADA",
+        "document_authenticity": "AUTENTICADA",
+        "guardrail": "Corroborar solo la publicación y el contenido exacto de la resolución; evaluar por separado vigencia y ejecución.",
+        "source_identity": "IDENTIFICADA",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "PÚBLICO_LEGÍTIMO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E02",
+      "scenario": "Una sola fuente anónima afirma que habrá una compra institucional.",
+      "nature": "RUMOR",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "Afirmación atribuida; investigar sin presentarla como operación confirmada.",
+        "source_identity": "ANÓNIMA_PARA_EL_PÚBLICO",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "PÚBLICO_LEGÍTIMO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E03",
+      "scenario": "Ocho cuentas repiten el mismo mensaje original.",
+      "nature": "RUMOR",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "Una sola cadena de origen conocida; no contar ocho republicaciones como corroboraciones.",
+        "source_identity": "DESCONOCIDA",
+        "independence_of_origin": "DEPENDIENTE",
+        "access_provenance": "PÚBLICO_LEGÍTIMO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E04",
+      "scenario": "Dos fuentes independientes confirman solo la fecha y la entidad, pero no el importe.",
+      "nature": "AFIRMACIÓN",
+      "expected": {
+        "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "Fecha y entidad respaldadas; el importe permanece desconocido.",
+        "source_identity": "DESCONOCIDA",
+        "independence_of_origin": "INDEPENDIENTE",
+        "access_provenance": "PÚBLICO_LEGÍTIMO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E05",
+      "scenario": "Un supuesto documento filtrado aparece en un canal público, sin firma ni procedencia verificable.",
+      "nature": "POSIBLE_FILTRACIÓN",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "NO_VERIFICADA",
+        "guardrail": "La disponibilidad en un canal público no autentica la pieza ni resuelve la legitimidad de su obtención.",
+        "source_identity": "DESCONOCIDA",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "NO_DETERMINADO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E06",
+      "scenario": "Un PDF tiene hash estable y metadatos coherentes, pero no existe origen verificable.",
+      "nature": "POSIBLE_FILTRACIÓN",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "NO_VERIFICADA",
+        "guardrail": "El hash acredita integridad de la copia desde su captura, no autoría, origen ni veracidad.",
+        "source_identity": "DESCONOCIDA",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "NO_DETERMINADO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E07",
+      "scenario": "Un documento auténtico es un borrador sujeto a aprobación.",
+      "nature": "AFIRMACIÓN",
+      "expected": {
+        "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+        "document_authenticity": "AUTENTICADA",
+        "guardrail": "Autenticar el borrador y conservar su condición y dependencias; no presentarlo como decisión aprobada.",
+        "source_identity": "DESCONOCIDA",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "NO_DETERMINADO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E08",
+      "scenario": "Un anuncio oficial posterior confirma el hecho anticipado días antes por una pieza no autenticada.",
+      "nature": "POSIBLE_FILTRACIÓN",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "NO_VERIFICADA",
+        "guardrail": "Conservar NO_CORROBORADA en el corte anterior y registrar CORROBORADA solo desde la nueva evidencia oficial.",
+        "source_identity": "DESCONOCIDA",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "PÚBLICO_LEGÍTIMO",
+        "sensitive_information_review": "NO_EVALUADA",
+        "temporal_assessment": {
+          "historical_cutoff": "BEFORE_OFFICIAL_ANNOUNCEMENT",
+          "historical_status": "NO_CORROBORADA",
+          "post_announcement_status": "CORROBORADA",
+          "retroactive_rewrite": false
+        }
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E09",
+      "scenario": "La entidad niega una afirmación y existe un documento contradictorio aún no autenticado.",
+      "nature": "AFIRMACIÓN",
+      "expected": {
+        "evidentiary_status": "CONTRADICHA",
+        "document_authenticity": "NO_VERIFICADA",
+        "guardrail": "Conservar la contradicción y revisar autenticidad y alcance; no elegir automáticamente una versión.",
+        "source_identity": "DESCONOCIDA",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "NO_DETERMINADO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E10",
+      "scenario": "No existe anuncio oficial después de varias semanas.",
+      "nature": "RUMOR",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "Mantener NO_CORROBORADA; el silencio o el paso del tiempo no constituyen refutación.",
+        "source_identity": "DESCONOCIDA",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "PÚBLICO_LEGÍTIMO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E11",
+      "scenario": "El precio sube antes de que circule un rumor.",
+      "nature": "RUMOR",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "Registrar la anomalía de mercado por separado; el precio no confirma el rumor.",
+        "source_identity": "DESCONOCIDA",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "PÚBLICO_LEGÍTIMO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E12",
+      "scenario": "Un documento demuestra ser una falsificación.",
+      "nature": "POSIBLE_FILTRACIÓN",
+      "expected": {
+        "evidentiary_status": "REFUTADA",
+        "document_authenticity": "AUTENTICIDAD_REFUTADA",
+        "guardrail": "Refutar la autenticidad de esa pieza y solo las afirmaciones que dependían de ella, salvo evidencia adicional.",
+        "source_identity": "DESCONOCIDA",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "NO_DETERMINADO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E13",
+      "scenario": "Una filtración parece proceder de una cuenta o repositorio comprometido.",
+      "nature": "POSIBLE_FILTRACIÓN",
+      "expected": {
+        "evidentiary_status": "NO_RESUELTA",
+        "document_authenticity": "NO_VERIFICADA",
+        "guardrail": "Detener la evaluación sustantiva; no ampliar el acceso ni redistribuir el material.",
+        "source_identity": "DESCONOCIDA",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "SOSPECHA_DE_ACCESO_NO_AUTORIZADO",
+        "sensitive_information_review": "REVISIÓN_LEGAL_REQUERIDA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E14",
+      "scenario": "Un medio cita una fuente anónima que afirma haber participado directamente en una negociación.",
+      "nature": "AFIRMACIÓN",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "Registrar atribución y anonimidad; la descripción del medio no convierte la afirmación en corroborada.",
+        "source_identity": "ANÓNIMA_PARA_EL_PÚBLICO",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "PÚBLICO_LEGÍTIMO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E15",
+      "scenario": "Una fuente primaria confirma que se presentó una solicitud, pero no que será aprobada.",
+      "nature": "PUBLICACIÓN_OFICIAL",
+      "expected": {
+        "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+        "document_authenticity": "AUTENTICADA",
+        "guardrail": "Corroborar la presentación; la aprobación permanece no confirmada.",
+        "source_identity": "IDENTIFICADA",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "PÚBLICO_LEGÍTIMO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E16",
+      "scenario": "Una filtración anticipa un acuerdo, pero el documento solo recoge una propuesta preliminar.",
+      "nature": "POSIBLE_FILTRACIÓN",
+      "expected": {
+        "evidentiary_status": "NO_CORROBORADA",
+        "document_authenticity": "NO_VERIFICADA",
+        "guardrail": "Mientras la pieza no esté autenticada ni exista corroboración independiente, no acredita siquiera la existencia de la propuesta; si esta se acredita por separado, corroborar solo la propuesta, nunca un acuerdo ejecutado.",
+        "source_identity": "DESCONOCIDA",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "NO_DETERMINADO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E17",
+      "scenario": "Dos medios publican versiones incompatibles y ambos citan fuentes anónimas distintas.",
+      "nature": "RUMOR",
+      "expected": {
+        "evidentiary_status": "CONTRADICHA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "Mantener CONTRADICHA/NO_RESUELTA según evidencia; no resolver por mayoría de publicaciones.",
+        "source_identity": "ANÓNIMA_PARA_EL_PÚBLICO",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "PÚBLICO_LEGÍTIMO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    },
+    {
+      "id": "E18",
+      "scenario": "Una publicación se rectifica y elimina un dato concreto.",
+      "nature": "PUBLICACIÓN_OFICIAL",
+      "expected": {
+        "evidentiary_status": "NO_RESUELTA",
+        "document_authenticity": "NO_APLICA",
+        "guardrail": "Registrar la rectificación atribuida, preservar la versión anterior y no inferir por sí sola corroboración ni refutación.",
+        "source_identity": "IDENTIFICADA",
+        "independence_of_origin": "DESCONOCIDA",
+        "access_provenance": "PÚBLICO_LEGÍTIMO",
+        "sensitive_information_review": "NO_EVALUADA"
+      },
+      "invariants": {
+        "price_is_corrobative": false,
+        "republishing_is_independent": false,
+        "retroactive_confirmation": false,
+        "unauthorized_acquisition": false
+      }
+    }
+  ]
+}
