@@ -113,6 +113,16 @@ try {
     $independentCopy.independence_assessments[0].independent_path_edge_refs = @('edge-independent-a','edge-independent-b')
     $independentCopy.independence_assessments[0].human_review_status = 'REVIEWED'
     $independentCopy.independence_assessments[0].reviewed_at = '2026-11-15T22:05:00Z'
+    $independentCopy.claim_evidence_links += @(
+        @{ link_id='link-independent-a'; claim_id='claim-btc-purchase'; claim_component_id='component-entity'; claim_version_id='claim-btc-purchase-v1'; claim_component_version_id='component-entity-v1'; evidence_id='independent-evidence-a'; evidence_role='SUPPORTING'; scope_note='Observación independiente de la declaración.'; limitations=@('No extrapolar a otros componentes.') },
+        @{ link_id='link-independent-b'; claim_id='claim-btc-purchase'; claim_component_id='component-entity'; claim_version_id='claim-btc-purchase-v1'; claim_component_version_id='component-entity-v1'; evidence_id='independent-evidence-b'; evidence_role='SUPPORTING'; scope_note='Observación independiente de la declaración.'; limitations=@('No extrapolar a otros componentes.') }
+    )
+    $independentCopy.claim_assessments[0].evidentiary_status='CORROBORADA'
+    $independentCopy.claim_assessments[0].supporting_evidence_refs=@('independent-evidence-a','independent-evidence-b')
+    $independentCopy.claim_assessments[0].independence_assessment_refs=@('independence-entity')
+    $independentCopy.claim_assessments[0].rationale='Dos vías de origen distintas, directamente evidenciadas y revisadas, respaldan el componente.'
+    $independentCopy.claim_assessments[0].human_review_status='REVIEWED'
+    $independentCopy.claim_assessments[0].reviewed_at='2026-11-15T22:05:00Z'
     $independentFile = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-independent-" + [guid]::NewGuid().ToString('N') + '.json')
     try {
         ConvertTo-Json -InputObject $independentCopy -Depth 100 | Set-Content -LiteralPath $independentFile -Encoding utf8
@@ -293,6 +303,7 @@ try {
         @{ Name='Claim assessment missing rationale'; Apply={ param($x) $x.claim_assessments[0].rationale='' } },
         @{ Name='Partial corroboration without delimited scopes'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='PARCIALMENTE_CORROBORADA'; $x.claim_assessments[0].human_review_status='REVIEWED'; $x.claim_assessments[0].reviewed_at='2026-11-15T22:05:00Z'; $x.claim_assessments[0].supported_scope=$null; $x.claim_assessments[0].unsupported_scope=$null } },
         @{ Name='Conclusive state bypasses human review'; Apply={ param($x) $x.claim_assessments[0].evidentiary_status='CORROBORADA'; $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.claim_assessments[0].human_review_status='PENDING' } },
+        @{ Name='CORROBORADA from primary sources bypasses independence'; Apply={ param($x) $x.evaluation_units[0].source_type='PRIMARIA'; $x.evaluation_units[1].source_type='PRIMARIA'; $x.claim_evidence_links[1].evidence_role='SUPPORTING'; $x.claim_assessments[0].evidentiary_status='CORROBORADA'; $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b'); $x.claim_assessments[0].independence_assessment_refs=@(); $x.claim_assessments[0].human_review_status='REVIEWED'; $x.claim_assessments[0].reviewed_at='2026-11-15T22:05:00Z' } },
         @{ Name='Unauthorized retained content'; Apply={ param($x) $x.retention_records[0].content_retained=$true } },
         @{ Name='Retention record has orphan subject'; Apply={ param($x) $x.retention_records[0].subject_ref='missing-subject' } },
         @{ Name='Audit event has orphan subject'; Apply={ param($x) $x.audit_events[0].subject_ref='missing-subject' } },
