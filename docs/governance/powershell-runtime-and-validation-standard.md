@@ -32,6 +32,7 @@ The workflow:
 - Validates the versioned synthetic intensity/horizon fixture v1.2.0.
 - Runs a positive control, twelve negative mutation cases, and robustness checks for missing and malformed fixture files.
 - Validates the Issue #15 E01–E18 synthetic evidence-standard fixture and runs its positive/negative mutation harness.
+- Validates the Issue #17 A01–A15 synthetic alert fixture and runs positive, negative, and robustness tests (missing/malformed files); the fixture remains explicitly unapproved and is not an alert engine.
 - Tests selected PSScriptAnalyzer security rules with synthetic snippets.
 - Uploads machine-readable findings and provenance evidence as a GitHub Actions artifact.
 

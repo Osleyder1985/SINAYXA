@@ -22,6 +22,9 @@ on:
       - "docs/news-and-events/source-credibility-and-independence-proposal.md"
       - "docs/news-and-events/source-monitoring-latency-and-limits-proposal.md"
       - "docs/news-and-events/alert-severity-and-deduplication-proposal.md"
+      - "tests/fixtures/methodology/alerts/**"
+      - "scripts/validation/validate_alert_fixture.ps1"
+      - "scripts/validation/test_alert_fixture.ps1"
       - ".github/workflows/powershell-validation.yml"
       - ".github/workflows/security-quality.yml"
   workflow_dispatch:
@@ -169,6 +172,22 @@ jobs:
           & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_evidence_standard_fixture.ps1'
           if ($LASTEXITCODE -ne 0) { throw 'The evidence-standard mutation tests failed.' }
 
+      - name: Validate Issue #17 A01-A15 synthetic alert fixture
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/validate_alert_fixture.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'The Issue #17 alert fixture validator failed.' }
+
+      - name: Run Issue #17 positive, negative, and robustness tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_alert_fixture.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'The Issue #17 alert fixture test harness failed.' }
+
       - name: Record source and fixture provenance
         shell: pwsh
         working-directory: source
@@ -179,6 +198,8 @@ jobs:
           $hash = (Get-FileHash -LiteralPath $fixture -Algorithm SHA256).Hash
           $evidenceStandardFixture = 'tests/fixtures/methodology/evidence-standard/e01-e18-synthetic-conformance-v1.2.2.json'
           $evidenceStandardFixtureHash = (Get-FileHash -LiteralPath $evidenceStandardFixture -Algorithm SHA256).Hash
+          $alertFixture = 'tests/fixtures/methodology/alerts/a01-a15-synthetic-conformance-v1.0.0.json'
+          $alertFixtureHash = (Get-FileHash -LiteralPath $alertFixture -Algorithm SHA256).Hash
           $evidence = [ordered]@{
             source_commit = $commit
             workflow_commit = '${{ github.sha }}'
@@ -188,6 +209,8 @@ jobs:
             fixture_sha256 = $hash
             evidence_standard_fixture = $evidenceStandardFixture
             evidence_standard_fixture_sha256 = $evidenceStandardFixtureHash
+            alert_fixture = $alertFixture
+            alert_fixture_sha256 = $alertFixtureHash
             powerShell_files = @(git ls-files '*.ps1' '*.psm1').Count
             run_id = '${{ github.run_id }}'
             event = '${{ github.event_name }}'
