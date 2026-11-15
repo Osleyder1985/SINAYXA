@@ -285,7 +285,6 @@ foreach ($factor in $package.factor_assessments) {
         Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Factor assessment references unknown evidence.'
         $factorEvidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $reference })[0]
         Test-Condition ($factor.dimension -in @($factorEvidence.factor_dimensions)) 'Factor evidence is not explicitly scoped to the assessed dimension.'
-        $factorUnit = @($package.evaluation_units | Where-Object { $_.assessment_unit_id -eq $factor.assessment_unit_id })[0]
         $availableForUnit = @($package.evidence_availability | Where-Object { $_.evidence_id -eq $reference -and $_.assessment_unit_id -eq $factor.assessment_unit_id -and $null -ne $_.available_at -and $_.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE') })
         Test-Condition ($availableForUnit.Count -gt 0) 'Factor evidence must have a known availability observation for its exact evaluation unit.'
     }
