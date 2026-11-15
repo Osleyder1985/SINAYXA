@@ -299,7 +299,9 @@ try {
         @{ Name='Independent paths share one underlying origin'; Apply={
             param($x)
             Initialize-IndependentPathsForFixture -Package $x
-            ($x.provenance_nodes | Where-Object { $_.node_id -eq 'node-origin-independent-b' })[0].entity_ref='evidence-a'
+            $sharedOriginNode = @($x.provenance_nodes | Where-Object { $_.node_id -eq 'node-origin-independent-b' })[0]
+            if ($null -eq $sharedOriginNode) { throw 'The independent-path fixture did not create its second origin node.' }
+            $sharedOriginNode['entity_ref']='evidence-a'
             ($x.provenance_edges | Where-Object { $_.edge_id -eq 'edge-independent-b' })[0].evidence_refs=@('evidence-a','evidence-b')
             $x.independence_assessments[0].status='INDEPENDIENTE'
             $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b')
