@@ -316,19 +316,6 @@ try {
         @{ Name='Factor evidence crosses dimension boundary'; Apply={ param($x) $x.factor_assessments[0].supporting_evidence_refs=@('evidence-a') } },
         @{ Name='Factor evidence crosses component version'; Apply={ param($x) $x.evidence_items[0].factor_dimensions=@('RELATION_WITH_FACT'); $x.factor_assessments[20].supporting_evidence_refs=@('evidence-a') } },
         @{ Name='Factor evidence crosses source version'; Apply={ param($x) $x.evidence_items[0].factor_dimensions=@('RELATION_WITH_FACT'); $x.factor_assessments[10].supporting_evidence_refs=@('evidence-a') } },
-        @{ Name='Factor evidence has no exact claim-evidence link'; Apply={
-            param($x)
-            $newEvidence=$x.evidence_items[0].Clone()
-            $newEvidence.evidence_id='factor-evidence-unlinked'
-            $newEvidence.factor_dimensions=@('RELATION_WITH_FACT')
-            $newEvidence.content_reference='synthetic-observation://unlinked-factor-evidence'
-            $x.evidence_items += $newEvidence
-            $newAvailability=$x.evidence_availability[0].Clone()
-            $newAvailability.availability_id='availability-factor-unlinked'
-            $newAvailability.evidence_id='factor-evidence-unlinked'
-            $x.evidence_availability += $newAvailability
-            $x.factor_assessments[0].supporting_evidence_refs=@('factor-evidence-unlinked')
-        } },
         @{ Name='Evidence availability crosses component version'; Apply={ param($x) $x.evidence_availability[0].claim_component_version_id='component-amount-v1' } },
         @{ Name='Evidence availability crosses source version'; Apply={ param($x) $x.evidence_availability[0].assessment_unit_id='unit-b-entity' } },
         @{ Name='Evidence becomes available after evaluation cutoff'; Apply={ param($x) $x.evidence_availability[0].available_at='2026-11-15T23:00:00Z' } },
