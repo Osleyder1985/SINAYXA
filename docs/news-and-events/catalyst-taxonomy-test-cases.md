@@ -695,8 +695,8 @@ Esta verificación es estructural: confirma que las mejoras aprobadas están inc
 | B | Mismo asistente — revisión adversarial separada | 36 casos + 10 fronteras | COMPLETADA; no cuenta como revisión humana independiente ni es independiente de A | Recorrido adversarial descrito en §6 |
 | H-OWNER | Propietario — revisión humana | 36 casos + 10 fronteras | COMPLETADA — 46/46 el 2026-11-14 | 46 decisiones «APROBAR CON LA MEJORA PROPUESTA», sin observaciones; registro por ID en §7.1 |
 | AI-ADVERSARIAL | Asistente — revisión adversarial asistida | 36 casos + 10 fronteras; validador y mutaciones | COMPLETADA para SHA `4df01d8af2d67ca4c72ff0113b146ca977ece3ad`; asistida, no independiente | Detectadas y corregidas ubicación H-OWNER Filtraciones-N, estado histórico H-OWNER desactualizado y ausencia de oráculo H-OWNER; añadido M-13. No equivale a ejecución Python. |
-| AUTO-VALIDATION | Scripts deterministas versionados | Cobertura, contratos, estructura y enlaces | EJECUTADA sobre SHA `a39a582d2d17bbf39ea273f10d095cb0573f6d7c`; validador PASS | Python 3.15.2; comandos y salidas comunicados por el propietario; §7.2. Repetir tras cambios posteriores. |
-| ADVERSARIAL-TEST | Tests de mutación M-01…M-13 | Fixtures aislados | EJECUTADAS sobre SHA `a39a582d2d17bbf39ea273f10d095cb0573f6d7c`; 13/13 `OK` | Python 3.15.2; `unittest discover`; resultados comunicados por el propietario. Repetir tras cambios posteriores. |
+| AUTO-VALIDATION | Scripts deterministas versionados | Cobertura, contratos, estructura y enlaces | EJECUTADA sobre SHA `76974e94fcef15f795905088b43365de7757d59f`; validador PASS | Python 3.15.2; ejecución local comunicada por el propietario; registro posterior en §7.2. |
+| ADVERSARIAL-TEST | Tests de mutación M-01…M-13 | Fixtures aislados | EJECUTADAS sobre SHA `76974e94fcef15f795905088b43365de7757d59f`; 13/13 `OK` | Python 3.15.2; `unittest discover`; registro posterior en §7.2. |
 
 Las discrepancias se registrarán por ID, decisión inicial, regla/evidencia en conflicto, resolución y cambio aplicado. No se forzará consenso cuando la salida correcta sea INDETERMINADO.
 
@@ -782,6 +782,8 @@ Estados de conformidad permitidos:
 
 La aprobación del propietario de la política no es una revisión de los 46 casos ni una revisión externa. A/B son dos pasadas del mismo asistente y no equivalen a dos revisiones humanas independientes.
 
+**Registro posterior de verificación — SHA 76974e94fcef15f795905088b43365de7757d59f (2026-11-14):** el propietario ejecutó Python 3.15.2 y obtuvo 13/13 pruebas M-01…M-13 `OK` mediante `py -3.15 -m unittest discover -s tests/news_and_events -v`. El validador `py -3.15 scripts/news_and_events/validate_taxonomy_test_cases.py` devolvió `PASS: 36 escenarios, 18 pares, 10 fronteras, contratos, categorías negativas, temporalidad, roles y enlaces`. La validación es estructural: no demuestra verdad factual, calidad de fuentes, causalidad ni rendimiento predictivo. Tras recuperar el documento desde el blob de HEAD, el hash del archivo y el del blob coincidieron; `git diff --exit-code` devolvió 0. `git update-index --refresh` actualizó el seguimiento y `git status --short` quedó vacío antes de esta modificación. AI-ADVERSARIAL no se repitió sobre este SHA: la evidencia asistida y no independiente sigue limitada a `4df01d8af2d67ca4c72ff0113b146ca977ece3ad`. No se acredita revisión humana independiente, Markdown lint ni CI para este SHA. Las pruebas y el validador se ejecutaron antes de esta modificación documental; deben repetirse sobre el nuevo commit que resulte de esta actualización. La consulta previa de GitHub para PR #32 no mostró check-runs ni ejecuciones de workflow; no se afirma CI aprobado.
+
 ### 7.3 Registro de riesgo residual
 
 | Riesgo | Estado inicial | Control | Evidencia de cierre |
@@ -818,8 +820,8 @@ La aprobación del propietario de la política no es una revisión de los 46 cas
 - [x] Política de participante único aprobada e integrada mediante PR #31; no se afirma independencia humana.
 - [x] H-OWNER completada para los 46 casos (36 escenarios + 10 BND), con decisión y evidencia por ID.
 - [x] AI-ADVERSARIAL repetida y registrada para el SHA `4df01d8af2d67ca4c72ff0113b146ca977ece3ad` (asistida, no independiente).
-- [x] AUTO-VALIDATION versionada ejecutada y con salida reproducible sobre `a39a582d2d17bbf39ea273f10d095cb0573f6d7c`; resultado `PASS`, registrado en §7.2. Repetir si se modifican el documento, el validador o sus dependencias.
-- [x] Pruebas adversariales M-01…M-13 ejecutadas sobre `a39a582d2d17bbf39ea273f10d095cb0573f6d7c`; 13/13 `OK`, registrado en §7.2. Repetir si se modifican el documento, la suite o el validador.
+- [x] AUTO-VALIDATION versionada ejecutada y con salida reproducible sobre `76974e94fcef15f795905088b43365de7757d59f`; resultado `PASS`, registrado en §7.2. Repetir si se modifican el documento, el validador o sus dependencias.
+- [x] Pruebas adversariales M-01…M-13 ejecutadas sobre `76974e94fcef15f795905088b43365de7757d59f`; 13/13 `OK`, registrado en §7.2. Repetir si se modifican el documento, la suite o el validador.
 - [x] Referencias internas a los dos documentos normativos comprobadas contra los archivos existentes en `main`.
 - [x] Comprobaciones programáticas puntuales de estructura y cobertura ejecutadas sobre el contenido recuperado de la rama; alcance y límites registrados en §6.3.
 - [ ] Markdown lint y validaciones CI del repositorio ejecutadas; no se declaran como realizadas.
