@@ -107,7 +107,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | --- | --- | --- | --- | --- |
 | T01 | I0; dirección NEUTRAL solo si está respaldada independientemente | NOT_EXECUTED | I0; INDETERMINADA (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 11; ejecución conforme al protocolo pendiente |
 | T02 | I1; sustituto solo atenúa si disponibilidad, capacidad y acceso están demostrados | NOT_EXECUTED | I1; INDETERMINADA (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 12; ejecución conforme al protocolo pendiente |
-| T03 | I2; separar efecto observado de efecto potencial restante | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T03 | I2; separar efecto observado de efecto potencial restante | NOT_EXECUTED | I2; NEGATIVA para el segmento institucional afectado (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 13; ejecución conforme al protocolo pendiente |
 | T04 | I3; demostrar exposición amplia/central y separar efecto observado/potencial | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T05 | I4; amenaza concreta a función esencial o viabilidad demostrada | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T06 | INDETERMINADA; exposición amplia no compensa mecanismo especulativo | NOT_EXECUTED | PENDIENTE | PENDIENTE |
@@ -358,3 +358,45 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 12.4 Resultado de auditoría
 
 La decisión **I1 / INDETERMINADA** queda documentada como decisión humana asistida. **T02 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+## 13. Registro de decisión asistida — T03
+
+### 13.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T03 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Segmento institucional afectado del exchange ficticio GAMMA |
+| Corte | `2026-01-10T12:00:00Z` |
+| Evidencias examinadas | T03-E1, T03-E2, T03-E3 y T03-E4 |
+| Decisión humana comunicada | I2; dirección NEGATIVA para el segmento institucional afectado |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 13.2 Razonamiento y decisión adoptada
+
+El propietario aceptó la recomendación metodológica de asignar **I2** y dirección **NEGATIVA** para el segmento institucional afectado.
+
+- T03-E1 delimita el componente de procesamiento al segmento institucional identificado; no establece dependencia de otros segmentos.
+- T03-E2 documenta 27 solicitudes de depósito pertenecientes a 11 cuentas institucionales que permanecen sin acreditar cuatro horas después del plazo de procesamiento documentado.
+- T03-E3 acredita la consecuencia funcional: mientras los depósitos sigan pendientes, las cuentas afectadas no pueden utilizar esos fondos para trading ni como colateral. Los retiros de saldos ya acreditados y otras funciones del exchange permanecen disponibles.
+- T03-E4 limita el alcance acreditado al segmento institucional y advierte que no se ha demostrado que ese segmento o esa ruta de depósitos sean centrales para el exchange en su conjunto.
+
+El efecto observado se separa del potencial: el efecto observado es la falta de acreditación y la indisponibilidad funcional de los fondos al corte; el efecto potencial es que la restricción continúe mientras el componente permanezca indisponible. La duración futura no está establecida.
+
+La dirección NEGATIVA se refiere exclusivamente a la restricción de capacidad operativa del segmento afectado. No implica una conclusión sobre el precio del token, el mercado general ni el exchange completo. Los recuentos y la duración son hechos ficticios del caso, no umbrales universales de intensidad.
+
+### 13.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción no cumple la secuencia de evaluación primaria humana sellada antes de la crítica de IA establecida en el protocolo de evaluador único.
+
+La aceptación se conserva como **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T03.
+
+Para completar una ejecución formal conforme al protocolo, será necesaria una nueva evaluación con el paquete congelado: primero se registra y sella la evaluación humana sin conocer la salida de IA y, después, se realiza la crítica auxiliar separada. La nueva ejecución se conservará como un registro distinto, sin sobrescribir esta decisión.
+
+### 13.4 Resultado de auditoría
+
+La decisión **I2 / NEGATIVA para el segmento institucional afectado** queda documentada como decisión humana asistida. **T03 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
