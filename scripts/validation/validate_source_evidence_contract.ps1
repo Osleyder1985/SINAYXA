@@ -110,6 +110,9 @@ foreach ($component in $package.claim_components) {
 foreach ($version in $package.source_versions) {
     Test-Condition (Test-HasRef $sourceIds ([string]$version.source_id)) 'Source version references an unknown source.'
     Test-Condition ([int]$version.version_sequence -ge 1) 'Source version sequence must be a positive integer.'
+    $sequenceKey = ([string]$version.source_id) + '|' + ([string][int]$version.version_sequence)
+    if (-not $sourceVersionSequences) { $sourceVersionSequences = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal) }
+    Test-Condition ($sourceVersionSequences.Add($sequenceKey)) 'Source version sequence must be unique within the same source.'
     foreach ($field in @('published_at','first_detected_at','first_publicly_observed_at','retrieved_at','recorded_at')) {
         if ($null -ne $version[$field]) { Test-Condition (Test-Utc $version[$field] $field) "Source version has invalid UTC $field." }
     }
