@@ -46,7 +46,12 @@ try {
         @{ Name='Factor status contradicts evidence basis'; Apply={ param($x) $x.cases[0].factor_assessments[0].status = 'SUSTENTADA' } },
         @{ Name='Numeric credibility score injected'; Apply={ param($x) $x.cases[0].factor_assessments[0] | Add-Member -NotePropertyName score -NotePropertyValue 0.95 } },
         @{ Name='Issue 15 probative state CONTRADICHA used as factor'; Apply={ param($x) $x.cases[0].factor_assessments[0].status = 'CONTRADICHA' } },
-        @{ Name='Issue 15 probative state CORROBORADA used as factor'; Apply={ param($x) $x.cases[0].factor_assessments[0].status = 'CORROBORADA' } }
+        @{ Name='Issue 15 probative state CORROBORADA used as factor'; Apply={ param($x) $x.cases[0].factor_assessments[0].status = 'CORROBORADA' } },
+        @{ Name='Factor evidence linked to wrong rubric dimension'; Apply={ param($x) $x.cases[0].factor_evidence_records[0].dimension = 'ACCESS_AND_PROXIMITY' } },
+        @{ Name='Anonymous spokesperson upgraded to direct fact relationship'; Apply={ param($x) $x.cases[1].factor_assessments[0].status = 'SUSTENTADA'; $x.cases[1].factor_evidence_records[0].basis_type = 'SCENARIO_SUPPORT' } },
+        @{ Name='Version preservation upgraded to temporal adequacy'; Apply={ param($x) $x.cases[5].factor_assessments[9].status = 'SUSTENTADA'; $x.cases[5].factor_evidence_records[9].basis_type = 'SCENARIO_SUPPORT' } },
+        @{ Name='Official denial upgraded to contrary evidence'; Apply={ param($x) $x.cases[9].factor_assessments[8].status = 'LIMITADA'; $x.cases[9].factor_evidence_records[8].basis_type = 'SCOPE_LIMITATION' } },
+        @{ Name='Document authenticity upgraded to source relation'; Apply={ param($x) $x.cases[10].factor_assessments[0].status = 'SUSTENTADA'; $x.cases[10].factor_evidence_records[0].basis_type = 'SCENARIO_SUPPORT' } }
     )
     foreach ($mutation in $mutations) {
         $copy = $base | ConvertTo-Json -Depth 50 | ConvertFrom-Json -Depth 50
