@@ -38,11 +38,40 @@ foreach ($case in $fixture.cases) {
         Assert-Condition (-not [string]::IsNullOrWhiteSpace($edge.relation)) "${id}: provenance edge requires relation."
         Assert-Condition (-not [string]::IsNullOrWhiteSpace($edge.to)) "${id}: provenance edge requires to."
     }
+    Assert-Condition ($case.evaluation_units.Count -gt 0) "${id}: evaluation_units are required."
+    $evaluationSourceIds = @($case.evaluation_units | ForEach-Object { [string]$_.source_id })
+    Assert-Condition (($evaluationSourceIds | Sort-Object -Unique).Count -eq $evaluationSourceIds.Count) "${id}: evaluation source_id values must be unique."
+    $edgeNodeIds = @()
+    foreach ($edge in $case.provenance_edges) { $edgeNodeIds += [string]$edge.from; $edgeNodeIds += [string]$edge.to }
+    foreach ($nodeId in ($edgeNodeIds | Sort-Object -Unique)) {
+        Assert-Condition ($evaluationSourceIds -contains $nodeId) "${id}: provenance node '$nodeId' lacks an evaluation unit."
+    }
+    foreach ($unit in $case.evaluation_units) {
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($unit.claim_id)) "${id}: evaluation unit requires claim_id."
+        Assert-Condition ($unit.claim_component_id -eq $case.claim_component_id) "${id}: evaluation unit component must match the case component."
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($unit.source_version)) "${id}: evaluation unit requires explicit source_version or UNKNOWN."
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($unit.access_path)) "${id}: evaluation unit requires explicit access_path or UNKNOWN."
+        $cutoff = [DateTimeOffset]::MinValue
+        $cutoffValid = [DateTimeOffset]::TryParse([string]$unit.assessment_cutoff, [ref]$cutoff)
+        Assert-Condition ($cutoffValid -and $cutoff.Offset -eq [TimeSpan]::Zero) "${id}: assessment_cutoff must be a valid UTC timestamp."
+    }
+    Assert-Condition ($null -ne $case.independence_evidence) "${id}: independence_evidence must be present, even when empty."
+    foreach ($evidence in $case.independence_evidence) {
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($evidence.evidence_id)) "${id}: independence evidence requires evidence_id."
+        Assert-Condition ($evidence.claim_component_id -eq $case.claim_component_id) "${id}: independence evidence must be scoped to the evaluated component."
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($evidence.evidence_type)) "${id}: independence evidence requires evidence_type."
+        Assert-Condition (-not [string]::IsNullOrWhiteSpace($evidence.reference)) "${id}: independence evidence requires a reference."
+        Assert-Condition ($evidence.source_ids.Count -gt 0) "${id}: independence evidence requires source_ids."
+        foreach ($sourceId in $evidence.source_ids) {
+            Assert-Condition ($evaluationSourceIds -contains [string]$sourceId) "${id}: independence evidence references an unknown source_id."
+        }
+    }
     Assert-Condition ($case.expected.PSObject.Properties.Name -contains 'independent_origins') "${id}: expected.independent_origins must be explicit, including null."
     Assert-Condition ($case.expected.PSObject.Properties.Name -contains 'corroboration_count_increment') "${id}: expected.corroboration_count_increment must be explicit, including null."
     Assert-Condition (-not [string]::IsNullOrWhiteSpace($case.expected.guardrail)) "${id}: expected.guardrail is required."
     if ($case.independence -eq 'INDEPENDIENTE') {
         Assert-Condition ($case.independence_basis.Count -gt 0) "${id}: INDEPENDIENTE requires positive, component-specific evidence."
+        Assert-Condition ($case.independence_evidence.Count -gt 0) "${id}: INDEPENDIENTE requires structured, referenced evidence."
         Assert-Condition ($case.provenance_edges.Count -gt 0) "${id}: INDEPENDIENTE requires traceable provenance edges."
     }
     if ($case.independence -eq 'DEPENDIENTE') {
