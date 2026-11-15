@@ -1656,6 +1656,30 @@
               }
             }
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidentiary_status": {
+                "enum": [
+                  "CORROBORADA",
+                  "PARCIALMENTE_CORROBORADA",
+                  "CONTRADICHA",
+                  "REFUTADA"
+                ]
+              }
+            },
+            "required": [
+              "evidentiary_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "human_review_status": {
+                "const": "REVIEWED"
+              }
+            }
+          }
         }
       ]
     },
