@@ -323,6 +323,7 @@
             "YEAR",
             "MONTH",
             "DAY",
+            "HOUR",
             "MINUTE",
             "SECOND",
             "MILLISECOND",
