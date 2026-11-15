@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [Parameter()]
     [string]$FixturePath = (Join-Path $PSScriptRoot '..\..\tests\fixtures\contracts\source-evidence-contract-v0.2.0.json')
@@ -6,7 +6,7 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-function Stop-IfFalse {
+function Test-Condition {
     param([bool]$Condition, [string]$Message)
     if (-not $Condition) { throw $Message }
 }
@@ -15,13 +15,14 @@ function Get-IdSet {
     $set = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     foreach ($item in $Items) {
         $id = [string]$item[$IdProperty]
-        Stop-IfFalse (-not [string]::IsNullOrWhiteSpace($id)) "$Label contains an empty identifier."
+        Test-Condition (-not [string]::IsNullOrWhiteSpace($id)) "$Label contains an empty identifier."
         Stop-IfFalse ($set.Add($id)) "$Label contains duplicate identifier '$id'."
     }
     return ,$set
 }
 function Test-Utc {
     param([object]$Value, [string]$Field)
+    [void]$Field
     if ($null -eq $Value) { return $false }
     $text = [string]$Value
     $parsed = [DateTimeOffset]::MinValue
@@ -31,13 +32,13 @@ function Test-HasRef {
     param([System.Collections.Generic.HashSet[string]]$Set, [string]$Id)
     return (-not [string]::IsNullOrWhiteSpace($Id) -and $Set.Contains($Id))
 }
-function Test-ForbiddenKeys {
+function Test-ForbiddenKey {
     param([object]$Value, [string]$Path = '$')
     if ($Value -is [System.Collections.IDictionary]) {
         foreach ($key in $Value.Keys) {
             $keyText = [string]$key
             Stop-IfFalse ($keyText -notin @('score','weight','probability','rank','real_name','email','phone','password','credential','identity_secret','private_identity')) "Forbidden field '$keyText' at $Path."
-            Test-ForbiddenKeys -Value $Value[$key] -Path "$Path.$keyText"
+            Test-ForbiddenKey -Value $Value[$key] -Path "$Path.$keyText"
         }
     }
     elseif ($Value -is [System.Collections.IEnumerable] -and $Value -isnot [string]) {
