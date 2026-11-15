@@ -192,10 +192,10 @@ La matriz documenta la cobertura de los requisitos aceptados por el propietario.
 ## 10. Criterios de aceptación para el Issue #13
 
 - [x] El propietario acepta o modifica las definiciones de acontecimiento y catalizador.
-- [ ] El propietario acepta o modifica las distinciones entre publicación, hecho, afirmación, indicio, rumor, filtración y acontecimiento programado.
-- [ ] Se acepta la regla de relevancia basada en mecanismo documentable, sin inferir causalidad a partir del precio.
-- [ ] Se aceptan las reglas de inclusión, exclusión, clasificación múltiple y no duplicación.
-- [ ] Los ejemplos positivos y negativos se consideran suficientes y coherentes con la taxonomía existente.
-- [ ] Las decisiones reservadas permanecen en sus Issues especializados.
+- [x] El propietario acepta o modifica las distinciones entre publicación, hecho, afirmación, indicio, rumor, filtración y acontecimiento programado.
+- [x] Se acepta la regla de relevancia basada en mecanismo documentable, sin inferir causalidad a partir del precio.
+- [x] Se aceptan las reglas de inclusión, exclusión, clasificación múltiple y no duplicación.
+- [x] Los ejemplos positivos y negativos se consideran suficientes y coherentes con la taxonomía existente.
+- [x] Las decisiones reservadas permanecen en sus Issues especializados.
 
 **Gobernanza:** el propietario aprobó expresamente las definiciones y los seis criterios de aceptación el 2026-11-15. Esta aprobación resuelve la decisión semántica del Issue #13, pero no fusiona el PR ni cierra automáticamente el Issue. Las implementaciones dependientes deberán respetar estas definiciones y tramitarse mediante sus Issues/PR correspondientes.
