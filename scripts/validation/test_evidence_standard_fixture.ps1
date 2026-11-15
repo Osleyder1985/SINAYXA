@@ -104,7 +104,7 @@ try {
     $mut = Copy-Fixture; $mut.cases[0].nature = 'RUMOR'
     Invoke-ExpectedFailure -Name 'official-resolution-misclassified' -Data $mut -ExpectedMessage 'E01 must represent the authenticated official resolution'
 
-    $mut = Copy-Fixture; $mut.cases[16].expected.evidentiary_status = 'NO_CORROBORADA'
+    $mut = Copy-Fixture; $mut.cases[16].expected.evidentiary_status = 'CONTRADICHA'
     Invoke-ExpectedFailure -Name 'incompatible-versions-not-contradicted' -Data $mut -ExpectedMessage 'E17: evidentiary status does not match'
 
     Write-Information 'Evidence-standard fixture tests: PASS (1 positive + 26 negative mutations).' -InformationAction Continue
