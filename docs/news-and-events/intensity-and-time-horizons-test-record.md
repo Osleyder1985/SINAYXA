@@ -48,7 +48,7 @@ El validador comprueba identidad y linaje del paquete, los 19 IDs únicos y orde
 
 **Alcance ampliado del validador (commit `49db0a0cbe8f534eeeb8855e82279a4055bfda2d`):** además de la estructura, el script comprueba aritméticamente los vectores temporales de T11/T12, el tratamiento date-only de T13, los cuatro hitos de T14, el intervalo de frontera de T15, las 24 horas reales de T18 y el intervalo contradictorio de T19. Estas comprobaciones son deterministas sobre los datos sintéticos. No evalúan semánticamente intensidad/dirección de T01–T10/T16/T17, ni constituyen una ejecución integral de la batería. La ejecución local de esta versión ampliada en Windows PowerShell 5.1 quedó verificada y se registra en la sección 2.3. El resultado acredita únicamente las comprobaciones deterministas descritas; no constituye una ejecución integral de la batería metodológica.
 
-### 2.2 Registro verificado de integridad del paquete
+### 2.2 Registro histórico de integridad del paquete v1.0.0
 
 **Comprobación local comunicada por el propietario:**
 
@@ -58,7 +58,7 @@ El validador comprueba identidad y linaje del paquete, los 19 IDs únicos y orde
 | Resultado del validador estructural | PASS |
 | Identificador | `SINAYXA-IH-T01-T19-SYNTHETIC-001` |
 | Casos detectados | 19 |
-| T16 | `NOT_EXECUTED` | Protocolo aceptado como decisión humana asistida; ejecución formal pendiente | Sección 26; no afirmar acuerdo interevaluador ni consenso |
+| T16 | `NOT_EXECUTED` (estado del protocolo vigente v1.2.0; el `BLOCKED` de la salida registrada pertenece al histórico v1.0.0/v1.1.0) |
 | SHA-256 del fixture | `467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22` |
 | Markdown lint de los dos documentos | PASS; 0 issues |
 | `git status --short` | Sin cambios pendientes |
@@ -67,7 +67,7 @@ El hash anterior corresponde al archivo local en la ruta `tests/fixtures/methodo
 
 **Alcance exacto de esta verificación:** acredita que el fixture local coincide con las comprobaciones estructurales implementadas y que los dos documentos Markdown pasan lint. No constituye ejecución de los resultados metodológicos T01–T19, no cambia sus estados y no valida acuerdo interevaluador. La matriz de la sección 4 permanece sin cambios.
 
-### 2.3 Registro verificado de la ejecución ampliada del validador
+### 2.3 Registro histórico de la ejecución ampliada del validador v1.0.0
 
 **Ejecución local comunicada por el propietario y reproducida en Windows PowerShell 5.1:**
 
@@ -87,6 +87,21 @@ El hash anterior corresponde al archivo local en la ruta `tests/fixtures/methodo
 La salida histórica observada en esa ejecución fue: `Fixture structure validation: PASS`, `Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)` y `T16: BLOCKED (correctly preserved)`. El hash impreso coincidió con el hash registrado para el paquete v1.0.0; esta salida no describe el validador vigente.
 
 **Alcance histórico:** este resultado verifica únicamente la estructura del fixture v1.0.0 y los cálculos temporales ejecutados entonces. No demuestra corrección semántica, no ejecuta la batería T01–T19 y no satisface T16. La referencia a T16 como BLOCKED describe el requisito de la versión histórica, no el estado vigente del protocolo v1.2.0. El estado formal actual de T16 es NOT_EXECUTED.
+
+### 2.4 Ejecución pendiente del validador corregido por el Issue #41
+
+El validador y el harness de pruebas negativas se han actualizado en la rama de trabajo del Issue #41. Esta modificación todavía no cuenta con ejecución local verificada en Windows PowerShell 5.1.
+
+Comandos que debe ejecutar el propietario desde la raíz del repositorio, después de obtener la rama y revisar el commit:
+
+```powershell
+.\scripts\validation\validate_intensity_horizon_fixture.ps1
+.\scripts\validation\test_intensity_horizon_fixture_validator.ps1
+Get-FileHash -LiteralPath .\tests\fixtures\methodology\intensity-horizons\t01-t19-synthetic-evidence-v1.2.0.json -Algorithm SHA256
+git status --short
+```
+
+El primer comando debe identificar explícitamente `SINAYXA-IH-T01-T19-SYNTHETIC-003 v1.2.0`. El segundo ejecuta un control positivo sobre el fixture predeterminado y ocho mutaciones negativas. Solo se registrará PASS cuando se aporte la salida real completa, el hash coincida con el paquete congelado y el árbol de trabajo esté en el estado esperado. Hasta entonces, la ejecución de esta versión corregida permanece **PENDIENTE**. Las pruebas sintéticas no constituyen validación empírica ni ejecución formal de T01–T19.
 
 ## 3. Estados permitidos
 
