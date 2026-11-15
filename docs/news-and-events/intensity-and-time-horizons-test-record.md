@@ -311,8 +311,8 @@ La primera ejecución dirigida de `markdownlint-cli2` sobre los seis documentos 
 ### 11.2 Razonamiento y decisión adoptada
 
 El propietario aceptó la recomendación metodológica de asignar **I0** para la unidad técnica y operativa delimitada. La evidencia sintética establece que:
-- el inventario revisado no identifica dependencias técnicas u operativas respecto del sitio web renombrado (T01-E1);
 
+- el inventario revisado no identifica dependencias técnicas u operativas respecto del sitio web renombrado (T01-E1);
 - el alcance del inventario se declara completo para la unidad y el anuncio evaluados al corte (T01-E2);
 - los registros de despliegue, configuración, acceso, estado de servicios e incidentes no muestran cambios operativos atribuibles al anuncio (T01-E3).
 
