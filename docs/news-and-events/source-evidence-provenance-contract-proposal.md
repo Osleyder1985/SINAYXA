@@ -281,7 +281,6 @@ La matriz no crea estados nuevos. Cada valor se interpreta únicamente en la dim
 
 Hasta entonces, #4 está desbloqueado metodológicamente, pero no se implementan persistencia, captura ni automatización.
 
-
 ## 9. Especificación temporal normativa (v0.2.0)
 
 Los campos temporales no son intercambiables. Todos los instantes normalizados se expresan en ISO 8601 UTC con sufijo Z. Cuando la fuente aporta una fecha con zona u offset distinto, se conserva además la representación original en original_timestamps; la normalización no debe destruir el texto, zona ni precisión originales.
@@ -353,6 +352,7 @@ La conservación de contenido requiere conjuntamente:
 No se fija un plazo universal. El vencimiento se determina por la base jurídica, jurisdicción, licencia, autorización y propósito aplicables. Una autorización pendiente, sospechosa o no establecida no permite conservar una copia.
 
 Al vencer o perderse la base legítima:
+
 1. restringir la copia cuando sea necesario para impedir uso adicional;
 2. evaluar si corresponde eliminarla;
 3. eliminar el contenido cuando la obligación/condición aplicable lo exija;
@@ -385,7 +385,7 @@ La aprobación de esta versión requiere que CI valide el esquema formal, ejecut
 ## 14. Resolución propuesta de las decisiones de §7
 
 | Pregunta de decisión | Resolución técnica propuesta en v0.2.0 | Estado |
-|---|---|---|
+| --- | --- | --- |
 | Entidades y límites | Mantener las entidades separadas tal como se especifican en §§3 y 10; Evaluation unit y Source identity assessment son estructuras explícitas adicionales, no duplicados de Source. | PROPUESTA |
 | Orientación del grafo | dependent_node_id → origin_node_id; el nodo dependiente apunta a su antecedente. | PROPUESTA |
 | Versionado | Inmutable para formulaciones, piezas y evaluaciones; toda corrección crea una versión/registro nuevo y enlaza el anterior. | PROPUESTA |
