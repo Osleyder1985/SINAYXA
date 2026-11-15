@@ -1,0 +1,1461 @@
+{
+  "schema_version": "1.0.0",
+  "package_id": "SINAYXA-SOURCE-INDEPENDENCE-S01-S16-001",
+  "status": "SYNTHETIC_TEST_FIXTURE_NOT_REAL_WORLD_EVIDENCE",
+  "methodology": "Issue #16 approved decision recorded 2026-11-15; compatible with Issue #15",
+  "source_standard": "docs/news-and-events/source-credibility-and-independence-proposal.md",
+  "scope": "Deterministic structural and methodological conformance. No source scoring, truth automation, probability, causal inference, market signal, or real-world source data.",
+  "allowed": {
+    "source_type": [
+      "PRIMARIA",
+      "SECUNDARIA",
+      "TERCIARIA",
+      "DESCONOCIDA"
+    ],
+    "knowledge_basis": [
+      "OBSERVACIÓN_DIRECTA",
+      "REGISTRO_ORIGINAL",
+      "ACCESO_DIRECTO_DECLARADO",
+      "TESTIMONIO_DE_TERCEROS",
+      "DOCUMENTO_DE_TERCEROS",
+      "ANÁLISIS_REPRODUCIBLE",
+      "OPINIÓN_O_INTERPRETACIÓN",
+      "REPRODUCCIÓN_SIN_VERIFICACIÓN_PROPIA",
+      "DESCONOCIDA"
+    ],
+    "identity": [
+      "IDENTIFICADA",
+      "ANÓNIMA_PARA_EL_PÚBLICO",
+      "ANÓNIMA_PARA_SINAYXA",
+      "SEUDÓNIMA",
+      "DESCONOCIDA"
+    ],
+    "independence": [
+      "INDEPENDIENTE",
+      "DEPENDIENTE",
+      "DESCONOCIDA"
+    ],
+    "dissemination": [
+      "ORIGINAL",
+      "SINDICADA",
+      "REPUBLICADA",
+      "TRADUCIDA",
+      "RESUMIDA",
+      "ANÁLISIS_PROPIO",
+      "COMPILACIÓN",
+      "DESCONOCIDA"
+    ],
+    "institutional_character": [
+      "OFICIAL",
+      "NO_INSTITUCIONAL",
+      "DESCONOCIDO"
+    ],
+    "source_subtype": [
+      "REGISTRO_ORIGINAL",
+      "TESTIMONIO_PRIMERA_MANO",
+      "INVESTIGACION_SECUNDARIA",
+      "ANALISIS_TECNICO",
+      "COMENTARIO",
+      "COMPILACION",
+      "REPRODUCCION"
+    ]
+  },
+  "cases": [
+    {
+      "id": "S01",
+      "scenario": "Seis portales reproducen el mismo cable de agencia.",
+      "claim_component_id": "content",
+      "source_type": "SECUNDARIA",
+      "knowledge_basis": "REPRODUCCIÓN_SIN_VERIFICACIÓN_PROPIA",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "identity": "IDENTIFICADA",
+      "dissemination": "SINDICADA",
+      "independence": "DEPENDIENTE",
+      "provenance_edges": [
+        {
+          "from": "portal-1",
+          "relation": "ORIGINATES_FROM",
+          "to": "agency-wire",
+          "edge_id": "S01-P01"
+        },
+        {
+          "from": "portal-2",
+          "relation": "REPRODUCES",
+          "to": "agency-wire",
+          "edge_id": "S01-P02"
+        },
+        {
+          "from": "portal-3",
+          "relation": "REPRODUCES",
+          "to": "agency-wire",
+          "edge_id": "S01-P03"
+        },
+        {
+          "from": "portal-4",
+          "relation": "REPRODUCES",
+          "to": "agency-wire",
+          "edge_id": "S01-P04"
+        },
+        {
+          "from": "portal-5",
+          "relation": "REPRODUCES",
+          "to": "agency-wire",
+          "edge_id": "S01-P05"
+        },
+        {
+          "from": "portal-6",
+          "relation": "REPRODUCES",
+          "to": "agency-wire",
+          "edge_id": "S01-P06"
+        }
+      ],
+      "expected": {
+        "independent_origins": 1,
+        "corroboration_count_increment": 0,
+        "guardrail": "Seis publicaciones no crean seis orígenes.",
+        "publication_count": 6
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "agency-wire",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "portal-1",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "portal-2",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "portal-3",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "portal-4",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "portal-5",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "portal-6",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DEPENDIENTE",
+        "decision_scope": "content",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S01-P01",
+          "synthetic-fixture://S01-P02",
+          "synthetic-fixture://S01-P03",
+          "synthetic-fixture://S01-P04",
+          "synthetic-fixture://S01-P05",
+          "synthetic-fixture://S01-P06"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Seis publicaciones no crean seis orígenes."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "REPRODUCCION",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S02",
+      "scenario": "Dos medios citan al mismo portavoz anónimo.",
+      "claim_component_id": "statement",
+      "source_type": "SECUNDARIA",
+      "knowledge_basis": "TESTIMONIO_DE_TERCEROS",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "identity": "ANÓNIMA_PARA_EL_PÚBLICO",
+      "dissemination": "ORIGINAL",
+      "independence": "DEPENDIENTE",
+      "provenance_edges": [
+        {
+          "from": "outlet-a",
+          "relation": "CONTACTO_COMÚN",
+          "to": "anonymous-spokesperson",
+          "edge_id": "S02-P01"
+        },
+        {
+          "from": "outlet-b",
+          "relation": "CONTACTO_COMÚN",
+          "to": "anonymous-spokesperson",
+          "edge_id": "S02-P02"
+        }
+      ],
+      "expected": {
+        "independent_origins": 1,
+        "corroboration_count_increment": 0,
+        "guardrail": "El portavoz común es un único origen para la declaración compartida.",
+        "shared_origin_count": 1,
+        "identity_scope": "ANÓNIMA_PARA_EL_PÚBLICO"
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s02",
+          "claim_component_id": "statement",
+          "source_id": "anonymous-spokesperson",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s02",
+          "claim_component_id": "statement",
+          "source_id": "outlet-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s02",
+          "claim_component_id": "statement",
+          "source_id": "outlet-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DEPENDIENTE",
+        "decision_scope": "statement",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S02-P01",
+          "synthetic-fixture://S02-P02"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "El portavoz común es un único origen para la declaración compartida."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "TESTIMONIO_PRIMERA_MANO",
+      "identity_visibility": {
+        "anonymous_to_public": true,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": null,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S03",
+      "scenario": "Un registro regulatorio acredita la presentación de una solicitud, no su aprobación.",
+      "claim_component_id": "filing",
+      "source_type": "PRIMARIA",
+      "knowledge_basis": "REGISTRO_ORIGINAL",
+      "institutional_character": "OFICIAL",
+      "identity": "IDENTIFICADA",
+      "dissemination": "ORIGINAL",
+      "independence": "DESCONOCIDA",
+      "provenance_edges": [
+        {
+          "from": "regulator-record",
+          "relation": "ORIGINATES_FROM",
+          "to": "regulator",
+          "edge_id": "S03-P01"
+        }
+      ],
+      "expected": {
+        "independent_origins": null,
+        "corroboration_count_increment": null,
+        "guardrail": "La fuente primaria solo acredita la presentación registrada, no aprobación.",
+        "scope_confirmed": [
+          "filing"
+        ],
+        "scope_not_confirmed": [
+          "approval"
+        ],
+        "evidence_effect": "RECORDS_FILING_ONLY"
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s03",
+          "claim_component_id": "filing",
+          "source_id": "regulator",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s03",
+          "claim_component_id": "filing",
+          "source_id": "regulator-record",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "filing",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S03-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "La fuente primaria solo acredita la presentación registrada, no aprobación."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "REGISTRO_ORIGINAL",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S04",
+      "scenario": "Un medio secundario aporta entrevistas propias y documentos distintos con método trazable.",
+      "claim_component_id": "reported-fact",
+      "source_type": "SECUNDARIA",
+      "knowledge_basis": "OBSERVACIÓN_DIRECTA",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "identity": "IDENTIFICADA",
+      "dissemination": "ANÁLISIS_PROPIO",
+      "independence": "INDEPENDIENTE",
+      "provenance_edges": [
+        {
+          "from": "outlet-investigation",
+          "relation": "ORIGINATES_FROM",
+          "to": "own-interviews",
+          "edge_id": "S04-P01"
+        },
+        {
+          "from": "outlet-investigation",
+          "relation": "ORIGINATES_FROM",
+          "to": "separate-records",
+          "edge_id": "S04-P02"
+        }
+      ],
+      "expected": {
+        "independent_origins": 2,
+        "corroboration_count_increment": 1,
+        "guardrail": "La independencia se admite solo para los componentes cuya vía separada está demostrada."
+      },
+      "independence_basis": [
+        "Entrevistas realizadas por el propio equipo",
+        "Documentos distintos con identificadores y procedencia separados",
+        "Método de obtención documentado por componente"
+      ],
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s04",
+          "claim_component_id": "reported-fact",
+          "source_id": "outlet-investigation",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s04",
+          "claim_component_id": "reported-fact",
+          "source_id": "own-interviews",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s04",
+          "claim_component_id": "reported-fact",
+          "source_id": "separate-records",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [
+        {
+          "evidence_id": "S04-E01",
+          "claim_component_id": "reported-fact",
+          "source_ids": [
+            "own-interviews"
+          ],
+          "evidence_type": "SEPARATE_INTERVIEW_PATH",
+          "reference": "synthetic-fixture://S04-E01"
+        },
+        {
+          "evidence_id": "S04-E02",
+          "claim_component_id": "reported-fact",
+          "source_ids": [
+            "separate-records"
+          ],
+          "evidence_type": "DISTINCT_DOCUMENT_PATH",
+          "reference": "synthetic-fixture://S04-E02"
+        }
+      ],
+      "assessment_record": {
+        "decision_state": "INDEPENDIENTE",
+        "decision_scope": "reported-fact",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S04-P01",
+          "synthetic-fixture://S04-P02",
+          "synthetic-fixture://S04-E01",
+          "synthetic-fixture://S04-E02"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "La independencia se admite solo para los componentes cuya vía separada está demostrada."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "INVESTIGACION_SECUNDARIA",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S05",
+      "scenario": "Un analista interpreta un contrato público, sin observar su ejecución.",
+      "claim_component_id": "interpretation",
+      "source_type": "SECUNDARIA",
+      "knowledge_basis": "ANÁLISIS_REPRODUCIBLE",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "identity": "IDENTIFICADA",
+      "dissemination": "ANÁLISIS_PROPIO",
+      "independence": "DESCONOCIDA",
+      "provenance_edges": [
+        {
+          "from": "analyst-report",
+          "relation": "ANALYSIS_OF",
+          "to": "public-contract",
+          "edge_id": "S05-P01"
+        }
+      ],
+      "expected": {
+        "independent_origins": null,
+        "corroboration_count_increment": null,
+        "guardrail": "La interpretación no acredita que el contrato se ejecutó.",
+        "supports_contract_interpretation": true,
+        "supports_execution": false
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s05",
+          "claim_component_id": "interpretation",
+          "source_id": "analyst-report",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s05",
+          "claim_component_id": "interpretation",
+          "source_id": "public-contract",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "interpretation",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S05-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "La interpretación no acredita que el contrato se ejecutó."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "ANALISIS_TECNICO",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S06",
+      "scenario": "Un periodista corrige el importe y conserva las versiones anteriores.",
+      "claim_component_id": "amount",
+      "source_type": "SECUNDARIA",
+      "knowledge_basis": "DOCUMENTO_DE_TERCEROS",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "identity": "IDENTIFICADA",
+      "dissemination": "ORIGINAL",
+      "independence": "DESCONOCIDA",
+      "provenance_edges": [
+        {
+          "from": "article-v2",
+          "relation": "REVISION_OF",
+          "to": "article-v1",
+          "edge_id": "S06-P01"
+        }
+      ],
+      "expected": {
+        "independent_origins": null,
+        "corroboration_count_increment": null,
+        "guardrail": "La rectificación afecta al componente importe; preservar versiones y no invalidar otros componentes.",
+        "version_history": {
+          "previous_version": "article-v1",
+          "current_version": "article-v2",
+          "corrected_components": [
+            "amount"
+          ],
+          "preserve_prior_versions": true,
+          "other_components_automatically_invalidated": false
+        }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s06",
+          "claim_component_id": "amount",
+          "source_id": "article-v1",
+          "source_version": "article-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s06",
+          "claim_component_id": "amount",
+          "source_id": "article-v2",
+          "source_version": "article-v2",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "amount",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S06-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "La rectificación afecta al componente importe; preservar versiones y no invalidar otros componentes."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "INVESTIGACION_SECUNDARIA",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S07",
+      "scenario": "Una fuente anónima declara acceso directo, pero no aporta soporte verificable.",
+      "claim_component_id": "access-claim",
+      "source_type": "DESCONOCIDA",
+      "knowledge_basis": "ACCESO_DIRECTO_DECLARADO",
+      "institutional_character": "DESCONOCIDO",
+      "identity": "ANÓNIMA_PARA_SINAYXA",
+      "dissemination": "ORIGINAL",
+      "independence": "DESCONOCIDA",
+      "provenance_edges": [
+        {
+          "from": "anonymous-source",
+          "relation": "ORIGIN_NO_VERIFIED",
+          "to": "unknown",
+          "edge_id": "S07-P01"
+        }
+      ],
+      "expected": {
+        "independent_origins": null,
+        "corroboration_count_increment": 0,
+        "guardrail": "Acceso declarado no es acceso verificado; independencia permanece DESCONOCIDA.",
+        "access_claim_verified": false
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s07",
+          "claim_component_id": "access-claim",
+          "source_id": "anonymous-source",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s07",
+          "claim_component_id": "access-claim",
+          "source_id": "unknown",
+          "source_version": "UNKNOWN",
+          "access_path": "UNKNOWN",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "access-claim",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S07-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Acceso declarado no es acceso verificado; independencia permanece DESCONOCIDA."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "TESTIMONIO_PRIMERA_MANO",
+      "identity_visibility": {
+        "anonymous_to_public": true,
+        "anonymous_to_publisher": null,
+        "anonymous_to_sinayxa": true,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": false
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S08",
+      "scenario": "Dos medios reciben el mismo documento de un intermediario.",
+      "claim_component_id": "document-content",
+      "source_type": "SECUNDARIA",
+      "knowledge_basis": "DOCUMENTO_DE_TERCEROS",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "identity": "DESCONOCIDA",
+      "dissemination": "ORIGINAL",
+      "independence": "DEPENDIENTE",
+      "provenance_edges": [
+        {
+          "from": "outlet-a",
+          "relation": "DOCUMENTO_COMÚN",
+          "to": "intermediary-document",
+          "edge_id": "S08-P01"
+        },
+        {
+          "from": "outlet-b",
+          "relation": "DOCUMENTO_COMÚN",
+          "to": "intermediary-document",
+          "edge_id": "S08-P02"
+        }
+      ],
+      "expected": {
+        "independent_origins": 1,
+        "corroboration_count_increment": 0,
+        "guardrail": "Documento e intermediario comunes implican dependencia para ese contenido.",
+        "shared_document_origin": true
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s08",
+          "claim_component_id": "document-content",
+          "source_id": "intermediary-document",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s08",
+          "claim_component_id": "document-content",
+          "source_id": "outlet-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s08",
+          "claim_component_id": "document-content",
+          "source_id": "outlet-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DEPENDIENTE",
+        "decision_scope": "document-content",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S08-P01",
+          "synthetic-fixture://S08-P02"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Documento e intermediario comunes implican dependencia para ese contenido."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "REPRODUCCION",
+      "identity_visibility": {
+        "anonymous_to_public": null,
+        "anonymous_to_publisher": null,
+        "anonymous_to_sinayxa": null,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S09",
+      "scenario": "Dos reporteros de la misma organización documentan vías de obtención separadas.",
+      "claim_component_id": "observed-event",
+      "source_type": "SECUNDARIA",
+      "knowledge_basis": "OBSERVACIÓN_DIRECTA",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "identity": "IDENTIFICADA",
+      "dissemination": "ANÁLISIS_PROPIO",
+      "independence": "INDEPENDIENTE",
+      "provenance_edges": [
+        {
+          "from": "reporter-a",
+          "relation": "ORIGINATES_FROM",
+          "to": "observation-a",
+          "edge_id": "S09-P01"
+        },
+        {
+          "from": "reporter-b",
+          "relation": "ORIGINATES_FROM",
+          "to": "observation-b",
+          "edge_id": "S09-P02"
+        }
+      ],
+      "expected": {
+        "independent_origins": 2,
+        "corroboration_count_increment": 1,
+        "guardrail": "Empleador común no demuestra dependencia si las vías separadas están sustentadas.",
+        "shared_employer_does_not_imply_dependency": true
+      },
+      "independence_basis": [
+        "Observaciones directas separadas de cada reportero",
+        "Registros y marcas temporales distintos",
+        "No se usa la afiliación común como prueba de dependencia"
+      ],
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s09",
+          "claim_component_id": "observed-event",
+          "source_id": "observation-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s09",
+          "claim_component_id": "observed-event",
+          "source_id": "observation-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s09",
+          "claim_component_id": "observed-event",
+          "source_id": "reporter-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s09",
+          "claim_component_id": "observed-event",
+          "source_id": "reporter-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [
+        {
+          "evidence_id": "S09-E01",
+          "claim_component_id": "observed-event",
+          "source_ids": [
+            "observation-a"
+          ],
+          "evidence_type": "REPORTER_A_DIRECT_OBSERVATION",
+          "reference": "synthetic-fixture://S09-E01"
+        },
+        {
+          "evidence_id": "S09-E02",
+          "claim_component_id": "observed-event",
+          "source_ids": [
+            "observation-b"
+          ],
+          "evidence_type": "REPORTER_B_DIRECT_OBSERVATION",
+          "reference": "synthetic-fixture://S09-E02"
+        }
+      ],
+      "assessment_record": {
+        "decision_state": "INDEPENDIENTE",
+        "decision_scope": "observed-event",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S09-P01",
+          "synthetic-fixture://S09-P02",
+          "synthetic-fixture://S09-E01",
+          "synthetic-fixture://S09-E02"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Empleador común no demuestra dependencia si las vías separadas están sustentadas."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "INVESTIGACION_SECUNDARIA",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S10",
+      "scenario": "Una entidad oficial niega un hecho sin publicar evidencia subyacente.",
+      "claim_component_id": "denial",
+      "source_type": "PRIMARIA",
+      "knowledge_basis": "REGISTRO_ORIGINAL",
+      "institutional_character": "OFICIAL",
+      "identity": "IDENTIFICADA",
+      "dissemination": "ORIGINAL",
+      "independence": "DESCONOCIDA",
+      "provenance_edges": [
+        {
+          "from": "official-denial",
+          "relation": "ORIGINATES_FROM",
+          "to": "institution",
+          "edge_id": "S10-P01"
+        }
+      ],
+      "expected": {
+        "independent_origins": null,
+        "corroboration_count_increment": null,
+        "guardrail": "Registrar la negación atribuida; autoridad institucional no convierte la negación en refutación.",
+        "declaration_recorded": true,
+        "underlying_evidence_available": false,
+        "probative_effect": "ATTRIBUTED_DENIAL_ONLY",
+        "claim_refuted": false
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s10",
+          "claim_component_id": "denial",
+          "source_id": "institution",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s10",
+          "claim_component_id": "denial",
+          "source_id": "official-denial",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "denial",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S10-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Registrar la negación atribuida; autoridad institucional no convierte la negación en refutación."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "REGISTRO_ORIGINAL",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S11",
+      "scenario": "Una fuente con errores previos aporta un documento original autenticado.",
+      "claim_component_id": "documented-act",
+      "source_type": "PRIMARIA",
+      "knowledge_basis": "REGISTRO_ORIGINAL",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "identity": "IDENTIFICADA",
+      "dissemination": "ORIGINAL",
+      "independence": "DESCONOCIDA",
+      "provenance_edges": [
+        {
+          "from": "original-document",
+          "relation": "ORIGINATES_FROM",
+          "to": "record-custodian",
+          "edge_id": "S11-P01"
+        }
+      ],
+      "expected": {
+        "independent_origins": null,
+        "corroboration_count_increment": null,
+        "guardrail": "Evaluar historial y autenticidad del documento por separado; los errores previos no lo invalidan automáticamente.",
+        "document_authenticity": "AUTHENTICATED",
+        "source_track_record_separate": true,
+        "past_errors_automatically_invalidate_document": false
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s11",
+          "claim_component_id": "documented-act",
+          "source_id": "original-document",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s11",
+          "claim_component_id": "documented-act",
+          "source_id": "record-custodian",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "documented-act",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S11-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Evaluar historial y autenticidad del documento por separado; los errores previos no lo invalidan automáticamente."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "REGISTRO_ORIGINAL",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S12",
+      "scenario": "Una fuente prestigiosa publica una afirmación sin atribución ni soporte.",
+      "claim_component_id": "unsupported-claim",
+      "source_type": "DESCONOCIDA",
+      "knowledge_basis": "DESCONOCIDA",
+      "institutional_character": "DESCONOCIDO",
+      "identity": "IDENTIFICADA",
+      "dissemination": "ORIGINAL",
+      "independence": "DESCONOCIDA",
+      "provenance_edges": [
+        {
+          "from": "publication",
+          "relation": "ORIGIN_NO_VERIFIED",
+          "to": "unknown",
+          "edge_id": "S12-P01"
+        }
+      ],
+      "expected": {
+        "independent_origins": null,
+        "corroboration_count_increment": 0,
+        "guardrail": "Prestigio no sustituye evidencia; no inferir credibilidad ni independencia.",
+        "prestige_used_as_evidence": false,
+        "knowledge_basis": "DESCONOCIDA"
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s12",
+          "claim_component_id": "unsupported-claim",
+          "source_id": "publication",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s12",
+          "claim_component_id": "unsupported-claim",
+          "source_id": "unknown",
+          "source_version": "UNKNOWN",
+          "access_path": "UNKNOWN",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "unsupported-claim",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S12-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Prestigio no sustituye evidencia; no inferir credibilidad ni independencia."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "COMENTARIO",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S13",
+      "scenario": "La cadena de citas forma un ciclo A cita B y B cita A.",
+      "claim_component_id": "circular-claim",
+      "source_type": "SECUNDARIA",
+      "knowledge_basis": "TESTIMONIO_DE_TERCEROS",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "identity": "IDENTIFICADA",
+      "dissemination": "REPUBLICADA",
+      "independence": "DEPENDIENTE",
+      "provenance_edges": [
+        {
+          "from": "source-a",
+          "relation": "CITES",
+          "to": "source-b",
+          "edge_id": "S13-P01"
+        },
+        {
+          "from": "source-b",
+          "relation": "CITES",
+          "to": "source-a",
+          "edge_id": "S13-P02"
+        }
+      ],
+      "expected": {
+        "independent_origins": 1,
+        "corroboration_count_increment": 0,
+        "cycle_detected": true,
+        "guardrail": "Detectar ciclo y no contar las dos publicaciones como orígenes independientes."
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s13",
+          "claim_component_id": "circular-claim",
+          "source_id": "source-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s13",
+          "claim_component_id": "circular-claim",
+          "source_id": "source-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DEPENDIENTE",
+        "decision_scope": "circular-claim",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S13-P01",
+          "synthetic-fixture://S13-P02"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Detectar ciclo y no contar las dos publicaciones como orígenes independientes."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "REPRODUCCION",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S14",
+      "scenario": "Dos fuentes independientes coinciden en entidad y fecha, pero discrepan sobre el importe.",
+      "claim_component_id": "amount",
+      "source_type": "SECUNDARIA",
+      "knowledge_basis": "OBSERVACIÓN_DIRECTA",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "identity": "IDENTIFICADA",
+      "dissemination": "ANÁLISIS_PROPIO",
+      "independence": "INDEPENDIENTE",
+      "provenance_edges": [
+        {
+          "from": "source-a",
+          "relation": "ORIGINATES_FROM",
+          "to": "observation-a",
+          "edge_id": "S14-P01"
+        },
+        {
+          "from": "source-b",
+          "relation": "ORIGINATES_FROM",
+          "to": "observation-b",
+          "edge_id": "S14-P02"
+        }
+      ],
+      "expected": {
+        "independent_origins": 2,
+        "corroboration_count_increment": 0,
+        "guardrail": "Las vías de obtención pueden ser independientes, pero discrepan en el importe; este componente no se corrobora. Entidad y fecha quedan fuera del alcance de esta unidad y se evalúan por separado.",
+        "unresolved_components": [
+          "amount"
+        ],
+        "components_outside_scope": [
+          "entity",
+          "date"
+        ]
+      },
+      "independence_basis": [
+        "Dos observaciones directas separadas",
+        "Trazabilidad independiente para entidad y fecha",
+        "Discrepancia de importe aislada como componente no resuelto"
+      ],
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s14",
+          "claim_component_id": "amount",
+          "source_id": "observation-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s14",
+          "claim_component_id": "amount",
+          "source_id": "observation-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s14",
+          "claim_component_id": "amount",
+          "source_id": "source-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s14",
+          "claim_component_id": "amount",
+          "source_id": "source-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [
+        {
+          "evidence_id": "S14-E01",
+          "claim_component_id": "amount",
+          "source_ids": [
+            "observation-a"
+          ],
+          "evidence_type": "SOURCE_A_SEPARATE_OBSERVATION",
+          "reference": "synthetic-fixture://S14-E01"
+        },
+        {
+          "evidence_id": "S14-E02",
+          "claim_component_id": "amount",
+          "source_ids": [
+            "observation-b"
+          ],
+          "evidence_type": "SOURCE_B_SEPARATE_OBSERVATION",
+          "reference": "synthetic-fixture://S14-E02"
+        }
+      ],
+      "assessment_record": {
+        "decision_state": "INDEPENDIENTE",
+        "decision_scope": "amount",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S14-P01",
+          "synthetic-fixture://S14-P02",
+          "synthetic-fixture://S14-E01",
+          "synthetic-fixture://S14-E02"
+        ],
+        "contrary_evidence_refs": [
+          "synthetic-fixture://S14-C01"
+        ],
+        "limitations": [
+          "Las vías de obtención son independientes; el importe discrepa y no se corrobora. Entidad y fecha requieren unidades de evaluación separadas."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "INVESTIGACION_SECUNDARIA",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": [
+        {
+          "evidence_id": "S14-C01",
+          "claim_component_id": "amount",
+          "source_ids": [
+            "observation-a",
+            "observation-b"
+          ],
+          "evidence_type": "DISAGREEING_AMOUNT_OBSERVATIONS",
+          "reference": "synthetic-fixture://S14-C01",
+          "description": "The two independent observations report different amounts; neither amount is selected as corroborated."
+        }
+      ]
+    },
+    {
+      "id": "S15",
+      "scenario": "El editor conoce una fuente anónima, pero SINAYXA no puede verificar que sea distinta de otra fuente.",
+      "claim_component_id": "source-separation",
+      "source_type": "SECUNDARIA",
+      "knowledge_basis": "TESTIMONIO_DE_TERCEROS",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "identity": "ANÓNIMA_PARA_SINAYXA",
+      "dissemination": "ORIGINAL",
+      "independence": "DESCONOCIDA",
+      "provenance_edges": [
+        {
+          "from": "editorial-assertion",
+          "relation": "IDENTITY_VERIFICATION_NOT_AVAILABLE_TO_SINAYXA",
+          "to": "unknown-source",
+          "edge_id": "S15-P01"
+        }
+      ],
+      "expected": {
+        "independent_origins": null,
+        "corroboration_count_increment": 0,
+        "guardrail": "La garantía del editor no transfiere verificación de identidad ni independencia a SINAYXA.",
+        "editor_identity_verification_transferred": false
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s15",
+          "claim_component_id": "source-separation",
+          "source_id": "editorial-assertion",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s15",
+          "claim_component_id": "source-separation",
+          "source_id": "unknown-source",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DESCONOCIDA",
+        "decision_scope": "source-separation",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S15-P01"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "La garantía del editor no transfiere verificación de identidad ni independencia a SINAYXA."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "TESTIMONIO_PRIMERA_MANO",
+      "identity_visibility": {
+        "anonymous_to_public": true,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": true,
+        "identity_verified_by_publisher": true,
+        "identity_verified_by_sinayxa": false
+      },
+      "contrary_evidence": []
+    },
+    {
+      "id": "S16",
+      "scenario": "Dos analistas reproducen por separado un cálculo usando el mismo dataset público.",
+      "claim_component_id": "derived-calculation",
+      "source_type": "SECUNDARIA",
+      "knowledge_basis": "ANÁLISIS_REPRODUCIBLE",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "identity": "IDENTIFICADA",
+      "dissemination": "ANÁLISIS_PROPIO",
+      "independence": "DEPENDIENTE",
+      "provenance_edges": [
+        {
+          "from": "analysis-a",
+          "relation": "ANALYSIS_OF",
+          "to": "shared-dataset",
+          "edge_id": "S16-P01"
+        },
+        {
+          "from": "analysis-b",
+          "relation": "ANALYSIS_OF",
+          "to": "shared-dataset",
+          "edge_id": "S16-P02"
+        }
+      ],
+      "expected": {
+        "independent_analytical_processes": 2,
+        "independent_data_origins": 1,
+        "corroboration_count_increment": 0,
+        "guardrail": "Procesos analíticos separados no crean un segundo origen independiente del dataset.",
+        "independent_origins": 1
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s16",
+          "claim_component_id": "derived-calculation",
+          "source_id": "analysis-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s16",
+          "claim_component_id": "derived-calculation",
+          "source_id": "analysis-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s16",
+          "claim_component_id": "derived-calculation",
+          "source_id": "shared-dataset",
+          "source_version": "dataset-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [],
+      "assessment_record": {
+        "decision_state": "DEPENDIENTE",
+        "decision_scope": "derived-calculation",
+        "decision_mode": "HUMAN_REVIEW_REQUIRED",
+        "supporting_evidence_refs": [
+          "synthetic-fixture://S16-P01",
+          "synthetic-fixture://S16-P02"
+        ],
+        "contrary_evidence_refs": [],
+        "limitations": [
+          "Procesos analíticos separados no crean un segundo origen independiente del dataset."
+        ],
+        "human_review_required": true,
+        "automated_credibility_decision": false,
+        "synthetic_only": true
+      },
+      "source_subtype": "ANALISIS_TECNICO",
+      "identity_visibility": {
+        "anonymous_to_public": false,
+        "anonymous_to_publisher": false,
+        "anonymous_to_sinayxa": false,
+        "identity_verified_by_publisher": null,
+        "identity_verified_by_sinayxa": null
+      },
+      "contrary_evidence": []
+    }
+  ]
+}

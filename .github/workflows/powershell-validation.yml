@@ -23,6 +23,9 @@ on:
       - "docs/news-and-events/source-monitoring-latency-and-limits-proposal.md"
       - "docs/news-and-events/alert-severity-and-deduplication-proposal.md"
       - "tests/fixtures/methodology/alerts/**"
+      - "tests/fixtures/methodology/source-independence/**"
+      - "scripts/validation/validate_source_independence_fixture.ps1"
+      - "scripts/validation/test_source_independence_fixture.ps1"
       - "scripts/validation/validate_alert_fixture.ps1"
       - "scripts/validation/test_alert_fixture.ps1"
       - ".github/workflows/powershell-validation.yml"
@@ -171,6 +174,22 @@ jobs:
           $ErrorActionPreference = 'Stop'
           & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_evidence_standard_fixture.ps1'
           if ($LASTEXITCODE -ne 0) { throw 'The evidence-standard mutation tests failed.' }
+
+      - name: Validate Issue #16 S01-S16 source-independence fixture
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/validate_source_independence_fixture.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'The Issue #16 source-independence fixture validator failed.' }
+
+      - name: Run Issue #16 positive and negative mutation tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_source_independence_fixture.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'The Issue #16 source-independence mutation tests failed.' }
 
       - name: Validate Issue #17 A01-A15 synthetic alert fixture
         shell: pwsh
