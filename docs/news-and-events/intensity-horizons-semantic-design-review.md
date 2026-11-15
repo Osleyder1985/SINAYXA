@@ -56,15 +56,27 @@ Una expectativa escrita en el campo `scenario` no se trata automáticamente como
 
 Esta agrupación es un resultado de revisión de diseño, no el estado de ejecución de los casos.
 
-## 6. Acciones recomendadas para una futura versión del paquete
+## 6. Acciones recomendadas al cierre de la revisión v1.0.0 (registro histórico)
 
 1. Mantener inmutable el paquete v1.0.0 y su hash. No editar retrospectivamente las entradas congeladas.
 2. Preparar una versión nueva del fixture con un nuevo identificador/versión y SHA-256, incorporando únicamente la evidencia sintética necesaria para T01, T03, T04 y T08.
 3. Mantener T10 como prueba de mitigación no verificada y hacer explícito que no asigna intensidad basal; alternativamente, crear un caso separado con línea base probatoria completa.
 4. Para T01, decidir si la unidad es exclusivamente técnica/operativa o si incluye canales de reputación, confianza, atención y demanda. No conservar I0 para una unidad amplia si esos canales no se han examinado.
 5. Volver a revisar la nueva versión contra los mismos anclajes y registrar cualquier cambio en los resultados esperados, sin convertir esta revisión de escritorio en PASS.
-6. Mantener los estados de ejecución T01–T10 y T17 en `NOT_EXECUTED`. T16 permanece `BLOCKED` hasta que dos evaluadores humanos independientes completen el protocolo.
+6. En el paquete v1.0.0, mantener los estados T01–T10 y T17 en `NOT_EXECUTED`; T16 figuraba `BLOCKED` bajo el requisito histórico de dos evaluadores humanos. Este estado no representa el estado vigente tras la adaptación v1.2.0.
 
 ## 7. Declaración de no ejecución
 
 No se ejecutó una evaluación formal con un evaluador humano independiente; no se compararon respuestas independientes; no se calculó acuerdo; no se cambió ningún estado de la matriz del registro de ejecución. Este documento no aprueba la propuesta del Issue #14 ni autoriza su implementación.
+
+
+## 8. Seguimiento posterior de los hallazgos (sin reescribir la revisión histórica)
+
+Esta revisión evaluó exclusivamente el paquete sintético v1.0.0 y conserva sus conclusiones como registro histórico. Las acciones posteriores se versionaron por separado:
+
+- **T01:** fixture v1.1.0 delimitó la unidad a funciones técnicas/operativas y añadió evidencia sintética de cobertura del inventario y ausencia de cambio operativo observado. El resultado I0 solo se refiere a ese alcance; no se extiende al token, reputación, atención ni demanda.
+- **T03, T04 y T08:** fixture v1.1.0 incorporó evidencia sintética adicional para describir consecuencias operativas, población afectada y alcance por segmento. Esto mejora la suficiencia del diseño del fixture, pero no equivale a ejecutar los casos ni demuestra validez empírica.
+- **T10:** se conserva expresamente como prueba de mitigación no verificada, con intensidad basal NOT_ASSESSED.
+- **T16:** fixture v1.2.0 y el protocolo de evaluación con un único responsable humano sustituyen el bloqueo histórico por dos evaluadores. El estado vigente de T16 es NOT_EXECUTED; la IA es auxiliar y no constituye un segundo evaluador humano.
+
+Por tanto, las recomendaciones de esta revisión describen el estado de v1.0.0 y no deben leerse como tareas aún pendientes cuando ya fueron resueltas en versiones posteriores. Los estados metodológicos vigentes permanecen los que declara la sección 1 del registro de ejecución: T01–T19 NOT_EXECUTED (T16 bajo el protocolo v1.2.0). Esta actualización documental no ejecuta la batería ni cambia estados.
