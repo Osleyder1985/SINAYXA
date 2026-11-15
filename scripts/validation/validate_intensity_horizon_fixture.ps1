@@ -42,7 +42,7 @@ function Assert-ExactCategory {
     }
 }
 
-function Get-ElapsedTimeInSeconds {
+function Get-ElapsedDuration {
     param([string]$Start, [string]$End)
     $startInstant = ConvertTo-DateTimeOffset -Value $Start
     $endInstant = ConvertTo-DateTimeOffset -Value $End
@@ -250,7 +250,7 @@ if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {
 $t11 = Get-FixtureCase -Id "T11"
 $t11Actual = @()
 for ($index = 0; $index -lt $t11.evidence[0].targets.Count; $index++) {
-    $seconds = Get-ElapsedTimeInSeconds -Start $t11.evidence[0].reference -End $t11.evidence[0].targets[$index]
+    $seconds = Get-ElapsedDuration -Start $t11.evidence[0].reference -End $t11.evidence[0].targets[$index]
     if ([Math]::Abs($seconds - [double]$t11.evidence[0].elapsed_seconds[$index]) -gt 0.001) {
         throw "T11 elapsed-seconds mismatch at vector $($index + 1)."
     }
@@ -263,7 +263,7 @@ if (($t11Actual -join ",") -ne ($t11.expected.horizons -join ",")) {
 $t12 = Get-FixtureCase -Id "T12"
 $t12Actual = @()
 for ($index = 0; $index -lt $t12.evidence[0].targets.Count; $index++) {
-    $seconds = Get-ElapsedTimeInSeconds -Start $t12.evidence[0].reference -End $t12.evidence[0].targets[$index]
+    $seconds = Get-ElapsedDuration -Start $t12.evidence[0].reference -End $t12.evidence[0].targets[$index]
     if ([Math]::Abs($seconds - [double]$t12.evidence[0].elapsed_seconds[$index]) -gt 0.001) {
         throw "T12 elapsed-seconds mismatch at vector $($index + 1)."
     }
@@ -343,8 +343,8 @@ if ($startMadrid.Offset -ne $t18Start.Offset -or
 
 $t19 = Get-FixtureCase -Id "T19"
 $t19Reference = $t19.evidence[2].at
-$t19SourceASeconds = Get-ElapsedTimeInSeconds -Start $t19Reference -End $t19.evidence[0].at
-$t19SourceBSeconds = Get-ElapsedTimeInSeconds -Start $t19Reference -End $t19.evidence[1].at
+$t19SourceASeconds = Get-ElapsedDuration -Start $t19Reference -End $t19.evidence[0].at
+$t19SourceBSeconds = Get-ElapsedDuration -Start $t19Reference -End $t19.evidence[1].at
 Assert-ExactCategory -Actual @($t19.expected.compatible_categories) -Expected @("INMEDIATO", "CORTO") -CaseId "T19"
 if ([Math]::Abs($t19SourceASeconds - 85800) -gt 0.001 -or
     [Math]::Abs($t19SourceBSeconds - 87000) -gt 0.001 -or
