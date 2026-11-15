@@ -244,7 +244,7 @@ La matriz no crea estados nuevos. Cada valor se interpreta únicamente en la dim
 9. Todos los timestamps de auditoría y corte se almacenan como instantes UTC; la zona original puede conservarse como metadato separado.
 10. No existe una propiedad agregada de credibilidad global.
 
-## 5. Privacidad, acceso y conservación
+### 5.1 Privacidad, acceso y conservación
 
 - `source_id` debe ser opaco y no permitir inferir la identidad de una fuente confidencial.
 - No almacenar nombres reales, datos de contacto, claves de identidad ni detalles reidentificadores de fuentes protegidas.
