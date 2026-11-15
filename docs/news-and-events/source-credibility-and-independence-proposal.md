@@ -54,17 +54,17 @@ No se extrapola una evaluación a otras afirmaciones, materias, autores, periodo
 
 Cada dimensión se registra por separado con evidencia y justificación. No se suman dimensiones ni se calcula una nota global.
 
-| Dimensión | Pregunta de evaluación | Evidencia pertinente | Límites |
+|Dimensión|Pregunta de evaluación|Evidencia pertinente|Límites|
 |---|---|---|---|
-| Relación con el hecho | ¿La fuente observó, ejecutó, registró o participó directamente en el hecho? | Registro original, documento bajo custodia, observación identificable, descripción comprobable del acceso | Declarar acceso directo no demuestra que exista; requiere sustento |
-| Acceso y proximidad | ¿Cómo pudo conocer la información y qué distancia existe entre la fuente y el hecho? | Cadena de custodia, acceso institucional, testimonio directo, intermediarios identificados | La proximidad no garantiza exactitud ni ausencia de sesgo |
-| Competencia temática | ¿Tiene conocimiento demostrable para interpretar esta materia concreta? | Experiencia verificable y pertinente, trabajo técnico/documental contrastable | Prestigio general no sustituye competencia específica |
-| Transparencia y trazabilidad | ¿Permite verificar qué afirma, sobre qué base y con qué límites? | Enlaces, documentos, metodología, atribución, fechas y alcance explícitos | La falta de publicación de material sensible no demuestra falsedad; se registra la limitación |
-| Historial de exactitud pertinente | ¿Hay un historial documentado y comparable sobre afirmaciones de esta clase? | Afirmaciones anteriores identificables, resultados verificables, rectificaciones y errores documentados | No usar memoria anecdótica, reputación genérica ni muestras seleccionadas retrospectivamente |
-| Correcciones y rendición de cuentas | ¿Corrige errores de forma visible, oportuna y específica? | Historial de versiones, notas de corrección, retirada explicada, conservación de versiones | Una corrección no invalida automáticamente toda la publicación; tampoco borra el error |
-| Incentivos y conflictos | ¿Existen intereses económicos, institucionales, personales o estratégicos relevantes? | Patrocinios, propiedad, relaciones declaradas, remuneración, posiciones públicas | El conflicto exige contextualizar y contrastar; no demuestra falsedad |
-| Consistencia interna | ¿La afirmación es coherente con los datos y documentos presentados por la propia fuente? | Cálculos reproducibles, citas completas, documentos íntegros, coherencia temporal | Coherencia interna no equivale a corroboración externa |
-| Evidencia contraria | ¿Qué datos verificables contradicen o limitan la afirmación? | Documentos incompatibles, rectificaciones, registros primarios, observaciones contrarias | Debe conservarse incluso cuando perjudique la hipótesis preferida |
+|Relación con el hecho|¿La fuente observó, ejecutó, registró o participó directamente en el hecho?|Registro original, documento bajo custodia, observación identificable, descripción comprobable del acceso|Declarar acceso directo no demuestra que exista; requiere sustento|
+|Acceso y proximidad|¿Cómo pudo conocer la información y qué distancia existe entre la fuente y el hecho?|Cadena de custodia, acceso institucional, testimonio directo, intermediarios identificados|La proximidad no garantiza exactitud ni ausencia de sesgo|
+|Competencia temática|¿Tiene conocimiento demostrable para interpretar esta materia concreta?|Experiencia verificable y pertinente, trabajo técnico/documental contrastable|Prestigio general no sustituye competencia específica|
+|Transparencia y trazabilidad|¿Permite verificar qué afirma, sobre qué base y con qué límites?|Enlaces, documentos, metodología, atribución, fechas y alcance explícitos|La falta de publicación de material sensible no demuestra falsedad; se registra la limitación|
+|Historial de exactitud pertinente|¿Hay un historial documentado y comparable sobre afirmaciones de esta clase?|Afirmaciones anteriores identificables, resultados verificables, rectificaciones y errores documentados|No usar memoria anecdótica, reputación genérica ni muestras seleccionadas retrospectivamente|
+|Correcciones y rendición de cuentas|¿Corrige errores de forma visible, oportuna y específica?|Historial de versiones, notas de corrección, retirada explicada, conservación de versiones|Una corrección no invalida automáticamente toda la publicación; tampoco borra el error|
+|Incentivos y conflictos|¿Existen intereses económicos, institucionales, personales o estratégicos relevantes?|Patrocinios, propiedad, relaciones declaradas, remuneración, posiciones públicas|El conflicto exige contextualizar y contrastar; no demuestra falsedad|
+|Consistencia interna|¿La afirmación es coherente con los datos y documentos presentados por la propia fuente?|Cálculos reproducibles, citas completas, documentos íntegros, coherencia temporal|Coherencia interna no equivale a corroboración externa|
+|Evidencia contraria|¿Qué datos verificables contradicen o limitan la afirmación?|Documentos incompatibles, rectificaciones, registros primarios, observaciones contrarias|Debe conservarse incluso cuando perjudique la hipótesis preferida|
 
 ### 4.1 Estados descriptivos por dimensión
 
@@ -155,15 +155,15 @@ Reglas propuestas:
 
 ## 8. Sindicación, citas cruzadas y fuentes comunes
 
-| Situación | Tratamiento propuesto |
+|Situación|Tratamiento propuesto|
 |---|---|
-| Cinco medios reproducen un cable de agencia | Una cadena de origen para el contenido reproducido |
-| Medio A cita a B y B cita a A | Dependencia circular; no son dos corroboraciones |
-| A y B citan el mismo portavoz en ruedas de prensa distintas | Origen común para la afirmación del portavoz; las observaciones adicionales deben separarse |
-| A y B reciben el mismo documento de un intermediario | Documento/origen común, salvo verificación independiente adicional |
-| A publica un documento y B confirma directamente un registro distinto | Puede haber independencia para el componente que acredita el segundo registro |
-| Dos periodistas investigan por separado y documentan métodos distintos | Puede clasificarse INDEPENDIENTE si la separación queda sustentada |
-| Se desconoce el origen de una publicación viral | INDEPENDENCIA_DESCONOCIDA; no contar republicaciones |
+|Cinco medios reproducen un cable de agencia|Una cadena de origen para el contenido reproducido|
+|Medio A cita a B y B cita a A|Dependencia circular; no son dos corroboraciones|
+|A y B citan el mismo portavoz en ruedas de prensa distintas|Origen común para la afirmación del portavoz; las observaciones adicionales deben separarse|
+|A y B reciben el mismo documento de un intermediario|Documento/origen común, salvo verificación independiente adicional|
+|A publica un documento y B confirma directamente un registro distinto|Puede haber independencia para el componente que acredita el segundo registro|
+|Dos periodistas investigan por separado y documentan métodos distintos|Puede clasificarse INDEPENDIENTE si la separación queda sustentada|
+|Se desconoce el origen de una publicación viral|INDEPENDENCIA_DESCONOCIDA; no contar republicaciones|
 
 La sindicación debe conservar proveedor, identificador del material y versión/fecha cuando estén disponibles. No se presume que una licencia de reproducción convierta al distribuidor en fuente original.
 
@@ -181,23 +181,23 @@ La sindicación debe conservar proveedor, identificador del material y versión/
 
 Todos los ejemplos son ficticios y sirven para probar consistencia del razonamiento, no para demostrar tasas de acierto.
 
-| Caso | Escenario | Evaluación propuesta |
+|Caso|Escenario|Evaluación propuesta|
 |---|---|---|
-| S01 | Seis portales publican el mismo cable de agencia | Una cadena; cinco reproducciones no elevan independencia |
-| S02 | Dos medios citan al mismo portavoz anónimo | Origen común; identidad anónima; no hay doble corroboración |
-| S03 | Un registro regulatorio acredita la presentación de una solicitud | Fuente primaria para la presentación; no acredita aprobación |
-| S04 | Un medio secundario aporta entrevistas propias y documentos distintos | Posible origen independiente, sujeto a verificar método y procedencia |
-| S05 | Un analista competente interpreta un contrato público | Competencia analítica potencial; no es testigo de ejecución del contrato |
-| S06 | Un periodista corrige un importe y conserva versión anterior | Registrar corrección y alcance; reevaluar el importe, no borrar el resto |
-| S07 | Una fuente anónima afirma participación directa sin evidencia verificable de acceso | Relación declarada, acceso DESCONOCIDO; no corroborada |
-| S08 | Dos fuentes supuestamente independientes comparten un documento recibido de un intermediario | Dependientes para el contenido del documento |
-| S09 | Dos reporteros de una misma organización aportan registros obtenidos por vías distintas | La organización común no decide por sí sola; evaluar y documentar la separación |
-| S10 | Una entidad oficial niega un hecho sin publicar evidencia subyacente | Registrar el desmentido y su atribución; no tratar la negación como refutación automática |
-| S11 | Una fuente con historial de errores aporta un documento original autenticado | El historial se registra, pero no invalida automáticamente la autenticidad o el contenido acotado del documento |
-| S12 | Una fuente prestigiosa publica una afirmación sin atribución ni soporte | Prestigio no sustituye evidencia; evaluación limitada/desconocida |
-| S13 | Un medio cita a otro que cita al primero | Dependencia circular; no hay dos orígenes |
-| S14 | Dos fuentes independientes confirman entidad y fecha, pero discrepan sobre el importe | Corroboración limitada a entidad/fecha; importe permanece no resuelto |
-| S15 | Una fuente anónima conocida por el editor aporta una segunda comprobación, pero SINAYXA no puede verificar separación | Independencia DESCONOCIDA para SINAYXA; no inferir independencia desde la garantía editorial |
+|S01|Seis portales publican el mismo cable de agencia|Una cadena; cinco reproducciones no elevan independencia|
+|S02|Dos medios citan al mismo portavoz anónimo|Origen común; identidad anónima; no hay doble corroboración|
+|S03|Un registro regulatorio acredita la presentación de una solicitud|Fuente primaria para la presentación; no acredita aprobación|
+|S04|Un medio secundario aporta entrevistas propias y documentos distintos|Posible origen independiente, sujeto a verificar método y procedencia|
+|S05|Un analista competente interpreta un contrato público|Competencia analítica potencial; no es testigo de ejecución del contrato|
+|S06|Un periodista corrige un importe y conserva versión anterior|Registrar corrección y alcance; reevaluar el importe, no borrar el resto|
+|S07|Una fuente anónima afirma participación directa sin evidencia verificable de acceso|Relación declarada, acceso DESCONOCIDO; no corroborada|
+|S08|Dos fuentes supuestamente independientes comparten un documento recibido de un intermediario|Dependientes para el contenido del documento|
+|S09|Dos reporteros de una misma organización aportan registros obtenidos por vías distintas|La organización común no decide por sí sola; evaluar y documentar la separación|
+|S10|Una entidad oficial niega un hecho sin publicar evidencia subyacente|Registrar el desmentido y su atribución; no tratar la negación como refutación automática|
+|S11|Una fuente con historial de errores aporta un documento original autenticado|El historial se registra, pero no invalida automáticamente la autenticidad o el contenido acotado del documento|
+|S12|Una fuente prestigiosa publica una afirmación sin atribución ni soporte|Prestigio no sustituye evidencia; evaluación limitada/desconocida|
+|S13|Un medio cita a otro que cita al primero|Dependencia circular; no hay dos orígenes|
+|S14|Dos fuentes independientes confirman entidad y fecha, pero discrepan sobre el importe|Corroboración limitada a entidad/fecha; importe permanece no resuelto|
+|S15|Una fuente anónima conocida por el editor aporta una segunda comprobación, pero SINAYXA no puede verificar separación|Independencia DESCONOCIDA para SINAYXA; no inferir independencia desde la garantía editorial|
 
 ## 11. Evidencia mínima y trazabilidad de cada evaluación
 
