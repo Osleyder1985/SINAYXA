@@ -399,8 +399,10 @@ try {
         PositiveDependencyCases=1
         PositiveFactorEvidenceCases=1
         PositiveRetentionSetCases=1
+        PositivePrimaryCorroborationCases=1
+        PositiveSecondaryCorroborationCases=1
         NegativeMutations=$mutations.Count
-        TotalChecks=($mutations.Count + 10)
+        TotalChecks=($mutations.Count + 12)
         Scope='Deterministic synthetic contract-validator rejection tests.'
     } | Format-List
 }
