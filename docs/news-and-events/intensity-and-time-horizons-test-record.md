@@ -42,9 +42,12 @@ Validador estructural compatible con Windows PowerShell 5.1: `scripts/validation
 .\scripts\validation\validate_intensity_horizon_fixture.ps1
 ```
 
-El validador comprueba la identidad del paquete, los 19 IDs únicos y ordenados, campos obligatorios y el bloqueo de T16. También imprime el SHA-256 del archivo local. Para registrar una ejecución reproducible, copiar ese hash a la ficha de ejecución junto con el commit exacto del repositorio; no modificar el fixture después de congelarlo. Cualquier cambio debe crear una nueva versión del paquete y un nuevo hash.
+El validador comprueba la identidad del paquete, los 19 IDs únicos y ordenados, campos obligatorios y el bloqueo de T16. También ejecuta comprobaciones deterministas de los vectores temporales T11, T12, T13, T14, T15, T18 y T19: aritmética de duraciones, límites de horizonte, conservación de fecha sin hora, separación de hitos e intervalos que cruzan fronteras. También imprime el SHA-256 del archivo local. Para registrar una ejecución reproducible, copiar ese hash a la ficha de ejecución junto con el commit exacto del repositorio; no modificar el fixture después de congelarlo. Cualquier cambio debe crear una nueva versión del paquete y un nuevo hash.
 
 **Límite:** validar la estructura del fixture no ejecuta la batería metodológica ni convierte ningún caso a PASS. La matriz de la sección 4 permanece en NOT_EXECUTED, salvo T16 en BLOCKED, hasta registrar evaluaciones efectivas.
+
+**Alcance ampliado del validador (commit `49db0a0cbe8f534eeeb8855e82279a4055bfda2d`):** además de la estructura, el script comprueba aritméticamente los vectores temporales de T11/T12, el tratamiento date-only de T13, los cuatro hitos de T14, el intervalo de frontera de T15, las 24 horas reales de T18 y el intervalo contradictorio de T19. Estas comprobaciones son deterministas sobre los datos sintéticos. No evalúan semánticamente intensidad/dirección de T01–T10/T16/T17, ni constituyen una ejecución integral de la batería. El nuevo código todavía requiere ejecución local en Windows PowerShell 5.1; no se afirma que esta versión ampliada haya pasado hasta recibir ese resultado.
+
 
 ### 2.2 Registro verificado de integridad del paquete
 
