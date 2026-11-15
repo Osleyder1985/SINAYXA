@@ -16,6 +16,7 @@ on:
       - "scripts/validation/validate_evidence_standard_fixture.ps1"
       - "scripts/validation/test_evidence_standard_fixture.ps1"
       - "docs/news-and-events/intensity-and-time-horizons-test-record.md"
+      - "docs/news-and-events/intensity-and-time-horizons-proposal.md"
       - "docs/news-and-events/intensity-horizons-empirical-validation-protocol.md"
       - "docs/news-and-events/evidence-standard-for-indicia-rumours-and-leaks.md"
       - ".github/workflows/powershell-validation.yml"

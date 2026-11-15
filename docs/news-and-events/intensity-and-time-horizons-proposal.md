@@ -27,7 +27,8 @@ Cada hipótesis de impacto debe conservar, como mínimo conceptual, los siguient
 | --- | --- | --- |
 | Dirección potencial | POSITIVA, NEGATIVA, MIXTA, NEUTRAL, INDETERMINADA | Signo o combinación de efectos del mecanismo sobre la exposición identificada |
 | Intensidad potencial | I0–I4 o INDETERMINADA | Importancia potencial del efecto, según los anclajes de la sección 3 |
-| Horizonte del acontecimiento | INMEDIATO, CORTO, MEDIO, LARGO, FECHA/VENTANA CONCRETA, INDETERMINADO | Cuándo se espera que ocurra o se materialice el hito |
+| Horizonte del acontecimiento | INMEDIATO, CORTO, MEDIO, LARGO, FECHA/VENTANA CONCRETA, INDETERMINADO | Tiempo restante hasta un hito futuro previsto; la fecha/ventana concreta se conserva como dato independiente |
+| Tiempo transcurrido desde un hito pasado | Duración exacta o intervalo; NO SE CLASIFICA COMO HORIZONTE | Antigüedad del hito entre su ocurrencia y la fecha de corte de la evaluación; dato descriptivo, no horizonte futuro ni latencia de transmisión |
 | Horizonte de transmisión | INMEDIATO, CORTO, MEDIO, LARGO, VARIABLE/CONDICIONAL, INDETERMINADO | Cuánto podría tardar el mecanismo en afectar la exposición |
 | Horizonte de reacción del precio | INMEDIATO, CORTO, MEDIO, LARGO, MÚLTIPLE, NO EVALUADO | Ventana de reacción que se estudiará; no constituye pronóstico |
 
@@ -39,7 +40,7 @@ La intensidad se asigna mediante juicio estructurado contra los anclajes observa
 
 | Nivel | Denominación | Anclaje operativo |
 | --- | --- | --- |
-| I0 | SIN IMPACTO MATERIAL IDENTIFICADO | La evidencia examinada permite concluir, dentro de la unidad, el escenario y la fecha de corte declarados, que no existe un mecanismo material hacia la exposición evaluada. La mera ausencia de evidencia de un mecanismo no basta para I0. Si faltan datos esenciales o la revisión no permite descartar el mecanismo, usar INDETERMINADA. |
+| I0 | SIN IMPACTO MATERIAL IDENTIFICADO | La evidencia examinada permite concluir, dentro de la unidad, el escenario y la fecha de corte declarados, que no se identifica un mecanismo material hacia la exposición evaluada. La asignación exige documentar una revisión de alcance delimitado y auditable: unidad/población/segmento, escenario, fecha de corte, fuentes y áreas/canales examinados y limitaciones conocidas. La mera ausencia de evidencia no basta. Si la revisión es incompleta, faltan fuentes esenciales o no permite descartar el mecanismo dentro de ese alcance, usar INDETERMINADA. I0 no demuestra ausencia absoluta de efectos fuera del alcance examinado. |
 | I1 | BAJA | Existe un mecanismo plausible identificable y el efecto potencial permanece local o acotado, sin comprometer una función central. Si la justificación invoca sustitución o recuperación, debe demostrarse su disponibilidad, capacidad y acceso para la población expuesta. |
 | I2 | MODERADA | La evidencia respalda una exposición concreta y un mecanismo directo o indirecto, así como una alteración potencial apreciable de una condición relevante para el activo, protocolo, entidad o segmento; su alcance permanece limitado por condiciones, duración o alternativas demostradas. |
 | I3 | ALTA | La exposición es amplia o central para el activo/segmento y el mecanismo podría modificar materialmente una condición económica, operativa, regulatoria, de seguridad, liquidez, oferta, demanda o acceso. La evidencia debe respaldar tanto la importancia de la exposición como el canal de transmisión. |
@@ -83,7 +84,7 @@ No se exige una explicación artificial cuando los niveles adyacentes no puedan 
 - La categoría debe incluir una justificación breve que explique por qué satisface sus anclajes y por qué no corresponde el nivel inmediatamente inferior o superior.
 - Si los factores apuntan a niveles diferentes, se adopta el nivel más alto solo cuando la evidencia respalda que ese factor puede materializarse en la exposición evaluada; de lo contrario se registra el conflicto y se usa INDETERMINADA.
 - La intensidad puede diferir por activo, segmento, jurisdicción y escenario. No se fuerza una única intensidad global para impactos heterogéneos.
-- Una evaluación I0 debe explicar por qué no se identifica impacto material. La falta de información nunca se convierte en I0.
+- Una evaluación I0 debe adjuntar una revisión de alcance delimitado y auditable (unidad/población/segmento, escenario, fecha de corte, fuentes y áreas/canales examinados y limitaciones conocidas) que respalde la conclusión negativa dentro de ese alcance. La falta de información, una búsqueda incompleta o fuentes esenciales no examinadas nunca se convierten en I0; usar INDETERMINADA.
 - La intensidad potencial no mide probabilidad. La posibilidad de que se cumplan condiciones debe describirse separadamente como condición pendiente, no cuantificarse sin metodología aprobada.
 
 ### 3.4 Reglas de frontera entre niveles
@@ -92,7 +93,7 @@ Los niveles forman una escala ordinal de severidad potencial para una unidad de 
 
 | Frontera | Pregunta que debe resolverse | Regla de decisión |
 | --- | --- | --- |
-| I0 / I1 | ¿Existe un mecanismo material plausible y respaldado hacia la exposición evaluada? | I0 solo cuando la evidencia examinada permite descartar, dentro de la unidad, el escenario y la fecha de corte declarados, la existencia de un mecanismo material. La mera falta de evidencia de un mecanismo no basta. Si faltan datos esenciales o la revisión no permite descartarlo, usar INDETERMINADA. I1 requiere un mecanismo plausible identificable y un efecto acotado. |
+| I0 / I1 | ¿Existe un mecanismo material plausible y respaldado hacia la exposición evaluada? | I0 solo cuando una revisión de alcance delimitado y auditable documenta unidad/población/segmento, escenario, fecha de corte, fuentes y áreas/canales examinados y limitaciones conocidas, y la evidencia permite descartar un mecanismo material dentro de ese alcance. Una revisión incompleta, fuentes esenciales no examinadas o lagunas relevantes obligan a usar INDETERMINADA. I0 no se extrapola fuera del alcance. I1 requiere un mecanismo plausible identificable y un efecto acotado. |
 | I1 / I2 | ¿El mecanismo y la exposición están verificados con evidencia concreta y el cambio puede alterar apreciablemente una condición relevante? | I1 cuando el canal sigue siendo indirecto, limitado o sustituible y el efecto permanece acotado. I2 cuando la exposición concreta y el canal están verificados y existe una alteración apreciable respaldada, aunque limitada. |
 | I2 / I3 | ¿La exposición es amplia o central para la unidad definida y el mecanismo puede modificar materialmente una condición relevante de esa unidad? | I2 cuando el alcance permanece acotado o existen límites demostrados. I3 exige evidencia tanto de la centralidad/amplitud de la exposición como de la materialidad del cambio. No basta con que el acontecimiento sea importante para una entidad aislada si la unidad evaluada es el mercado. |
 | I3 / I4 | ¿Está comprometida una función esencial, continuidad, solvencia, seguridad, integridad o viabilidad, o existe una alteración sistémica documentable? | I3 cuando el cambio es material y amplio/central, pero no se acredita amenaza a una función esencial o viabilidad. I4 exige identificar la función esencial o el carácter sistémico, la vía concreta de compromiso y la evidencia que conecta ambos. |
@@ -101,7 +102,7 @@ La asignación se hace mediante estas reglas de suficiencia, no mediante una sum
 
 Para hacer observables los términos cualitativos, se aplican además estos marcadores:
 
-- **I0:** la evidencia examinada permite descartar, dentro de la unidad, el escenario y la fecha de corte declarados, un canal material que altere una condición relevante. No equivale a «no encontramos evidencia» ni a «no sabemos»; si la información no permite descartar el canal, usar INDETERMINADA.
+- **I0:** solo puede asignarse tras una revisión de alcance delimitado y auditable que registre unidad/población/segmento, escenario, fecha de corte, fuentes y áreas/canales examinados y limitaciones conocidas. La evidencia debe respaldar que no se identifica un canal material dentro de ese alcance. No equivale a «no encontramos evidencia» ni a «no sabemos»; si la revisión es incompleta, faltan fuentes esenciales o la información no permite descartar el canal, usar INDETERMINADA. No se extrapola a canales o poblaciones no examinados.
 - **I1:** el efecto potencial queda limitado a una fricción, variación o restricción local/acotada y no compromete una función central de la unidad. La existencia de una sustitución o recuperación ordinaria solo puede invocarse como atenuante cuando su disponibilidad, capacidad y acceso estén demostrados para la población expuesta; no es un requisito universal de I1. Si el acontecimiento ya ocurrió, se distingue el efecto observado del efecto potencial restante.
 - **I2:** la evidencia respalda una alteración potencial concreta en una condición relevante para una población delimitada —como acceso, disponibilidad, coste operativo, liquidez, cumplimiento, seguridad o funcionamiento— y permite justificar por qué sería material para esa población. No demuestra que la exposición sea amplia/central para la unidad superior ni que comprometa una función esencial. Si el acontecimiento ya ocurrió, se registra por separado el cambio observado y cualquier efecto potencial aún no materializado.
 - **I3:** además de una alteración potencial material concreta, la evidencia respalda que la población o función expuesta es amplia o central respecto de la unidad evaluada. Debe demostrarse esa relación con el conjunto (por ejemplo, dependencia operativa central, cobertura de una parte sustancial del segmento documentada o afectación de una función principal). Si el acontecimiento ya ocurrió, se distingue la alteración observada de la potencial.
@@ -186,15 +187,15 @@ Si la evidencia temporal es contradictoria, incompleta o solo aproximada, regist
 
 ### 4.2 Tres relojes distintos
 
-1. **Reloj del acontecimiento:** tiempo hasta el hito previsto o tiempo transcurrido desde el hito ocurrido. Se apoya en fechas y ventanas documentadas.
-2. **Reloj de transmisión:** tiempo que el mecanismo necesita para modificar la exposición. Debe justificarse por las etapas reales del proceso (condición legal, despliegue, integración, liquidación, cambio de oferta, etc.).
+1. **Reloj del acontecimiento:** tiempo restante hasta un hito futuro previsto, calculado desde una fecha de corte explícita. Para un hito ya ocurrido se registra por separado el **tiempo transcurrido desde el hito** (antigüedad); este dato descriptivo no se clasifica como horizonte futuro ni se reutiliza como horizonte de transmisión o reacción.
+2. **Reloj de transmisión:** duración/latencia que el mecanismo necesita para modificar la exposición, desde el hito que lo activa hasta el cambio relevante. Debe justificarse por las etapas reales del proceso (condición legal, despliegue, integración, liquidación, cambio de oferta, etc.); si todavía no se ha observado, se identifica como estimación o hipótesis, no como duración observada.
 3. **Reloj de reacción del precio:** ventana de observación que se utilizará para estudiar el comportamiento del mercado. Es una decisión de metodología de medición y comparabilidad; no se deriva automáticamente de los dos relojes anteriores.
 
 Para acontecimientos programados, puede existir una fase anticipatoria antes del hito y otra posterior a su materialización. Deben describirse por separado cuando los mecanismos difieran. La fecha programada no demuestra que el acontecimiento vaya a ocurrir.
 
 ### 4.3 Límites exactos y cálculo de ventanas
 
-Las ventanas se interpretan como duración transcurrida desde un instante de referencia identificado, no como etiquetas basadas en el cambio de fecha del calendario:
+Las cuatro categorías se aplican al tiempo restante hasta un hito futuro y a duraciones de transmisión o ventanas de observación cuando el protocolo declare expresamente ese uso. No se aplican a la antigüedad de un acontecimiento ya ocurrido. Las ventanas se interpretan como duración transcurrida desde un instante de referencia identificado, no como etiquetas basadas en el cambio de fecha del calendario:
 
 | Categoría | Duración transcurrida desde el instante de referencia |
 | --- | --- |
@@ -205,6 +206,8 @@ Las ventanas se interpretan como duración transcurrida desde un instante de ref
 
 Los límites son inclusivos en el extremo superior de cada categoría. Por tanto, exactamente 24 horas corresponde a INMEDIATO; exactamente 7 × 24 horas, a CORTO; exactamente 90 × 24 horas, a MEDIO. El instante siguiente a cada límite pertenece a la categoría siguiente. Así no existen solapamientos ni huecos.
 
+Para un hito pasado, registrar `elapsed_since_event` como duración exacta o intervalo entre la ocurrencia y la fecha de corte. No asignar INMEDIATO/CORTO/MEDIO/LARGO a ese valor: que un acontecimiento sea antiguo no significa que tenga un horizonte futuro largo. Si la fecha de corte o la ocurrencia carece de precisión suficiente, conservar la fecha/intervalo y la incertidumbre sin inventar una duración.
+
 Para aplicar la regla:
 
 - identificar el instante de referencia y el instante objetivo o intervalo objetivo;
@@ -214,7 +217,7 @@ Para aplicar la regla:
 - si el instante de referencia o el objetivo es un intervalo, calcular y conservar el intervalo de duraciones. Si sus extremos caen en categorías distintas, asignar INDETERMINADO como categoría única y conservar en la justificación el conjunto de categorías compatibles; no escoger un único horizonte sin evidencia adicional. Solo podrá usarse una representación multivalor si una implementación futura define explícitamente ese campo y sus reglas;
 - una fecha concreta o ventana de calendario se conserva siempre como dato independiente de la categoría operativa.
 
-Las cuatro categorías describen distancias temporales a un hito o la duración prevista de una etapa, según el reloj declarado. Para un hito futuro, la duración se calcula desde el instante de referencia hasta el objetivo; para un hito ya ocurrido, se calcula desde el instante del hito hasta la fecha de corte de la evaluación. La duración transcurrida es no negativa y nunca se obtiene invirtiendo arbitrariamente los extremos ni usando el valor absoluto para ocultar una cronología incoherente. No se debe clasificar un hito pasado desde la hora de evaluación actual y luego presentarlo como si fuera el horizonte original de la evaluación. La fecha de corte de la evaluación y el instante de referencia del acontecimiento se conservan por separado.
+Las cuatro categorías describen distancias temporales a un hito o la duración prevista de una etapa, según el reloj declarado. Para un hito futuro, el tiempo restante se calcula desde el instante de referencia hasta el objetivo. Para un hito ya ocurrido, `elapsed_since_event` se calcula desde el instante del hito hasta la fecha de corte de la evaluación y se conserva como antigüedad descriptiva, sin asignarle una de las cuatro categorías de horizonte. La duración nunca se obtiene invirtiendo arbitrariamente los extremos ni usando el valor absoluto para ocultar una cronología incoherente. No se debe recalcular un hito pasado desde la hora de evaluación actual y presentarlo como si fuera el horizonte original de una evaluación histórica. La fecha de corte de la evaluación y el instante de referencia del acontecimiento se conservan por separado.
 
 ### 4.4 Acontecimientos con varias fases
 
@@ -223,7 +226,7 @@ Un acontecimiento con fases no recibe un único horizonte global si sus fases ti
 - identificador del acontecimiento y de la fase;
 - tipo de reloj: acontecimiento, transmisión o reacción del precio;
 - instante de referencia, instante objetivo o intervalo y estado temporal;
-- horizonte operativo de esa fase;
+- horizonte operativo de esa fase, solo cuando exista un hito futuro o una duración de transmisión/observación que se clasifique; para una fase pasada, antigüedad separada sin etiqueta de horizonte;
 - mecanismo, exposición y escenario asociados;
 - dependencia respecto de fases anteriores y condición necesaria para avanzar;
 - fuente y evidencia temporal.
@@ -287,8 +290,10 @@ Tampoco define puntuación compuesta, pesos, probabilidad, retorno esperado, se�
 - [ ] Los instantes temporales conservan ISO 8601 con offset, zona horaria identificada cuando esté disponible, tipo de instante, fuente y precisión; no se inventan horas ni zonas.
 - [ ] El propietario aprueba o modifica los niveles I0–I4 y sus anclajes observables.
 - [ ] El propietario aprueba o modifica la regla de indeterminación y confirma que ausencia de evidencia no equivale a impacto nulo.
+- [ ] I0 exige un examen de alcance delimitado y auditable (unidad/población, escenario, fecha de corte, fuentes/áreas examinadas y limitaciones); una revisión incompleta obliga a INDETERMINADA.
 - [ ] El propietario aprueba o modifica las ventanas INMEDIATO (duración ≤24 horas), CORTO (24 horas < duración ≤7 × 24 horas), MEDIO (7 × 24 horas < duración ≤90 × 24 horas) y LARGO (duración >90 × 24 horas), entendidas como convenciones operativas y calculadas como tiempo transcurrido, no como días calendario.
 - [ ] Se acepta la separación entre horizonte del acontecimiento, horizonte de transmisión y horizonte de reacción del precio.
+- [ ] El tiempo restante hasta hitos futuros se distingue del tiempo transcurrido desde hitos pasados; la antigüedad de un hito pasado no se clasifica como INMEDIATO/CORTO/MEDIO/LARGO.
 - [ ] Se acepta la separación entre dirección, intensidad y probabilidad, sin puntuaciones ni probabilidades inventadas.
 - [ ] Los casos ilustrativos se consideran suficientes y no contradicen el glosario del Issue #13.
 - [ ] Se acepta la preservación de evaluaciones anteriores y la prohibición de usar movimientos posteriores del precio como justificación retroactiva.
@@ -299,7 +304,7 @@ Los siguientes casos son escenarios sintéticos de prueba. Los resultados espera
 
 | ID | Evidencia y escenario congelados | Resultado esperado | Error que debe detectar |
 | --- | --- | --- | --- |
-| T01 | Acontecimiento registrado; tras revisar la exposición y los canales relevantes, la evidencia permite concluir, para la unidad y fecha de corte definidas, que no existe mecanismo material hacia la unidad evaluada. | I0; dirección NEUTRAL únicamente cuando la evidencia también respalde ausencia de cambio direccional material; si la dirección no puede establecerse, INDETERMINADA. | Confundir evidencia suficiente de ausencia de mecanismo material con falta de información. |
+| T01 | Acontecimiento registrado; una revisión delimitada documenta unidad/población, escenario, fecha de corte, inventario de fuentes/áreas técnicas y operativas examinadas y limitaciones; dentro de ese alcance, la evidencia permite descartar un mecanismo material. | I0 solo para ese alcance; dirección NEUTRAL únicamente cuando la evidencia también respalde ausencia de cambio direccional material; si faltan fuentes esenciales o la revisión no permite descartar el mecanismo, INDETERMINADA. | Confundir una revisión negativa delimitada con ausencia universal de impacto o con una búsqueda incompleta. |
 | T02 | Exposición pequeña, canal indirecto plausible y efecto potencial acotado; el sustituto operativo está disponible para la población expuesta y su capacidad y acceso están demostrados. | I1 para esa unidad/escenario. | Elevar intensidad solo por el tono de la noticia o presumir que una alternativa documentada es realmente accesible. |
 | T03 | Exposición concreta y canal directo respaldados por evidencia; el escenario permite justificar una alteración potencial apreciable pero limitada a una entidad/segmento, sin demostrar amplitud o centralidad. | I2 para esa unidad/escenario. Si el acontecimiento ya ocurrió, registrar por separado el cambio observado. | Interpretar «verificable» como necesariamente «ya materializado» o saltar a I3 sin demostrar amplitud o centralidad. |
 | T04 | Exposición amplia o central demostrada y canal respaldado por evidencia; el escenario sustenta una alteración potencial material en una condición relevante, sin acreditar amenaza a función esencial o viabilidad. | I3. Si el acontecimiento ya ocurrió, registrar por separado la alteración observada. | Confundir evidencia del efecto potencial con efecto ya materializado, o materialidad amplia con criticidad I4. |
@@ -330,6 +335,7 @@ Los siguientes casos son escenarios sintéticos de prueba. Los resultados espera
 - [ ] Existe un protocolo documentado de evaluación primaria por un único humano y crítica auxiliar de IA; no se afirma acuerdo interevaluador ni consenso humano.
 - [ ] Las fronteras temporales son exhaustivas y no solapadas, y sus extremos se prueban mediante T11 y T12; los cambios de horario y la evidencia temporal contradictoria se comprueban mediante T18 y T19.
 - [ ] Las fechas sin hora, intervalos y timestamps contradictorios no se convierten en precisión artificial.
+- [ ] La batería incluye un caso específico de hito pasado cuya antigüedad se registra sin convertirla en horizonte; debe incorporarse a una versión posterior del fixture antes de declarar completa la cobertura sintética.
 - [ ] Los acontecimientos con varias fases conservan un horizonte por hito/fase y distinguen los tres relojes.
 - [ ] La batería T01–T19 se ejecuta y sus resultados quedan registrados antes de la aprobación metodológica.
 
