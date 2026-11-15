@@ -390,7 +390,9 @@ $hash = (Get-FileHash -LiteralPath $resolvedPath -Algorithm SHA256).Hash
 Write-Information "Fixture structure and semantic contract validation: PASS" -InformationAction Continue
 Write-Information "Package: $($fixture.package_id) v$($fixture.package_version)" -InformationAction Continue
 Write-Information "Cases: $($actualIds.Count)" -InformationAction Continue
-Write-Information "Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19$(if ($fixture.package_id -eq \"SINAYXA-IH-T01-T19-SYNTHETIC-004\") { \",T20\" })" -InformationAction Continue
+$temporalChecks = "T11,T12,T13,T14,T15,T18,T19"
+if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-004") { $temporalChecks += ",T20" }
+Write-Information "Temporal fixture checks: PASS ($temporalChecks)" -InformationAction Continue
 Write-Information "Semantic fixture checks: PASS (T01,T03,T04,T08,T10 where applicable)" -InformationAction Continue
 if ($fixture.package_id -in @("SINAYXA-IH-T01-T19-SYNTHETIC-003", "SINAYXA-IH-T01-T19-SYNTHETIC-004")) {
     Write-Information "T16: SINGLE-HUMAN PROTOCOL DEFINED (not an execution result)" -InformationAction Continue
