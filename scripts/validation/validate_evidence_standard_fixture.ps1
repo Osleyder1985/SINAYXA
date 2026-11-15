@@ -57,7 +57,7 @@ $requiredCoverage = @{
 }
 foreach ($id in $requiredCoverage.Keys) {
     $item = @($fixture.cases | Where-Object id -eq $id)
-    Assert-Condition ($item.Count -eq 1) "$id: required coverage case missing."
+    Assert-Condition ($item.Count -eq 1) "${id}: required coverage case missing."
     Assert-Condition ($item[0].expected.evidentiary_status -eq $requiredCoverage[$id]) "$id: status does not match its required conformance contract."
 }
 
