@@ -302,7 +302,9 @@ try {
             $sharedOriginNode = @($x.provenance_nodes | Where-Object { $_.node_id -eq 'node-origin-independent-b' })[0]
             if ($null -eq $sharedOriginNode) { throw 'The independent-path fixture did not create its second origin node.' }
             $sharedOriginNode['entity_ref']='evidence-a'
-            ($x.provenance_edges | Where-Object { $_.edge_id -eq 'edge-independent-b' })[0].evidence_refs=@('evidence-a','evidence-b')
+            $sharedOriginEdge = @($x.provenance_edges | Where-Object { $_.edge_id -eq 'edge-independent-b' })[0]
+            if ($null -eq $sharedOriginEdge) { throw 'The independent-path fixture did not create its second provenance edge.' }
+            $sharedOriginEdge['evidence_refs']=@('evidence-a','evidence-b')
             $x.independence_assessments[0].status='INDEPENDIENTE'
             $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b')
             $x.independence_assessments[0].human_review_status='REVIEWED'
@@ -311,7 +313,9 @@ try {
         @{ Name='Independent path evidence comes from another source version'; Apply={
             param($x)
             Initialize-IndependentPathsForFixture -Package $x
-            ($x.provenance_edges | Where-Object { $_.edge_id -eq 'edge-independent-a' })[0].evidence_refs=@('evidence-b')
+            $crossSourceEdge = @($x.provenance_edges | Where-Object { $_.edge_id -eq 'edge-independent-a' })[0]
+            if ($null -eq $crossSourceEdge) { throw 'The independent-path fixture did not create its first provenance edge.' }
+            $crossSourceEdge['evidence_refs']=@('evidence-b')
             $x.independence_assessments[0].status='INDEPENDIENTE'
             $x.independence_assessments[0].supporting_evidence_refs=@('evidence-a','evidence-b')
             $x.independence_assessments[0].human_review_status='REVIEWED'
