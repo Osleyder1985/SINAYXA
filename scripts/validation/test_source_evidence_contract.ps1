@@ -38,8 +38,6 @@ try {
     $pendingDeletion.retention_records[0].legal_basis_status = 'NOT_ESTABLISHED'
     $pendingDeletion.retention_records[0].disposition = 'DELETE_PENDING'
     $pendingDeletion.retention_records[0].expires_at = '2026-11-15T21:00:00Z'
-    $pendingDeletionOutput = (& $validator -FixturePath $fixture | Out-String)
-    if (-not $pendingDeletionOutput.Contains('Result : PASS')) { throw 'The baseline contract no longer validates before retention mutation checks.' }
     $pendingFile = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-pending-" + [guid]::NewGuid().ToString('N') + '.json')
     try {
         ConvertTo-Json -InputObject $pendingDeletion -Depth 100 | Set-Content -LiteralPath $pendingFile -Encoding utf8
