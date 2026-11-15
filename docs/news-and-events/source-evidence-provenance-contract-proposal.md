@@ -380,3 +380,19 @@ Pruebas de mutación negativa: scripts/validation/test_source_evidence_contract.
 La conformidad estructural y semántica demuestra que el paquete cumple el contrato y sus invariantes. No demuestra que las afirmaciones sintéticas sean verdaderas, que una fuente real sea creíble, que el acceso a una fuente concreta sea legal ni que una evaluación automatizada pueda sustituir revisión humana.
 
 La aprobación de esta versión requiere que CI valide el esquema formal, ejecute el validador y rechace todas las mutaciones negativas. El estado metodológico de #15 y #16 permanece inalterado; la propuesta 0.2.0 sigue pendiente de aprobación expresa.
+
+
+## 14. Resolución propuesta de las decisiones de §7
+
+| Pregunta de decisión | Resolución técnica propuesta en v0.2.0 | Estado |
+|---|---|---|
+| Entidades y límites | Mantener las entidades separadas tal como se especifican en §§3 y 10; Evaluation unit y Source identity assessment son estructuras explícitas adicionales, no duplicados de Source. | PROPUESTA |
+| Orientación del grafo | dependent_node_id → origin_node_id; el nodo dependiente apunta a su antecedente. | PROPUESTA |
+| Versionado | Inmutable para formulaciones, piezas y evaluaciones; toda corrección crea una versión/registro nuevo y enlaza el anterior. | PROPUESTA |
+| Separación de evidencia | Evidence item, claim-evidence link y Claim component assessment permanecen separados. | PROPUESTA |
+| Neutralidad tecnológica | JSON Schema define intercambio lógico; no se selecciona motor ni esquema físico. | PROPUESTA |
+| Retención | No conservar contenido por defecto; conservar solo con base verificada, propósito necesario, responsable por rol, revisión y vencimiento. No fijar duración universal. | PROPUESTA |
+| Naturaleza de la pieza | Reutilizar exactamente los valores de #15, separados del estado probatorio. | PROPUESTA |
+| Origen desconocido | Usar UNKNOWN_ORIGIN como nodo marcador no identificativo para evitar aristas huérfanas; no inferir independencia. | PROPUESTA |
+
+Estas resoluciones son parte de la propuesta 0.2.0 y no constituyen aprobación metodológica ni autorización para tratar datos reales. La aprobación expresa del propietario sigue siendo un criterio de salida de #78.
