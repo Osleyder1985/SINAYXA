@@ -69,7 +69,15 @@
       "supersedes_source_version_id": null,
       "recorded_at": "2026-11-15T22:00:00Z",
       "first_publicly_observed_at": null,
-      "original_timestamps": []
+      "original_timestamps": [
+        {
+          "field": "PUBLICATION_TIME",
+          "original_value": "2026-11-15T20",
+          "original_zone": "UTC",
+          "precision": "HOUR",
+          "basis": "SOURCE_STATED"
+        }
+      ]
     },
     {
       "source_version_id": "version-b1",
