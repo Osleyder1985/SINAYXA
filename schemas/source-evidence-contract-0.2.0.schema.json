@@ -867,7 +867,8 @@
         "limitations",
         "assessed_at",
         "methodology_version",
-        "human_review_status"
+        "human_review_status",
+        "reviewed_at"
       ],
       "properties": {
         "factor_assessment_id": {
@@ -926,6 +927,9 @@
             "REVIEWED",
             "REJECTED"
           ]
+        },
+        "reviewed_at": {
+          "$ref": "#/$defs/optionalUtc"
         }
       }
     },
@@ -1033,7 +1037,8 @@
         "human_review_status",
         "supersedes_assessment_id",
         "claim_version_id",
-        "claim_component_version_id"
+        "claim_component_version_id",
+        "reviewed_at"
       ],
       "properties": {
         "claim_assessment_id": {
@@ -1110,6 +1115,9 @@
         },
         "claim_component_version_id": {
           "$ref": "#/$defs/id"
+        },
+        "reviewed_at": {
+          "$ref": "#/$defs/optionalUtc"
         }
       }
     },
