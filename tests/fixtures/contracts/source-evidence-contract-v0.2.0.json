@@ -1077,6 +1077,8 @@
       "review_at": "2026-11-15T22:00:00Z",
       "expires_at": null,
       "disposition": "REFERENCE_ONLY",
+      "previous_disposition": null,
+      "authorization_reference": null,
       "recorded_at": "2026-11-15T22:00:00Z"
     }
   ],
@@ -1088,6 +1090,17 @@
       "actor_role": "SYNTHETIC_TEST",
       "occurred_at": "2026-11-15T22:00:00Z",
       "reason": "Creación de fixture sintético de conformidad."
+    },
+    {
+      "audit_event_id": "audit-retention-reference",
+      "subject_ref": "evidence-a",
+      "action": "REFERENCE_ONLY",
+      "actor_role": "SYNTHETIC_TEST",
+      "occurred_at": "2026-11-15T22:00:00Z",
+      "reason": "Registro sintético de referencia sin conservar contenido.",
+      "retention_id": "retention-a",
+      "from_disposition": null,
+      "to_disposition": "REFERENCE_ONLY"
     }
   ]
 }
