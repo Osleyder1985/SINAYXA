@@ -110,10 +110,10 @@
       "assessment_cutoff": "2026-11-15T22:00:00Z",
       "methodology_version": "16-approved",
       "source_type": "SECUNDARIA",
-      "source_subtype": "SYNTHETIC_REPORT",
+      "source_subtype": "REPRODUCCION",
       "knowledge_basis": "REPRODUCCIÓN_SIN_VERIFICACIÓN_PROPIA",
       "institutional_character": "NO_INSTITUCIONAL",
-      "dissemination": "PUBLIC"
+      "dissemination": "REPUBLICADA"
     },
     {
       "assessment_unit_id": "unit-b-entity",
@@ -126,10 +126,10 @@
       "assessment_cutoff": "2026-11-15T22:00:00Z",
       "methodology_version": "16-approved",
       "source_type": "DESCONOCIDA",
-      "source_subtype": "UNKNOWN",
+      "source_subtype": "REPRODUCCION",
       "knowledge_basis": "DESCONOCIDA",
       "institutional_character": "DESCONOCIDO",
-      "dissemination": "PUBLIC"
+      "dissemination": "DESCONOCIDA"
     }
   ],
   "evidence_items": [
