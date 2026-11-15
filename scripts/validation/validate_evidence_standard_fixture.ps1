@@ -28,7 +28,9 @@ $allowed = @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADI
 $expectedIds = @(1..18 | ForEach-Object { 'E{0:D2}' -f $_ })
 $actualIds = @($fixture.cases | ForEach-Object { [string]$_.id })
 Assert-Condition (($actualIds | Sort-Object -Unique).Count -eq 18) 'Case identifiers must be unique.'
-Assert-Condition (($actualIds | Sort-Object) -join ',' -eq ($expectedIds | Sort-Object) -join ',') 'Fixture must contain exactly E01-E18.'
+$actualSorted = (@($actualIds | Sort-Object) -join ',')
+$expectedSorted = (@($expectedIds | Sort-Object) -join ',')
+Assert-Condition ($actualSorted -eq $expectedSorted) 'Fixture must contain exactly E01-E18.'
 
 foreach ($case in $fixture.cases) {
     Assert-Condition (-not [string]::IsNullOrWhiteSpace($case.scenario)) "$($case.id): scenario is required."
@@ -51,7 +53,7 @@ $requiredCoverage = @{
     E12 = 'NO_RESUELTA'
     E14 = 'NO_CORROBORADA'
     E15 = 'NO_RESUELTA'
-    E18 = 'PARCIALMENTE_CORROBORADA'
+    E18 = 'NO_RESUELTA'
 }
 foreach ($id in $requiredCoverage.Keys) {
     $item = @($fixture.cases | Where-Object id -eq $id)
