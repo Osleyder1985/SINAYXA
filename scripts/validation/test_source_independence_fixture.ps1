@@ -16,7 +16,15 @@ try {
         @{ Name='Cycle no longer detected'; Apply={ param($x) $x.cases[12].expected.cycle_detected = $false } },
         @{ Name='Shared dataset counted as two origins'; Apply={ param($x) $x.cases[15].expected.independent_data_origins = 2 } },
         @{ Name='Disputed amount falsely corroborated'; Apply={ param($x) $x.cases[13].expected.corroboration_count_increment = 1 } },
-        @{ Name='Malformed provenance edge'; Apply={ param($x) $x.cases[0].provenance_edges[0].to = '' } }
+        @{ Name='Malformed provenance edge'; Apply={ param($x) $x.cases[0].provenance_edges[0].to = '' } },
+        @{ Name='Filing falsely treated as approval'; Apply={ param($x) $x.cases[2].expected.scope_not_confirmed = @() } },
+        @{ Name='Interpretation falsely treated as execution'; Apply={ param($x) $x.cases[4].expected.supports_execution = $true } },
+        @{ Name='Rectification erases prior version'; Apply={ param($x) $x.cases[5].expected.version_history.preserve_prior_versions = $false } },
+        @{ Name='Official denial falsely refutes claim'; Apply={ param($x) $x.cases[9].expected.claim_refuted = $true } },
+        @{ Name='Past source errors invalidate authenticated document'; Apply={ param($x) $x.cases[10].expected.past_errors_automatically_invalidate_document = $true } },
+        @{ Name='Prestige treated as evidence'; Apply={ param($x) $x.cases[11].expected.prestige_used_as_evidence = $true } },
+        @{ Name='Editorial anonymity verification transferred'; Apply={ param($x) $x.cases[14].expected.editor_identity_verification_transferred = $true } },
+        @{ Name='Shared employer automatically implies dependency'; Apply={ param($x) $x.cases[8].expected.shared_employer_does_not_imply_dependency = $false } }
     )
     foreach ($mutation in $mutations) {
         $copy = $base | ConvertTo-Json -Depth 50 | ConvertFrom-Json -Depth 50
