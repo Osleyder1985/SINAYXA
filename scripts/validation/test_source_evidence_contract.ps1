@@ -39,10 +39,11 @@ try {
     $pendingDeletion.retention_records[0].disposition = 'DELETE_PENDING'
     $pendingDeletion.retention_records[0].previous_disposition = 'RETAIN'
     $pendingDeletion.retention_records[0].expires_at = '2026-11-15T21:00:00Z'
+    $pendingDeletion.retention_records[0].recorded_at = '2026-11-15T22:01:00Z'
     $pendingDeletion.audit_events[1].action = 'DELETION_REQUESTED'
     $pendingDeletion.audit_events[1].from_disposition = 'RETAIN'
     $pendingDeletion.audit_events[1].to_disposition = 'DELETE_PENDING'
-    $pendingDeletion.audit_events[1].occurred_at = '2026-11-15T22:01:00Z'
+    $pendingDeletion.audit_events[1].occurred_at = '2026-11-15T22:02:00Z'
     $pendingFile = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-pending-" + [guid]::NewGuid().ToString('N') + '.json')
     try {
         ConvertTo-Json -InputObject $pendingDeletion -Depth 100 | Set-Content -LiteralPath $pendingFile -Encoding utf8
@@ -368,6 +369,7 @@ try {
         @{ Name='Claim assessment uses evidence unavailable at its cutoff'; Apply={ param($x) $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.claim_assessments[0].assessment_cutoff='2026-11-15T20:00:00Z' } },
         @{ Name='Retained content has an expired retention window'; Apply={ param($x) $x.retention_records[0].content_retained=$true; $x.retention_records[0].legal_basis_status='VERIFIED'; $x.retention_records[0].disposition='RETAIN'; $x.retention_records[0].authorization_reference='synthetic://authorized'; $x.retention_records[0].previous_disposition='REFERENCE_ONLY'; $x.retention_records[0].expires_at='2026-11-15T21:00:00Z'; $x.retention_records[0].review_at='2026-11-15T20:00:00Z'; $x.audit_events[1].action='RETENTION_SET'; $x.audit_events[1].from_disposition='REFERENCE_ONLY'; $x.audit_events[1].to_disposition='RETAIN'; $x.audit_events[1].occurred_at='2026-11-15T22:01:00Z' } },
         @{ Name='Deleted content lacks a deletion audit event'; Apply={ param($x) $x.retention_records[0].content_retained=$false; $x.retention_records[0].disposition='DELETED'; $x.retention_records[0].previous_disposition='RETAIN' } },
+        @{ Name='Delete-pending evidence is used after the deletion request'; Apply={ param($x) $x.retention_records[0].content_retained=$true; $x.retention_records[0].legal_basis_status='NOT_ESTABLISHED'; $x.retention_records[0].disposition='DELETE_PENDING'; $x.retention_records[0].previous_disposition='RETAIN'; $x.retention_records[0].recorded_at='2026-11-15T21:00:00Z'; $x.retention_records[0].expires_at='2026-11-15T21:30:00Z'; $x.audit_events[1].action='DELETION_REQUESTED'; $x.audit_events[1].from_disposition='RETAIN'; $x.audit_events[1].to_disposition='DELETE_PENDING'; $x.audit_events[1].occurred_at='2026-11-15T21:01:00Z' } },
         @{ Name='Retention transition lacks matching audit event'; Apply={ param($x) $x.audit_events[1].to_disposition='DELETED' } },
         @{ Name='Retention audit event predates the state transition'; Apply={ param($x) $x.audit_events[1].occurred_at='2026-11-15T21:59:00Z' } },
         @{ Name='RETAIN lacks explicit authorization reference'; Apply={ param($x) $x.retention_records[0].content_retained=$true; $x.retention_records[0].legal_basis_status='VERIFIED'; $x.retention_records[0].disposition='RETAIN'; $x.retention_records[0].previous_disposition='REFERENCE_ONLY'; $x.retention_records[0].expires_at='2026-11-16T22:00:00Z'; $x.retention_records[0].review_at='2026-11-15T23:00:00Z'; $x.audit_events[1].action='RETENTION_SET'; $x.audit_events[1].from_disposition='REFERENCE_ONLY'; $x.audit_events[1].to_disposition='RETAIN'; $x.audit_events[1].occurred_at='2026-11-15T22:01:00Z' } },
