@@ -43,12 +43,12 @@
   ],
   "sources": [
     {
-      "source_id": "source-a",
+      "source_id": "src_01234567-89ab-4cde-8fab-0123456789ab",
       "created_at": "2026-11-15T22:00:00Z",
       "recorded_at": "2026-11-15T22:00:00Z"
     },
     {
-      "source_id": "source-b",
+      "source_id": "src_fedcba98-7654-4321-8abc-fedcba987654",
       "created_at": "2026-11-15T22:00:00Z",
       "recorded_at": "2026-11-15T22:00:00Z"
     }
@@ -56,7 +56,7 @@
   "source_versions": [
     {
       "source_version_id": "version-a1",
-      "source_id": "source-a",
+      "source_id": "src_01234567-89ab-4cde-8fab-0123456789ab",
       "version_label": "v1",
       "published_at": "2026-11-15T20:00:00Z",
       "first_detected_at": "2026-11-15T20:05:00Z",
@@ -72,7 +72,7 @@
     },
     {
       "source_version_id": "version-b1",
-      "source_id": "source-b",
+      "source_id": "src_fedcba98-7654-4321-8abc-fedcba987654",
       "version_label": "v1",
       "published_at": null,
       "first_detected_at": "2026-11-15T20:06:00Z",
@@ -90,7 +90,7 @@
   "identity_assessments": [
     {
       "identity_assessment_id": "identity-a",
-      "source_id": "source-a",
+      "source_id": "src_01234567-89ab-4cde-8fab-0123456789ab",
       "assessment_cutoff": "2026-11-15T22:00:00Z",
       "identity": "IDENTIFICADA",
       "anonymous_to_public": false,
@@ -110,7 +110,7 @@
       "assessment_unit_id": "unit-a-entity",
       "claim_id": "claim-btc-purchase",
       "claim_component_id": "component-entity",
-      "source_id": "source-a",
+      "source_id": "src_01234567-89ab-4cde-8fab-0123456789ab",
       "source_version_id": "version-a1",
       "access_path": "PUBLIC_URL",
       "access_status": "PÚBLICO_LEGÍTIMO",
@@ -128,7 +128,7 @@
       "assessment_unit_id": "unit-b-entity",
       "claim_id": "claim-btc-purchase",
       "claim_component_id": "component-entity",
-      "source_id": "source-b",
+      "source_id": "src_fedcba98-7654-4321-8abc-fedcba987654",
       "source_version_id": "version-b1",
       "access_path": "PUBLIC_URL",
       "access_status": "PÚBLICO_LEGÍTIMO",
@@ -146,7 +146,7 @@
       "assessment_unit_id": "unit-a-amount",
       "claim_id": "claim-btc-purchase",
       "claim_component_id": "component-amount",
-      "source_id": "source-a",
+      "source_id": "src_01234567-89ab-4cde-8fab-0123456789ab",
       "source_version_id": "version-a1",
       "access_path": "PUBLIC_URL",
       "access_status": "PÚBLICO_LEGÍTIMO",
@@ -164,7 +164,7 @@
       "assessment_unit_id": "unit-b-amount",
       "claim_id": "claim-btc-purchase",
       "claim_component_id": "component-amount",
-      "source_id": "source-b",
+      "source_id": "src_fedcba98-7654-4321-8abc-fedcba987654",
       "source_version_id": "version-b1",
       "access_path": "PUBLIC_URL",
       "access_status": "PÚBLICO_LEGÍTIMO",
