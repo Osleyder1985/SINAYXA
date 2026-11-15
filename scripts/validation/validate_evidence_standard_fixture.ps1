@@ -6,7 +6,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 if ([string]::IsNullOrWhiteSpace($FixturePath)) {
-    $FixturePath = Join-Path $PSScriptRoot '..\..\tests\fixtures\methodology\evidence-standard\e01-e18-synthetic-conformance-v1.2.0.json'
+    $FixturePath = Join-Path $PSScriptRoot '..\..\tests\fixtures\methodology\evidence-standard\e01-e18-synthetic-conformance-v1.2.1.json'
 }
 
 function Assert-Condition {
@@ -18,8 +18,8 @@ $resolved = (Resolve-Path -LiteralPath $FixturePath).Path
 try { $fixture = Get-Content -LiteralPath $resolved -Raw -Encoding utf8 | ConvertFrom-Json -Depth 40 }
 catch { throw "Fixture is not valid JSON: $($_.Exception.Message)" }
 
-Assert-Condition ($fixture.schema_version -eq '1.2.0') 'Unsupported schema_version.'
-Assert-Condition ($fixture.package_id -eq 'SINAYXA-EVIDENCE-E01-E18-SYNTHETIC-003') 'Unexpected package_id.'
+Assert-Condition ($fixture.schema_version -eq '1.2.1') 'Unsupported schema_version.'
+Assert-Condition ($fixture.package_id -eq 'SINAYXA-EVIDENCE-E01-E18-SYNTHETIC-004') 'Unexpected package_id.'
 Assert-Condition ($fixture.status -eq 'SYNTHETIC_TEST_FIXTURE_NOT_REAL_WORLD_EVIDENCE') 'Fixture must be explicitly synthetic.'
 Assert-Condition ($fixture.source_standard -eq 'docs/news-and-events/evidence-standard-for-indicia-rumours-and-leaks.md') 'source_standard must point to the Issue #15 standard.'
 Assert-Condition ($fixture.cases.Count -eq 18) "Expected 18 cases; found $($fixture.cases.Count)."
@@ -52,7 +52,7 @@ $requiredStatuses = @{
     E13 = 'NO_RESUELTA'
     E14 = 'NO_CORROBORADA'
     E15 = 'PARCIALMENTE_CORROBORADA'
-    E16 = 'PARCIALMENTE_CORROBORADA'
+    E16 = 'NO_CORROBORADA'
     E17 = 'CONTRADICHA'
     E18 = 'NO_RESUELTA'
 }
@@ -90,7 +90,7 @@ Assert-Condition ($caseById.E12.expected.evidentiary_status -eq 'REFUTADA' -and 
 Assert-Condition ($caseById.E13.expected.access_provenance -eq 'SOSPECHA_DE_ACCESO_NO_AUTORIZADO' -and $caseById.E13.expected.sensitive_information_review -eq 'REVISIÓN_LEGAL_REQUERIDA') 'E13 must stop substantive review and require legal review.'
 Assert-Condition ($caseById.E14.expected.source_identity -eq 'ANÓNIMA_PARA_EL_PÚBLICO' -and $caseById.E14.expected.evidentiary_status -eq 'NO_CORROBORADA') 'E14 must preserve the anonymous attribution without upgrading corroboration.'
 Assert-Condition ($caseById.E15.expected.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') 'E15 must confirm filing only, not approval.'
-Assert-Condition ($caseById.E16.expected.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA' -and $caseById.E16.expected.document_authenticity -eq 'NO_VERIFICADA') 'E16 must preserve the preliminary proposal without assuming document authenticity or an executed agreement.'
+Assert-Condition ($caseById.E16.expected.evidentiary_status -eq 'NO_CORROBORADA' -and $caseById.E16.expected.document_authenticity -eq 'NO_VERIFICADA' -and $caseById.E16.expected.access_provenance -eq 'NO_DETERMINADO' -and $caseById.E16.expected.guardrail.Contains('corroboración independiente')) 'E16 must not corroborate an unauthenticated proposal without independent evidence.'
 Assert-Condition ($caseById.E17.expected.evidentiary_status -eq 'CONTRADICHA' -and $caseById.E17.expected.independence_of_origin -eq 'DESCONOCIDA') 'E17 must preserve incompatible anonymous versions without assuming independence.'
 Assert-Condition ($caseById.E18.expected.evidentiary_status -eq 'NO_RESUELTA') 'E18 must not infer corroboration or refutation from a correction alone.'
 
