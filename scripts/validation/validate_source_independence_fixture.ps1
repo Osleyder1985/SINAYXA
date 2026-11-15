@@ -66,6 +66,18 @@ foreach ($case in $fixture.cases) {
             Assert-Condition ($evaluationSourceIds -contains [string]$sourceId) "${id}: independence evidence references an unknown source_id."
         }
     }
+    Assert-Condition ($case.assessment_record.decision_state -eq $case.independence) "${id}: assessment decision_state must match the expected independence state."
+    Assert-Condition ($case.assessment_record.decision_scope -eq $case.claim_component_id) "${id}: assessment decision must be scoped to the claim component."
+    Assert-Condition ($case.assessment_record.decision_mode -eq 'HUMAN_REVIEW_REQUIRED') "${id}: human review is mandatory."
+    Assert-Condition ($case.assessment_record.human_review_required -eq $true) "${id}: human_review_required must be true."
+    Assert-Condition ($case.assessment_record.automated_credibility_decision -eq $false) "${id}: automated credibility decisions are prohibited."
+    Assert-Condition ($case.assessment_record.synthetic_only -eq $true) "${id}: assessment record must remain synthetic."
+    Assert-Condition ($case.assessment_record.supporting_evidence_refs.Count -gt 0) "${id}: supporting evidence references are required."
+    Assert-Condition ($case.assessment_record.limitations.Count -gt 0) "${id}: limitations must be recorded."
+    $knownEvidenceRefs = @($case.provenance_edges | ForEach-Object { "synthetic-fixture://$($_.edge_id)" }) + @($case.independence_evidence | ForEach-Object { [string]$_.reference })
+    foreach ($evidenceRef in $case.assessment_record.supporting_evidence_refs) {
+        Assert-Condition ($knownEvidenceRefs -contains [string]$evidenceRef) "${id}: assessment references unknown supporting evidence."
+    }
     Assert-Condition ($case.expected.PSObject.Properties.Name -contains 'independent_origins') "${id}: expected.independent_origins must be explicit, including null."
     Assert-Condition ($case.expected.PSObject.Properties.Name -contains 'corroboration_count_increment') "${id}: expected.corroboration_count_increment must be explicit, including null."
     Assert-Condition (-not [string]::IsNullOrWhiteSpace($case.expected.guardrail)) "${id}: expected.guardrail is required."
