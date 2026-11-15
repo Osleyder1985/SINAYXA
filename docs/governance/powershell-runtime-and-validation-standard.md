@@ -65,13 +65,14 @@ The separate `.github/workflows/security-quality.yml` workflow adds:
 - Gitleaks v3.0.0, pinned to an immutable, verified commit, scanning full Git history on pull requests and pushes to `main`, plus a weekly scheduled scan.
 - `npm ci --ignore-scripts` against the committed lockfile.
 - `npm audit --audit-level=high` across the locked dependency graph; high and critical vulnerabilities fail the check.
-- Dependency Review on pull requests, also failing on high and critical severity.
+- OSV-Scanner v2.7.0 on every pull request, comparing the target branch with the proposed changes and failing when the PR introduces a known vulnerability.
+- Full OSV-Scanner scans on pushes to main and weekly schedules, failing on known vulnerabilities.
 - A 90-day JSON audit artifact for traceability.
 - Weekly Dependabot update PRs for npm dependencies and GitHub Actions.
 
 The workflow uses read-only repository permissions and disables Gitleaks PR comments. It does not print or upload secret values.
 
-These controls complement rather than replace GitHub-native secret scanning, Dependabot alerts, and code scanning. The repository settings for native alerting must be checked separately; a clean CI scan does not prove that GitHub's native protections are enabled.
+These controls complement rather than replace GitHub-native secret scanning and Dependabot alerts. The first Dependency Review attempt could not run because GitHub reports that the repository dependency graph is disabled. Rather than leave a permanently failing check dependent on that setting, the PR gate uses OSV-Scanner directly against the committed lockfiles; npm audit provides an independent second source. GitHub-native Dependabot alerts and dependency graph should still be enabled separately in repository settings.
 
 ## 6. Main branch protection
 
