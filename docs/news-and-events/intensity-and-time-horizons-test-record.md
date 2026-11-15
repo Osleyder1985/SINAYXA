@@ -121,7 +121,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | T14 | Anuncio, aprobación, entrada en vigor e implementación son cuatro hitos/relojes separados | NOT_EXECUTED | Cuatro hitos independientes; timestamps, fuentes, zona horaria y verificación por separado; ausencias no inferidas (decisión humana asistida por IA; desviación de secuencia) | Sección 24; ejecución conforme al protocolo pendiente |
 | T15 | Intervalo cruza frontera 24 h: conservar intervalo; horizonte único INDETERMINADO; compatibles INMEDIATO y CORTO | NOT_EXECUTED | Conservar límites 23 h 50 min–24 h 10 min; horizonte único INDETERMINADO; compatibles INMEDIATO y CORTO (decisión humana asistida por IA; desviación de secuencia) | Sección 25; ejecución conforme al protocolo pendiente |
 | T16 | Evaluación primaria de un humano + crítica IA separada; diferencias documentadas sin promediar ni afirmar acuerdo | NOT_EXECUTED | PENDIENTE | PENDIENTE |
-| T17 | INDETERMINADA, no I0, cuando no se puede confirmar ni descartar mecanismo material | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T17 | Evidencia insuficiente para confirmar o descartar mecanismo material: INDETERMINADA | NOT_EXECUTED | Intensidad INDETERMINADA; no asignar I0 ni I1–I4; documentar brechas y permitir vigilancia sin confirmar catalizador (decisión humana asistida por IA; desviación de secuencia) | Sección 27; ejecución conforme al protocolo pendiente |
 | T18 | Exactamente 24 h reales durante cambio horario → INMEDIATO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T19 | Conservar fuentes e intervalo 23 h 50 min–24 h 10 min; categoría única INDETERMINADO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 
@@ -996,3 +996,50 @@ Las futuras ejecuciones deberán conservar, como mínimo, los artefactos sellado
 ### 26.4 Resultado de auditoría
 
 Queda aceptado el protocolo de evaluación primaria humana sellada antes de la crítica IA separada, así como la prohibición de presentar la IA como segundo evaluador humano o de atribuir acuerdo interevaluador, consenso o independencia estadística. La desviación de secuencia en T01–T15 queda explícitamente preservada y no se corrige retroactivamente. **T16 permanece NOT_EXECUTED en la matriz formal**: la aceptación de un procedimiento no equivale a su ejecución ni demuestra su eficacia. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+
+## 27. Registro de decisión asistida — T17
+
+### 27.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T17 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Evaluación de un mecanismo material con evidencia incompleta |
+| Evidencia examinada | T17: información insuficiente para confirmar o descartar el mecanismo |
+| Decisión humana comunicada | Intensidad INDETERMINADA; no asignar I0 ni I1–I4 |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 27.2 Decisión y razonamiento
+
+El propietario aceptó clasificar la intensidad como **INDETERMINADA** cuando la evidencia disponible no permite confirmar ni descartar un mecanismo material.
+
+No se asigna I0. Esa clasificación exige evidencia suficiente para descartar un mecanismo material dentro de la unidad, escenario y corte delimitados. La mera ausencia de registros, la falta de confirmación o una búsqueda incompleta no constituyen evidencia de ausencia.
+
+Tampoco se asigna I1, I2, I3 o I4. Esas categorías requieren evidencia suficiente para establecer un mecanismo y evaluar su exposición, alcance y consecuencias conforme a las definiciones metodológicas. La incertidumbre no autoriza a elegir una intensidad por intuición, plausibilidad narrativa o presión de clasificación.
+
+La evaluación debe identificar explícitamente:
+
+- Qué mecanismo se plantea y qué evidencia verificable lo respaldaría.
+- Qué evidencias existen y cuáles son sus límites.
+- Qué datos, registros, denominadores, dependencias o verificaciones faltan.
+- Qué fuentes podrían resolver las brechas y qué condiciones de acceso o fiabilidad deben comprobarse.
+- Qué unidad, escenario y corte temporal están realmente cubiertos.
+
+La incertidumbre puede justificar vigilancia, preservación de fuentes y recopilación adicional. No permite presentar un rumor, una hipótesis o una señal no verificada como catalizador confirmado. Una evaluación posterior deberá utilizar un nuevo corte, registrar la evidencia añadida y explicar cualquier cambio sin borrar esta conclusión inicial.
+
+### 27.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción no cumple la secuencia de evaluación primaria humana sellada antes de la crítica de IA establecida en el protocolo de evaluador único.
+
+La aceptación se conserva como **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T17.
+
+Para completar una ejecución formal conforme al protocolo, será necesaria una nueva evaluación con el paquete congelado: primero se registra y sella la evaluación humana sin conocer la salida de IA y, después, se realiza la crítica auxiliar separada. La nueva ejecución se conservará como un registro distinto, sin sobrescribir esta decisión.
+
+### 27.4 Resultado de auditoría
+
+La decisión **INDETERMINADA** queda documentada porque la evidencia no permite confirmar ni descartar el mecanismo material. No se equipara ausencia de evidencia con evidencia de ausencia, ni se fuerza I0 o I1–I4. La vigilancia y la recopilación adicional pueden continuar sin elevar una hipótesis a catalizador confirmado. **T17 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
