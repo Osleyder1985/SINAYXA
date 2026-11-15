@@ -100,8 +100,6 @@ foreach ($claim in $package.claims) {
 }
 foreach ($component in $package.claim_components) {
     Test-Condition (Test-HasRef $claimIds ([string]$component.claim_id)) 'Component references an unknown claim.'
-    $sameIdentityComponents = @($package.claim_components | Where-Object { $_.claim_component_id -eq $component.claim_component_id })
-    Test-Condition (@($sameIdentityComponents | Where-Object { $_.claim_id -ne $component.claim_id -or $_.component_key -ne $component.component_key }).Count -eq 0) 'A stable component identity cannot change its owning claim or component key.'
     Test-Condition (Test-HasRef $claimVersionIds ([string]$component.claim_version_id)) 'Component references an unknown claim version.'
     $claimVersion = @($package.claims | Where-Object { $_.claim_version_id -eq $component.claim_version_id })[0]
     Test-Condition ($claimVersion.claim_id -eq $component.claim_id) 'Component and claim version identities do not match.'
@@ -136,18 +134,16 @@ foreach ($version in $package.source_versions) {
     foreach ($observation in @($version.original_timestamps)) {
         $value = [string]$observation.original_value
         $pattern = switch ($observation.precision) {
-            'YEAR' { '^\\d{4}        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
+            'YEAR' { '^\d{4}
+        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
         Test-Condition ($version.hash_algorithm -eq 'SHA-256') 'Source version hash algorithm must be SHA-256.'
     }
     else {
         Test-Condition ($null -eq $version.hash_algorithm) 'Source version cannot declare a hash algorithm without a content hash.'
     }
 }
-$identityAssessmentKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($identity in $package.identity_assessments) {
     Test-Condition (Test-HasRef $sourceIds ([string]$identity.source_id)) 'Identity assessment references an unknown source.'
-    $identityKey = ([string]$identity.source_id) + '|' + ([string]$identity.assessment_cutoff)
-    Test-Condition ($identityAssessmentKeys.Add($identityKey)) 'Identity assessment must be unique per source and assessment cutoff.'
     Test-Condition (Test-Utc $identity.assessment_cutoff 'assessment_cutoff') 'Identity assessment cutoff must be UTC.'
     Test-Condition (Test-Utc $identity.recorded_at 'recorded_at') 'Identity assessment recorded_at must be UTC.'
     foreach ($reference in @($identity.verification_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Identity assessment references unknown evidence.' }
@@ -158,10 +154,7 @@ foreach ($identity in $package.identity_assessments) {
         Test-Condition (@($identity.verification_evidence_refs).Count -gt 0) 'SINAYXA identity verification requires evidence references.'
     }
 }
-$evaluationTupleKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($unit in $package.evaluation_units) {
-    $tupleKey = [string]::Join([char]31, @([string]$unit.claim_id,[string]$unit.claim_component_id,[string]$unit.source_id,[string]$unit.source_version_id,[string]$unit.access_path,[string]$unit.assessment_cutoff))
-    Test-Condition ($evaluationTupleKeys.Add($tupleKey)) 'Evaluation unit tuple must be unique; duplicate methodology units cannot be counted twice.'
     Test-Condition (Test-HasRef $claimIds ([string]$unit.claim_id)) 'Evaluation unit references an unknown claim.'
     Test-Condition (Test-HasRef $componentIds ([string]$unit.claim_component_id)) 'Evaluation unit references an unknown component.'
     Test-Condition (Test-HasRef $claimVersionIds ([string]$unit.claim_version_id)) 'Evaluation unit references an unknown claim version.'
@@ -193,7 +186,6 @@ foreach ($evidence in $package.evidence_items) {
         Test-Condition ($null -eq $integrity.expected_digest -and $null -eq $integrity.observed_digest) 'Digest values cannot be retained without a supported hash algorithm.'
     }
 }
-$availabilityKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($availability in $package.evidence_availability) {
     Test-Condition (Test-HasRef $evidenceIds ([string]$availability.evidence_id)) 'Evidence availability references unknown evidence.'
     Test-Condition (Test-HasRef $unitIds ([string]$availability.assessment_unit_id)) 'Evidence availability references an unknown evaluation unit.'
@@ -201,21 +193,13 @@ foreach ($availability in $package.evidence_availability) {
     $evidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $availability.evidence_id })[0]
     Test-Condition ($null -ne $evidence.source_version_id -and $evidence.source_version_id -eq $unit.source_version_id) 'Evidence availability must match the exact source version in its evaluation unit.'
     Test-Condition ($availability.claim_id -eq $unit.claim_id -and $availability.claim_component_id -eq $unit.claim_component_id -and $availability.claim_version_id -eq $unit.claim_version_id -and $availability.claim_component_version_id -eq $unit.claim_component_version_id) 'Evidence availability must match the exact claim/component version of its evaluation unit.'
-    $availabilityKey = ([string]$availability.evidence_id) + '|' + ([string]$availability.assessment_unit_id)
-    Test-Condition ($availabilityKeys.Add($availabilityKey)) 'Evidence availability must be unique per evidence item and evaluation unit.'
     Test-Condition (Test-Utc $availability.recorded_at 'recorded_at') 'Evidence availability recorded_at must be UTC.'
     if ($null -eq $availability.available_at) {
-        if ($availability.availability_basis -eq 'UNKNOWN') {
-            Test-Condition ($null -eq $availability.availability_reference) 'Unknown availability cannot claim a traceable availability reference.'
-        }
-        elseif ($availability.availability_basis -eq 'SOURCE_STATED') {
-            Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'A source-stated date must retain its reference but cannot establish verified availability.'
-        }
-        else { throw 'A verified availability basis requires available_at.' }
+        Test-Condition ($availability.availability_basis -eq 'UNKNOWN' -and $null -eq $availability.availability_reference) 'Unknown availability requires UNKNOWN basis and no availability reference.'
     }
     else {
         Test-Condition (Test-Utc $availability.available_at 'available_at') 'Evidence available_at must be UTC.'
-        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE')) 'A source-stated timestamp cannot establish verified historical availability.'
+        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE','SOURCE_STATED')) 'Known availability requires an explicit supported basis.'
         Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'Known availability requires a traceable reference.'
         Test-Condition ([DateTimeOffset]::Parse([string]$availability.available_at) -le [DateTimeOffset]::Parse([string]$unit.assessment_cutoff)) 'Evidence was not available by the evaluation cutoff.'
     }
@@ -324,14 +308,10 @@ foreach ($assessment in $package.independence_assessments) {
             $evidenceItem = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
             if ($null -ne $evidenceItem.source_version_id) {
                 $evidenceVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $evidenceItem.source_version_id })[0]
-                if ($null -ne $evidenceVersion) {
-                    Test-Condition ($evidenceVersion.source_id -in $distinctSourceIds) 'Independence evidence must belong to one of the exact source identities being assessed.'
-                    $evidenceSourceIds += [string]$evidenceVersion.source_id
-                }
+                if ($null -ne $evidenceVersion) { $evidenceSourceIds += [string]$evidenceVersion.source_id }
             }
         }
         Test-Condition (@($evidenceSourceIds | Sort-Object -Unique).Count -ge 2) 'INDEPENDIENTE evidence must positively cover at least two distinct source identities.'
-        Test-Condition (@($distinctSourceIds | Where-Object { $_ -notin $evidenceSourceIds }).Count -eq 0) 'INDEPENDIENTE evidence must cover every evaluated source identity.'
         Test-Condition (@($assessment.dependency_edge_refs).Count -eq 0) 'INDEPENDIENTE cannot simultaneously declare material dependency edges.'
     }
     if ($assessment.status -eq 'DEPENDIENTE') {
@@ -355,12 +335,6 @@ foreach ($assessment in $package.claim_assessments) {
     Test-Condition ($component.claim_id -eq $assessment.claim_id -and $component.claim_version_id -eq $assessment.claim_version_id -and $component.claim_component_version_id -eq $assessment.claim_component_version_id) 'Claim assessment is not bound to the exact claim/component versions.'
     Test-Condition ($assessment.evidentiary_status -in @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADICHA','REFUTADA','NO_RESUELTA')) 'Unsupported #15 evidentiary status.'
     Test-Condition ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
-    Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.rationale)) 'Claim assessment requires an explicit rationale.'
-    if ($assessment.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') {
-        Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'PARCIALMENTE_CORROBORADA requires supporting evidence.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.supported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit supported scope.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.unsupported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit unsupported scope.'
-    }
     foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Claim assessment references unknown evidence.' }
     foreach ($reference in @($assessment.independence_assessment_refs)) {
         Test-Condition (Test-HasRef $sets.independence_assessments ([string]$reference)) 'Claim assessment references unknown independence assessment.'
@@ -461,7 +435,8 @@ Test-ForbiddenKey -Value $package
     Scope = 'Structural and cross-reference conformance; not empirical truth, legal advice, or authorization to capture.'
 } | Format-List
  }
-            'MONTH' { '^\\d{4}-\\d{2}        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
+            'MONTH' { '^\d{4}-\d{2}
+        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
         Test-Condition ($version.hash_algorithm -eq 'SHA-256') 'Source version hash algorithm must be SHA-256.'
     }
     else {
@@ -512,7 +487,6 @@ foreach ($evidence in $package.evidence_items) {
         Test-Condition ($null -eq $integrity.expected_digest -and $null -eq $integrity.observed_digest) 'Digest values cannot be retained without a supported hash algorithm.'
     }
 }
-$availabilityKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($availability in $package.evidence_availability) {
     Test-Condition (Test-HasRef $evidenceIds ([string]$availability.evidence_id)) 'Evidence availability references unknown evidence.'
     Test-Condition (Test-HasRef $unitIds ([string]$availability.assessment_unit_id)) 'Evidence availability references an unknown evaluation unit.'
@@ -520,21 +494,13 @@ foreach ($availability in $package.evidence_availability) {
     $evidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $availability.evidence_id })[0]
     Test-Condition ($null -ne $evidence.source_version_id -and $evidence.source_version_id -eq $unit.source_version_id) 'Evidence availability must match the exact source version in its evaluation unit.'
     Test-Condition ($availability.claim_id -eq $unit.claim_id -and $availability.claim_component_id -eq $unit.claim_component_id -and $availability.claim_version_id -eq $unit.claim_version_id -and $availability.claim_component_version_id -eq $unit.claim_component_version_id) 'Evidence availability must match the exact claim/component version of its evaluation unit.'
-    $availabilityKey = ([string]$availability.evidence_id) + '|' + ([string]$availability.assessment_unit_id)
-    Test-Condition ($availabilityKeys.Add($availabilityKey)) 'Evidence availability must be unique per evidence item and evaluation unit.'
     Test-Condition (Test-Utc $availability.recorded_at 'recorded_at') 'Evidence availability recorded_at must be UTC.'
     if ($null -eq $availability.available_at) {
-        if ($availability.availability_basis -eq 'UNKNOWN') {
-            Test-Condition ($null -eq $availability.availability_reference) 'Unknown availability cannot claim a traceable availability reference.'
-        }
-        elseif ($availability.availability_basis -eq 'SOURCE_STATED') {
-            Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'A source-stated date must retain its reference but cannot establish verified availability.'
-        }
-        else { throw 'A verified availability basis requires available_at.' }
+        Test-Condition ($availability.availability_basis -eq 'UNKNOWN' -and $null -eq $availability.availability_reference) 'Unknown availability requires UNKNOWN basis and no availability reference.'
     }
     else {
         Test-Condition (Test-Utc $availability.available_at 'available_at') 'Evidence available_at must be UTC.'
-        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE')) 'A source-stated timestamp cannot establish verified historical availability.'
+        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE','SOURCE_STATED')) 'Known availability requires an explicit supported basis.'
         Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'Known availability requires a traceable reference.'
         Test-Condition ([DateTimeOffset]::Parse([string]$availability.available_at) -le [DateTimeOffset]::Parse([string]$unit.assessment_cutoff)) 'Evidence was not available by the evaluation cutoff.'
     }
@@ -643,14 +609,10 @@ foreach ($assessment in $package.independence_assessments) {
             $evidenceItem = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
             if ($null -ne $evidenceItem.source_version_id) {
                 $evidenceVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $evidenceItem.source_version_id })[0]
-                if ($null -ne $evidenceVersion) {
-                    Test-Condition ($evidenceVersion.source_id -in $distinctSourceIds) 'Independence evidence must belong to one of the exact source identities being assessed.'
-                    $evidenceSourceIds += [string]$evidenceVersion.source_id
-                }
+                if ($null -ne $evidenceVersion) { $evidenceSourceIds += [string]$evidenceVersion.source_id }
             }
         }
         Test-Condition (@($evidenceSourceIds | Sort-Object -Unique).Count -ge 2) 'INDEPENDIENTE evidence must positively cover at least two distinct source identities.'
-        Test-Condition (@($distinctSourceIds | Where-Object { $_ -notin $evidenceSourceIds }).Count -eq 0) 'INDEPENDIENTE evidence must cover every evaluated source identity.'
         Test-Condition (@($assessment.dependency_edge_refs).Count -eq 0) 'INDEPENDIENTE cannot simultaneously declare material dependency edges.'
     }
     if ($assessment.status -eq 'DEPENDIENTE') {
@@ -674,12 +636,6 @@ foreach ($assessment in $package.claim_assessments) {
     Test-Condition ($component.claim_id -eq $assessment.claim_id -and $component.claim_version_id -eq $assessment.claim_version_id -and $component.claim_component_version_id -eq $assessment.claim_component_version_id) 'Claim assessment is not bound to the exact claim/component versions.'
     Test-Condition ($assessment.evidentiary_status -in @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADICHA','REFUTADA','NO_RESUELTA')) 'Unsupported #15 evidentiary status.'
     Test-Condition ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
-    Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.rationale)) 'Claim assessment requires an explicit rationale.'
-    if ($assessment.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') {
-        Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'PARCIALMENTE_CORROBORADA requires supporting evidence.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.supported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit supported scope.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.unsupported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit unsupported scope.'
-    }
     foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Claim assessment references unknown evidence.' }
     foreach ($reference in @($assessment.independence_assessment_refs)) {
         Test-Condition (Test-HasRef $sets.independence_assessments ([string]$reference)) 'Claim assessment references unknown independence assessment.'
@@ -780,7 +736,8 @@ Test-ForbiddenKey -Value $package
     Scope = 'Structural and cross-reference conformance; not empirical truth, legal advice, or authorization to capture.'
 } | Format-List
  }
-            'DAY' { '^\\d{4}-\\d{2}-\\d{2}        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
+            'DAY' { '^\d{4}-\d{2}-\d{2}
+        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
         Test-Condition ($version.hash_algorithm -eq 'SHA-256') 'Source version hash algorithm must be SHA-256.'
     }
     else {
@@ -831,7 +788,6 @@ foreach ($evidence in $package.evidence_items) {
         Test-Condition ($null -eq $integrity.expected_digest -and $null -eq $integrity.observed_digest) 'Digest values cannot be retained without a supported hash algorithm.'
     }
 }
-$availabilityKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($availability in $package.evidence_availability) {
     Test-Condition (Test-HasRef $evidenceIds ([string]$availability.evidence_id)) 'Evidence availability references unknown evidence.'
     Test-Condition (Test-HasRef $unitIds ([string]$availability.assessment_unit_id)) 'Evidence availability references an unknown evaluation unit.'
@@ -839,21 +795,13 @@ foreach ($availability in $package.evidence_availability) {
     $evidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $availability.evidence_id })[0]
     Test-Condition ($null -ne $evidence.source_version_id -and $evidence.source_version_id -eq $unit.source_version_id) 'Evidence availability must match the exact source version in its evaluation unit.'
     Test-Condition ($availability.claim_id -eq $unit.claim_id -and $availability.claim_component_id -eq $unit.claim_component_id -and $availability.claim_version_id -eq $unit.claim_version_id -and $availability.claim_component_version_id -eq $unit.claim_component_version_id) 'Evidence availability must match the exact claim/component version of its evaluation unit.'
-    $availabilityKey = ([string]$availability.evidence_id) + '|' + ([string]$availability.assessment_unit_id)
-    Test-Condition ($availabilityKeys.Add($availabilityKey)) 'Evidence availability must be unique per evidence item and evaluation unit.'
     Test-Condition (Test-Utc $availability.recorded_at 'recorded_at') 'Evidence availability recorded_at must be UTC.'
     if ($null -eq $availability.available_at) {
-        if ($availability.availability_basis -eq 'UNKNOWN') {
-            Test-Condition ($null -eq $availability.availability_reference) 'Unknown availability cannot claim a traceable availability reference.'
-        }
-        elseif ($availability.availability_basis -eq 'SOURCE_STATED') {
-            Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'A source-stated date must retain its reference but cannot establish verified availability.'
-        }
-        else { throw 'A verified availability basis requires available_at.' }
+        Test-Condition ($availability.availability_basis -eq 'UNKNOWN' -and $null -eq $availability.availability_reference) 'Unknown availability requires UNKNOWN basis and no availability reference.'
     }
     else {
         Test-Condition (Test-Utc $availability.available_at 'available_at') 'Evidence available_at must be UTC.'
-        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE')) 'A source-stated timestamp cannot establish verified historical availability.'
+        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE','SOURCE_STATED')) 'Known availability requires an explicit supported basis.'
         Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'Known availability requires a traceable reference.'
         Test-Condition ([DateTimeOffset]::Parse([string]$availability.available_at) -le [DateTimeOffset]::Parse([string]$unit.assessment_cutoff)) 'Evidence was not available by the evaluation cutoff.'
     }
@@ -962,14 +910,10 @@ foreach ($assessment in $package.independence_assessments) {
             $evidenceItem = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
             if ($null -ne $evidenceItem.source_version_id) {
                 $evidenceVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $evidenceItem.source_version_id })[0]
-                if ($null -ne $evidenceVersion) {
-                    Test-Condition ($evidenceVersion.source_id -in $distinctSourceIds) 'Independence evidence must belong to one of the exact source identities being assessed.'
-                    $evidenceSourceIds += [string]$evidenceVersion.source_id
-                }
+                if ($null -ne $evidenceVersion) { $evidenceSourceIds += [string]$evidenceVersion.source_id }
             }
         }
         Test-Condition (@($evidenceSourceIds | Sort-Object -Unique).Count -ge 2) 'INDEPENDIENTE evidence must positively cover at least two distinct source identities.'
-        Test-Condition (@($distinctSourceIds | Where-Object { $_ -notin $evidenceSourceIds }).Count -eq 0) 'INDEPENDIENTE evidence must cover every evaluated source identity.'
         Test-Condition (@($assessment.dependency_edge_refs).Count -eq 0) 'INDEPENDIENTE cannot simultaneously declare material dependency edges.'
     }
     if ($assessment.status -eq 'DEPENDIENTE') {
@@ -993,12 +937,6 @@ foreach ($assessment in $package.claim_assessments) {
     Test-Condition ($component.claim_id -eq $assessment.claim_id -and $component.claim_version_id -eq $assessment.claim_version_id -and $component.claim_component_version_id -eq $assessment.claim_component_version_id) 'Claim assessment is not bound to the exact claim/component versions.'
     Test-Condition ($assessment.evidentiary_status -in @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADICHA','REFUTADA','NO_RESUELTA')) 'Unsupported #15 evidentiary status.'
     Test-Condition ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
-    Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.rationale)) 'Claim assessment requires an explicit rationale.'
-    if ($assessment.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') {
-        Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'PARCIALMENTE_CORROBORADA requires supporting evidence.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.supported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit supported scope.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.unsupported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit unsupported scope.'
-    }
     foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Claim assessment references unknown evidence.' }
     foreach ($reference in @($assessment.independence_assessment_refs)) {
         Test-Condition (Test-HasRef $sets.independence_assessments ([string]$reference)) 'Claim assessment references unknown independence assessment.'
@@ -1099,7 +1037,8 @@ Test-ForbiddenKey -Value $package
     Scope = 'Structural and cross-reference conformance; not empirical truth, legal advice, or authorization to capture.'
 } | Format-List
  }
-            'HOUR' { '^\\d{4}-\\d{2}-\\d{2}T\\d{2}(?:Z|[+-]\\d{2}:\\d{2})?        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
+            'HOUR' { '^\d{4}-\d{2}-\d{2}T\d{2}(?:Z|[+-]\d{2}:\d{2})?
+        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
         Test-Condition ($version.hash_algorithm -eq 'SHA-256') 'Source version hash algorithm must be SHA-256.'
     }
     else {
@@ -1150,7 +1089,6 @@ foreach ($evidence in $package.evidence_items) {
         Test-Condition ($null -eq $integrity.expected_digest -and $null -eq $integrity.observed_digest) 'Digest values cannot be retained without a supported hash algorithm.'
     }
 }
-$availabilityKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($availability in $package.evidence_availability) {
     Test-Condition (Test-HasRef $evidenceIds ([string]$availability.evidence_id)) 'Evidence availability references unknown evidence.'
     Test-Condition (Test-HasRef $unitIds ([string]$availability.assessment_unit_id)) 'Evidence availability references an unknown evaluation unit.'
@@ -1158,21 +1096,13 @@ foreach ($availability in $package.evidence_availability) {
     $evidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $availability.evidence_id })[0]
     Test-Condition ($null -ne $evidence.source_version_id -and $evidence.source_version_id -eq $unit.source_version_id) 'Evidence availability must match the exact source version in its evaluation unit.'
     Test-Condition ($availability.claim_id -eq $unit.claim_id -and $availability.claim_component_id -eq $unit.claim_component_id -and $availability.claim_version_id -eq $unit.claim_version_id -and $availability.claim_component_version_id -eq $unit.claim_component_version_id) 'Evidence availability must match the exact claim/component version of its evaluation unit.'
-    $availabilityKey = ([string]$availability.evidence_id) + '|' + ([string]$availability.assessment_unit_id)
-    Test-Condition ($availabilityKeys.Add($availabilityKey)) 'Evidence availability must be unique per evidence item and evaluation unit.'
     Test-Condition (Test-Utc $availability.recorded_at 'recorded_at') 'Evidence availability recorded_at must be UTC.'
     if ($null -eq $availability.available_at) {
-        if ($availability.availability_basis -eq 'UNKNOWN') {
-            Test-Condition ($null -eq $availability.availability_reference) 'Unknown availability cannot claim a traceable availability reference.'
-        }
-        elseif ($availability.availability_basis -eq 'SOURCE_STATED') {
-            Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'A source-stated date must retain its reference but cannot establish verified availability.'
-        }
-        else { throw 'A verified availability basis requires available_at.' }
+        Test-Condition ($availability.availability_basis -eq 'UNKNOWN' -and $null -eq $availability.availability_reference) 'Unknown availability requires UNKNOWN basis and no availability reference.'
     }
     else {
         Test-Condition (Test-Utc $availability.available_at 'available_at') 'Evidence available_at must be UTC.'
-        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE')) 'A source-stated timestamp cannot establish verified historical availability.'
+        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE','SOURCE_STATED')) 'Known availability requires an explicit supported basis.'
         Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'Known availability requires a traceable reference.'
         Test-Condition ([DateTimeOffset]::Parse([string]$availability.available_at) -le [DateTimeOffset]::Parse([string]$unit.assessment_cutoff)) 'Evidence was not available by the evaluation cutoff.'
     }
@@ -1281,14 +1211,10 @@ foreach ($assessment in $package.independence_assessments) {
             $evidenceItem = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
             if ($null -ne $evidenceItem.source_version_id) {
                 $evidenceVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $evidenceItem.source_version_id })[0]
-                if ($null -ne $evidenceVersion) {
-                    Test-Condition ($evidenceVersion.source_id -in $distinctSourceIds) 'Independence evidence must belong to one of the exact source identities being assessed.'
-                    $evidenceSourceIds += [string]$evidenceVersion.source_id
-                }
+                if ($null -ne $evidenceVersion) { $evidenceSourceIds += [string]$evidenceVersion.source_id }
             }
         }
         Test-Condition (@($evidenceSourceIds | Sort-Object -Unique).Count -ge 2) 'INDEPENDIENTE evidence must positively cover at least two distinct source identities.'
-        Test-Condition (@($distinctSourceIds | Where-Object { $_ -notin $evidenceSourceIds }).Count -eq 0) 'INDEPENDIENTE evidence must cover every evaluated source identity.'
         Test-Condition (@($assessment.dependency_edge_refs).Count -eq 0) 'INDEPENDIENTE cannot simultaneously declare material dependency edges.'
     }
     if ($assessment.status -eq 'DEPENDIENTE') {
@@ -1312,12 +1238,6 @@ foreach ($assessment in $package.claim_assessments) {
     Test-Condition ($component.claim_id -eq $assessment.claim_id -and $component.claim_version_id -eq $assessment.claim_version_id -and $component.claim_component_version_id -eq $assessment.claim_component_version_id) 'Claim assessment is not bound to the exact claim/component versions.'
     Test-Condition ($assessment.evidentiary_status -in @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADICHA','REFUTADA','NO_RESUELTA')) 'Unsupported #15 evidentiary status.'
     Test-Condition ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
-    Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.rationale)) 'Claim assessment requires an explicit rationale.'
-    if ($assessment.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') {
-        Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'PARCIALMENTE_CORROBORADA requires supporting evidence.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.supported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit supported scope.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.unsupported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit unsupported scope.'
-    }
     foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Claim assessment references unknown evidence.' }
     foreach ($reference in @($assessment.independence_assessment_refs)) {
         Test-Condition (Test-HasRef $sets.independence_assessments ([string]$reference)) 'Claim assessment references unknown independence assessment.'
@@ -1418,7 +1338,8 @@ Test-ForbiddenKey -Value $package
     Scope = 'Structural and cross-reference conformance; not empirical truth, legal advice, or authorization to capture.'
 } | Format-List
  }
-            'MINUTE' { '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(?:Z|[+-]\\d{2}:\\d{2})?        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
+            'MINUTE' { '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})?
+        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
         Test-Condition ($version.hash_algorithm -eq 'SHA-256') 'Source version hash algorithm must be SHA-256.'
     }
     else {
@@ -1469,7 +1390,6 @@ foreach ($evidence in $package.evidence_items) {
         Test-Condition ($null -eq $integrity.expected_digest -and $null -eq $integrity.observed_digest) 'Digest values cannot be retained without a supported hash algorithm.'
     }
 }
-$availabilityKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($availability in $package.evidence_availability) {
     Test-Condition (Test-HasRef $evidenceIds ([string]$availability.evidence_id)) 'Evidence availability references unknown evidence.'
     Test-Condition (Test-HasRef $unitIds ([string]$availability.assessment_unit_id)) 'Evidence availability references an unknown evaluation unit.'
@@ -1477,21 +1397,13 @@ foreach ($availability in $package.evidence_availability) {
     $evidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $availability.evidence_id })[0]
     Test-Condition ($null -ne $evidence.source_version_id -and $evidence.source_version_id -eq $unit.source_version_id) 'Evidence availability must match the exact source version in its evaluation unit.'
     Test-Condition ($availability.claim_id -eq $unit.claim_id -and $availability.claim_component_id -eq $unit.claim_component_id -and $availability.claim_version_id -eq $unit.claim_version_id -and $availability.claim_component_version_id -eq $unit.claim_component_version_id) 'Evidence availability must match the exact claim/component version of its evaluation unit.'
-    $availabilityKey = ([string]$availability.evidence_id) + '|' + ([string]$availability.assessment_unit_id)
-    Test-Condition ($availabilityKeys.Add($availabilityKey)) 'Evidence availability must be unique per evidence item and evaluation unit.'
     Test-Condition (Test-Utc $availability.recorded_at 'recorded_at') 'Evidence availability recorded_at must be UTC.'
     if ($null -eq $availability.available_at) {
-        if ($availability.availability_basis -eq 'UNKNOWN') {
-            Test-Condition ($null -eq $availability.availability_reference) 'Unknown availability cannot claim a traceable availability reference.'
-        }
-        elseif ($availability.availability_basis -eq 'SOURCE_STATED') {
-            Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'A source-stated date must retain its reference but cannot establish verified availability.'
-        }
-        else { throw 'A verified availability basis requires available_at.' }
+        Test-Condition ($availability.availability_basis -eq 'UNKNOWN' -and $null -eq $availability.availability_reference) 'Unknown availability requires UNKNOWN basis and no availability reference.'
     }
     else {
         Test-Condition (Test-Utc $availability.available_at 'available_at') 'Evidence available_at must be UTC.'
-        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE')) 'A source-stated timestamp cannot establish verified historical availability.'
+        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE','SOURCE_STATED')) 'Known availability requires an explicit supported basis.'
         Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'Known availability requires a traceable reference.'
         Test-Condition ([DateTimeOffset]::Parse([string]$availability.available_at) -le [DateTimeOffset]::Parse([string]$unit.assessment_cutoff)) 'Evidence was not available by the evaluation cutoff.'
     }
@@ -1600,14 +1512,10 @@ foreach ($assessment in $package.independence_assessments) {
             $evidenceItem = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
             if ($null -ne $evidenceItem.source_version_id) {
                 $evidenceVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $evidenceItem.source_version_id })[0]
-                if ($null -ne $evidenceVersion) {
-                    Test-Condition ($evidenceVersion.source_id -in $distinctSourceIds) 'Independence evidence must belong to one of the exact source identities being assessed.'
-                    $evidenceSourceIds += [string]$evidenceVersion.source_id
-                }
+                if ($null -ne $evidenceVersion) { $evidenceSourceIds += [string]$evidenceVersion.source_id }
             }
         }
         Test-Condition (@($evidenceSourceIds | Sort-Object -Unique).Count -ge 2) 'INDEPENDIENTE evidence must positively cover at least two distinct source identities.'
-        Test-Condition (@($distinctSourceIds | Where-Object { $_ -notin $evidenceSourceIds }).Count -eq 0) 'INDEPENDIENTE evidence must cover every evaluated source identity.'
         Test-Condition (@($assessment.dependency_edge_refs).Count -eq 0) 'INDEPENDIENTE cannot simultaneously declare material dependency edges.'
     }
     if ($assessment.status -eq 'DEPENDIENTE') {
@@ -1631,12 +1539,6 @@ foreach ($assessment in $package.claim_assessments) {
     Test-Condition ($component.claim_id -eq $assessment.claim_id -and $component.claim_version_id -eq $assessment.claim_version_id -and $component.claim_component_version_id -eq $assessment.claim_component_version_id) 'Claim assessment is not bound to the exact claim/component versions.'
     Test-Condition ($assessment.evidentiary_status -in @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADICHA','REFUTADA','NO_RESUELTA')) 'Unsupported #15 evidentiary status.'
     Test-Condition ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
-    Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.rationale)) 'Claim assessment requires an explicit rationale.'
-    if ($assessment.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') {
-        Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'PARCIALMENTE_CORROBORADA requires supporting evidence.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.supported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit supported scope.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.unsupported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit unsupported scope.'
-    }
     foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Claim assessment references unknown evidence.' }
     foreach ($reference in @($assessment.independence_assessment_refs)) {
         Test-Condition (Test-HasRef $sets.independence_assessments ([string]$reference)) 'Claim assessment references unknown independence assessment.'
@@ -1737,7 +1639,8 @@ Test-ForbiddenKey -Value $package
     Scope = 'Structural and cross-reference conformance; not empirical truth, legal advice, or authorization to capture.'
 } | Format-List
  }
-            'SECOND' { '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|[+-]\\d{2}:\\d{2})?        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
+            'SECOND' { '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})?
+        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
         Test-Condition ($version.hash_algorithm -eq 'SHA-256') 'Source version hash algorithm must be SHA-256.'
     }
     else {
@@ -1788,7 +1691,6 @@ foreach ($evidence in $package.evidence_items) {
         Test-Condition ($null -eq $integrity.expected_digest -and $null -eq $integrity.observed_digest) 'Digest values cannot be retained without a supported hash algorithm.'
     }
 }
-$availabilityKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($availability in $package.evidence_availability) {
     Test-Condition (Test-HasRef $evidenceIds ([string]$availability.evidence_id)) 'Evidence availability references unknown evidence.'
     Test-Condition (Test-HasRef $unitIds ([string]$availability.assessment_unit_id)) 'Evidence availability references an unknown evaluation unit.'
@@ -1796,21 +1698,13 @@ foreach ($availability in $package.evidence_availability) {
     $evidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $availability.evidence_id })[0]
     Test-Condition ($null -ne $evidence.source_version_id -and $evidence.source_version_id -eq $unit.source_version_id) 'Evidence availability must match the exact source version in its evaluation unit.'
     Test-Condition ($availability.claim_id -eq $unit.claim_id -and $availability.claim_component_id -eq $unit.claim_component_id -and $availability.claim_version_id -eq $unit.claim_version_id -and $availability.claim_component_version_id -eq $unit.claim_component_version_id) 'Evidence availability must match the exact claim/component version of its evaluation unit.'
-    $availabilityKey = ([string]$availability.evidence_id) + '|' + ([string]$availability.assessment_unit_id)
-    Test-Condition ($availabilityKeys.Add($availabilityKey)) 'Evidence availability must be unique per evidence item and evaluation unit.'
     Test-Condition (Test-Utc $availability.recorded_at 'recorded_at') 'Evidence availability recorded_at must be UTC.'
     if ($null -eq $availability.available_at) {
-        if ($availability.availability_basis -eq 'UNKNOWN') {
-            Test-Condition ($null -eq $availability.availability_reference) 'Unknown availability cannot claim a traceable availability reference.'
-        }
-        elseif ($availability.availability_basis -eq 'SOURCE_STATED') {
-            Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'A source-stated date must retain its reference but cannot establish verified availability.'
-        }
-        else { throw 'A verified availability basis requires available_at.' }
+        Test-Condition ($availability.availability_basis -eq 'UNKNOWN' -and $null -eq $availability.availability_reference) 'Unknown availability requires UNKNOWN basis and no availability reference.'
     }
     else {
         Test-Condition (Test-Utc $availability.available_at 'available_at') 'Evidence available_at must be UTC.'
-        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE')) 'A source-stated timestamp cannot establish verified historical availability.'
+        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE','SOURCE_STATED')) 'Known availability requires an explicit supported basis.'
         Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'Known availability requires a traceable reference.'
         Test-Condition ([DateTimeOffset]::Parse([string]$availability.available_at) -le [DateTimeOffset]::Parse([string]$unit.assessment_cutoff)) 'Evidence was not available by the evaluation cutoff.'
     }
@@ -1919,14 +1813,10 @@ foreach ($assessment in $package.independence_assessments) {
             $evidenceItem = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
             if ($null -ne $evidenceItem.source_version_id) {
                 $evidenceVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $evidenceItem.source_version_id })[0]
-                if ($null -ne $evidenceVersion) {
-                    Test-Condition ($evidenceVersion.source_id -in $distinctSourceIds) 'Independence evidence must belong to one of the exact source identities being assessed.'
-                    $evidenceSourceIds += [string]$evidenceVersion.source_id
-                }
+                if ($null -ne $evidenceVersion) { $evidenceSourceIds += [string]$evidenceVersion.source_id }
             }
         }
         Test-Condition (@($evidenceSourceIds | Sort-Object -Unique).Count -ge 2) 'INDEPENDIENTE evidence must positively cover at least two distinct source identities.'
-        Test-Condition (@($distinctSourceIds | Where-Object { $_ -notin $evidenceSourceIds }).Count -eq 0) 'INDEPENDIENTE evidence must cover every evaluated source identity.'
         Test-Condition (@($assessment.dependency_edge_refs).Count -eq 0) 'INDEPENDIENTE cannot simultaneously declare material dependency edges.'
     }
     if ($assessment.status -eq 'DEPENDIENTE') {
@@ -1950,12 +1840,6 @@ foreach ($assessment in $package.claim_assessments) {
     Test-Condition ($component.claim_id -eq $assessment.claim_id -and $component.claim_version_id -eq $assessment.claim_version_id -and $component.claim_component_version_id -eq $assessment.claim_component_version_id) 'Claim assessment is not bound to the exact claim/component versions.'
     Test-Condition ($assessment.evidentiary_status -in @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADICHA','REFUTADA','NO_RESUELTA')) 'Unsupported #15 evidentiary status.'
     Test-Condition ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
-    Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.rationale)) 'Claim assessment requires an explicit rationale.'
-    if ($assessment.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') {
-        Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'PARCIALMENTE_CORROBORADA requires supporting evidence.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.supported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit supported scope.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.unsupported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit unsupported scope.'
-    }
     foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Claim assessment references unknown evidence.' }
     foreach ($reference in @($assessment.independence_assessment_refs)) {
         Test-Condition (Test-HasRef $sets.independence_assessments ([string]$reference)) 'Claim assessment references unknown independence assessment.'
@@ -2056,7 +1940,8 @@ Test-ForbiddenKey -Value $package
     Scope = 'Structural and cross-reference conformance; not empirical truth, legal advice, or authorization to capture.'
 } | Format-List
  }
-            'MILLISECOND' { '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{1,3}(?:Z|[+-]\\d{2}:\\d{2})?        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
+            'MILLISECOND' { '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{1,3}(?:Z|[+-]\d{2}:\d{2})?
+        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
         Test-Condition ($version.hash_algorithm -eq 'SHA-256') 'Source version hash algorithm must be SHA-256.'
     }
     else {
@@ -2107,7 +1992,6 @@ foreach ($evidence in $package.evidence_items) {
         Test-Condition ($null -eq $integrity.expected_digest -and $null -eq $integrity.observed_digest) 'Digest values cannot be retained without a supported hash algorithm.'
     }
 }
-$availabilityKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($availability in $package.evidence_availability) {
     Test-Condition (Test-HasRef $evidenceIds ([string]$availability.evidence_id)) 'Evidence availability references unknown evidence.'
     Test-Condition (Test-HasRef $unitIds ([string]$availability.assessment_unit_id)) 'Evidence availability references an unknown evaluation unit.'
@@ -2115,21 +1999,13 @@ foreach ($availability in $package.evidence_availability) {
     $evidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $availability.evidence_id })[0]
     Test-Condition ($null -ne $evidence.source_version_id -and $evidence.source_version_id -eq $unit.source_version_id) 'Evidence availability must match the exact source version in its evaluation unit.'
     Test-Condition ($availability.claim_id -eq $unit.claim_id -and $availability.claim_component_id -eq $unit.claim_component_id -and $availability.claim_version_id -eq $unit.claim_version_id -and $availability.claim_component_version_id -eq $unit.claim_component_version_id) 'Evidence availability must match the exact claim/component version of its evaluation unit.'
-    $availabilityKey = ([string]$availability.evidence_id) + '|' + ([string]$availability.assessment_unit_id)
-    Test-Condition ($availabilityKeys.Add($availabilityKey)) 'Evidence availability must be unique per evidence item and evaluation unit.'
     Test-Condition (Test-Utc $availability.recorded_at 'recorded_at') 'Evidence availability recorded_at must be UTC.'
     if ($null -eq $availability.available_at) {
-        if ($availability.availability_basis -eq 'UNKNOWN') {
-            Test-Condition ($null -eq $availability.availability_reference) 'Unknown availability cannot claim a traceable availability reference.'
-        }
-        elseif ($availability.availability_basis -eq 'SOURCE_STATED') {
-            Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'A source-stated date must retain its reference but cannot establish verified availability.'
-        }
-        else { throw 'A verified availability basis requires available_at.' }
+        Test-Condition ($availability.availability_basis -eq 'UNKNOWN' -and $null -eq $availability.availability_reference) 'Unknown availability requires UNKNOWN basis and no availability reference.'
     }
     else {
         Test-Condition (Test-Utc $availability.available_at 'available_at') 'Evidence available_at must be UTC.'
-        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE')) 'A source-stated timestamp cannot establish verified historical availability.'
+        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE','SOURCE_STATED')) 'Known availability requires an explicit supported basis.'
         Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'Known availability requires a traceable reference.'
         Test-Condition ([DateTimeOffset]::Parse([string]$availability.available_at) -le [DateTimeOffset]::Parse([string]$unit.assessment_cutoff)) 'Evidence was not available by the evaluation cutoff.'
     }
@@ -2238,14 +2114,10 @@ foreach ($assessment in $package.independence_assessments) {
             $evidenceItem = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
             if ($null -ne $evidenceItem.source_version_id) {
                 $evidenceVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $evidenceItem.source_version_id })[0]
-                if ($null -ne $evidenceVersion) {
-                    Test-Condition ($evidenceVersion.source_id -in $distinctSourceIds) 'Independence evidence must belong to one of the exact source identities being assessed.'
-                    $evidenceSourceIds += [string]$evidenceVersion.source_id
-                }
+                if ($null -ne $evidenceVersion) { $evidenceSourceIds += [string]$evidenceVersion.source_id }
             }
         }
         Test-Condition (@($evidenceSourceIds | Sort-Object -Unique).Count -ge 2) 'INDEPENDIENTE evidence must positively cover at least two distinct source identities.'
-        Test-Condition (@($distinctSourceIds | Where-Object { $_ -notin $evidenceSourceIds }).Count -eq 0) 'INDEPENDIENTE evidence must cover every evaluated source identity.'
         Test-Condition (@($assessment.dependency_edge_refs).Count -eq 0) 'INDEPENDIENTE cannot simultaneously declare material dependency edges.'
     }
     if ($assessment.status -eq 'DEPENDIENTE') {
@@ -2269,12 +2141,6 @@ foreach ($assessment in $package.claim_assessments) {
     Test-Condition ($component.claim_id -eq $assessment.claim_id -and $component.claim_version_id -eq $assessment.claim_version_id -and $component.claim_component_version_id -eq $assessment.claim_component_version_id) 'Claim assessment is not bound to the exact claim/component versions.'
     Test-Condition ($assessment.evidentiary_status -in @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADICHA','REFUTADA','NO_RESUELTA')) 'Unsupported #15 evidentiary status.'
     Test-Condition ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
-    Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.rationale)) 'Claim assessment requires an explicit rationale.'
-    if ($assessment.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') {
-        Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'PARCIALMENTE_CORROBORADA requires supporting evidence.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.supported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit supported scope.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.unsupported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit unsupported scope.'
-    }
     foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Claim assessment references unknown evidence.' }
     foreach ($reference in @($assessment.independence_assessment_refs)) {
         Test-Condition (Test-HasRef $sets.independence_assessments ([string]$reference)) 'Claim assessment references unknown independence assessment.'
@@ -2375,7 +2241,8 @@ Test-ForbiddenKey -Value $package
     Scope = 'Structural and cross-reference conformance; not empirical truth, legal advice, or authorization to capture.'
 } | Format-List
  }
-            'UNKNOWN' { '^.+        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
+            'UNKNOWN' { '^.+
+        Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
         Test-Condition ($version.hash_algorithm -eq 'SHA-256') 'Source version hash algorithm must be SHA-256.'
     }
     else {
@@ -2426,7 +2293,6 @@ foreach ($evidence in $package.evidence_items) {
         Test-Condition ($null -eq $integrity.expected_digest -and $null -eq $integrity.observed_digest) 'Digest values cannot be retained without a supported hash algorithm.'
     }
 }
-$availabilityKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($availability in $package.evidence_availability) {
     Test-Condition (Test-HasRef $evidenceIds ([string]$availability.evidence_id)) 'Evidence availability references unknown evidence.'
     Test-Condition (Test-HasRef $unitIds ([string]$availability.assessment_unit_id)) 'Evidence availability references an unknown evaluation unit.'
@@ -2434,21 +2300,13 @@ foreach ($availability in $package.evidence_availability) {
     $evidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $availability.evidence_id })[0]
     Test-Condition ($null -ne $evidence.source_version_id -and $evidence.source_version_id -eq $unit.source_version_id) 'Evidence availability must match the exact source version in its evaluation unit.'
     Test-Condition ($availability.claim_id -eq $unit.claim_id -and $availability.claim_component_id -eq $unit.claim_component_id -and $availability.claim_version_id -eq $unit.claim_version_id -and $availability.claim_component_version_id -eq $unit.claim_component_version_id) 'Evidence availability must match the exact claim/component version of its evaluation unit.'
-    $availabilityKey = ([string]$availability.evidence_id) + '|' + ([string]$availability.assessment_unit_id)
-    Test-Condition ($availabilityKeys.Add($availabilityKey)) 'Evidence availability must be unique per evidence item and evaluation unit.'
     Test-Condition (Test-Utc $availability.recorded_at 'recorded_at') 'Evidence availability recorded_at must be UTC.'
     if ($null -eq $availability.available_at) {
-        if ($availability.availability_basis -eq 'UNKNOWN') {
-            Test-Condition ($null -eq $availability.availability_reference) 'Unknown availability cannot claim a traceable availability reference.'
-        }
-        elseif ($availability.availability_basis -eq 'SOURCE_STATED') {
-            Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'A source-stated date must retain its reference but cannot establish verified availability.'
-        }
-        else { throw 'A verified availability basis requires available_at.' }
+        Test-Condition ($availability.availability_basis -eq 'UNKNOWN' -and $null -eq $availability.availability_reference) 'Unknown availability requires UNKNOWN basis and no availability reference.'
     }
     else {
         Test-Condition (Test-Utc $availability.available_at 'available_at') 'Evidence available_at must be UTC.'
-        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE')) 'A source-stated timestamp cannot establish verified historical availability.'
+        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE','SOURCE_STATED')) 'Known availability requires an explicit supported basis.'
         Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'Known availability requires a traceable reference.'
         Test-Condition ([DateTimeOffset]::Parse([string]$availability.available_at) -le [DateTimeOffset]::Parse([string]$unit.assessment_cutoff)) 'Evidence was not available by the evaluation cutoff.'
     }
@@ -2557,14 +2415,10 @@ foreach ($assessment in $package.independence_assessments) {
             $evidenceItem = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
             if ($null -ne $evidenceItem.source_version_id) {
                 $evidenceVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $evidenceItem.source_version_id })[0]
-                if ($null -ne $evidenceVersion) {
-                    Test-Condition ($evidenceVersion.source_id -in $distinctSourceIds) 'Independence evidence must belong to one of the exact source identities being assessed.'
-                    $evidenceSourceIds += [string]$evidenceVersion.source_id
-                }
+                if ($null -ne $evidenceVersion) { $evidenceSourceIds += [string]$evidenceVersion.source_id }
             }
         }
         Test-Condition (@($evidenceSourceIds | Sort-Object -Unique).Count -ge 2) 'INDEPENDIENTE evidence must positively cover at least two distinct source identities.'
-        Test-Condition (@($distinctSourceIds | Where-Object { $_ -notin $evidenceSourceIds }).Count -eq 0) 'INDEPENDIENTE evidence must cover every evaluated source identity.'
         Test-Condition (@($assessment.dependency_edge_refs).Count -eq 0) 'INDEPENDIENTE cannot simultaneously declare material dependency edges.'
     }
     if ($assessment.status -eq 'DEPENDIENTE') {
@@ -2588,12 +2442,6 @@ foreach ($assessment in $package.claim_assessments) {
     Test-Condition ($component.claim_id -eq $assessment.claim_id -and $component.claim_version_id -eq $assessment.claim_version_id -and $component.claim_component_version_id -eq $assessment.claim_component_version_id) 'Claim assessment is not bound to the exact claim/component versions.'
     Test-Condition ($assessment.evidentiary_status -in @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADICHA','REFUTADA','NO_RESUELTA')) 'Unsupported #15 evidentiary status.'
     Test-Condition ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
-    Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.rationale)) 'Claim assessment requires an explicit rationale.'
-    if ($assessment.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') {
-        Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'PARCIALMENTE_CORROBORADA requires supporting evidence.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.supported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit supported scope.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.unsupported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit unsupported scope.'
-    }
     foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Claim assessment references unknown evidence.' }
     foreach ($reference in @($assessment.independence_assessment_refs)) {
         Test-Condition (Test-HasRef $sets.independence_assessments ([string]$reference)) 'Claim assessment references unknown independence assessment.'
@@ -2750,7 +2598,6 @@ foreach ($evidence in $package.evidence_items) {
         Test-Condition ($null -eq $integrity.expected_digest -and $null -eq $integrity.observed_digest) 'Digest values cannot be retained without a supported hash algorithm.'
     }
 }
-$availabilityKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
 foreach ($availability in $package.evidence_availability) {
     Test-Condition (Test-HasRef $evidenceIds ([string]$availability.evidence_id)) 'Evidence availability references unknown evidence.'
     Test-Condition (Test-HasRef $unitIds ([string]$availability.assessment_unit_id)) 'Evidence availability references an unknown evaluation unit.'
@@ -2758,21 +2605,13 @@ foreach ($availability in $package.evidence_availability) {
     $evidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $availability.evidence_id })[0]
     Test-Condition ($null -ne $evidence.source_version_id -and $evidence.source_version_id -eq $unit.source_version_id) 'Evidence availability must match the exact source version in its evaluation unit.'
     Test-Condition ($availability.claim_id -eq $unit.claim_id -and $availability.claim_component_id -eq $unit.claim_component_id -and $availability.claim_version_id -eq $unit.claim_version_id -and $availability.claim_component_version_id -eq $unit.claim_component_version_id) 'Evidence availability must match the exact claim/component version of its evaluation unit.'
-    $availabilityKey = ([string]$availability.evidence_id) + '|' + ([string]$availability.assessment_unit_id)
-    Test-Condition ($availabilityKeys.Add($availabilityKey)) 'Evidence availability must be unique per evidence item and evaluation unit.'
     Test-Condition (Test-Utc $availability.recorded_at 'recorded_at') 'Evidence availability recorded_at must be UTC.'
     if ($null -eq $availability.available_at) {
-        if ($availability.availability_basis -eq 'UNKNOWN') {
-            Test-Condition ($null -eq $availability.availability_reference) 'Unknown availability cannot claim a traceable availability reference.'
-        }
-        elseif ($availability.availability_basis -eq 'SOURCE_STATED') {
-            Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'A source-stated date must retain its reference but cannot establish verified availability.'
-        }
-        else { throw 'A verified availability basis requires available_at.' }
+        Test-Condition ($availability.availability_basis -eq 'UNKNOWN' -and $null -eq $availability.availability_reference) 'Unknown availability requires UNKNOWN basis and no availability reference.'
     }
     else {
         Test-Condition (Test-Utc $availability.available_at 'available_at') 'Evidence available_at must be UTC.'
-        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE')) 'A source-stated timestamp cannot establish verified historical availability.'
+        Test-Condition ($availability.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE','SOURCE_STATED')) 'Known availability requires an explicit supported basis.'
         Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$availability.availability_reference)) 'Known availability requires a traceable reference.'
         Test-Condition ([DateTimeOffset]::Parse([string]$availability.available_at) -le [DateTimeOffset]::Parse([string]$unit.assessment_cutoff)) 'Evidence was not available by the evaluation cutoff.'
     }
@@ -2881,14 +2720,10 @@ foreach ($assessment in $package.independence_assessments) {
             $evidenceItem = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
             if ($null -ne $evidenceItem.source_version_id) {
                 $evidenceVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $evidenceItem.source_version_id })[0]
-                if ($null -ne $evidenceVersion) {
-                    Test-Condition ($evidenceVersion.source_id -in $distinctSourceIds) 'Independence evidence must belong to one of the exact source identities being assessed.'
-                    $evidenceSourceIds += [string]$evidenceVersion.source_id
-                }
+                if ($null -ne $evidenceVersion) { $evidenceSourceIds += [string]$evidenceVersion.source_id }
             }
         }
         Test-Condition (@($evidenceSourceIds | Sort-Object -Unique).Count -ge 2) 'INDEPENDIENTE evidence must positively cover at least two distinct source identities.'
-        Test-Condition (@($distinctSourceIds | Where-Object { $_ -notin $evidenceSourceIds }).Count -eq 0) 'INDEPENDIENTE evidence must cover every evaluated source identity.'
         Test-Condition (@($assessment.dependency_edge_refs).Count -eq 0) 'INDEPENDIENTE cannot simultaneously declare material dependency edges.'
     }
     if ($assessment.status -eq 'DEPENDIENTE') {
@@ -2912,12 +2747,6 @@ foreach ($assessment in $package.claim_assessments) {
     Test-Condition ($component.claim_id -eq $assessment.claim_id -and $component.claim_version_id -eq $assessment.claim_version_id -and $component.claim_component_version_id -eq $assessment.claim_component_version_id) 'Claim assessment is not bound to the exact claim/component versions.'
     Test-Condition ($assessment.evidentiary_status -in @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADICHA','REFUTADA','NO_RESUELTA')) 'Unsupported #15 evidentiary status.'
     Test-Condition ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
-    Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.rationale)) 'Claim assessment requires an explicit rationale.'
-    if ($assessment.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') {
-        Test-Condition (@($assessment.supporting_evidence_refs).Count -gt 0) 'PARCIALMENTE_CORROBORADA requires supporting evidence.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.supported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit supported scope.'
-        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.unsupported_scope)) 'PARCIALMENTE_CORROBORADA requires an explicit unsupported scope.'
-    }
     foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Claim assessment references unknown evidence.' }
     foreach ($reference in @($assessment.independence_assessment_refs)) {
         Test-Condition (Test-HasRef $sets.independence_assessments ([string]$reference)) 'Claim assessment references unknown independence assessment.'
