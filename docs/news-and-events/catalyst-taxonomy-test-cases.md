@@ -1,7 +1,7 @@
 # Casos de prueba de la taxonomía de catalizadores
 
-**Issue:** [#29 — Completar pruebas positivas y negativas de la taxonomía](https://github.com/Osleyder1985/SINAYXA/issues/29)  
-**Normativa base:** [catalyst-taxonomy.md](catalyst-taxonomy.md) y [catalyst-taxonomy-validation.md](catalyst-taxonomy-validation.md)  
+**Issue:** [#29 — Completar pruebas positivas y negativas de la taxonomía](https://github.com/Osleyder1985/SINAYXA/issues/29)
+**Normativa base:** [catalyst-taxonomy.md](catalyst-taxonomy.md) y [catalyst-taxonomy-validation.md](catalyst-taxonomy-validation.md)
 **Naturaleza:** especificación documental de escenarios y oráculos esperados. No implementa un clasificador ni acredita hechos reales.
 
 ## 1. Propósito y reglas de evaluación
