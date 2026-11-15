@@ -58,7 +58,7 @@ El validador comprueba identidad y linaje del paquete, los 19 IDs únicos y orde
 | Resultado del validador estructural | PASS |
 | Identificador | `SINAYXA-IH-T01-T19-SYNTHETIC-001` |
 | Casos detectados | 19 |
-| T16 | `NOT_EXECUTED` (estado del protocolo vigente v1.2.0; el `BLOCKED` de la salida registrada pertenece al histórico v1.0.0/v1.1.0) |
+| T16 | `BLOCKED` (requisito histórico de dos evaluadores humanos en v1.0.0; reemplazado por el protocolo v1.2.0, cuyo estado formal actual es `NOT_EXECUTED`) |
 | SHA-256 del fixture | `467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22` |
 | Markdown lint de los dos documentos | PASS; 0 issues |
 | `git status --short` | Sin cambios pendientes |
@@ -79,7 +79,7 @@ El hash anterior corresponde al archivo local en la ruta `tests/fixtures/methodo
 | Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-001` |
 | Casos detectados | 19 |
 | Comprobaciones temporales deterministas | PASS: T11, T12, T13, T14, T15, T18 y T19 |
-| T16 | `NOT_EXECUTED` (el `BLOCKED` descrito en esta tabla pertenece al registro histórico v1.0.0; el protocolo vigente v1.2.0 está definido, pero no ejecutado) |
+| T16 | `BLOCKED` (requisito histórico de dos evaluadores humanos en v1.0.0; reemplazado por el protocolo v1.2.0, cuyo estado formal actual es `NOT_EXECUTED`) |
 | SHA-256 | `467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22` |
 | Ruta del fixture | `tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence.json` |
 | `git status --short` | Sin cambios pendientes |
