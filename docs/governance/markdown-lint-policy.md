@@ -2,7 +2,7 @@
 
 **Issue:** [#35 — Definir política reproducible de Markdown lint](https://github.com/Osleyder1985/SINAYXA/issues/35)
 
-**Estado:** propuesta de adopción mediante Pull Request.
+**Estado:** política integrada en `main` mediante PR [#36](https://github.com/Osleyder1985/SINAYXA/pull/36). Su ejecución es un control procedimental local; no implica CI ni bloqueo automático de integraciones.
 
 ## 1. Objetivo
 
