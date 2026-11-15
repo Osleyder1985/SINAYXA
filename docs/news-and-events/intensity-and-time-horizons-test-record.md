@@ -58,7 +58,7 @@ El validador comprueba la identidad del paquete, los 19 IDs únicos y ordenados,
 | Resultado del validador estructural | PASS |
 | Identificador | `SINAYXA-IH-T01-T19-SYNTHETIC-001` |
 | Casos detectados | 19 |
-| T16 | BLOCKED (bloqueo conservado correctamente) |
+| T16 | Evaluación primaria humana sellada antes de crítica IA separada; IA no cuenta como segundo evaluador humano | NOT_EXECUTED | Protocolo aceptado; no afirmar acuerdo interevaluador, consenso ni independencia estadística; ejecuciones previas expuestas no cumplen secuencia (decisión humana asistida por IA; desviación documentada) | Sección 26; ejecución formal pendiente |
 | SHA-256 del fixture | `467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22` |
 | Markdown lint de los dos documentos | PASS; 0 issues |
 | `git status --short` | Sin cambios pendientes |
@@ -79,7 +79,7 @@ El hash anterior corresponde al archivo local en la ruta `tests/fixtures/methodo
 | Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-001` |
 | Casos detectados | 19 |
 | Comprobaciones temporales deterministas | PASS: T11, T12, T13, T14, T15, T18 y T19 |
-| T16 | BLOCKED (bloqueo conservado correctamente) |
+| T16 | Evaluación primaria humana sellada antes de crítica IA separada; IA no cuenta como segundo evaluador humano | NOT_EXECUTED | Protocolo aceptado; no afirmar acuerdo interevaluador, consenso ni independencia estadística; ejecuciones previas expuestas no cumplen secuencia (decisión humana asistida por IA; desviación documentada) | Sección 26; ejecución formal pendiente |
 | SHA-256 | `467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22` |
 | Ruta del fixture | `tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence.json` |
 | `git status --short` | Sin cambios pendientes |
@@ -955,3 +955,44 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 25.4 Resultado de auditoría
 
 La decisión **intervalo conservado / horizonte único INDETERMINADO / horizontes compatibles INMEDIATO y CORTO** queda documentada como decisión humana asistida. No se ha forzado una categoría única a partir de un intervalo que cruza la frontera de 24 horas. **T15 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+
+## 26. Registro de decisión asistida — T16
+
+### 26.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T16 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Gobernanza de la evaluación humana asistida por IA |
+| Evidencia examinada | T16: secuencia de evaluación primaria humana sellada y crítica IA separada |
+| Decisión humana comunicada | Aceptación del protocolo y de sus límites de interpretación |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 26.2 Protocolo aceptado
+
+El propietario aceptó el siguiente orden para futuras ejecuciones formales:
+
+1. Congelar el paquete, su versión y hash, la unidad de evaluación, el escenario, el corte temporal y las fuentes disponibles.
+2. El evaluador humano realiza la evaluación primaria sin conocer la salida de IA y registra/sella su resultado antes de solicitar o consultar esa salida.
+3. La IA produce una crítica estructurada y separada, con sus evidencias, objeciones, incertidumbres y límites.
+4. Se comparan ambos artefactos, preservando coincidencias y discrepancias.
+5. El evaluador humano resuelve las discrepancias y registra la decisión final, sus razones y cualquier cambio respecto de la evaluación primaria.
+
+La IA es una herramienta auxiliar de análisis y crítica; no constituye un segundo evaluador humano ni un voto adicional. No se deben promediar sus resultados con los humanos ni contar la coincidencia humano-IA como acuerdo interevaluador, consenso o evidencia de independencia estadística. Cualquier repetición realizada por la misma persona solo podrá describirse como consistencia intraevaluador, si el diseño y los registros permiten sostener esa descripción.
+
+### 26.3 Desviación histórica y límites de validez
+
+En los casos T01–T15 registrados en este ciclo, las recomendaciones de IA se presentaron antes de que el propietario comunicara sus decisiones. Esas decisiones se conservan como decisiones humanas asistidas con exposición previa a la recomendación; no son evaluaciones primarias aisladas, ciegas ni ejecuciones formales conformes a la secuencia establecida.
+
+La aceptación de este protocolo en T16 no convierte retroactivamente los casos anteriores en ejecuciones conformes. Sus estados formales permanecen sin ejecución. Tampoco se afirma que el protocolo haya sido ejecutado en T16: este registro documenta la aceptación de la regla de gobernanza, no una prueba empírica de su eficacia.
+
+Las futuras ejecuciones deberán conservar, como mínimo, los artefactos sellados de la evaluación humana primaria, la crítica IA separada, los metadatos de modelo y prompt, el contexto disponible para cada etapa, la comparación y la resolución humana. Si no puede garantizarse el aislamiento de la evaluación primaria respecto de la salida IA, la exposición deberá documentarse y la ejecución no podrá describirse como ciega o independiente.
+
+### 26.4 Resultado de auditoría
+
+Queda aceptado el protocolo de evaluación primaria humana sellada antes de la crítica IA separada, así como la prohibición de presentar la IA como segundo evaluador humano o de atribuir acuerdo interevaluador, consenso o independencia estadística. La desviación de secuencia en T01–T15 queda explícitamente preservada y no se corrige retroactivamente. **T16 permanece NOT_EXECUTED en la matriz formal**: la aceptación de un procedimiento no equivale a su ejecución ni demuestra su eficacia. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
