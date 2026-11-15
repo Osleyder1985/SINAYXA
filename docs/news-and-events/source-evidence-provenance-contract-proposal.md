@@ -212,17 +212,17 @@ Cada reevaluación crea un registro nuevo. No se sobrescriben estado histórico,
 
 ## 4. Matriz de trazabilidad con #4, #15 y #16
 
-| Requisito | Entidades/campos del contrato | Base normativa |
+|Requisito|Entidades/campos del contrato|Base normativa|
 |---|---|---|
-| #4 — conservar afirmación y separar sus componentes verificables | Claim, Claim component, Claim component assessment | #15: estado por proposición; #16: evaluación por afirmación/componente |
-| #4 — identificar origen y publicaciones derivadas | Source, Source version, Source identity assessment | #15: atribución/identidad separadas; #16: tipo, subtipo, base de conocimiento y difusión |
-| #4 — reconstruir republicaciones, citas y origen común | Provenance node/edge, Independence assessment | #15: no contar republicaciones; #16: genealogía y dependencia por componente |
-| #4 — conservar correcciones, versiones y evidencia retirada lícitamente | Source version, Claim-evidence link, historial de evaluaciones | #15: preservar versiones y no elevar retroactivamente estados |
-| #4 — evaluar factores de fuente sin reputación global | Source factor assessment | #16: diez factores, cinco estados descriptivos, justificación y revisión humana |
-| #4 — enlazar soporte, contradicción y contexto por componente | Evidence item, Claim-evidence link, Claim component assessment | #15: estados probatorios y evidencia favorable/contraria; #16: alcance por componente |
-| #4 — conservar resultados indeterminados | DESCONOCIDA, NO_RESUELTA, NO_DETERMINADA, UNKNOWN según dimensión | #15/#16: incertidumbre explícita; no convertir ausencia en independencia o falsedad |
-| #15 — naturaleza, estado probatorio, atribución, autenticidad, acceso e identidad separados | Evidence item, Claim component assessment, Source identity assessment, Evaluation unit | Vocabulario exacto aprobado en #15 |
-| #16 — independencia, diez factores y unidad de evaluación exacta | Evaluation unit, Independence assessment, Source factor assessment | Vocabulario y reglas aprobados en #16 |
+|#4 — conservar afirmación y separar sus componentes verificables|Claim, Claim component, Claim component assessment|#15: estado por proposición; #16: evaluación por afirmación/componente|
+|#4 — identificar origen y publicaciones derivadas|Source, Source version, Source identity assessment|#15: atribución/identidad separadas; #16: tipo, subtipo, base de conocimiento y difusión|
+|#4 — reconstruir republicaciones, citas y origen común|Provenance node/edge, Independence assessment|#15: no contar republicaciones; #16: genealogía y dependencia por componente|
+|#4 — conservar correcciones, versiones y evidencia retirada lícitamente|Source version, Claim-evidence link, historial de evaluaciones|#15: preservar versiones y no elevar retroactivamente estados|
+|#4 — evaluar factores de fuente sin reputación global|Source factor assessment|#16: diez factores, cinco estados descriptivos, justificación y revisión humana|
+|#4 — enlazar soporte, contradicción y contexto por componente|Evidence item, Claim-evidence link, Claim component assessment|#15: estados probatorios y evidencia favorable/contraria; #16: alcance por componente|
+|#4 — conservar resultados indeterminados|DESCONOCIDA, NO_RESUELTA, NO_DETERMINADA, UNKNOWN según dimensión|#15/#16: incertidumbre explícita; no convertir ausencia en independencia o falsedad|
+|#15 — naturaleza, estado probatorio, atribución, autenticidad, acceso e identidad separados|Evidence item, Claim component assessment, Source identity assessment, Evaluation unit|Vocabulario exacto aprobado en #15|
+|#16 — independencia, diez factores y unidad de evaluación exacta|Evaluation unit, Independence assessment, Source factor assessment|Vocabulario y reglas aprobados en #16|
 
 La matriz no crea estados nuevos. Cada valor se interpreta únicamente en la dimensión indicada; los estados de una dimensión no sustituyen ni elevan los de otra.
 
