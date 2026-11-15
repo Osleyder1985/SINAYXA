@@ -268,7 +268,7 @@ foreach ($factor in $package.factor_assessments) {
         Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Factor assessment references unknown evidence.'
         $factorEvidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $reference })[0]
         Test-Condition ($factor.dimension -in @($factorEvidence.factor_dimensions)) 'Factor evidence is not explicitly scoped to the assessed dimension.'
-        $availableForUnit = @($package.evidence_availability | Where-Object { $_.evidence_id -eq $reference -and $_.assessment_unit_id -eq $factor.assessment_unit_id -and $null -ne $_.available_at })
+        $availableForUnit = @($package.evidence_availability | Where-Object { $_.evidence_id -eq $reference -and $_.assessment_unit_id -eq $factor.assessment_unit_id -and $null -ne $_.available_at -and $_.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE') })
         Test-Condition ($availableForUnit.Count -gt 0) 'Factor evidence must have a known availability observation for its exact evaluation unit.'
     }
     if ($factor.human_review_status -eq 'REVIEWED') { Test-Condition (Test-Utc $factor.reviewed_at 'reviewed_at') 'Reviewed factor assessment requires UTC reviewed_at.' }
@@ -346,7 +346,8 @@ foreach ($assessment in $package.claim_assessments) {
         $availableForAssessment = @($package.evidence_availability | Where-Object {
             $_.evidence_id -eq $reference -and $_.claim_id -eq $assessment.claim_id -and $_.claim_component_id -eq $assessment.claim_component_id -and
             $_.claim_version_id -eq $assessment.claim_version_id -and $_.claim_component_version_id -eq $assessment.claim_component_version_id -and
-            $_.available_at -and [DateTimeOffset]::Parse([string]$_.available_at) -le [DateTimeOffset]::Parse([string]$assessment.assessment_cutoff)
+            $_.available_at -and $_.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE') -and
+            [DateTimeOffset]::Parse([string]$_.available_at) -le [DateTimeOffset]::Parse([string]$assessment.assessment_cutoff)
         })
         Test-Condition ($availableForAssessment.Count -gt 0) 'Claim assessment uses evidence without a matching availability observation at or before its cutoff.'
     }
