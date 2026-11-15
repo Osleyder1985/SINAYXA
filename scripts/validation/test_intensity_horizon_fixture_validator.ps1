@@ -10,7 +10,7 @@ New-Item -ItemType Directory -Path $tempDirectory | Out-Null
 
 function Get-TestFixture {
     param([string]$Path)
-    return (Get-Content -LiteralPath $Path -Raw -Encoding UTF8 | ConvertFrom-Json)
+    return (Get-Content -LiteralPath $Path -Raw -Encoding UTF8 | ConvertFrom-Json -DateKind String)
 }
 
 function Invoke-ExpectedFailure {
