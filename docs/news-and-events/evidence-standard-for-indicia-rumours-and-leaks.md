@@ -187,7 +187,7 @@ No cuentan como corroboración independiente:
 - dos fuentes que recibieron el mismo documento de un único intermediario, sin acceso independiente conocido;
 - una noticia y sus republicaciones traducidas o resumidas.
 
-Cuando no pueda determinarse si los orígenes son independientes, registrar INDEPENDENCIA_DESCONOCIDA. No sumar referencias ni asumir independencia. Tampoco basta con que dos publicaciones tengan autores o dominios distintos para afirmar que sus fuentes son independientes.
+Cuando no pueda determinarse si los orígenes son independientes, registrar DESCONOCIDA. No sumar referencias ni asumir independencia. Tampoco basta con que dos publicaciones tengan autores o dominios distintos para afirmar que sus fuentes son independientes.
 
 Esta sección define un filtro mínimo de dependencia evidente, no una rúbrica completa. La clasificación detallada de fuentes primarias/secundarias, relaciones de sindicación, citas cruzadas, acceso directo, credibilidad e independencia corresponde al Issue #16.
 
