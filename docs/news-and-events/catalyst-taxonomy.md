@@ -1,6 +1,6 @@
 # Taxonomía de catalizadores: Noticias y acontecimientos
 
-**Estado:** aprobada por el propietario del proyecto; documentación propuesta mediante PR  
+**Estado:** aprobada por el propietario del proyecto e integrada en `main` mediante PR [#34](https://github.com/Osleyder1985/SINAYXA/pull/34).  
 **Issue de origen:** [#1 — Definir taxonomía y cobertura de catalizadores](https://github.com/Osleyder1985/SINAYXA/issues/1)  
 **Issue de actualización:** [#33 — Incorporar explícitamente filtraciones como novena familia transversal](https://github.com/Osleyder1985/SINAYXA/issues/33)
 
