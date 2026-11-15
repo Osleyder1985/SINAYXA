@@ -4,7 +4,7 @@
 
 Este documento registra la ejecución verificable de la batería metodológica definida en [la propuesta de intensidad y horizontes temporales](intensity-and-time-horizons-proposal.md).
 
-**Estado inicial:** todos los casos están **NOT_EXECUTED**. La revisión lógica de escritorio descrita en la PR no equivale a ejecutar la batería ni a validar acuerdo entre evaluadores. No se deben convertir resultados esperados en resultados observados.
+**Estado vigente tras la adaptación v1.2.0:** T01–T15 y T17–T19 permanecen **NOT_EXECUTED**; T16 también está **NOT_EXECUTED** y dispone de un protocolo ejecutable para un único evaluador humano con crítica auxiliar de IA. La revisión lógica de escritorio no equivale a ejecutar la batería. No se deben convertir resultados esperados en resultados observados.
 
 Este registro no aprueba la metodología ni autoriza su implementación. Es un instrumento de trazabilidad para la evaluación y posterior decisión del propietario.
 
@@ -44,10 +44,9 @@ Validador estructural compatible con Windows PowerShell 5.1: `scripts/validation
 
 El validador comprueba la identidad del paquete, los 19 IDs únicos y ordenados, campos obligatorios y el bloqueo de T16. También ejecuta comprobaciones deterministas de los vectores temporales T11, T12, T13, T14, T15, T18 y T19: aritmética de duraciones, límites de horizonte, conservación de fecha sin hora, separación de hitos e intervalos que cruzan fronteras. También imprime el SHA-256 del archivo local. Para registrar una ejecución reproducible, copiar ese hash a la ficha de ejecución junto con el commit exacto del repositorio; no modificar el fixture después de congelarlo. Cualquier cambio debe crear una nueva versión del paquete y un nuevo hash.
 
-**Límite:** validar la estructura del fixture no ejecuta la batería metodológica ni convierte ningún caso a PASS. La matriz de la sección 4 permanece en NOT_EXECUTED, salvo T16 en BLOCKED, hasta registrar evaluaciones efectivas.
+**Límite histórico de la versión inicial:** validar la estructura del fixture no ejecuta la batería metodológica ni convierte ningún caso a PASS. La referencia histórica a T16 como BLOCKED fue sustituida por el protocolo de evaluador único de la sección 6 y el fixture v1.2.0 de la sección 9. La matriz vigente de la sección 4 mantiene todos los casos en NOT_EXECUTED.
 
 **Alcance ampliado del validador (commit `49db0a0cbe8f534eeeb8855e82279a4055bfda2d`):** además de la estructura, el script comprueba aritméticamente los vectores temporales de T11/T12, el tratamiento date-only de T13, los cuatro hitos de T14, el intervalo de frontera de T15, las 24 horas reales de T18 y el intervalo contradictorio de T19. Estas comprobaciones son deterministas sobre los datos sintéticos. No evalúan semánticamente intensidad/dirección de T01–T10/T16/T17, ni constituyen una ejecución integral de la batería. La ejecución local de esta versión ampliada en Windows PowerShell 5.1 quedó verificada y se registra en la sección 2.3. El resultado acredita únicamente las comprobaciones deterministas descritas; no constituye una ejecución integral de la batería metodológica.
-
 
 ### 2.2 Registro verificado de integridad del paquete
 
@@ -67,7 +66,6 @@ El validador comprueba la identidad del paquete, los 19 IDs únicos y ordenados,
 El hash anterior corresponde al archivo local en la ruta `tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence.json`. El propietario confirmó que el comando terminó con `Fixture validation: PASS` y que el árbol de trabajo estaba limpio.
 
 **Alcance exacto de esta verificación:** acredita que el fixture local coincide con las comprobaciones estructurales implementadas y que los dos documentos Markdown pasan lint. No constituye ejecución de los resultados metodológicos T01–T19, no cambia sus estados y no valida acuerdo interevaluador. La matriz de la sección 4 permanece sin cambios.
-
 
 ### 2.3 Registro verificado de la ejecución ampliada del validador
 
@@ -89,7 +87,6 @@ El hash anterior corresponde al archivo local en la ruta `tests/fixtures/methodo
 La salida observada fue: `Fixture structure validation: PASS`, `Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)` y `T16: BLOCKED (correctly preserved)`. El hash impreso coincide con el hash registrado para el paquete congelado.
 
 **Alcance:** este resultado verifica la estructura del fixture y los cálculos/reglas temporales deterministas implementados para los siete casos indicados. No demuestra que la clasificación semántica de intensidad/dirección de T01–T10 y T17 sea correcta, no ejecuta una evaluación integral de T01–T19, no valida acuerdo interevaluador y no satisface T16. Por tanto, los estados de la matriz de la sección 4 permanecen sin cambios: T01–T15 y T17–T19 siguen NOT_EXECUTED; T16 sigue BLOCKED. El PASS aquí registrado corresponde exclusivamente al validador de fixture y sus comprobaciones temporales.
-
 
 ## 3. Estados permitidos
 
@@ -181,7 +178,6 @@ Una ejecución de la batería solo puede considerarse completa cuando:
 
 **Regla de integridad:** nunca cambiar NOT_EXECUTED/BLOCKED a PASS por inferencia, revisión de escritorio o porque el resultado esperado parezca obvio.
 
-
 ## 8. Ejecución local del fixture sintético v1.1.0
 
 ### Identificación del artefacto
@@ -200,6 +196,7 @@ Una ejecución de la batería solo puede considerarse completa cuando:
 Entorno: Windows PowerShell 5.1, raíz `C:\Proyecto\SINAYXA`.
 
 Comandos ejecutados:
+
 - `git pull --ff-only`
 - `git rev-parse HEAD`
 - `validate_intensity_horizon_fixture.ps1 -FixturePath <fixture v1.1.0>`
@@ -207,6 +204,7 @@ Comandos ejecutados:
 - `git status --short`
 
 Resultado real informado:
+
 - `Fixture structure validation: PASS`
 - Paquete: `SINAYXA-IH-T01-T19-SYNTHETIC-002 v1.1.0`
 - `Cases: 19`
@@ -216,7 +214,6 @@ Resultado real informado:
 - `git status --short`: vacío.
 
 **Alcance del PASS:** integridad estructural del fixture v1.1.0 y comprobaciones temporales deterministas. No acredita la corrección semántica de las clasificaciones esperadas de T01–T19, ni ejecución formal de esos casos, ni acuerdo entre evaluadores. La matriz de ejecución permanece sin cambios: T01–T15 y T17–T19 NOT_EXECUTED; T16 BLOCKED.
-
 
 ## 9. Fixture sintético v1.2.0 — adaptación de T16 al proyecto de un único humano
 
@@ -250,3 +247,33 @@ La versión 1.1.0 y su hash permanecen inmutables. La nueva versión no contiene
 ### Estado y límites
 
 T16 pasa de BLOCKED por una dependencia humana imposible a NOT_EXECUTED: el proceso ya es ejecutable por el único propietario, pero todavía no se ha realizado. Los estados de los otros casos no cambian. No se afirma acuerdo entre evaluadores humanos, fiabilidad interevaluador, consenso ni validez empírica.
+
+
+## 10. Ejecución local del fixture sintético v1.2.0
+
+### Identificación y entorno
+
+| Campo | Valor |
+| --- | --- |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión | `1.2.0` |
+| Commit local ejecutado | `bae7ae515ac64d64edf3676250a6cdde32889783` |
+| Entorno | Windows PowerShell 5.1 |
+| Casos detectados | 19 |
+| SHA-256 | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+
+### Resultado comunicado por el propietario
+
+- `Fixture structure validation: PASS`
+- `Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)`
+- `T16: SINGLE-HUMAN PROTOCOL DEFINED (not an execution result)`
+- `Get-FileHash` devolvió el mismo SHA-256 que el validador.
+- `git status --short`: vacío.
+
+**Alcance:** queda verificada la estructura del fixture v1.2.0, el linaje comprobado por el validador y los vectores temporales deterministas indicados. La salida de T16 confirma que el protocolo de un único humano está definido; no acredita que se haya realizado la evaluación primaria ni la crítica de IA. T01–T15 y T17–T19 siguen NOT_EXECUTED; T16 sigue NOT_EXECUTED. No se declara acuerdo interevaluador humano, consenso ni validez empírica.
+
+### Resultado de Markdown lint comunicado por el propietario
+
+El comando solicitado para cuatro documentos produjo `312 issues in 2 files`. La configuración `.markdownlint-cli2.jsonc` incluye el patrón global `**/*.md`, por lo que la ejecución también alcanzó `docs/news-and-events/catalyst-taxonomy-test-cases.md`, un documento ajeno a este cambio. El registro de intensidad mostró incidencias de formato propias, que se corrigen en esta revisión. No se interpreta el resultado global como fallo de los cuatro documentos seleccionados ni se modifica aquí el documento de taxonomía ajeno al alcance.
+
+Para una comprobación estrictamente limitada a los cuatro archivos, ejecutar markdownlint-cli2 con `--no-globs` y las cuatro rutas explícitas. El resultado de esa ejecución queda pendiente; no se declara PASS.
