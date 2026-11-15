@@ -34,7 +34,10 @@ try {
         @{ Name='Automated decision bypasses human review'; Apply={ param($x) $x.cases[0].assessment_record.human_review_required = $false } },
         @{ Name='Assessment decision differs from independence'; Apply={ param($x) $x.cases[0].assessment_record.decision_state = 'INDEPENDIENTE' } },
         @{ Name='Assessment omits limitations'; Apply={ param($x) $x.cases[0].assessment_record.limitations = @() } },
-        @{ Name='Assessment cites no supporting evidence'; Apply={ param($x) $x.cases[0].assessment_record.supporting_evidence_refs = @() } }
+        @{ Name='Assessment cites no supporting evidence'; Apply={ param($x) $x.cases[0].assessment_record.supporting_evidence_refs = @() } },
+        @{ Name='Unsupported source subtype'; Apply={ param($x) $x.cases[0].source_subtype = 'UNCLASSIFIED' } },
+        @{ Name='SINAYXA anonymity status falsely cleared'; Apply={ param($x) $x.cases[14].identity_visibility.anonymous_to_sinayxa = $false } },
+        @{ Name='Publisher identity verification transferred to SINAYXA'; Apply={ param($x) $x.cases[14].identity_visibility.identity_verified_by_sinayxa = $true } }
     )
     foreach ($mutation in $mutations) {
         $copy = $base | ConvertTo-Json -Depth 50 | ConvertFrom-Json -Depth 50
