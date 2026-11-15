@@ -13,7 +13,7 @@ Los resultados son reglas de clasificación, no afirmaciones de que un acontecim
 ## 2. Oráculo de los 18 casos
 
 | # | Entrada o escenario | Resultado esperado | Categoría principal | Distinción/condición obligatoria |
-|---:|---|---|---|---|
+| ---: | --- | --- | --- | --- |
 | 1 | Banco central anuncia una decisión de tipos | INCLUIR | MAC | ECO solo como secundaria si el contenido económico adicional está documentado; separar decisión, comunicación y efecto hipotético |
 | 2 | Dato de inflación anunciado en calendario, publicado y luego revisado | INCLUIR como hitos relacionados | ECO | Mantener fecha programada, publicación inicial y revisión como hitos diferenciados; no sobrescribir el dato inicial |
 | 3 | Se presenta una propuesta regulatoria todavía no aprobada | INCLUIR como propuesta | REG | Estado = propuesta; no clasificar ni describir como norma vigente |
@@ -81,6 +81,7 @@ La matriz y sus reglas son conformes cuando:
 ## 6. Separación de alcance
 
 Este documento no implementa:
+
 - un grafo o motor de relaciones entre acontecimientos;
 - deduplicación automática ni resolución de identidad;
 - ranking, reputación o independencia automatizada de fuentes;

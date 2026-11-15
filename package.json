@@ -1,0 +1,17 @@
+{
+  "name": "sinayxa",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint:markdown": "markdownlint-cli2"
+  },
+  "devDependencies": {
+    "markdownlint-cli2": "0.24.1"
+  },
+  "overrides": {
+    "katex": "0.18.2"
+  }
+}
