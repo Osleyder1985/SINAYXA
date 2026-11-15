@@ -35,12 +35,12 @@ jobs:
 
     steps:
       - name: Checkout workflow revision
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
       - name: Select source revision
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ github.repository }}
           ref: ${{ (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'ci/powershell-7.6.6-validation')) && 'fix/issue-41-fixture-validator-v1-2' || (github.event_name == 'workflow_dispatch' && inputs.target_ref || github.event.pull_request.head.sha) }}
@@ -89,6 +89,37 @@ jobs:
             throw 'PSScriptAnalyzer installation failed.'
           }
 
+      - name: Parse every PowerShell source file
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $command = @'
+          $ErrorActionPreference = 'Stop'
+          $files = @(Get-ChildItem -LiteralPath . -Recurse -File -Include '*.ps1','*.psm1' | Where-Object { $_.FullName -notmatch '[\\/](\.git|\.venv|node_modules)[\\/]' })
+          if ($files.Count -eq 0) {
+            throw 'No PowerShell source files were found.'
+          }
+          $parseErrors = @()
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$errors)
+            if ($errors.Count -gt 0) {
+              $parseErrors += $errors | ForEach-Object { "$($file.FullName): $($_.Message) (line $($_.Extent.StartLineNumber))" }
+            }
+          }
+          Write-Information "PowerShell files parsed: $($files.Count)" -InformationAction Continue
+          if ($parseErrors.Count -gt 0) {
+            $parseErrors | ForEach-Object { Write-Error $_ }
+            exit 1
+          }
+          '@
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -Command $command
+          if ($LASTEXITCODE -ne 0) {
+            throw 'PowerShell parser found syntax errors.'
+          }
+
       - name: Run PSScriptAnalyzer
         shell: pwsh
         working-directory: source
@@ -97,7 +128,7 @@ jobs:
           $command = @'
           $ErrorActionPreference = 'Stop'
           Import-Module PSScriptAnalyzer -RequiredVersion 1.24.0
-          $results = @(Invoke-ScriptAnalyzer -Path 'scripts/validation' -Recurse)
+          $results = @(Invoke-ScriptAnalyzer -Path '.' -Recurse)
           $results | Format-Table -AutoSize
           $errors = @($results | Where-Object { $_.Severity -eq 'Error' })
           $warnings = @($results | Where-Object { $_.Severity -ne 'Error' })
