@@ -5,19 +5,6 @@ $validator = Join-Path $PSScriptRoot 'validate_source_evidence_contract.ps1'
 $fixture = Join-Path $PSScriptRoot '..\..\tests\fixtures\contracts\source-evidence-contract-v0.2.0.json'
 & $validator -FixturePath $fixture | Out-Null
 $base = Get-Content -LiteralPath $fixture -Raw -Encoding utf8 | ConvertFrom-Json -AsHashtable -Depth 100 -DateKind String
-function Set-IndependentPathsForFixture {
-    param([hashtable]$Package)
-    $Package.provenance_edges = @($Package.provenance_edges | Where-Object { $_.edge_id -ne 'edge-a-unknown' })
-    $Package.provenance_nodes += @(
-        @{ node_id='node-origin-independent-a'; node_type='DOCUMENT'; entity_ref='origin-independent-a' },
-        @{ node_id='node-origin-independent-b'; node_type='DOCUMENT'; entity_ref='origin-independent-b' }
-    )
-    $Package.provenance_edges += @(
-        @{ edge_id='edge-independent-a'; dependent_node_id='node-version-a'; origin_node_id='node-origin-independent-a'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-a'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null },
-        @{ edge_id='edge-independent-b'; dependent_node_id='node-version-b'; origin_node_id='node-origin-independent-b'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-b'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null }
-    )
-    $Package.independence_assessments[0].independent_path_edge_refs = @('edge-independent-a','edge-independent-b')
-}
 $temp = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-" + [guid]::NewGuid().ToString('N') + '.json')
 try {
     $cycleCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
