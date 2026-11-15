@@ -611,6 +611,7 @@
         "source_version_id",
         "evidence_kind",
         "information_nature",
+        "factor_dimensions",
         "content_reference",
         "integrity_check",
         "authenticity_status",
@@ -647,6 +648,24 @@
             "PUBLICACIÓN_OFICIAL",
             "HECHO_OBSERVADO"
           ]
+        },
+        "factor_dimensions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "RELATION_WITH_FACT",
+              "ACCESS_AND_PROXIMITY",
+              "SUBJECT_COMPETENCE",
+              "TRANSPARENCY_TRACEABILITY",
+              "RELEVANT_ACCURACY_HISTORY",
+              "CORRECTIONS_ACCOUNTABILITY",
+              "INCENTIVES_CONFLICTS",
+              "INTERNAL_CONSISTENCY",
+              "CONTRARY_EVIDENCE",
+              "TEMPORAL_ADEQUACY"
+            ]
+          }
         },
         "content_reference": {
           "type": [
