@@ -340,6 +340,7 @@
         "source_version_id",
         "source_id",
         "version_label",
+        "version_sequence",
         "published_at",
         "first_detected_at",
         "first_publicly_observed_at",
@@ -361,6 +362,10 @@
         },
         "version_label": {
           "$ref": "#/$defs/nonEmpty"
+        },
+        "version_sequence": {
+          "type": "integer",
+          "minimum": 1
         },
         "published_at": {
           "$ref": "#/$defs/optionalUtc"
