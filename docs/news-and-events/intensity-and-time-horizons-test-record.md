@@ -105,7 +105,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 
 | ID | Resultado esperado resumido | Estado inicial | Resultado obtenido | Evidencia/registro |
 | --- | --- | --- | --- | --- |
-| T01 | I0; dirección NEUTRAL solo si está respaldada independientemente | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T01 | I0; dirección NEUTRAL solo si está respaldada independientemente | NOT_EXECUTED | I0; INDETERMINADA (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 11; ejecución conforme al protocolo pendiente |
 | T02 | I1; sustituto solo atenúa si disponibilidad, capacidad y acceso están demostrados | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T03 | I2; separar efecto observado de efecto potencial restante | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T04 | I3; demostrar exposición amplia/central y separar efecto observado/potencial | NOT_EXECUTED | PENDIENTE | PENDIENTE |
@@ -276,3 +276,44 @@ T16 pasa de BLOCKED por una dependencia humana imposible a NOT_EXECUTED: el proc
 El comando solicitado para cuatro documentos produjo `312 issues in 2 files`. La configuración `.markdownlint-cli2.jsonc` incluye el patrón global `**/*.md`, por lo que la ejecución también alcanzó `docs/news-and-events/catalyst-taxonomy-test-cases.md`, un documento ajeno a este cambio. El registro de intensidad mostró incidencias de formato propias, que se corrigen en esta revisión. No se interpreta el resultado global como fallo de los cuatro documentos seleccionados ni se modifica aquí el documento de taxonomía ajeno al alcance.
 
 Para una comprobación estrictamente limitada a los cuatro archivos, ejecutar markdownlint-cli2 con `--no-globs` y las cuatro rutas explícitas. El resultado de esa ejecución queda pendiente; no se declara PASS.
+
+
+## 11. Registro de decisión asistida — T01
+
+### 11.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T01 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Funciones técnicas y operativas del protocolo ficticio ALPHA; excluye valoración del token, reputación, atención y demanda |
+| Corte | `2026-01-10T12:00:00Z` |
+| Evidencias examinadas | T01-E1, T01-E2 y T01-E3 |
+| Decisión humana comunicada | I0; dirección INDETERMINADA |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 11.2 Razonamiento y decisión adoptada
+
+El propietario aceptó la recomendación metodológica de asignar **I0** para la unidad técnica y operativa delimitada. La evidencia sintética establece que:
+
+- el inventario revisado no identifica dependencias técnicas u operativas respecto del sitio web renombrado (T01-E1);
+- el alcance del inventario se declara completo para la unidad y el anuncio evaluados al corte (T01-E2);
+- los registros de despliegue, configuración, acceso, estado de servicios e incidentes no muestran cambios operativos atribuibles al anuncio (T01-E3).
+
+La dirección se registra como **INDETERMINADA**, no NEUTRAL: la evidencia permite descartar un mecanismo material dentro de la unidad técnica/operativa declarada, pero no establece una dirección para dimensiones excluidas ni aporta evidencia independiente que justifique NEUTRAL.
+
+La clasificación no se extrapola al valor de mercado del token, reputación, atención ni demanda.
+
+### 11.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción **no cumple la secuencia de la sección 3 del protocolo de evaluación con un único responsable humano**: no hubo una evaluación primaria humana sellada antes de la revisión de IA, ni una crítica posterior realizada sin conocer la conclusión humana.
+
+La aceptación del propietario se conserva como una **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T01.
+
+Para completar una ejecución formal conforme al protocolo, será necesario realizar una nueva evaluación en la secuencia correcta, con el paquete congelado y la evaluación humana sellada antes de entregar el paquete a la IA. Esa nueva ejecución deberá conservarse como un registro separado; no sobrescribirá esta decisión.
+
+### 11.4 Resultado de auditoría
+
+La decisión I0 / INDETERMINADA queda documentada como decisión humana asistida. **T01 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
