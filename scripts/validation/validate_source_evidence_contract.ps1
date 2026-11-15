@@ -90,6 +90,8 @@ foreach ($source in $package.sources) {
     Test-Condition ([string]$source.source_id -cmatch '^src_[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$') 'Source identifiers must be opaque UUIDs with the src_ prefix.'
 }
 foreach ($claim in $package.claims) {
+    $duplicateClaimVersion = @($package.claims | Where-Object { $_.claim_id -eq $claim.claim_id -and $_.claim_version -eq $claim.claim_version -and $_.claim_version_id -ne $claim.claim_version_id })
+    Test-Condition ($duplicateClaimVersion.Count -eq 0) 'Claim version numbers must be unique within the same claim.'
     if ($null -ne $claim.supersedes_claim_version_id) {
         Test-Condition (Test-HasRef $claimVersionIds ([string]$claim.supersedes_claim_version_id)) 'Claim version supersedes an unknown claim version.'
         $prior = @($package.claims | Where-Object { $_.claim_version_id -eq $claim.supersedes_claim_version_id })[0]
@@ -101,6 +103,8 @@ foreach ($component in $package.claim_components) {
     Test-Condition (Test-HasRef $claimVersionIds ([string]$component.claim_version_id)) 'Component references an unknown claim version.'
     $claimVersion = @($package.claims | Where-Object { $_.claim_version_id -eq $component.claim_version_id })[0]
     Test-Condition ($claimVersion.claim_id -eq $component.claim_id) 'Component and claim version identities do not match.'
+    $duplicateComponentVersion = @($package.claim_components | Where-Object { $_.claim_component_id -eq $component.claim_component_id -and $_.version -eq $component.version -and $_.claim_component_version_id -ne $component.claim_component_version_id })
+    Test-Condition ($duplicateComponentVersion.Count -eq 0) 'Component version numbers must be unique within the same component.'
     if ($null -ne $component.supersedes_component_version_id) {
         Test-Condition (Test-HasRef $componentVersionIds ([string]$component.supersedes_component_version_id)) 'Component supersedes an unknown component version.'
         $prior = @($package.claim_components | Where-Object { $_.claim_component_version_id -eq $component.supersedes_component_version_id })[0]
@@ -111,6 +115,8 @@ $sourceVersionSequences = [System.Collections.Generic.HashSet[string]]::new([Sys
 foreach ($version in $package.source_versions) {
     Test-Condition (Test-HasRef $sourceIds ([string]$version.source_id)) 'Source version references an unknown source.'
     Test-Condition ([int]$version.version_sequence -ge 1) 'Source version sequence must be a positive integer.'
+    $duplicateSourceSequence = @($package.source_versions | Where-Object { $_.source_id -eq $version.source_id -and $_.version_sequence -eq $version.version_sequence -and $_.source_version_id -ne $version.source_version_id })
+    Test-Condition ($duplicateSourceSequence.Count -eq 0) 'Source version sequence must be unique within the same source.'
     $sequenceKey = ([string]$version.source_id) + '|' + ([string][int]$version.version_sequence)
     Test-Condition ($sourceVersionSequences.Add($sequenceKey)) 'Source version sequence must be unique within the same source.'
     foreach ($field in @('published_at','first_detected_at','first_publicly_observed_at','retrieved_at','recorded_at')) {
@@ -383,15 +389,24 @@ foreach ($record in $package.retention_records) {
     Test-Condition (Test-Utc $record.review_at 'review_at') 'Retention review_at must be UTC.'
     Test-Condition (Test-Utc $record.recorded_at 'recorded_at') 'Retention recorded_at must be UTC.'
     if ($record.content_retained -eq $true) {
+        Test-Condition ($record.disposition -in @('RETAIN','DELETE_PENDING','RESTRICTED')) 'Retained content has an incompatible disposition.'
         Test-Condition ($record.legal_basis_status -eq 'VERIFIED') 'Retained content requires a verified legal/access basis.'
         Test-Condition ($null -ne $record.expires_at -and (Test-Utc $record.expires_at 'expires_at')) 'Retained content requires a reviewable UTC expiry.'
+        Test-Condition ([DateTimeOffset]::Parse([string]$record.expires_at) -gt [DateTimeOffset]::Parse([string]$record.recorded_at)) 'Retained content expiry must be later than its retention record.'
+        Test-Condition ([DateTimeOffset]::Parse([string]$record.review_at) -le [DateTimeOffset]::Parse([string]$record.expires_at)) 'Retention review must occur no later than expiry.'
     }
     else {
-        Test-Condition ($record.disposition -in @('REFERENCE_ONLY','DELETED','RESTRICTED')) 'Content not retained must not be marked RETAIN.'
+        Test-Condition ($record.disposition -in @('REFERENCE_ONLY','DELETED','RESTRICTED')) 'Content not retained must use REFERENCE_ONLY, DELETED or RESTRICTED disposition.'
     }
+    if ($record.disposition -eq 'DELETED') {
+        Test-Condition ($record.content_retained -eq $false) 'DELETED disposition cannot retain content.'
+        $deletionEvents = @($package.audit_events | Where-Object { $_.subject_ref -eq $record.subject_ref -and $_.action -eq 'DELETED' -and (Test-Utc $_.occurred_at 'occurred_at') -and [DateTimeOffset]::Parse([string]$_.occurred_at) -ge [DateTimeOffset]::Parse([string]$record.recorded_at) })
+        Test-Condition ($deletionEvents.Count -gt 0) 'DELETED disposition requires a matching, later DELETED audit event.'
+    }
+    if ($record.disposition -eq 'DELETE_PENDING') { Test-Condition ($record.content_retained -eq $true) 'DELETE_PENDING requires the retained copy to remain explicitly tracked until deletion is confirmed.' }
 }
 foreach ($auditEvent in $package.audit_events) {
-    $known = (Test-HasRef $claimIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $claimVersionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $componentIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $componentVersionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sourceIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $versionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $evidenceIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.claim_assessments ([string]$auditEvent.subject_ref))
+    $known = (Test-HasRef $claimIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $claimVersionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $componentIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $componentVersionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sourceIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $versionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $evidenceIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.claim_assessments ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.identity_assessments ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.evaluation_units ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.claim_evidence_links ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.provenance_nodes ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.provenance_edges ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.factor_assessments ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.independence_assessments ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.retention_records ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.evidence_availability ([string]$auditEvent.subject_ref))
     Test-Condition $known 'Audit event references an unknown subject.'
     Test-Condition (Test-Utc $auditEvent.occurred_at 'occurred_at') 'Audit event occurred_at must be UTC.'
 }
