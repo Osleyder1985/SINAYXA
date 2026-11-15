@@ -207,6 +207,8 @@ foreach ($availability in $package.evidence_availability) {
     $evidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $availability.evidence_id })[0]
     Test-Condition ($null -ne $evidence.source_version_id -and $evidence.source_version_id -eq $unit.source_version_id) 'Evidence availability must match the exact source version in its evaluation unit.'
     Test-Condition ($availability.claim_id -eq $unit.claim_id -and $availability.claim_component_id -eq $unit.claim_component_id -and $availability.claim_version_id -eq $unit.claim_version_id -and $availability.claim_component_version_id -eq $unit.claim_component_version_id) 'Evidence availability must match the exact claim/component version of its evaluation unit.'
+    $blockedRetention = @($package.retention_records | Where-Object { $_.subject_ref -eq $availability.evidence_id -and $_.disposition -in @('DELETE_PENDING','DELETED') -and (Test-Utc $_.recorded_at 'recorded_at') -and [DateTimeOffset]::Parse([string]$_.recorded_at) -le [DateTimeOffset]::Parse([string]$unit.assessment_cutoff) })
+    Test-Condition ($blockedRetention.Count -eq 0) 'Evidence under DELETE_PENDING or DELETED disposition cannot be used for an assessment at or after that transition.'
     Test-Condition (Test-Utc $availability.recorded_at 'recorded_at') 'Evidence availability recorded_at must be UTC.'
     if ($null -eq $availability.available_at) {
         Test-Condition ($availability.availability_basis -eq 'UNKNOWN' -and $null -eq $availability.availability_reference) 'Unknown availability requires UNKNOWN basis and no availability reference.'
