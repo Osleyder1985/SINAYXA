@@ -24,7 +24,9 @@ try {
         @{ Name='Past source errors invalidate authenticated document'; Apply={ param($x) $x.cases[10].expected.past_errors_automatically_invalidate_document = $true } },
         @{ Name='Prestige treated as evidence'; Apply={ param($x) $x.cases[11].expected.prestige_used_as_evidence = $true } },
         @{ Name='Editorial anonymity verification transferred'; Apply={ param($x) $x.cases[14].expected.editor_identity_verification_transferred = $true } },
-        @{ Name='Shared employer automatically implies dependency'; Apply={ param($x) $x.cases[8].expected.shared_employer_does_not_imply_dependency = $false } }
+        @{ Name='Shared employer automatically implies dependency'; Apply={ param($x) $x.cases[8].expected.shared_employer_does_not_imply_dependency = $false } },
+        @{ Name='Unsupported institutional character'; Apply={ param($x) $x.cases[2].institutional_character = 'UNOFFICIAL' } },
+        @{ Name='Unsupported independence state'; Apply={ param($x) $x.cases[0].independence = 'UNVERIFIED' } }
     )
     foreach ($mutation in $mutations) {
         $copy = $base | ConvertTo-Json -Depth 50 | ConvertFrom-Json -Depth 50
@@ -34,7 +36,7 @@ try {
         try { & $validator -FixturePath $temp | Out-Null } catch { $rejected = $true }
         if (-not $rejected) { throw "Mutation was not rejected: $($mutation.Name)" }
     }
-    [pscustomobject]@{ Result='PASS'; PositiveCases=1; NegativeMutations=$mutations.Count; TotalChecks=($mutations.Count + 1); Scope='Validator rejection behavior; synthetic only.' } | Format-List
+    [pscustomobject]@{ Result='PASS'; BaselineFixture=1; BaselineScenarios=16; NegativeMutations=$mutations.Count; TotalChecks=($mutations.Count + 1); Scope='Validator rejection behavior; synthetic only.' } | Format-List
 }
 finally {
     if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp -Force }
