@@ -626,7 +626,7 @@ Los casos de frontera son complementarios. Cada uno prueba una distinción norma
 ## 6. Revisión documental
 
 ### Revisión A — consistencia normativa asistida
-A: recorrido de los 36 IDs y 10 BND contra los dos documentos normativos; comprobación de objeto, decisión, categoría/familia, evidencia mínima, condición de INDETERMINADO y no-inferencias. Resultado: cobertura íntegra; no se detectaron contradicciones normativas bloqueantes en los casos. La revisión A es asistida; no sustituye H-OWNER. Los controles compensatorios definitivos y sus estados se detallan en §6.4–§6.7.
+A: recorrido de los 36 IDs y 10 BND contra los dos documentos normativos; comprobación de objeto, decisión, categoría/familia, evidencia mínima, condición de INDETERMINADO y no-inferencias. Resultado: cobertura íntegra; no se detectaron contradicciones normativas bloqueantes en los casos. La revisión A es asistida; no sustituye H-OWNER. Los controles compensatorios definitivos y sus estados se detallan en §7.1–§7.3.
 
 Comprobaciones aplicadas:
 - definición de categoría principal y familia transversal;
@@ -784,6 +784,15 @@ La aprobación del propietario de la política no es una revisión de los 46 cas
 
 **Registro posterior de verificación — SHA 76974e94fcef15f795905088b43365de7757d59f (2026-11-14):** el propietario ejecutó Python 3.15.2 y obtuvo 13/13 pruebas M-01…M-13 `OK` mediante `py -3.15 -m unittest discover -s tests/news_and_events -v`. El validador `py -3.15 scripts/news_and_events/validate_taxonomy_test_cases.py` devolvió `PASS: 36 escenarios, 18 pares, 10 fronteras, contratos, categorías negativas, temporalidad, roles y enlaces`. La validación es estructural: no demuestra verdad factual, calidad de fuentes, causalidad ni rendimiento predictivo. Tras recuperar el documento desde el blob de HEAD, el hash del archivo y el del blob coincidieron; `git diff --exit-code` devolvió 0. `git update-index --refresh` actualizó el seguimiento y `git status --short` quedó vacío antes de esta modificación. AI-ADVERSARIAL no se repitió sobre este SHA: la evidencia asistida y no independiente sigue limitada a `4df01d8af2d67ca4c72ff0113b146ca977ece3ad`. No se acredita revisión humana independiente, Markdown lint ni CI para este SHA. Las pruebas y el validador se ejecutaron antes de esta modificación documental; deben repetirse sobre el nuevo commit que resulte de esta actualización. La consulta previa de GitHub para PR #32 no mostró check-runs ni ejecuciones de workflow; no se afirma CI aprobado.
 
+**Revisión AI-ADVERSARIAL del HEAD `97289c84144a39a43ce345adae38bd0f8cc32891` — 2026-11-15:**
+
+Se revisaron los 36 escenarios principales y los 10 casos BND, incluyendo clasificación, evidencia, temporalidad, incertidumbre, no-inferencias, trazabilidad H-OWNER y consistencia normativa. La revisión fue asistida por el mismo asistente, no humana ni independiente. No se detectó un nuevo defecto bloqueante en los resultados taxonómicos esperados.
+
+**Hallazgo AD-01:** la referencia de §6.1 a §6.4–§6.7 apunta a subsecciones inexistentes. Se corrigió para remitir a §7.1–§7.3. El hallazgo es de trazabilidad documental, no modifica las reglas ni las decisiones de los 46 casos.
+
+**AUTO-VALIDATION y ADVERSARIAL-TEST sobre el mismo SHA:** el propietario confirmó 13/13 pruebas M-01…M-13 `OK` y el validador documental `PASS` para 36 escenarios, 18 pares y 10 fronteras. También confirmó `git diff origin/main...HEAD --check` sin errores y árbol de trabajo limpio. La validación es estructural; no demuestra verdad factual, calidad de fuentes, causalidad ni rendimiento predictivo.
+
+No se declara Markdown lint, CI ni revisión humana independiente. AD-01 está corregido en el árbol de trabajo; quedan pendientes el commit, su publicación y la repetición de las verificaciones sobre el nuevo SHA.
 ### 7.3 Registro de riesgo residual
 
 | Riesgo | Estado inicial | Control | Evidencia de cierre |
