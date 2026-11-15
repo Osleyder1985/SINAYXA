@@ -37,7 +37,12 @@ try {
     $pendingDeletion.retention_records[0].content_retained = $true
     $pendingDeletion.retention_records[0].legal_basis_status = 'NOT_ESTABLISHED'
     $pendingDeletion.retention_records[0].disposition = 'DELETE_PENDING'
+    $pendingDeletion.retention_records[0].previous_disposition = 'RETAIN'
     $pendingDeletion.retention_records[0].expires_at = '2026-11-15T21:00:00Z'
+    $pendingDeletion.audit_events[1].action = 'DELETION_REQUESTED'
+    $pendingDeletion.audit_events[1].from_disposition = 'RETAIN'
+    $pendingDeletion.audit_events[1].to_disposition = 'DELETE_PENDING'
+    $pendingDeletion.audit_events[1].occurred_at = '2026-11-15T22:01:00Z'
     $pendingFile = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-pending-" + [guid]::NewGuid().ToString('N') + '.json')
     try {
         ConvertTo-Json -InputObject $pendingDeletion -Depth 100 | Set-Content -LiteralPath $pendingFile -Encoding utf8
@@ -208,7 +213,7 @@ try {
         @{ Name='Duplicate evidence availability for the same unit'; Apply={ param($x) $x.evidence_availability += $x.evidence_availability[0] } },
         @{ Name='Source-stated timestamp cannot prove cutoff availability'; Apply={ param($x) $x.evidence_availability[0].availability_basis='SOURCE_STATED'; $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a') } },
         @{ Name='Claim assessment uses evidence unavailable at its cutoff'; Apply={ param($x) $x.claim_assessments[0].supporting_evidence_refs=@('evidence-a'); $x.claim_assessments[0].assessment_cutoff='2026-11-15T20:00:00Z' } },
-        @{ Name='Retained content has an expired retention window'; Apply={ param($x) $x.retention_records[0].content_retained=$true; $x.retention_records[0].legal_basis_status='VERIFIED'; $x.retention_records[0].disposition='RETAIN'; $x.retention_records[0].expires_at='2026-11-15T21:00:00Z' } },
+        @{ Name='Retained content has an expired retention window'; Apply={ param($x) $x.retention_records[0].content_retained=$true; $x.retention_records[0].legal_basis_status='VERIFIED'; $x.retention_records[0].disposition='RETAIN'; $x.retention_records[0].authorization_reference='synthetic://authorized'; $x.retention_records[0].expires_at='2026-11-15T21:00:00Z' } },
         @{ Name='Deleted content lacks a deletion audit event'; Apply={ param($x) $x.retention_records[0].content_retained=$false; $x.retention_records[0].disposition='DELETED' } }
     )
     foreach ($mutation in $mutations) {
