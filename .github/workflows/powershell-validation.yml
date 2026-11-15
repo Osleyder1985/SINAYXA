@@ -19,6 +19,7 @@ on:
       - "docs/news-and-events/intensity-and-time-horizons-proposal.md"
       - "docs/news-and-events/intensity-horizons-empirical-validation-protocol.md"
       - "docs/news-and-events/evidence-standard-for-indicia-rumours-and-leaks.md"
+      - "docs/news-and-events/source-credibility-and-independence-proposal.md"
       - ".github/workflows/powershell-validation.yml"
       - ".github/workflows/security-quality.yml"
   workflow_dispatch:
