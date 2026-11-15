@@ -31,7 +31,7 @@ The workflow supports:
 - Pull requests targeting `main` that modify PowerShell scripts, the intensity/horizons fixtures, or this workflow.
 - Manual dispatch with an explicit branch or commit to validate.
 
-The workflow file must first be integrated into the default branch before it can serve as the normal pull-request gate for subsequent work. The bootstrap execution is intended to provide an initial real runner result before that integration decision.
+The workflow file must first be integrated into the default branch before it can serve as the normal pull-request gate for subsequent work. The bootstrap push runs the Issue #41 validator branch before that integration decision, providing an initial real Windows-runner result.
 
 ## 4. Evidence and interpretation
 
