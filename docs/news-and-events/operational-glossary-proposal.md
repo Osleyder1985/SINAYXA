@@ -1,10 +1,10 @@
-# Glosario operativo: acontecimientos y catalizadores
+# Glosario operativo aprobado: acontecimientos y catalizadores
 
 **Issue:** [#13 — Aprobar definiciones operativas de acontecimiento y catalizador](https://github.com/Osleyder1985/SINAYXA/issues/13)  
-**Estado:** propuesta técnica pendiente de decisión expresa del propietario. No sustituye ni modifica la taxonomía aprobada.  
+**Estado:** definiciones aprobadas expresamente por el propietario el 2026-11-15. No sustituyen ni modifican la taxonomía aprobada.  
 **Ámbito:** semántica del módulo Noticias y acontecimientos. No define captura, persistencia, scoring, alertas ni predicción.
 
-## 1. Definiciones normativas propuestas
+## 1. Definiciones normativas aprobadas
 
 ### Acontecimiento
 
@@ -187,15 +187,15 @@ Este glosario no resuelve:
 | Asegurar coherencia con el alcance de Noticias y acontecimientos | §7–§8 | Estados probatorios alineados con la taxonomía aprobada y decisiones técnicas/metodológicas reservadas a sus Issues |
 | Cumplir los criterios de cierre: glosario inequívoco y ejemplos coherentes | §1–§9 | Definiciones, separaciones obligatorias, tratamiento conservador, ejemplos y esta matriz de trazabilidad |
 
-La matriz acredita cobertura documental propuesta, no aceptación del propietario ni validación de una implementación. Si un requisito se interpreta de forma distinta durante la revisión, debe corregirse aquí antes de considerar cerrado el Issue.
+La matriz documenta la cobertura de los requisitos aceptados por el propietario. No constituye por sí sola validación de una implementación.
 
 ## 10. Criterios de aceptación para el Issue #13
 
-- [ ] El propietario acepta o modifica las definiciones de acontecimiento y catalizador.
+- [x] El propietario acepta o modifica las definiciones de acontecimiento y catalizador.
 - [ ] El propietario acepta o modifica las distinciones entre publicación, hecho, afirmación, indicio, rumor, filtración y acontecimiento programado.
 - [ ] Se acepta la regla de relevancia basada en mecanismo documentable, sin inferir causalidad a partir del precio.
 - [ ] Se aceptan las reglas de inclusión, exclusión, clasificación múltiple y no duplicación.
 - [ ] Los ejemplos positivos y negativos se consideran suficientes y coherentes con la taxonomía existente.
 - [ ] Las decisiones reservadas permanecen en sus Issues especializados.
 
-**Gobernanza:** este documento es una propuesta para revisión. Su incorporación a una rama o PR no equivale a decisión humana ni autoriza cerrar el Issue #13. Solo el propietario puede aprobar las definiciones.
+**Gobernanza:** el propietario aprobó expresamente las definiciones y los seis criterios de aceptación el 2026-11-15. Esta aprobación resuelve la decisión semántica del Issue #13, pero no fusiona el PR ni cierra automáticamente el Issue. Las implementaciones dependientes deberán respetar estas definiciones y tramitarse mediante sus Issues/PR correspondientes.
