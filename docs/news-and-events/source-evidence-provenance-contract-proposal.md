@@ -472,3 +472,7 @@ El estado `DEPENDIENTE` requiere aristas materiales y evidenciadas (`CITA_DE`, `
 ## 22. Evidencia de factores de fuente
 
 La evidencia utilizada para evaluar un factor de credibilidad de una fuente no tiene que ser también evidencia a favor o en contra de la afirmación. Un registro de historial de correcciones, conflictos de interés, competencia o transparencia puede ser pertinente para el factor aunque no pruebe el hecho investigado. Su vínculo normativo es `factor_assessment.supporting_evidence_refs` o `contrary_evidence_refs`, con `factor_dimensions` explícito y disponibilidad demostrada para la unidad y corte exactos. No se exige un `claim_evidence_link` para este tipo de evidencia; exigirlo mezclaría la calidad de la fuente con el estado probatorio de la afirmación.
+
+## 23. Base explícita de la corroboración
+
+Cada `Claim component assessment` registra `corroboration_basis`: `EVIDENCIA_PRIMARIA_DIRECTA`, `CORROBORACION_INDEPENDIENTE`, `AMBAS` o `NO_APLICA`. Para `CORROBORADA`, una fuente primaria puede bastar solo si la evidencia es `AUTENTICADA`, el acceso es legítimo y el vínculo documenta el alcance directo del acto realizado o publicado. Si participa cualquier unidad no primaria, la base debe ser `CORROBORACION_INDEPENDIENTE` o `AMBAS`, y una evaluación `INDEPENDIENTE` revisada debe cubrir todas las unidades que sustentan el componente y corte. `AMBAS` exige cumplir simultáneamente los dos caminos. Los demás estados probatorios usan `NO_APLICA`.
