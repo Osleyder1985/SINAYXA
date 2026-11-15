@@ -113,7 +113,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | T06 | INDETERMINADA; exposición amplia no compensa mecanismo especulativo | NOT_EXECUTED | INDETERMINADA; dirección INDETERMINADA (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 16; ejecución conforme al protocolo pendiente |
 | T07 | I4 para escenario condicional sustentado; condición pendiente separada, sin probabilidad inventada | NOT_EXECUTED | I4; NEGATIVA para el escenario condicional (decisión humana asistida por IA; desviación de secuencia); condición PENDING / NOT CONFIRMED; probabilidad NOT_ASSIGNED | Sección 17; ejecución conforme al protocolo pendiente |
 | T08 | Separación por segmentos; MIXTA agregada solo con unidad agregada explícita y respaldada | NOT_EXECUTED | Segmento A: I2 / NEGATIVA; segmento B: I2 / POSITIVA; THETA agregado: sin clasificación (decisión humana asistida por IA; desviación de secuencia) | Sección 18; ejecución conforme al protocolo pendiente |
-| T09 | Contradicción preservada; INDETERMINADA para alcance controvertido | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T09 | Contradicción preservada; INDETERMINADA para alcance controvertido | NOT_EXECUTED | INDETERMINADA; dirección INDETERMINADA (decisión humana asistida por IA; desviación de secuencia) | Sección 19; ejecución conforme al protocolo pendiente |
 | T10 | Mitigación no verificada no reduce intensidad | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T11 | 24 h → INMEDIATO; 7 × 24 h → CORTO; 90 × 24 h → MEDIO | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T12 | Instante posterior a cada frontera → categoría siguiente | NOT_EXECUTED | PENDIENTE | PENDIENTE |
@@ -628,3 +628,49 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 18.4 Resultado de auditoría
 
 Las decisiones **I2 / NEGATIVA para el segmento A** e **I2 / POSITIVA para el segmento B**, sin clasificación agregada para THETA, quedan documentadas como decisión humana asistida. **T08 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+
+## 19. Registro de decisión asistida — T09
+
+### 19.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T09 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Población de validadores del protocolo ficticio IOTA |
+| Corte | `2026-01-10T12:00:00Z` |
+| Evidencias examinadas | T09-E1, T09-E2 y T09-E3 |
+| Decisión humana comunicada | Intensidad INDETERMINADA; dirección INDETERMINADA |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 19.2 Razonamiento y decisión adoptada
+
+El propietario aceptó mantener la intensidad y la dirección como **INDETERMINADAS** ante la contradicción no resuelta sobre el alcance de la exposición.
+
+- T09-E1 contiene un informe que afirma que la exposición de validadores es amplia, pero no revela el denominador utilizado para sustentar esa afirmación.
+- T09-E2 aporta registros contrarios y cuestiona que la exposición sea amplia.
+- T09-E3 establece que no existe una regla metodológica aprobada de credibilidad de fuentes que permita resolver el conflicto.
+
+No se selecciona uno de los informes por autoridad, mayoría, apariencia de precisión ni preferencia del evaluador. Tampoco se combinan sus afirmaciones como si fueran compatibles. La contradicción se conserva explícitamente y el alcance controvertido no se considera establecido.
+
+No se asigna I0: la falta de demostración de exposición amplia no equivale a evidencia suficiente para descartar un mecanismo material dentro de la unidad evaluada. Tampoco se asigna I1, I2, I3 o I4, porque el alcance y la exposición material no pueden establecerse con la evidencia disponible y una regla de resolución aprobada.
+
+La dirección permanece INDETERMINADA porque no se ha demostrado una consecuencia atribuible con dirección determinada. La evaluación no debe convertir la incertidumbre sobre el alcance en una conclusión sobre el precio del activo ni sobre el protocolo en su conjunto.
+
+La reevaluación requerirá evidencia verificable que permita delimitar la población y/o una regla de credibilidad aprobada y aplicable. Cualquier nueva evaluación deberá conservar las fuentes originales, el conflicto, el nuevo corte y la justificación de los cambios; no deberá sobrescribir este registro.
+
+### 19.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción no cumple la secuencia de evaluación primaria humana sellada antes de la crítica de IA establecida en el protocolo de evaluador único.
+
+La aceptación se conserva como **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T09.
+
+Para completar una ejecución formal conforme al protocolo, será necesaria una nueva evaluación con el paquete congelado: primero se registra y sella la evaluación humana sin conocer la salida de IA y, después, se realiza la crítica auxiliar separada. La nueva ejecución se conservará como un registro distinto, sin sobrescribir esta decisión.
+
+### 19.4 Resultado de auditoría
+
+La decisión **INDETERMINADA / INDETERMINADA** queda documentada como decisión humana asistida. La contradicción entre T09-E1 y T09-E2 permanece abierta; no se ha establecido un criterio aprobado para resolverla. **T09 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
