@@ -99,7 +99,66 @@
         "corroboration_count_increment": 0,
         "guardrail": "Seis publicaciones no crean seis orígenes.",
         "publication_count": 6
-      }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "agency-wire",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "portal-1",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "portal-2",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "portal-3",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "portal-4",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "portal-5",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s01",
+          "claim_component_id": "content",
+          "source_id": "portal-6",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": []
     },
     {
       "id": "S02",
@@ -129,7 +188,34 @@
         "guardrail": "El portavoz común es un único origen para la declaración compartida.",
         "shared_origin_count": 1,
         "identity_scope": "ANÓNIMA_PARA_EL_PÚBLICO"
-      }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s02",
+          "claim_component_id": "statement",
+          "source_id": "anonymous-spokesperson",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s02",
+          "claim_component_id": "statement",
+          "source_id": "outlet-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s02",
+          "claim_component_id": "statement",
+          "source_id": "outlet-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": []
     },
     {
       "id": "S03",
@@ -159,7 +245,26 @@
           "approval"
         ],
         "evidence_effect": "RECORDS_FILING_ONLY"
-      }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s03",
+          "claim_component_id": "filing",
+          "source_id": "regulator",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s03",
+          "claim_component_id": "filing",
+          "source_id": "regulator-record",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": []
     },
     {
       "id": "S04",
@@ -192,6 +297,52 @@
         "Entrevistas realizadas por el propio equipo",
         "Documentos distintos con identificadores y procedencia separados",
         "Método de obtención documentado por componente"
+      ],
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s04",
+          "claim_component_id": "reported-fact",
+          "source_id": "outlet-investigation",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s04",
+          "claim_component_id": "reported-fact",
+          "source_id": "own-interviews",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s04",
+          "claim_component_id": "reported-fact",
+          "source_id": "separate-records",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [
+        {
+          "evidence_id": "S04-E01",
+          "claim_component_id": "reported-fact",
+          "source_ids": [
+            "own-interviews"
+          ],
+          "evidence_type": "SEPARATE_INTERVIEW_PATH",
+          "reference": "synthetic-fixture://S04-E01"
+        },
+        {
+          "evidence_id": "S04-E02",
+          "claim_component_id": "reported-fact",
+          "source_ids": [
+            "separate-records"
+          ],
+          "evidence_type": "DISTINCT_DOCUMENT_PATH",
+          "reference": "synthetic-fixture://S04-E02"
+        }
       ]
     },
     {
@@ -217,7 +368,26 @@
         "guardrail": "La interpretación no acredita que el contrato se ejecutó.",
         "supports_contract_interpretation": true,
         "supports_execution": false
-      }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s05",
+          "claim_component_id": "interpretation",
+          "source_id": "analyst-report",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s05",
+          "claim_component_id": "interpretation",
+          "source_id": "public-contract",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": []
     },
     {
       "id": "S06",
@@ -249,7 +419,26 @@
           "preserve_prior_versions": true,
           "other_components_automatically_invalidated": false
         }
-      }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s06",
+          "claim_component_id": "amount",
+          "source_id": "article-v1",
+          "source_version": "article-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s06",
+          "claim_component_id": "amount",
+          "source_id": "article-v2",
+          "source_version": "article-v2",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": []
     },
     {
       "id": "S07",
@@ -273,7 +462,26 @@
         "corroboration_count_increment": 0,
         "guardrail": "Acceso declarado no es acceso verificado; independencia permanece DESCONOCIDA.",
         "access_claim_verified": false
-      }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s07",
+          "claim_component_id": "access-claim",
+          "source_id": "anonymous-source",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s07",
+          "claim_component_id": "access-claim",
+          "source_id": "unknown",
+          "source_version": "UNKNOWN",
+          "access_path": "UNKNOWN",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": []
     },
     {
       "id": "S08",
@@ -302,7 +510,34 @@
         "corroboration_count_increment": 0,
         "guardrail": "Documento e intermediario comunes implican dependencia para ese contenido.",
         "shared_document_origin": true
-      }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s08",
+          "claim_component_id": "document-content",
+          "source_id": "intermediary-document",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s08",
+          "claim_component_id": "document-content",
+          "source_id": "outlet-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s08",
+          "claim_component_id": "document-content",
+          "source_id": "outlet-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": []
     },
     {
       "id": "S09",
@@ -336,6 +571,60 @@
         "Observaciones directas separadas de cada reportero",
         "Registros y marcas temporales distintos",
         "No se usa la afiliación común como prueba de dependencia"
+      ],
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s09",
+          "claim_component_id": "observed-event",
+          "source_id": "observation-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s09",
+          "claim_component_id": "observed-event",
+          "source_id": "observation-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s09",
+          "claim_component_id": "observed-event",
+          "source_id": "reporter-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s09",
+          "claim_component_id": "observed-event",
+          "source_id": "reporter-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [
+        {
+          "evidence_id": "S09-E01",
+          "claim_component_id": "observed-event",
+          "source_ids": [
+            "observation-a"
+          ],
+          "evidence_type": "REPORTER_A_DIRECT_OBSERVATION",
+          "reference": "synthetic-fixture://S09-E01"
+        },
+        {
+          "evidence_id": "S09-E02",
+          "claim_component_id": "observed-event",
+          "source_ids": [
+            "observation-b"
+          ],
+          "evidence_type": "REPORTER_B_DIRECT_OBSERVATION",
+          "reference": "synthetic-fixture://S09-E02"
+        }
       ]
     },
     {
@@ -363,7 +652,26 @@
         "underlying_evidence_available": false,
         "probative_effect": "ATTRIBUTED_DENIAL_ONLY",
         "claim_refuted": false
-      }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s10",
+          "claim_component_id": "denial",
+          "source_id": "institution",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s10",
+          "claim_component_id": "denial",
+          "source_id": "official-denial",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": []
     },
     {
       "id": "S11",
@@ -389,7 +697,26 @@
         "document_authenticity": "AUTHENTICATED",
         "source_track_record_separate": true,
         "past_errors_automatically_invalidate_document": false
-      }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s11",
+          "claim_component_id": "documented-act",
+          "source_id": "original-document",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s11",
+          "claim_component_id": "documented-act",
+          "source_id": "record-custodian",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": []
     },
     {
       "id": "S12",
@@ -414,7 +741,26 @@
         "guardrail": "Prestigio no sustituye evidencia; no inferir credibilidad ni independencia.",
         "prestige_used_as_evidence": false,
         "knowledge_basis": "DESCONOCIDA"
-      }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s12",
+          "claim_component_id": "unsupported-claim",
+          "source_id": "publication",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s12",
+          "claim_component_id": "unsupported-claim",
+          "source_id": "unknown",
+          "source_version": "UNKNOWN",
+          "access_path": "UNKNOWN",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": []
     },
     {
       "id": "S13",
@@ -443,7 +789,26 @@
         "corroboration_count_increment": 0,
         "cycle_detected": true,
         "guardrail": "Detectar ciclo y no contar las dos publicaciones como orígenes independientes."
-      }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s13",
+          "claim_component_id": "circular-claim",
+          "source_id": "source-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s13",
+          "claim_component_id": "circular-claim",
+          "source_id": "source-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": []
     },
     {
       "id": "S14",
@@ -483,6 +848,60 @@
         "Dos observaciones directas separadas",
         "Trazabilidad independiente para entidad y fecha",
         "Discrepancia de importe aislada como componente no resuelto"
+      ],
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s14",
+          "claim_component_id": "amount",
+          "source_id": "observation-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s14",
+          "claim_component_id": "amount",
+          "source_id": "observation-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s14",
+          "claim_component_id": "amount",
+          "source_id": "source-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s14",
+          "claim_component_id": "amount",
+          "source_id": "source-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": [
+        {
+          "evidence_id": "S14-E01",
+          "claim_component_id": "amount",
+          "source_ids": [
+            "observation-a"
+          ],
+          "evidence_type": "SOURCE_A_SEPARATE_OBSERVATION",
+          "reference": "synthetic-fixture://S14-E01"
+        },
+        {
+          "evidence_id": "S14-E02",
+          "claim_component_id": "amount",
+          "source_ids": [
+            "observation-b"
+          ],
+          "evidence_type": "SOURCE_B_SEPARATE_OBSERVATION",
+          "reference": "synthetic-fixture://S14-E02"
+        }
       ]
     },
     {
@@ -507,7 +926,26 @@
         "corroboration_count_increment": 0,
         "guardrail": "La garantía del editor no transfiere verificación de identidad ni independencia a SINAYXA.",
         "editor_identity_verification_transferred": false
-      }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s15",
+          "claim_component_id": "source-separation",
+          "source_id": "editorial-assertion",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s15",
+          "claim_component_id": "source-separation",
+          "source_id": "unknown-source",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": []
     },
     {
       "id": "S16",
@@ -537,7 +975,34 @@
         "corroboration_count_increment": 0,
         "guardrail": "Procesos analíticos separados no crean un segundo origen independiente del dataset.",
         "independent_origins": 1
-      }
+      },
+      "evaluation_units": [
+        {
+          "claim_id": "synthetic-claim-s16",
+          "claim_component_id": "derived-calculation",
+          "source_id": "analysis-a",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s16",
+          "claim_component_id": "derived-calculation",
+          "source_id": "analysis-b",
+          "source_version": "synthetic-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        },
+        {
+          "claim_id": "synthetic-claim-s16",
+          "claim_component_id": "derived-calculation",
+          "source_id": "shared-dataset",
+          "source_version": "dataset-v1",
+          "access_path": "SYNTHETIC_FIXTURE_ONLY",
+          "assessment_cutoff": "2026-11-15T00:00:00Z"
+        }
+      ],
+      "independence_evidence": []
     }
   ]
 }
