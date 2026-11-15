@@ -107,6 +107,7 @@ foreach ($component in $package.claim_components) {
 }
 foreach ($version in $package.source_versions) {
     Test-Condition (Test-HasRef $sourceIds ([string]$version.source_id)) 'Source version references an unknown source.'
+    Test-Condition ([int]$version.version_sequence -ge 1) 'Source version sequence must be a positive integer.'
     foreach ($field in @('published_at','first_detected_at','first_publicly_observed_at','retrieved_at','recorded_at')) {
         if ($null -ne $version[$field]) { Test-Condition (Test-Utc $version[$field] $field) "Source version has invalid UTC $field." }
     }
@@ -117,6 +118,7 @@ foreach ($version in $package.source_versions) {
         Test-Condition (Test-HasRef $versionIds ([string]$version.supersedes_source_version_id)) 'Source version supersedes an unknown version.'
         $prior = @($package.source_versions | Where-Object { $_.source_version_id -eq $version.supersedes_source_version_id })[0]
         Test-Condition ($prior.source_id -eq $version.source_id -and $prior.source_version_id -ne $version.source_version_id) 'Source version supersession must reference another version of the same source.'
+        Test-Condition ([int]$prior.version_sequence -lt [int]$version.version_sequence) 'Source version must supersede a strictly earlier version of the same source.'
     }
     if ($null -ne $version.content_hash) {
         Test-Condition ([string]$version.content_hash -cmatch '^[A-Fa-f0-9]{64}$') 'Source version has an invalid SHA-256 digest.'
