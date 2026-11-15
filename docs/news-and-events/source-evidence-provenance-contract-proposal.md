@@ -426,3 +426,13 @@ Las conclusiones probatorias CORROBORADA, PARCIALMENTE_CORROBORADA, CONTRADICHA 
 Para CORROBORADA basada en fuentes secundarias o terciarias, todas las unidades de fuente que sustentan el componente deben quedar cubiertas por una evaluación de independencia INDEPENDIENTE revisada, vinculada a la misma versión de afirmación y componente. Una evaluación de independencia de otro componente no puede reutilizarse.
 
 Estas restricciones son validaciones de integridad y flujo de revisión; no son una puntuación, regla probabilística ni automatización de la verdad.
+
+
+## 17. Correcciones de conformance v0.2.0 — revisión posterior
+
+La auditoría de la primera implementación identificó dos invariantes que debían probarse expresamente:
+
+- Los identificadores estables claim_id y claim_component_id se repiten legítimamente a través de versiones; la unicidad se aplica a claim_version_id y claim_component_version_id. El validador debe aceptar versiones sucesivas del mismo objeto lógico y rechazar solo duplicados de versión.
+- INDEPENDIENTE requiere al menos dos identidades de fuente distintas y evidencia positiva vinculada a esas fuentes; dos versiones de una misma fuente no constituyen independencia. DEPENDIENTE requiere una arista material, sustentada y aplicable a la versión exacta del componente; UNKNOWN_ORIGIN por sí solo no demuestra dependencia.
+
+La batería amplía sus pruebas positivas y negativas para proteger ambos invariantes. Estas reglas no modifican la metodología aprobada en #15/#16; hacen ejecutables sus restricciones dentro del contrato 0.2.0.
