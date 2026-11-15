@@ -44,8 +44,17 @@ try {
     $mut = Copy-Fixture; $mut.cases[0].expected.source_identity = 'ANÓNIMA_PARA_EL_PÚBLICO'; $mut.cases[0].expected.document_authenticity = 'ANÓNIMA_PARA_EL_PÚBLICO'
     Invoke-ExpectedFailure 'source-identity-not-authenticity' $mut 'unsupported document-authenticity'
 
+    $mut = Copy-Fixture; $mut.cases[4].expected.source_identity = 'ANONYMOUS'
+    Invoke-ExpectedFailure 'invalid-source-identity' $mut 'unsupported source-identity value'
+
     $mut = Copy-Fixture; $mut.cases[3].expected.independence_of_origin = 'UNVERIFIED'
     Invoke-ExpectedFailure 'invalid-independence-state' $mut 'unsupported independence-of-origin'
+
+    $mut = Copy-Fixture; $mut.cases[14].expected.access_provenance = 'UNAUTHORIZED'
+    Invoke-ExpectedFailure 'invalid-access-provenance' $mut 'unsupported access-provenance value'
+
+    $mut = Copy-Fixture; $mut.cases[14].expected.sensitive_information_review = 'LEGAL_REVIEW'
+    Invoke-ExpectedFailure 'invalid-sensitive-review-state' $mut 'unsupported sensitive-information review value'
 
     $mut = Copy-Fixture; $mut.cases[14].expected.access_provenance = 'PÚBLICO_LEGÍTIMO'
     Invoke-ExpectedFailure 'erase-suspicious-access' $mut 'E15 must preserve'
@@ -68,7 +77,7 @@ try {
     $mut = Copy-Fixture; $mut.cases[6].expected.evidentiary_status = 'CORROBORADA'
     Invoke-ExpectedFailure 'partial-to-full-overclaim' $mut 'E07: status does not match'
 
-    Write-Information 'Evidence-standard fixture tests: PASS (1 positive + 12 negative mutations).' -InformationAction Continue
+    Write-Information 'Evidence-standard fixture tests: PASS (1 positive + 16 negative mutations).' -InformationAction Continue
 }
 finally {
     Remove-Item -LiteralPath $temp -Recurse -Force -ErrorAction SilentlyContinue
