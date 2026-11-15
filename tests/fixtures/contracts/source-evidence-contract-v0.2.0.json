@@ -218,6 +218,34 @@
       "recorded_at": "2026-11-15T22:00:00Z"
     }
   ],
+  "evidence_availability": [
+    {
+      "availability_id": "availability-evidence-a-entity",
+      "evidence_id": "evidence-a",
+      "assessment_unit_id": "unit-a-entity",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1",
+      "available_at": "2026-11-15T20:05:00Z",
+      "availability_basis": "SINAYXA_OBSERVATION",
+      "availability_reference": "synthetic-observation://evidence-a",
+      "recorded_at": "2026-11-15T22:00:00Z"
+    },
+    {
+      "availability_id": "availability-evidence-b-entity",
+      "evidence_id": "evidence-b",
+      "assessment_unit_id": "unit-b-entity",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1",
+      "available_at": "2026-11-15T20:06:00Z",
+      "availability_basis": "SINAYXA_OBSERVATION",
+      "availability_reference": "synthetic-observation://evidence-b",
+      "recorded_at": "2026-11-15T22:00:00Z"
+    }
+  ],
   "claim_evidence_links": [
     {
       "link_id": "link-a",
