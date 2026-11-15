@@ -314,21 +314,21 @@ Los resultados esperados son criterios de conformidad sintética; no constituyen
 ## 10. Criterios de aceptación aprobados para el Issue #15
 
 - [x] Se distingue la naturaleza de la información del estado probatorio, atribución, autenticidad, procedencia y legalidad de acceso.
-- [ ] AFIRMACIÓN ATRIBUIDA se representa como dimensión de atribución y nunca como estado probatorio.
-- [ ] Indicio, rumor y posible filtración no se utilizan como sinónimos ni como grados automáticos de veracidad.
-- [ ] Cada estado probatorio se aplica a afirmaciones concretas y conserva el alcance respaldado.
-- [ ] La corroboración independiente se basa en orígenes diferenciados; republicaciones y fuentes comunes no se cuentan como independencia.
-- [ ] Las fuentes anónimas se registran con límites explícitos y sin exponer identidades confidenciales.
-- [ ] La autenticación documental separa integridad de copia, autenticidad, procedencia y veracidad del contenido.
-- [ ] Los hashes y metadatos no se presentan como prueba suficiente de autoría o autenticidad.
-- [ ] La confirmación posterior no reescribe el estado probatorio que existía antes del anuncio oficial.
-- [ ] La ausencia de confirmación no se convierte automáticamente en refutación.
-- [ ] Los movimientos de precio no se utilizan como corroboración de rumores o filtraciones.
-- [ ] Existe un procedimiento de parada y revisión jurídica para material potencialmente ilícito o información privilegiada.
-- [ ] Se preservan versiones, contradicciones, rectificaciones y estados históricos sin sobrescritura.
-- [ ] CONTRADICHA exige dos líneas de evidencia materialmente incompatibles con base verificable; un documento no autenticado o relatos anónimos sin corroboración no bastan por sí solos.
-- [ ] Los casos E01–E18 cubren fuentes anónimas, documentos no autenticados, corroboración parcial, independencia, falsificación, confirmación posterior y salvaguardas legales.
-- [ ] Se mantiene la separación con los Issues #16 (credibilidad/ponderación de fuentes) y #25 (ciclo de vida/caducidad).
+- [x] AFIRMACIÓN ATRIBUIDA se representa como dimensión de atribución y nunca como estado probatorio.
+- [x] Indicio, rumor y posible filtración no se utilizan como sinónimos ni como grados automáticos de veracidad.
+- [x] Cada estado probatorio se aplica a afirmaciones concretas y conserva el alcance respaldado.
+- [x] La corroboración independiente se basa en orígenes diferenciados; republicaciones y fuentes comunes no se cuentan como independencia.
+- [x] Las fuentes anónimas se registran con límites explícitos y sin exponer identidades confidenciales.
+- [x] La autenticación documental separa integridad de copia, autenticidad, procedencia y veracidad del contenido.
+- [x] Los hashes y metadatos no se presentan como prueba suficiente de autoría o autenticidad.
+- [x] La confirmación posterior no reescribe el estado probatorio que existía antes del anuncio oficial.
+- [x] La ausencia de confirmación no se convierte automáticamente en refutación.
+- [x] Los movimientos de precio no se utilizan como corroboración de rumores o filtraciones.
+- [x] Existe un procedimiento de parada y revisión jurídica para material potencialmente ilícito o información privilegiada.
+- [x] Se preservan versiones, contradicciones, rectificaciones y estados históricos sin sobrescritura.
+- [x] CONTRADICHA exige dos líneas de evidencia materialmente incompatibles con base verificable; un documento no autenticado o relatos anónimos sin corroboración no bastan por sí solos.
+- [x] Los casos E01–E18 cubren fuentes anónimas, documentos no autenticados, corroboración parcial, independencia, falsificación, confirmación posterior y salvaguardas legales.
+- [x] Se mantiene la separación con los Issues #16 (credibilidad/ponderación de fuentes) y #25 (ciclo de vida/caducidad).
 - [x] El propietario aprobó expresamente los criterios y el estándar probatorio antes de cualquier implementación.
 
 ## 11. Referencias y límites de aplicación
