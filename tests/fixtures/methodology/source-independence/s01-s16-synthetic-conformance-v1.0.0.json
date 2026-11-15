@@ -496,7 +496,8 @@
         "independent_analytical_processes": 2,
         "independent_data_origins": 1,
         "corroboration_count_increment": 0,
-        "guardrail": "Procesos analíticos separados no crean un segundo origen independiente del dataset."
+        "guardrail": "Procesos analíticos separados no crean un segundo origen independiente del dataset.",
+        "independent_origins": 1
       }
     }
   ]
