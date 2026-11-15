@@ -37,7 +37,8 @@ try {
         @{ Name='Assessment cites no supporting evidence'; Apply={ param($x) $x.cases[0].assessment_record.supporting_evidence_refs = @() } },
         @{ Name='Unsupported source subtype'; Apply={ param($x) $x.cases[0].source_subtype = 'UNCLASSIFIED' } },
         @{ Name='SINAYXA anonymity status falsely cleared'; Apply={ param($x) $x.cases[14].identity_visibility.anonymous_to_sinayxa = $false } },
-        @{ Name='Publisher identity verification transferred to SINAYXA'; Apply={ param($x) $x.cases[14].identity_visibility.identity_verified_by_sinayxa = $true } }
+        @{ Name='Publisher identity verification transferred to SINAYXA'; Apply={ param($x) $x.cases[14].identity_visibility.identity_verified_by_sinayxa = $true } },
+        @{ Name='Assessment cites nonexistent contrary evidence'; Apply={ param($x) $x.cases[13].assessment_record.contrary_evidence_refs = @('synthetic-fixture://missing-contrary') } }
     )
     foreach ($mutation in $mutations) {
         $copy = $base | ConvertTo-Json -Depth 50 | ConvertFrom-Json -Depth 50
