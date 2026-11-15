@@ -27,7 +27,8 @@ Cada hipótesis de impacto debe conservar, como mínimo conceptual, los siguient
 | --- | --- | --- |
 | Dirección potencial | POSITIVA, NEGATIVA, MIXTA, NEUTRAL, INDETERMINADA | Signo o combinación de efectos del mecanismo sobre la exposición identificada |
 | Intensidad potencial | I0–I4 o INDETERMINADA | Importancia potencial del efecto, según los anclajes de la sección 3 |
-| Horizonte del acontecimiento | INMEDIATO, CORTO, MEDIO, LARGO, FECHA/VENTANA CONCRETA, INDETERMINADO | Cuándo se espera que ocurra o se materialice el hito |
+| Horizonte del acontecimiento | INMEDIATO, CORTO, MEDIO, LARGO, FECHA/VENTANA CONCRETA, INDETERMINADO | Tiempo restante hasta un hito futuro previsto; la fecha/ventana concreta se conserva como dato independiente |
+| Tiempo transcurrido desde un hito pasado | Duración exacta o intervalo; NO SE CLASIFICA COMO HORIZONTE | Antigüedad del hito entre su ocurrencia y la fecha de corte de la evaluación; dato descriptivo, no horizonte futuro ni latencia de transmisión |
 | Horizonte de transmisión | INMEDIATO, CORTO, MEDIO, LARGO, VARIABLE/CONDICIONAL, INDETERMINADO | Cuánto podría tardar el mecanismo en afectar la exposición |
 | Horizonte de reacción del precio | INMEDIATO, CORTO, MEDIO, LARGO, MÚLTIPLE, NO EVALUADO | Ventana de reacción que se estudiará; no constituye pronóstico |
 
@@ -186,15 +187,15 @@ Si la evidencia temporal es contradictoria, incompleta o solo aproximada, regist
 
 ### 4.2 Tres relojes distintos
 
-1. **Reloj del acontecimiento:** tiempo hasta el hito previsto o tiempo transcurrido desde el hito ocurrido. Se apoya en fechas y ventanas documentadas.
-2. **Reloj de transmisión:** tiempo que el mecanismo necesita para modificar la exposición. Debe justificarse por las etapas reales del proceso (condición legal, despliegue, integración, liquidación, cambio de oferta, etc.).
+1. **Reloj del acontecimiento:** tiempo restante hasta un hito futuro previsto, calculado desde una fecha de corte explícita. Para un hito ya ocurrido se registra por separado el **tiempo transcurrido desde el hito** (antigüedad); este dato descriptivo no se clasifica como horizonte futuro ni se reutiliza como horizonte de transmisión o reacción.
+2. **Reloj de transmisión:** duración/latencia que el mecanismo necesita para modificar la exposición, desde el hito que lo activa hasta el cambio relevante. Debe justificarse por las etapas reales del proceso (condición legal, despliegue, integración, liquidación, cambio de oferta, etc.); si todavía no se ha observado, se identifica como estimación o hipótesis, no como duración observada.
 3. **Reloj de reacción del precio:** ventana de observación que se utilizará para estudiar el comportamiento del mercado. Es una decisión de metodología de medición y comparabilidad; no se deriva automáticamente de los dos relojes anteriores.
 
 Para acontecimientos programados, puede existir una fase anticipatoria antes del hito y otra posterior a su materialización. Deben describirse por separado cuando los mecanismos difieran. La fecha programada no demuestra que el acontecimiento vaya a ocurrir.
 
 ### 4.3 Límites exactos y cálculo de ventanas
 
-Las ventanas se interpretan como duración transcurrida desde un instante de referencia identificado, no como etiquetas basadas en el cambio de fecha del calendario:
+Las cuatro categorías se aplican al tiempo restante hasta un hito futuro y a duraciones de transmisión o ventanas de observación cuando el protocolo declare expresamente ese uso. No se aplican a la antigüedad de un acontecimiento ya ocurrido. Las ventanas se interpretan como duración transcurrida desde un instante de referencia identificado, no como etiquetas basadas en el cambio de fecha del calendario:
 
 | Categoría | Duración transcurrida desde el instante de referencia |
 | --- | --- |
@@ -205,6 +206,8 @@ Las ventanas se interpretan como duración transcurrida desde un instante de ref
 
 Los límites son inclusivos en el extremo superior de cada categoría. Por tanto, exactamente 24 horas corresponde a INMEDIATO; exactamente 7 × 24 horas, a CORTO; exactamente 90 × 24 horas, a MEDIO. El instante siguiente a cada límite pertenece a la categoría siguiente. Así no existen solapamientos ni huecos.
 
+Para un hito pasado, registrar `elapsed_since_event` como duración exacta o intervalo entre la ocurrencia y la fecha de corte. No asignar INMEDIATO/CORTO/MEDIO/LARGO a ese valor: que un acontecimiento sea antiguo no significa que tenga un horizonte futuro largo. Si la fecha de corte o la ocurrencia carece de precisión suficiente, conservar la fecha/intervalo y la incertidumbre sin inventar una duración.
+
 Para aplicar la regla:
 
 - identificar el instante de referencia y el instante objetivo o intervalo objetivo;
@@ -214,7 +217,7 @@ Para aplicar la regla:
 - si el instante de referencia o el objetivo es un intervalo, calcular y conservar el intervalo de duraciones. Si sus extremos caen en categorías distintas, asignar INDETERMINADO como categoría única y conservar en la justificación el conjunto de categorías compatibles; no escoger un único horizonte sin evidencia adicional. Solo podrá usarse una representación multivalor si una implementación futura define explícitamente ese campo y sus reglas;
 - una fecha concreta o ventana de calendario se conserva siempre como dato independiente de la categoría operativa.
 
-Las cuatro categorías describen distancias temporales a un hito o la duración prevista de una etapa, según el reloj declarado. Para un hito futuro, la duración se calcula desde el instante de referencia hasta el objetivo; para un hito ya ocurrido, se calcula desde el instante del hito hasta la fecha de corte de la evaluación. La duración transcurrida es no negativa y nunca se obtiene invirtiendo arbitrariamente los extremos ni usando el valor absoluto para ocultar una cronología incoherente. No se debe clasificar un hito pasado desde la hora de evaluación actual y luego presentarlo como si fuera el horizonte original de la evaluación. La fecha de corte de la evaluación y el instante de referencia del acontecimiento se conservan por separado.
+Las cuatro categorías describen distancias temporales a un hito o la duración prevista de una etapa, según el reloj declarado. Para un hito futuro, el tiempo restante se calcula desde el instante de referencia hasta el objetivo. Para un hito ya ocurrido, `elapsed_since_event` se calcula desde el instante del hito hasta la fecha de corte de la evaluación y se conserva como antigüedad descriptiva, sin asignarle una de las cuatro categorías de horizonte. La duración nunca se obtiene invirtiendo arbitrariamente los extremos ni usando el valor absoluto para ocultar una cronología incoherente. No se debe recalcular un hito pasado desde la hora de evaluación actual y presentarlo como si fuera el horizonte original de una evaluación histórica. La fecha de corte de la evaluación y el instante de referencia del acontecimiento se conservan por separado.
 
 ### 4.4 Acontecimientos con varias fases
 
@@ -223,7 +226,7 @@ Un acontecimiento con fases no recibe un único horizonte global si sus fases ti
 - identificador del acontecimiento y de la fase;
 - tipo de reloj: acontecimiento, transmisión o reacción del precio;
 - instante de referencia, instante objetivo o intervalo y estado temporal;
-- horizonte operativo de esa fase;
+- horizonte operativo de esa fase, solo cuando exista un hito futuro o una duración de transmisión/observación que se clasifique; para una fase pasada, antigüedad separada sin etiqueta de horizonte;
 - mecanismo, exposición y escenario asociados;
 - dependencia respecto de fases anteriores y condición necesaria para avanzar;
 - fuente y evidencia temporal.
@@ -289,6 +292,7 @@ Tampoco define puntuación compuesta, pesos, probabilidad, retorno esperado, se�
 - [ ] El propietario aprueba o modifica la regla de indeterminación y confirma que ausencia de evidencia no equivale a impacto nulo.
 - [ ] El propietario aprueba o modifica las ventanas INMEDIATO (duración ≤24 horas), CORTO (24 horas < duración ≤7 × 24 horas), MEDIO (7 × 24 horas < duración ≤90 × 24 horas) y LARGO (duración >90 × 24 horas), entendidas como convenciones operativas y calculadas como tiempo transcurrido, no como días calendario.
 - [ ] Se acepta la separación entre horizonte del acontecimiento, horizonte de transmisión y horizonte de reacción del precio.
+- [ ] El tiempo restante hasta hitos futuros se distingue del tiempo transcurrido desde hitos pasados; la antigüedad de un hito pasado no se clasifica como INMEDIATO/CORTO/MEDIO/LARGO.
 - [ ] Se acepta la separación entre dirección, intensidad y probabilidad, sin puntuaciones ni probabilidades inventadas.
 - [ ] Los casos ilustrativos se consideran suficientes y no contradicen el glosario del Issue #13.
 - [ ] Se acepta la preservación de evaluaciones anteriores y la prohibición de usar movimientos posteriores del precio como justificación retroactiva.
@@ -330,6 +334,7 @@ Los siguientes casos son escenarios sintéticos de prueba. Los resultados espera
 - [ ] Existe un protocolo documentado de evaluación primaria por un único humano y crítica auxiliar de IA; no se afirma acuerdo interevaluador ni consenso humano.
 - [ ] Las fronteras temporales son exhaustivas y no solapadas, y sus extremos se prueban mediante T11 y T12; los cambios de horario y la evidencia temporal contradictoria se comprueban mediante T18 y T19.
 - [ ] Las fechas sin hora, intervalos y timestamps contradictorios no se convierten en precisión artificial.
+- [ ] La batería incluye un caso específico de hito pasado cuya antigüedad se registra sin convertirla en horizonte; debe incorporarse a una versión posterior del fixture antes de declarar completa la cobertura sintética.
 - [ ] Los acontecimientos con varias fases conservan un horizonte por hito/fase y distinguen los tres relojes.
 - [ ] La batería T01–T19 se ejecuta y sus resultados quedan registrados antes de la aprobación metodológica.
 
