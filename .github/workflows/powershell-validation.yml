@@ -25,6 +25,9 @@ on:
       - "docs/news-and-events/alert-severity-and-deduplication-proposal.md"
       - "tests/fixtures/methodology/alerts/**"
       - "tests/fixtures/methodology/source-independence/**"
+      - "schemas/source-evidence-contract-0.2.0.schema.json"
+      - "tests/fixtures/contracts/source-evidence-contract-v0.2.0.json"
+      - "scripts/validation/validate_source_evidence_contract_schema.py"
       - "scripts/validation/validate_source_independence_fixture.ps1"
       - "scripts/validation/test_source_independence_fixture.ps1"
       - "scripts/validation/validate_alert_fixture.ps1"
@@ -191,6 +194,22 @@ jobs:
           $ErrorActionPreference = 'Stop'
           & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_source_independence_fixture.ps1'
           if ($LASTEXITCODE -ne 0) { throw 'The Issue #16 source-independence mutation tests failed.' }
+
+      - name: Validate Issue #78 JSON Schema and synthetic fixture semantics
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/validate_source_evidence_contract.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'The Issue #78 source-evidence contract validator failed.' }
+
+      - name: Run Issue #78 contract negative mutation tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_source_evidence_contract.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'The Issue #78 source-evidence contract mutation tests failed.' }
 
       - name: Validate Issue #17 A01-A15 synthetic alert fixture
         shell: pwsh
