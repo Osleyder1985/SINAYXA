@@ -121,8 +121,9 @@ Evidence item:
 
 - `evidence_id`, `source_version_id` cuando exista.
 - `evidence_kind`: documento, registro, declaración, observación, dataset, análisis u otro tipo tipado.
+- `information_nature`: AFIRMACIÓN, INDICIO, RUMOR, POSIBLE_FILTRACIÓN, PUBLICACIÓN_OFICIAL o HECHO_OBSERVADO, según #15. Describe la naturaleza de la pieza/señal, no su estado probatorio.
 - `content_reference` o referencia externa, si su uso es legítimo.
-- `integrity_status`: resultado de comprobación de integridad de la copia.
+- `integrity_check`: resultado técnico de integridad de la copia (`algorithm`, `expected_digest`, `observed_digest`, `checked_at`, `result` = MATCH, MISMATCH, NOT_CHECKED o UNAVAILABLE). No acredita autoría, autenticidad ni veracidad.
 - `authenticity_status`: estados exactos de #15.
 - `access_status`: estados exactos de #15.
 - `recorded_at`.
@@ -137,13 +138,14 @@ Una pieza puede relacionarse con varios componentes mediante enlaces separados. 
 
 ### 3.7 Provenance node y provenance edge
 
-El grafo debe permitir nodos de tipo SOURCE_VERSION, EVIDENCE_ITEM, DOCUMENT, DATASET, INTERMEDIARY o INFORMANT. Los identificadores de informantes son pseudónimos no reversibles y no almacenan identidad confidencial.
+El grafo debe permitir nodos de tipo SOURCE_VERSION, EVIDENCE_ITEM, DOCUMENT, DATASET, INTERMEDIARY, INFORMANT o UNKNOWN_ORIGIN. Los identificadores de informantes son pseudónimos no reversibles y no almacenan identidad confidencial. `UNKNOWN_ORIGIN` es un nodo marcador sin identidad ni contenido atribuido; permite representar una procedencia no reconstruida sin crear aristas huérfanas.
 
 Cada arista se orienta **desde el nodo dependiente hacia su antecedente/origen** y contiene:
 
 - `edge_id`.
 - `from_node_id`, `to_node_id`.
 - `relation_type`: ORIGEN_DIRECTO, CITA_DE, SINDICADA_DE, DERIVADA_DE, DOCUMENTO_COMÚN, CONTACTO_COMÚN, ORIGEN_NO_DETERMINADO o ANÁLISIS_SEPARADO_SOBRE_DATOS_COMUNES.
+  - `ORIGEN_NO_DETERMINADO` debe apuntar a un nodo `UNKNOWN_ORIGIN`; no representa evidencia de que exista una fuente concreta ni autoriza inferir independencia.
 - `claim_component_id`: alcance concreto.
 - `evidence_refs`: piezas que justifican la relación.
 - `recorded_at`, `valid_from`, `valid_to`, cuando proceda.
@@ -208,7 +210,23 @@ La conclusión probatoria se conserva en una entidad separada de las evaluacione
 
 Cada reevaluación crea un registro nuevo. No se sobrescriben estado histórico, evidencia ni razonamiento anteriores.
 
-## 4. Integridad y semántica de datos
+## 4. Matriz de trazabilidad con #4, #15 y #16
+
+| Requisito | Entidades/campos del contrato | Base normativa |
+|---|---|---|
+| #4 — conservar afirmación y separar sus componentes verificables | Claim, Claim component, Claim component assessment | #15: estado por proposición; #16: evaluación por afirmación/componente |
+| #4 — identificar origen y publicaciones derivadas | Source, Source version, Source identity assessment | #15: atribución/identidad separadas; #16: tipo, subtipo, base de conocimiento y difusión |
+| #4 — reconstruir republicaciones, citas y origen común | Provenance node/edge, Independence assessment | #15: no contar republicaciones; #16: genealogía y dependencia por componente |
+| #4 — conservar correcciones, versiones y evidencia retirada lícitamente | Source version, Claim-evidence link, historial de evaluaciones | #15: preservar versiones y no elevar retroactivamente estados |
+| #4 — evaluar factores de fuente sin reputación global | Source factor assessment | #16: diez factores, cinco estados descriptivos, justificación y revisión humana |
+| #4 — enlazar soporte, contradicción y contexto por componente | Evidence item, Claim-evidence link, Claim component assessment | #15: estados probatorios y evidencia favorable/contraria; #16: alcance por componente |
+| #4 — conservar resultados indeterminados | DESCONOCIDA, NO_RESUELTA, NO_DETERMINADA, UNKNOWN según dimensión | #15/#16: incertidumbre explícita; no convertir ausencia en independencia o falsedad |
+| #15 — naturaleza, estado probatorio, atribución, autenticidad, acceso e identidad separados | Evidence item, Claim component assessment, Source identity assessment, Evaluation unit | Vocabulario exacto aprobado en #15 |
+| #16 — independencia, diez factores y unidad de evaluación exacta | Evaluation unit, Independence assessment, Source factor assessment | Vocabulario y reglas aprobados en #16 |
+
+La matriz no crea estados nuevos. Cada valor se interpreta únicamente en la dimensión indicada; los estados de una dimensión no sustituyen ni elevan los de otra.
+
+## 5. Integridad y semántica de datos
 
 1. Toda referencia debe resolver a una entidad existente; no se aceptan aristas, evidencias ni evaluaciones huérfanas.
 2. Toda evaluación debe enlazar un claim, un componente, una fuente, una versión y un corte UTC.
@@ -249,6 +267,8 @@ Cada reevaluación crea un registro nuevo. No se sobrescriben estado histórico,
 - ¿Se aprueba la separación entre Evidence item, claim-evidence link y Claim component assessment?
 - ¿Se aprueba mantener el contrato neutral respecto a la base de datos y seleccionar tecnología en una decisión posterior?
 - ¿Qué política de retención debe regir las copias legítimas y sus referencias?
+- ¿Se aprueba registrar `information_nature` en Evidence item con los valores exactos de #15, separado de `evidentiary_status`?
+- ¿Se aprueba el nodo marcador `UNKNOWN_ORIGIN` para aristas cuyo origen no puede reconstruirse?
 
 ## 8. Criterios de salida de #78
 
