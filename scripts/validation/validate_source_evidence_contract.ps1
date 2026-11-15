@@ -449,32 +449,76 @@ foreach ($record in $package.retention_records) {
     Test-Condition $known 'Retention record references an unknown subject.'
     Test-Condition (Test-Utc $record.review_at 'review_at') 'Retention review_at must be UTC.'
     Test-Condition (Test-Utc $record.recorded_at 'recorded_at') 'Retention recorded_at must be UTC.'
-    if ($record.content_retained -eq $true) {
-        Test-Condition ($record.disposition -in @('RETAIN','DELETE_PENDING','RESTRICTED')) 'Retained content has an incompatible disposition.'
-        if ($record.disposition -in @('RETAIN','RESTRICTED')) {
-            Test-Condition ($record.legal_basis_status -eq 'VERIFIED') 'Retained content requires a verified legal/access basis unless it is under deletion.'
-            Test-Condition ($null -ne $record.expires_at -and (Test-Utc $record.expires_at 'expires_at')) 'Retained content requires a reviewable UTC expiry.'
-            Test-Condition ([DateTimeOffset]::Parse([string]$record.expires_at) -gt [DateTimeOffset]::Parse([string]$record.recorded_at)) 'Retained content expiry must be later than its retention record.'
-            Test-Condition ([DateTimeOffset]::Parse([string]$record.review_at) -le [DateTimeOffset]::Parse([string]$record.expires_at)) 'Retention review must occur no later than expiry.'
-        }
-        if ($record.disposition -eq 'DELETE_PENDING') {
-            Test-Condition ($null -ne $record.expires_at -and (Test-Utc $record.expires_at 'expires_at')) 'DELETE_PENDING requires a recorded expiry/deletion deadline.'
-        }
+    $allowedTransitions = @{
+        $null = @('RETAIN','REFERENCE_ONLY','RESTRICTED')
+        'RETAIN' = @('RESTRICTED','DELETE_PENDING','DELETED','REFERENCE_ONLY')
+        'RESTRICTED' = @('RETAIN','DELETE_PENDING','DELETED','REFERENCE_ONLY')
+        'REFERENCE_ONLY' = @('RETAIN','RESTRICTED','DELETED')
+        'DELETE_PENDING' = @('DELETED','REFERENCE_ONLY')
+        'DELETED' = @()
+    }
+    $previous = $record.previous_disposition
+    Test-Condition ($record.disposition -in @('RETAIN','REFERENCE_ONLY','RESTRICTED','DELETE_PENDING','DELETED')) 'Unsupported retention disposition.'
+    if ($null -eq $previous) {
+        Test-Condition ($record.disposition -in @('RETAIN','REFERENCE_ONLY','RESTRICTED')) 'DELETE_PENDING and DELETED cannot be initial retention states.'
     }
     else {
-        Test-Condition ($record.disposition -in @('REFERENCE_ONLY','DELETED','RESTRICTED')) 'Content not retained must use REFERENCE_ONLY, DELETED or RESTRICTED disposition.'
+        Test-Condition ($record.disposition -in $allowedTransitions[[string]$previous]) 'Invalid retention disposition transition.'
+    }
+    if ($record.content_retained -eq $true) {
+        Test-Condition ($record.disposition -in @('RETAIN','DELETE_PENDING','RESTRICTED')) 'Retained content has an incompatible disposition.'
+    }
+    else {
+        Test-Condition ($record.disposition -in @('REFERENCE_ONLY','DELETED','RESTRICTED')) 'Content not retained has an incompatible disposition.'
+    }
+    if ($record.disposition -in @('RETAIN','RESTRICTED') -and $record.content_retained -eq $true) {
+        Test-Condition ($record.legal_basis_status -eq 'VERIFIED') 'Retained content requires a verified legal/access basis.'
+        Test-Condition ($null -ne $record.expires_at -and (Test-Utc $record.expires_at 'expires_at')) 'Retained content requires a reviewable UTC expiry.'
+        Test-Condition ([DateTimeOffset]::Parse([string]$record.expires_at) -gt [DateTimeOffset]::Parse([string]$record.recorded_at)) 'Retained content expiry must be later than its retention record.'
+        Test-Condition ([DateTimeOffset]::Parse([string]$record.review_at) -le [DateTimeOffset]::Parse([string]$record.expires_at)) 'Retention review must occur no later than expiry.'
+    }
+    if ($record.disposition -eq 'RETAIN') {
+        Test-Condition ($record.content_retained -eq $true -and $record.legal_basis_status -eq 'VERIFIED') 'RETAIN requires retained content and verified legal/access basis.'
+        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$record.authorization_reference)) 'RETAIN requires a traceable authorization decision.'
+    }
+    if ($record.disposition -eq 'REFERENCE_ONLY') {
+        Test-Condition ($record.content_retained -eq $false) 'REFERENCE_ONLY cannot retain content.'
+    }
+    if ($record.disposition -eq 'DELETE_PENDING') {
+        Test-Condition ($record.content_retained -eq $true) 'DELETE_PENDING requires the retained copy to remain explicitly tracked until deletion is confirmed.'
+        Test-Condition ($previous -in @('RETAIN','RESTRICTED')) 'DELETE_PENDING must follow a retained or restricted state.'
+        Test-Condition ($null -ne $record.expires_at -and (Test-Utc $record.expires_at 'expires_at')) 'DELETE_PENDING requires a recorded expiry/deletion deadline.'
     }
     if ($record.disposition -eq 'DELETED') {
         Test-Condition ($record.content_retained -eq $false) 'DELETED disposition cannot retain content.'
-        $deletionEvents = @($package.audit_events | Where-Object { $_.subject_ref -eq $record.subject_ref -and $_.action -eq 'DELETED' -and (Test-Utc $_.occurred_at 'occurred_at') -and [DateTimeOffset]::Parse([string]$_.occurred_at) -ge [DateTimeOffset]::Parse([string]$record.recorded_at) })
-        Test-Condition ($deletionEvents.Count -gt 0) 'DELETED disposition requires a matching, later DELETED audit event.'
+        Test-Condition ($previous -in @('RETAIN','RESTRICTED','DELETE_PENDING')) 'DELETED must follow a state in which content was retained or pending deletion.'
     }
-    if ($record.disposition -eq 'DELETE_PENDING') { Test-Condition ($record.content_retained -eq $true) 'DELETE_PENDING requires the retained copy to remain explicitly tracked until deletion is confirmed.' }
+    if ($null -ne $previous -and $previous -eq 'DELETED') { Test-Condition $false 'DELETED is terminal; a new retention decision must use a new evidence subject.' }
+    $expectedAction = switch ($record.disposition) {
+        'RETAIN' { 'RETENTION_SET' }
+        'REFERENCE_ONLY' { 'REFERENCE_ONLY' }
+        'RESTRICTED' { 'RESTRICTED' }
+        'DELETE_PENDING' { 'DELETION_REQUESTED' }
+        'DELETED' { 'DELETED' }
+    }
+    $transitionEvents = @($package.audit_events | Where-Object {
+        $_.retention_id -eq $record.retention_id -and $_.subject_ref -eq $record.subject_ref -and
+        $_.from_disposition -eq $record.previous_disposition -and $_.to_disposition -eq $record.disposition -and
+        $_.action -eq $expectedAction -and (Test-Utc $_.occurred_at 'occurred_at') -and
+        [DateTimeOffset]::Parse([string]$_.occurred_at) -ge [DateTimeOffset]::Parse([string]$record.recorded_at)
+    })
+    Test-Condition ($transitionEvents.Count -eq 1) 'Every retention disposition transition requires exactly one matching audit event.'
 }
 foreach ($auditEvent in $package.audit_events) {
     $known = (Test-HasRef $claimIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $claimVersionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $componentIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $componentVersionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sourceIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $versionIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $evidenceIds ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.claim_assessments ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.identity_assessments ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.evaluation_units ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.claim_evidence_links ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.provenance_nodes ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.provenance_edges ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.factor_assessments ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.independence_assessments ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.retention_records ([string]$auditEvent.subject_ref)) -or (Test-HasRef $sets.evidence_availability ([string]$auditEvent.subject_ref))
     Test-Condition $known 'Audit event references an unknown subject.'
     Test-Condition (Test-Utc $auditEvent.occurred_at 'occurred_at') 'Audit event occurred_at must be UTC.'
+    if ($null -ne $auditEvent.retention_id) {
+        Test-Condition (Test-HasRef $sets.retention_records ([string]$auditEvent.retention_id)) 'Retention audit event references an unknown retention record.'
+        $retention = @($package.retention_records | Where-Object { $_.retention_id -eq $auditEvent.retention_id })[0]
+        Test-Condition ($retention.subject_ref -eq $auditEvent.subject_ref -and $retention.previous_disposition -eq $auditEvent.from_disposition -and $retention.disposition -eq $auditEvent.to_disposition) 'Retention audit event does not match its retention transition.'
+    }
+    elseif ($null -ne $auditEvent.from_disposition -or $null -ne $auditEvent.to_disposition) { Test-Condition $false 'Retention transition audit fields require retention_id.' }
 }
 Test-ForbiddenKey -Value $package
 [pscustomobject]@{
