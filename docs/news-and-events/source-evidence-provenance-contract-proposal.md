@@ -306,7 +306,7 @@ Los campos temporales no son intercambiables. Todos los instantes normalizados s
 Reglas:
 
 1. Un valor temporal desconocido se representa como null únicamente en campos declarados opcionales; se conserva el motivo de desconocimiento en limitations o en la observación temporal aplicable. No se inventa una fecha.
-2. Una fecha parcial no se transforma en un instante exacto. original_timestamps.precision conserva YEAR, MONTH, DAY, MINUTE, SECOND, MILLISECOND o UNKNOWN.
+2. Una fecha parcial no se transforma en un instante exacto. original_timestamps.precision conserva YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MILLISECOND o UNKNOWN; el validador rechaza que el valor original tenga menos precisión que la declarada.
 3. first_detected_at y first_publicly_observed_at son distintos. Una publicación anticipada puede ser detectada por SINAYXA antes de un anuncio oficial posterior; el anuncio posterior no modifica el corte histórico anterior.
 4. No se exige que published_at preceda siempre a first_detected_at: puede haber timestamps de publicación corregidos, contenido republicado o evidencias de primera observación distintas. La discrepancia debe conservarse y explicarse, no normalizarse silenciosamente.
 5. Cuando ambos son conocidos, retrieved_at no puede preceder a first_detected_at para la misma adquisición. Una excepción exige modelar una captura/importación histórica distinta, no alterar el timestamp.
@@ -360,7 +360,7 @@ La conservación de contenido requiere conjuntamente:
 
 No se fija un plazo universal. El vencimiento se determina por la base jurídica, jurisdicción, licencia, autorización y propósito aplicables. Una autorización pendiente, sospechosa o no establecida no permite iniciar o mantener una conservación ordinaria.
 
-Los estados de disposición tienen semántica explícita: RETAIN exige copia conservada, base verificada y vencimiento futuro; REFERENCE_ONLY significa que solo se mantiene la referencia; RESTRICTED limita el uso/acceso; DELETE_PENDING registra una copia pendiente de eliminación y exige fecha/deadline de eliminación; DELETED exige que la copia ya no se conserve y un evento de auditoría DELETED posterior que confirme la acción. Una copia en DELETE_PENDING no se trata como material disponible para análisis nuevo.
+Los estados de disposición tienen semántica explícita: RETAIN exige copia conservada, base verificada, autorización trazable y vencimiento futuro; REFERENCE_ONLY significa que solo se mantiene la referencia; RESTRICTED limita el uso/acceso; DELETE_PENDING registra una copia pendiente de eliminación y exige fecha/deadline; DELETED exige que la copia ya no se conserve. Cada cambio registra `previous_disposition`, nueva disposición y exactamente un evento de auditoría correlacionado por `retention_id`, con actor por rol, fecha y motivo. DELETE_PENDING solo puede seguir a RETAIN/RESTRICTED; DELETED es terminal. Una copia en DELETE_PENDING no se trata como material disponible para análisis nuevo.
 
 Al vencer o perderse la base legítima:
 
