@@ -82,7 +82,7 @@ foreach ($component in $package.claim_components) {
 }
 foreach ($version in $package.source_versions) {
     Stop-IfFalse (Test-HasRef $sourceIds ([string]$version.source_id)) "Source version '$($version.source_version_id)' references an unknown source."
-    foreach ($field in @('published_at','first_detected_at','retrieved_at','recorded_at')) {
+    foreach ($field in @('published_at','first_detected_at','first_publicly_observed_at','retrieved_at','recorded_at')) {
         if ($null -ne $version[$field]) { Stop-IfFalse (Test-Utc $version[$field] $field) "Source version '$($version.source_version_id)' has invalid UTC $field." }
     }
     if ($null -ne $version.retrieved_at -and $null -ne $version.first_detected_at) {
@@ -99,6 +99,7 @@ foreach ($version in $package.source_versions) {
 }
 foreach ($identity in $package.identity_assessments) {
     Stop-IfFalse (Test-HasRef $sourceIds ([string]$identity.source_id)) "Identity assessment references an unknown source."
+    foreach ($reference in @($identity.verification_evidence_refs)) { Stop-IfFalse (Test-HasRef $evidenceIds ([string]$reference)) 'Identity assessment references unknown verification evidence.' }
     Stop-IfFalse (Test-Utc $identity.assessment_cutoff 'assessment_cutoff') 'Identity assessment cutoff must be UTC.'
     Stop-IfFalse (Test-Utc $identity.recorded_at 'recorded_at') 'Identity assessment recorded_at must be UTC.'
     if ($identity.identity_verified_by_sinayxa -eq $true) {
@@ -174,6 +175,8 @@ foreach ($assessment in $package.independence_assessments) {
     if ($assessment.status -eq 'INDEPENDIENTE') {
         Stop-IfFalse (@($assessment.supporting_evidence_refs).Count -gt 0) 'INDEPENDIENTE requires positive supporting evidence.'
     }
+    if ($assessment.human_review_status -eq 'REVIEWED') { Stop-IfFalse (Test-Utc $assessment.reviewed_at 'reviewed_at') 'A reviewed independence assessment requires a UTC reviewed_at.' }
+    if ($assessment.human_review_status -eq 'PENDING') { Stop-IfFalse ($null -eq $assessment.reviewed_at) 'A pending independence assessment cannot carry reviewed_at.' }
     if ($assessment.status -eq 'DEPENDIENTE') {
         Stop-IfFalse (@($assessment.dependency_edge_refs).Count -gt 0) 'DEPENDIENTE requires an evidenced dependency edge.'
     }
@@ -187,7 +190,11 @@ foreach ($assessment in $package.claim_assessments) {
     Stop-IfFalse ($assessment.evidentiary_status -in @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADICHA','REFUTADA','NO_RESUELTA')) 'Unsupported #15 evidentiary status.'
     Stop-IfFalse ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
     foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) { Stop-IfFalse (Test-HasRef $evidenceIds ([string]$reference)) 'Claim assessment references unknown evidence.' }
-    foreach ($reference in @($assessment.independence_assessment_refs)) { Stop-IfFalse (Test-HasRef $sets.independence_assessments ([string]$reference)) 'Claim assessment references unknown independence assessment.' }
+    foreach ($reference in @($assessment.independence_assessment_refs)) {
+        Stop-IfFalse (Test-HasRef $sets.independence_assessments ([string]$reference)) 'Claim assessment references unknown independence assessment.'
+        $independence = @($package.independence_assessments | Where-Object { $_.independence_assessment_id -eq $reference })[0]
+        Stop-IfFalse ($independence.claim_id -eq $assessment.claim_id -and $independence.claim_component_id -eq $assessment.claim_component_id) 'Claim assessment references independence evidence for a different claim component.'
+    }
     $linkedSupport = @($package.claim_evidence_links | Where-Object { $_.claim_component_id -eq $assessment.claim_component_id -and $_.evidence_role -eq 'SUPPORTING' } | ForEach-Object { $_.evidence_id })
     $linkedContrary = @($package.claim_evidence_links | Where-Object { $_.claim_component_id -eq $assessment.claim_component_id -and $_.evidence_role -eq 'CONTRARY' } | ForEach-Object { $_.evidence_id })
     foreach ($reference in @($assessment.supporting_evidence_refs)) { Stop-IfFalse ($reference -in $linkedSupport) 'Supporting evidence reference has no SUPPORTING claim-evidence link for this component.' }
