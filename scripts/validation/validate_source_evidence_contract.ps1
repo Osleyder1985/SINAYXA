@@ -307,6 +307,8 @@ foreach ($assessment in $package.independence_assessments) {
     Test-Condition (@($assessment.assessment_unit_ids | Sort-Object -Unique).Count -eq @($assessment.assessment_unit_ids).Count) 'Independence assessment cannot repeat an evaluation unit.'
     foreach ($unitId in $assessment.assessment_unit_ids) { Test-Condition (Test-HasRef $unitIds ([string]$unitId)) 'Independence assessment references an unknown unit.' }
     $units = @($package.evaluation_units | Where-Object { $_.assessment_unit_id -in $assessment.assessment_unit_ids })
+    Test-Condition (Test-Utc $assessment.assessment_cutoff 'assessment_cutoff') 'Independence assessment cutoff must be UTC.'
+    Test-Condition (@($units | Where-Object { $_.assessment_cutoff -ne $assessment.assessment_cutoff }).Count -eq 0) 'Independence assessment units must share the exact assessment cutoff.'
     Test-Condition (@($units | Where-Object { $_.claim_id -ne $assessment.claim_id -or $_.claim_component_id -ne $assessment.claim_component_id -or $_.claim_version_id -ne $assessment.claim_version_id -or $_.claim_component_version_id -ne $assessment.claim_component_version_id }).Count -eq 0) 'Independence assessment mixes claims or component versions.'
     foreach ($reference in @($assessment.supporting_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Independence assessment references unknown evidence.' }
     foreach ($reference in @($assessment.dependency_edge_refs)) { Test-Condition (Test-HasRef $edgeIds ([string]$reference)) 'Independence assessment references an unknown provenance edge.' }
@@ -324,6 +326,13 @@ foreach ($assessment in $package.independence_assessments) {
             }
         }
         Test-Condition (@($evidenceSourceIds | Sort-Object -Unique).Count -ge 2) 'INDEPENDIENTE evidence must positively cover at least two distinct source identities.'
+        Test-Condition (@($distinctSourceIds | Where-Object { $_ -notin $evidenceSourceIds }).Count -eq 0) 'INDEPENDIENTE evidence must cover every evaluated source identity.'
+        foreach ($evidenceId in @($assessment.supporting_evidence_refs)) {
+            $item = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
+            $unitForEvidence = @($units | Where-Object { $_.source_version_id -eq $item.source_version_id })[0]
+            $available = @($package.evidence_availability | Where-Object { $_.evidence_id -eq $evidenceId -and $_.assessment_unit_id -eq $unitForEvidence.assessment_unit_id -and $_.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE') -and $null -ne $_.available_at -and [DateTimeOffset]::Parse([string]$_.available_at) -le [DateTimeOffset]::Parse([string]$assessment.assessment_cutoff) })
+            Test-Condition ($available.Count -gt 0) 'INDEPENDIENTE evidence must be available by the cutoff through the exact evaluated source version.'
+        }
         Test-Condition (@($assessment.dependency_edge_refs).Count -eq 0) 'INDEPENDIENTE cannot simultaneously declare material dependency edges.'
     }
     if ($assessment.status -eq 'DEPENDIENTE') {
@@ -332,6 +341,20 @@ foreach ($assessment in $package.independence_assessments) {
             $dependencyEdge = @($package.provenance_edges | Where-Object { $_.edge_id -eq $edgeId })[0]
             Test-Condition ($dependencyEdge.claim_component_id -eq $assessment.claim_component_id -and $dependencyEdge.claim_component_version_id -eq $assessment.claim_component_version_id) 'Dependency edge must apply to the exact assessed component version.'
             Test-Condition ($dependencyEdge.relation_type -ne 'ORIGEN_NO_DETERMINADO' -and @($dependencyEdge.evidence_refs).Count -gt 0) 'DEPENDIENTE requires a material, evidenced dependency relation; unknown origin alone is insufficient.'
+            $dependentNode = @($package.provenance_nodes | Where-Object { $_.node_id -eq $dependencyEdge.dependent_node_id })[0]
+            $originNode = @($package.provenance_nodes | Where-Object { $_.node_id -eq $dependencyEdge.origin_node_id })[0]
+            Test-Condition ($dependentNode.node_type -eq 'SOURCE_VERSION' -and $originNode.node_type -eq 'SOURCE_VERSION') 'DEPENDIENTE edge must connect two concrete source-version nodes, not UNKNOWN_ORIGIN.'
+            Test-Condition ($dependentNode.entity_ref -in @($units.source_version_id) -and $originNode.entity_ref -in @($units.source_version_id) -and $dependentNode.entity_ref -ne $originNode.entity_ref) 'DEPENDIENTE edge must connect two distinct source versions included in the same independence assessment.'
+            $dependentVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $dependentNode.entity_ref })[0]
+            $originVersion = @($package.source_versions | Where-Object { $_.source_version_id -eq $originNode.entity_ref })[0]
+            Test-Condition ($dependentVersion.source_id -ne $originVersion.source_id) 'DEPENDIENTE edge must connect two distinct source identities, not two versions of one source.'
+            foreach ($evidenceId in @($dependencyEdge.evidence_refs)) {
+                $edgeEvidence = @($package.evidence_items | Where-Object { $_.evidence_id -eq $evidenceId })[0]
+                Test-Condition ($edgeEvidence.source_version_id -in @($units.source_version_id)) 'Dependency edge evidence must originate from one of the exact evaluated source versions.'
+                $edgeUnit = @($units | Where-Object { $_.source_version_id -eq $edgeEvidence.source_version_id })[0]
+                $edgeEvidenceAvailable = @($package.evidence_availability | Where-Object { $_.evidence_id -eq $evidenceId -and $_.assessment_unit_id -eq $edgeUnit.assessment_unit_id -and $_.availability_basis -in @('SINAYXA_OBSERVATION','INDEPENDENT_ARCHIVE') -and $null -ne $_.available_at -and [DateTimeOffset]::Parse([string]$_.available_at) -le [DateTimeOffset]::Parse([string]$assessment.assessment_cutoff) })
+                Test-Condition ($edgeEvidenceAvailable.Count -gt 0) 'Dependency edge evidence must be available by the exact assessment cutoff.'
+            }
         }
     }
     if ($assessment.status -in @('INDEPENDIENTE','DEPENDIENTE')) { Test-Condition ($assessment.human_review_status -eq 'REVIEWED') 'Positive independence/dependence requires human review.' }
