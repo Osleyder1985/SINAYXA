@@ -149,11 +149,13 @@ El estado probatorio debe aplicarse a cada afirmación concreta, no globalmente 
 
 Para evitar crear un vocabulario paralelo, esta propuesta adopta como referencia semántica las denominaciones descriptivas ya recogidas en `catalyst-taxonomy.md`:
 
-- **Confirmada por evidencia primaria:** evidencia primaria respalda el alcance exacto de la afirmación.
+- **Confirmada por evidencia primaria:** existe evidencia primaria suficiente para respaldar el alcance exacto de la afirmación.
 - **Atribuida a fuente identificada:** la afirmación se atribuye explícitamente, pero no está confirmada de forma independiente.
 - **Parcialmente corroborada:** solo una parte o detalle está respaldado.
 - **No corroborada:** existe una referencia identificable, pero no corroboración suficiente.
-- **Posteriormente desmentida:** evidencia posterior contradice la afirmación o la fuente la rectifica/retira; se conserva el historial y la atribución.
+- **Posteriormente desmentida:** evidencia posterior contradice o desmiente la afirmación; se conserva el historial y la atribución.
+
+Una sola fuente secundaria no basta por sí sola para elevar una afirmación a confirmada. La evidencia primaria y/o la corroboración independiente deben respaldar el alcance exacto de la afirmación que se considere confirmada. Una rectificación o retirada de una publicación se registra como actualización atribuida a su fuente; no demuestra por sí sola que todas las afirmaciones relacionadas sean falsas.
 
 Estas denominaciones describen el estado de una afirmación y no constituyen por sí mismas una máquina de estados, un contrato de API ni una decisión sobre transiciones, precedencia o caducidad. Las reglas detalladas de evaluación, independencia de fuentes, contradicciones y ciclo de vida permanecen reservadas a los Issues #15, #16 y #25.
 
