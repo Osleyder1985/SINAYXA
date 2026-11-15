@@ -44,7 +44,9 @@ try {
         @{ Name='Factor without justification'; Apply={ param($x) $x.cases[0].factor_assessments[0].justification = '' } },
         @{ Name='Factor references nonexistent evidence'; Apply={ param($x) $x.cases[0].factor_assessments[0].evidence_refs = @('synthetic-fixture://missing-factor-evidence') } },
         @{ Name='Factor status contradicts evidence basis'; Apply={ param($x) $x.cases[0].factor_assessments[0].status = 'SUSTENTADA' } },
-        @{ Name='Numeric credibility score injected'; Apply={ param($x) $x.cases[0].factor_assessments[0] | Add-Member -NotePropertyName score -NotePropertyValue 0.95 } }
+        @{ Name='Numeric credibility score injected'; Apply={ param($x) $x.cases[0].factor_assessments[0] | Add-Member -NotePropertyName score -NotePropertyValue 0.95 } },
+        @{ Name='Issue 15 probative state CONTRADICHA used as factor'; Apply={ param($x) $x.cases[0].factor_assessments[0].status = 'CONTRADICHA' } },
+        @{ Name='Issue 15 probative state CORROBORADA used as factor'; Apply={ param($x) $x.cases[0].factor_assessments[0].status = 'CORROBORADA' } }
     )
     foreach ($mutation in $mutations) {
         $copy = $base | ConvertTo-Json -Depth 50 | ConvertFrom-Json -Depth 50

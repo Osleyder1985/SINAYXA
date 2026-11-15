@@ -277,12 +277,12 @@ La rúbrica debe rechazar, al menos, estos atajos:
 - [x] Se aprueba la representación de cadenas de procedencia y relaciones de dependencia.
 - [x] Se distinguen los tipos PRIMARIA, SECUNDARIA y TERCIARIA por su relación con cada afirmación y componente.
 - [x] El carácter oficial/institucional, el subtipo/función, la base de conocimiento y el modo de difusión se registran en ejes separados; no se confunden con el tipo de fuente ni con credibilidad.
-- [ ] Se resuelven explícitamente los casos de anonimato y confidencialidad.
-- [ ] Se resuelven sindicación, citas cruzadas, documentos e informantes comunes.
-- [ ] Se define el tratamiento de contradicciones, rectificaciones y ausencia de corroboración compatible con #15.
-- [ ] Los ejemplos S01–S16 se revisan y se convierten en casos de prueba sintéticos tras la aprobación.
-- [ ] La evaluación deja trazabilidad de evidencia favorable, contraria, límites y decisión humana.
-- [ ] El propietario aprueba expresamente la versión y el alcance de la rúbrica.
+- [x] Se resuelven explícitamente los casos de anonimato y confidencialidad mediante visibilidad separada ante público, editor y SINAYXA; no se transfieren verificaciones de identidad ni se incorporan identidades confidenciales reales.
+- [x] Se resuelven sindicación, citas cruzadas, documentos e informantes comunes mediante grafo de procedencia y S01–S16.
+- [x] Se define el tratamiento de contradicciones, rectificaciones y ausencia de corroboración compatible con #15, con estados y componentes separados.
+- [x] Los ejemplos S01–S16 se revisan y se convierten en fixture sintético versionado y pruebas positivas/negativas deterministas.
+- [x] La evaluación deja trazabilidad de evidencia favorable, contraria, límites y decisión humana obligatoria.
+- [x] El propietario aprueba expresamente la versión y el alcance de la rúbrica (registro de decisión enlazado abajo).
 
 ## 14. Límites y asuntos que permanecen abiertos
 
@@ -300,6 +300,6 @@ Los asuntos jurídicos, de privacidad y seguridad deben revisarse por separado a
 
 ## 15. Registro de decisión
 
-**Estado actual: METODOLOGÍA APROBADA; CONTRATO Y PRUEBAS EN IMPLEMENTACIÓN.**
+**Estado actual: METODOLOGÍA APROBADA; CONTRATO SINTÉTICO S01–S16 INTEGRADO; AUDITORÍA FINAL DE CIERRE.**
 
-La decisión metodológica expresa del propietario quedó registrada en [el Issue #16](https://github.com/Osleyder1985/SINAYXA/issues/16#issuecomment-6900966461) el 2026-11-15. Se autoriza convertir S01–S16 en fixtures y pruebas deterministas dentro del alcance aprobado. #16 permanece abierto hasta que el contrato, los casos positivos/negativos/fronterizos, la compatibilidad con #15 y el CI del HEAD definitivo estén verificados. La aprobación no autoriza scoring, probabilidades, ranking universal, causalidad ni señales de inversión.
+La decisión metodológica expresa del propietario quedó registrada en [el Issue #16](https://github.com/Osleyder1985/SINAYXA/issues/16#issuecomment-6900966461) el 2026-11-15. Se autoriza convertir S01–S16 en fixture y pruebas deterministas dentro del alcance aprobado. La PR #74 integró el contrato de independencia y procedencia; la PR #75 integró las diez dimensiones cualitativas con 160 evaluaciones de factor. La auditoría final de #16 verificará compatibilidad integral con #15 y consistencia documental antes del cierre. La aprobación no autoriza scoring, probabilidades, ranking universal, causalidad ni señales de inversión.
