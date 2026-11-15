@@ -3,7 +3,7 @@ param()
 
 $ErrorActionPreference = "Stop"
 $validatorPath = Join-Path $PSScriptRoot "validate_intensity_horizon_fixture.ps1"
-$fixturePath = Join-Path $PSScriptRoot "..\..\tests\fixtures\methodology\intensity-horizons\t01-t19-synthetic-evidence-v1.3.0.json"
+$fixturePath = Join-Path $PSScriptRoot "..\..\tests\fixtures\methodology\intensity-horizons\t01-t20-synthetic-evidence-v1.3.0.json"
 $fixturePath = (Resolve-Path -LiteralPath $fixturePath).Path
 $tempDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-ih-validator-" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $tempDirectory | Out-Null
