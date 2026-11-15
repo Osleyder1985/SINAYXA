@@ -177,6 +177,7 @@ jobs:
       upload-sarif: false
       fail-on-vuln: true
 
+  # Full-history scanning is intentionally reserved for push, schedule, and manual runs.
   osv-full:
     name: OSV dependency scan / full
     if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
