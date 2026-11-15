@@ -1602,6 +1602,8 @@
         "review_at",
         "expires_at",
         "disposition",
+        "previous_disposition",
+        "authorization_reference",
         "recorded_at"
       ],
       "properties": {
@@ -1643,6 +1645,13 @@
             "RESTRICTED"
           ]
         },
+        "previous_disposition": {
+          "type": ["string", "null"],
+          "enum": ["RETAIN", "REFERENCE_ONLY", "DELETE_PENDING", "DELETED", "RESTRICTED", null]
+        },
+        "authorization_reference": {
+          "type": ["string", "null"]
+        },
         "recorded_at": {
           "$ref": "#/$defs/utc"
         }
@@ -1671,6 +1680,8 @@
             "CREATED",
             "UPDATED",
             "SUPERSEDED",
+            "RETENTION_SET",
+            "REFERENCE_ONLY",
             "RESTRICTED",
             "RETENTION_REVIEWED",
             "DELETION_REQUESTED",
@@ -1686,7 +1697,10 @@
         },
         "reason": {
           "$ref": "#/$defs/nonEmpty"
-        }
+        },
+        "retention_id": { "$ref": "#/$defs/id" },
+        "from_disposition": { "type": ["string", "null"], "enum": ["RETAIN", "REFERENCE_ONLY", "DELETE_PENDING", "DELETED", "RESTRICTED", null] },
+        "to_disposition": { "type": ["string", "null"], "enum": ["RETAIN", "REFERENCE_ONLY", "DELETE_PENDING", "DELETED", "RESTRICTED", null] }
       }
     },
     "sourceId": {
