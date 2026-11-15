@@ -359,6 +359,7 @@ foreach ($assessment in $package.independence_assessments) {
     }
     if ($assessment.status -eq 'DEPENDIENTE') {
         Test-Condition (@($assessment.dependency_edge_refs).Count -gt 0) 'DEPENDIENTE requires an evidenced dependency edge.'
+        Test-Condition (@($assessment.independent_path_edge_refs).Count -eq 0) 'DEPENDIENTE cannot simultaneously declare independent origin paths.'
         foreach ($edgeId in @($assessment.dependency_edge_refs)) {
             $dependencyEdge = @($package.provenance_edges | Where-Object { $_.edge_id -eq $edgeId })[0]
             Test-Condition ($dependencyEdge.claim_component_id -eq $assessment.claim_component_id -and $dependencyEdge.claim_component_version_id -eq $assessment.claim_component_version_id) 'Dependency edge must apply to the exact assessed component version.'
