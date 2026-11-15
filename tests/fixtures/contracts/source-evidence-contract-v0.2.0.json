@@ -977,7 +977,8 @@
       "human_review_status": "PENDING",
       "reviewed_at": null,
       "claim_version_id": "claim-btc-purchase-v1",
-      "claim_component_version_id": "component-entity-v1"
+      "claim_component_version_id": "component-entity-v1",
+      "independent_path_edge_refs": []
     },
     {
       "independence_assessment_id": "independence-amount",
@@ -999,7 +1000,8 @@
       "human_review_status": "PENDING",
       "reviewed_at": null,
       "claim_version_id": "claim-btc-purchase-v1",
-      "claim_component_version_id": "component-amount-v1"
+      "claim_component_version_id": "component-amount-v1",
+      "independent_path_edge_refs": []
     }
   ],
   "claim_assessments": [
