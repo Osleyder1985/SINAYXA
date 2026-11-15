@@ -120,6 +120,7 @@ La base legítima de acceso se conserva aparte con los estados de #15: PÚBLICO_
 Evidence item:
 
 - `evidence_id`, `source_version_id` cuando exista.
+- `factor_dimensions`: dimensiones de #16 a las que esta pieza puede aportar evidencia; cada referencia usada por un factor debe coincidir con la dimensión evaluada.
 - `evidence_kind`: documento, registro, declaración, observación, dataset, análisis u otro tipo tipado.
 - `information_nature`: AFIRMACIÓN, INDICIO, RUMOR, POSIBLE_FILTRACIÓN, PUBLICACIÓN_OFICIAL o HECHO_OBSERVADO, según #15. Describe la naturaleza de la pieza/señal, no su estado probatorio.
 - `content_reference` o referencia externa, si su uso es legítimo.
@@ -135,6 +136,10 @@ Claim-evidence link:
 - `scope_note`, `limitations` y referencia de evaluación.
 
 Una pieza puede relacionarse con varios componentes mediante enlaces separados. La autenticidad de una pieza no demuestra automáticamente la verdad de todo su contenido. Un hash solo acredita estabilidad/integridad de la copia examinada.
+
+### 3.6.1 Evidence availability
+
+Cada disponibilidad probatoria se registra por pieza, unidad de evaluación y versión exacta de afirmación/componente. El registro contiene `available_at`, `availability_basis` (SINAYXA_OBSERVATION, INDEPENDENT_ARCHIVE, SOURCE_STATED o UNKNOWN), una referencia trazable y `recorded_at`. Si la disponibilidad es desconocida, `available_at` y la referencia quedan nulos y la base es UNKNOWN. Una pieza solo puede sustentar un factor o una evaluación si existe un registro de disponibilidad para la unidad exacta y `available_at` no supera `assessment_cutoff`. La mera fecha de publicación declarada no sustituye una observación sustentada.
 
 ### 3.7 Provenance node y provenance edge
 
@@ -293,6 +298,8 @@ Los campos temporales no son intercambiables. Todos los instantes normalizados s
 | first_detected_at | Primer instante en que SINAYXA detectó esa versión; exige evidencia de observación o registro de captura. | Fecha de publicación si no existe evidencia de publicación. |
 | retrieved_at | Instante en que SINAYXA obtuvo la pieza mediante una vía legítima. | Primera detección ni fecha del acontecimiento. |
 | recorded_at | Instante en que el registro/versionado se incorporó al sistema. | Fecha del hecho o de la publicación. |
+| available_at | Instante en que una pieza estuvo disponible por la vía de acceso de la unidad, sustentado por una referencia de observación. | Fecha de publicación no verificada ni fecha de recuperación posterior. |
+| availability_basis | Base de conocimiento de esa disponibilidad: observación SINAYXA, archivo independiente, declaración de fuente o desconocida. | Prueba automática de autenticidad o legalidad. |
 | assessment_cutoff | Límite temporal de la información que podía utilizarse en una evaluación concreta. | Fecha de ejecución actual ni fecha de la fuente. |
 | valid_from / valid_to | Vigencia atribuida a una relación de procedencia, si puede establecerse. | Momento de registro de la arista. |
 
@@ -320,6 +327,8 @@ El esquema define tipos, campos requeridos, catálogos cerrados, límites básic
 - reglas positivas para INDEPENDIENTE y DEPENDIENTE;
 - igualdad de digests para MATCH y desigualdad para MISMATCH;
 - secuencia de detección/adquisición y validez de intervalos;
+- disponibilidad de cada pieza por unidad y exclusión de evidencia posterior al corte;
+- correspondencia de evidencia de factores con su dimensión exacta;
 - restricciones de retención y autorización;
 - prohibición de campos de score, weight, probability, rank e identidad confidencial.
 
@@ -388,7 +397,7 @@ La aprobación de esta versión requiere que CI valide el esquema formal, ejecut
 
 | Pregunta de decisión | Resolución técnica propuesta en v0.2.0 | Estado |
 | --- | --- | --- |
-| Entidades y límites | Mantener las entidades separadas tal como se especifican en §§3 y 10; Evaluation unit y Source identity assessment son estructuras explícitas adicionales, no duplicados de Source. | PROPUESTA |
+| Entidades y límites | Mantener las entidades separadas tal como se especifican en §§3 y 10; Evaluation unit, Source identity assessment y Evidence availability son estructuras explícitas, no duplicados de Source o Evidence item. | PROPUESTA |
 | Orientación del grafo | dependent_node_id → origin_node_id; el nodo dependiente apunta a su antecedente. | PROPUESTA |
 | Versionado | Inmutable para formulaciones, piezas y evaluaciones; toda corrección crea una versión/registro nuevo y enlaza el anterior. | PROPUESTA |
 | Separación de evidencia | Evidence item, claim-evidence link y Claim component assessment permanecen separados. | PROPUESTA |
