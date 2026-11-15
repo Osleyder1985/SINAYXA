@@ -11,16 +11,16 @@ function Initialize-IndependentPathsForFixture {
     [CmdletBinding()]
     param([Parameter(Mandatory)][System.Collections.IDictionary]$Package)
 
-    $Package.provenance_edges = @($Package.provenance_edges | Where-Object { $_.edge_id -ne 'edge-a-unknown' })
-    $Package.provenance_nodes += @(
-        @{ node_id='node-origin-independent-a'; node_type='EVIDENCE_ITEM'; entity_ref='evidence-a' },
-        @{ node_id='node-origin-independent-b'; node_type='EVIDENCE_ITEM'; entity_ref='evidence-b' }
+    $Package['provenance_edges'] = @($Package['provenance_edges'] | Where-Object { $_['edge_id'] -ne 'edge-a-unknown' })
+    $Package['provenance_nodes'] = @($Package['provenance_nodes']) + @(
+        [ordered]@{ node_id='node-origin-independent-a'; node_type='EVIDENCE_ITEM'; entity_ref='evidence-a' },
+        [ordered]@{ node_id='node-origin-independent-b'; node_type='EVIDENCE_ITEM'; entity_ref='evidence-b' }
     )
-    $Package.provenance_edges += @(
-        @{ edge_id='edge-independent-a'; dependent_node_id='node-version-a'; origin_node_id='node-origin-independent-a'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-a'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null },
-        @{ edge_id='edge-independent-b'; dependent_node_id='node-version-b'; origin_node_id='node-origin-independent-b'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-b'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null }
+    $Package['provenance_edges'] = @($Package['provenance_edges']) + @(
+        [ordered]@{ edge_id='edge-independent-a'; dependent_node_id='node-version-a'; origin_node_id='node-origin-independent-a'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-a'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null },
+        [ordered]@{ edge_id='edge-independent-b'; dependent_node_id='node-version-b'; origin_node_id='node-origin-independent-b'; relation_type='ORIGEN_DIRECTO'; claim_component_id='component-entity'; claim_component_version_id='component-entity-v1'; evidence_refs=@('evidence-b'); recorded_at='2026-11-15T22:00:00Z'; valid_from=$null; valid_to=$null }
     )
-    $Package.independence_assessments[0].independent_path_edge_refs = @('edge-independent-a','edge-independent-b')
+    $Package['independence_assessments'][0]['independent_path_edge_refs'] = @('edge-independent-a','edge-independent-b')
 }
 try {
     $cycleCopy = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
