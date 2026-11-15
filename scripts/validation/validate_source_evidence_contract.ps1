@@ -70,7 +70,9 @@ foreach ($collection in $collections) {
     $sets[$collection.Name] = Get-IdSet -Items $items -IdProperty $collection.Id -Label $collection.Name
 }
 $claimIds = $sets.claims
+$claimVersionIds = Get-IdSet -Items @($package.claims) -IdProperty 'claim_version_id' -Label 'claim versions'
 $componentIds = $sets.claim_components
+$componentVersionIds = Get-IdSet -Items @($package.claim_components) -IdProperty 'claim_component_version_id' -Label 'claim component versions'
 $sourceIds = $sets.sources
 $versionIds = $sets.source_versions
 $unitIds = $sets.evaluation_units
@@ -78,8 +80,23 @@ $evidenceIds = $sets.evidence_items
 $nodeIds = $sets.provenance_nodes
 $edgeIds = $sets.provenance_edges
 
+foreach ($claim in $package.claims) {
+    if ($null -ne $claim.supersedes_claim_version_id) {
+        Test-Condition (Test-HasRef $claimVersionIds ([string]$claim.supersedes_claim_version_id)) "Claim version '$($claim.claim_version_id)' supersedes an unknown claim version."
+        $priorClaim = @($package.claims | Where-Object { $_.claim_version_id -eq $claim.supersedes_claim_version_id })[0]
+        Test-Condition ($priorClaim.claim_id -eq $claim.claim_id -and $priorClaim.claim_version -lt $claim.claim_version) 'Claim version supersession must reference an earlier version of the same claim.'
+    }
+}
 foreach ($component in $package.claim_components) {
     Test-Condition (Test-HasRef $claimIds ([string]$component.claim_id)) "Component '$($component.claim_component_id)' references an unknown claim."
+    Test-Condition (Test-HasRef $claimVersionIds ([string]$component.claim_version_id)) "Component '$($component.claim_component_id)' references an unknown claim version."
+    $claimVersion = @($package.claims | Where-Object { $_.claim_version_id -eq $component.claim_version_id })[0]
+    Test-Condition ($claimVersion.claim_id -eq $component.claim_id) 'Component and claim version identities do not match.'
+    if ($null -ne $component.supersedes_component_version_id) {
+        Test-Condition (Test-HasRef $componentVersionIds ([string]$component.supersedes_component_version_id)) 'Component supersedes an unknown component version.'
+        $priorComponent = @($package.claim_components | Where-Object { $_.claim_component_version_id -eq $component.supersedes_component_version_id })[0]
+        Test-Condition ($priorComponent.claim_component_id -eq $component.claim_component_id -and $priorComponent.version -lt $component.version) 'Component supersession must reference an earlier version of the same component.'
+    }
 }
 foreach ($version in $package.source_versions) {
     Test-Condition (Test-HasRef $sourceIds ([string]$version.source_id)) "Source version '$($version.source_version_id)' references an unknown source."
@@ -110,11 +127,14 @@ foreach ($identity in $package.identity_assessments) {
 foreach ($unit in $package.evaluation_units) {
     Test-Condition (Test-HasRef $claimIds ([string]$unit.claim_id)) "Evaluation unit references an unknown claim."
     Test-Condition (Test-HasRef $componentIds ([string]$unit.claim_component_id)) "Evaluation unit references an unknown component."
+    Test-Condition (Test-HasRef $claimVersionIds ([string]$unit.claim_version_id)) 'Evaluation unit references an unknown claim version.'
+    Test-Condition (Test-HasRef $componentVersionIds ([string]$unit.claim_component_version_id)) 'Evaluation unit references an unknown component version.'
     Test-Condition (Test-HasRef $sourceIds ([string]$unit.source_id)) "Evaluation unit references an unknown source."
     Test-Condition (Test-HasRef $versionIds ([string]$unit.source_version_id)) "Evaluation unit references an unknown source version."
     $component = @($package.claim_components | Where-Object { $_.claim_component_id -eq $unit.claim_component_id })[0]
     $version = @($package.source_versions | Where-Object { $_.source_version_id -eq $unit.source_version_id })[0]
     Test-Condition ($component.claim_id -eq $unit.claim_id) 'Evaluation unit claim and component do not match.'
+    Test-Condition ($component.claim_version_id -eq $unit.claim_version_id -and $component.claim_component_version_id -eq $unit.claim_component_version_id) 'Evaluation unit is not bound to the exact claim/component versions.'
     Test-Condition ($version.source_id -eq $unit.source_id) 'Evaluation unit source and source version do not match.'
     Test-Condition (Test-Utc $unit.assessment_cutoff 'assessment_cutoff') 'Evaluation cutoff must be UTC.'
     Test-Condition ($unit.access_status -in @('PÚBLICO_LEGÍTIMO','PRIVADO_AUTORIZADO','SOSPECHA_DE_ACCESO_NO_AUTORIZADO','NO_DETERMINADO')) 'Unsupported access status.'
@@ -136,14 +156,20 @@ foreach ($evidence in $package.evidence_items) {
 foreach ($link in $package.claim_evidence_links) {
     Test-Condition (Test-HasRef $claimIds ([string]$link.claim_id)) 'Evidence link references an unknown claim.'
     Test-Condition (Test-HasRef $componentIds ([string]$link.claim_component_id)) 'Evidence link references an unknown component.'
+    Test-Condition (Test-HasRef $claimVersionIds ([string]$link.claim_version_id)) 'Evidence link references an unknown claim version.'
+    Test-Condition (Test-HasRef $componentVersionIds ([string]$link.claim_component_version_id)) 'Evidence link references an unknown component version.'
     Test-Condition (Test-HasRef $evidenceIds ([string]$link.evidence_id)) 'Evidence link references an unknown evidence item.'
     $component = @($package.claim_components | Where-Object { $_.claim_component_id -eq $link.claim_component_id })[0]
     Test-Condition ($component.claim_id -eq $link.claim_id) 'Evidence link claim and component do not match.'
+    Test-Condition ($component.claim_version_id -eq $link.claim_version_id -and $component.claim_component_version_id -eq $link.claim_component_version_id) 'Evidence link does not match the exact claim/component versions.'
 }
 foreach ($edge in $package.provenance_edges) {
     Test-Condition (Test-HasRef $nodeIds ([string]$edge.dependent_node_id)) 'Provenance edge has an unknown dependent node.'
     Test-Condition (Test-HasRef $nodeIds ([string]$edge.origin_node_id)) 'Provenance edge has an unknown origin node.'
     Test-Condition (Test-HasRef $componentIds ([string]$edge.claim_component_id)) 'Provenance edge has an unknown claim component.'
+    Test-Condition (Test-HasRef $componentVersionIds ([string]$edge.claim_component_version_id)) 'Provenance edge has an unknown component version.'
+    $edgeComponent = @($package.claim_components | Where-Object { $_.claim_component_version_id -eq $edge.claim_component_version_id })[0]
+    Test-Condition ($edgeComponent.claim_component_id -eq $edge.claim_component_id) 'Provenance edge component version does not match its component.'
     Test-Condition ($edge.dependent_node_id -ne $edge.origin_node_id) 'A provenance edge cannot point to itself.'
     if ($edge.relation_type -eq 'ORIGEN_NO_DETERMINADO') {
         $origin = @($package.provenance_nodes | Where-Object { $_.node_id -eq $edge.origin_node_id })[0]
@@ -208,10 +234,12 @@ foreach ($unit in $package.evaluation_units) {
 foreach ($assessment in $package.independence_assessments) {
     Test-Condition (Test-HasRef $claimIds ([string]$assessment.claim_id)) 'Independence assessment references an unknown claim.'
     Test-Condition (Test-HasRef $componentIds ([string]$assessment.claim_component_id)) 'Independence assessment references an unknown component.'
+    Test-Condition (Test-HasRef $claimVersionIds ([string]$assessment.claim_version_id)) 'Independence assessment references an unknown claim version.'
+    Test-Condition (Test-HasRef $componentVersionIds ([string]$assessment.claim_component_version_id)) 'Independence assessment references an unknown component version.'
     Test-Condition (@($assessment.assessment_unit_ids).Count -ge 2) 'Independence assessment requires at least two evaluation units.'
     foreach ($unitId in $assessment.assessment_unit_ids) { Test-Condition (Test-HasRef $unitIds ([string]$unitId)) 'Independence assessment references an unknown evaluation unit.' }
     $units = @($package.evaluation_units | Where-Object { $_.assessment_unit_id -in $assessment.assessment_unit_ids })
-    Test-Condition (@($units | Where-Object { $_.claim_id -ne $assessment.claim_id -or $_.claim_component_id -ne $assessment.claim_component_id }).Count -eq 0) 'Independence assessment mixes claims or components.'
+    Test-Condition (@($units | Where-Object { $_.claim_id -ne $assessment.claim_id -or $_.claim_component_id -ne $assessment.claim_component_id -or $_.claim_version_id -ne $assessment.claim_version_id -or $_.claim_component_version_id -ne $assessment.claim_component_version_id }).Count -eq 0) 'Independence assessment mixes claims or component versions.'
     foreach ($reference in @($assessment.supporting_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Independence assessment references unknown evidence.' }
     foreach ($reference in @($assessment.dependency_edge_refs)) { Test-Condition (Test-HasRef $edgeIds ([string]$reference)) 'Independence assessment references an unknown provenance edge.' }
     if ($assessment.status -eq 'INDEPENDIENTE') {
@@ -227,8 +255,11 @@ foreach ($assessment in $package.independence_assessments) {
 foreach ($assessment in $package.claim_assessments) {
     Test-Condition (Test-HasRef $claimIds ([string]$assessment.claim_id)) 'Claim assessment references an unknown claim.'
     Test-Condition (Test-HasRef $componentIds ([string]$assessment.claim_component_id)) 'Claim assessment references an unknown component.'
+    Test-Condition (Test-HasRef $claimVersionIds ([string]$assessment.claim_version_id)) 'Claim assessment references an unknown claim version.'
+    Test-Condition (Test-HasRef $componentVersionIds ([string]$assessment.claim_component_version_id)) 'Claim assessment references an unknown component version.'
     $component = @($package.claim_components | Where-Object { $_.claim_component_id -eq $assessment.claim_component_id })[0]
     Test-Condition ($component.claim_id -eq $assessment.claim_id) 'Claim assessment claim and component do not match.'
+    Test-Condition ($component.claim_version_id -eq $assessment.claim_version_id -and $component.claim_component_version_id -eq $assessment.claim_component_version_id) 'Claim assessment is not bound to the exact claim/component versions.'
     Test-Condition ($assessment.evidentiary_status -in @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADICHA','REFUTADA','NO_RESUELTA')) 'Unsupported #15 evidentiary status.'
     Test-Condition ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
     foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Claim assessment references unknown evidence.' }
