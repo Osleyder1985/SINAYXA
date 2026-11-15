@@ -72,15 +72,15 @@ Representa una publicación, documento, registro, versión o pieza concreta atri
 Campos mínimos:
 
 - `source_version_id`, `source_id`.
-- `version_label` o identificador de versión.
+- `version_label` o identificador de versión y `version_sequence`: entero positivo, único y creciente dentro de la misma fuente.
 - `canonical_reference`: URI solo cuando su conservación y acceso sean legítimos.
 - `published_at`, `first_detected_at`, `retrieved_at`: instantes distintos; cada uno puede ser UNKNOWN.
 - `content_reference`: referencia a copia preservada únicamente cuando esté permitido.
 - `content_hash` y `hash_algorithm`: integridad de la copia, no autenticidad ni veracidad.
-- `supersedes_source_version_id`: versión anterior, si existe.
+- `supersedes_source_version_id`: versión anterior, si existe; debe pertenecer a la misma fuente y tener `version_sequence` estrictamente menor.
 - `recorded_at`.
 
-Las versiones son inmutables. Una rectificación crea otra versión y se vincula al componente corregido; no elimina la anterior.
+Las versiones son inmutables. Una fuente no puede reutilizar el mismo `version_sequence`; la relación de supersession no puede apuntar a sí misma, a una versión futura ni formar ciclos. Una rectificación crea otra versión y se vincula al componente corregido; no elimina la anterior.
 
 ### 3.4.1 Source identity assessment
 
@@ -358,7 +358,9 @@ La conservación de contenido requiere conjuntamente:
 - alcance de contenido autorizado y controles de acceso adecuados;
 - registro de auditoría de la decisión.
 
-No se fija un plazo universal. El vencimiento se determina por la base jurídica, jurisdicción, licencia, autorización y propósito aplicables. Una autorización pendiente, sospechosa o no establecida no permite conservar una copia.
+No se fija un plazo universal. El vencimiento se determina por la base jurídica, jurisdicción, licencia, autorización y propósito aplicables. Una autorización pendiente, sospechosa o no establecida no permite iniciar o mantener una conservación ordinaria.
+
+Los estados de disposición tienen semántica explícita: RETAIN exige copia conservada, base verificada y vencimiento futuro; REFERENCE_ONLY significa que solo se mantiene la referencia; RESTRICTED limita el uso/acceso; DELETE_PENDING registra una copia pendiente de eliminación y exige fecha/deadline de eliminación; DELETED exige que la copia ya no se conserve y un evento de auditoría DELETED posterior que confirme la acción. Una copia en DELETE_PENDING no se trata como material disponible para análisis nuevo.
 
 Al vencer o perderse la base legítima:
 
@@ -375,7 +377,7 @@ Un hash, una URL, un identificador o un log también pueden revelar información
 - El formato canónico de intercambio es JSON UTF-8 validable con JSON Schema Draft 2020-12.
 - contract_version identifica la versión semántica del contrato; no se reutiliza para versionar metodología #15/#16.
 - Los identificadores son opacos, estables y no contienen datos personales ni secretos.
-- Las versiones de afirmaciones, piezas y evaluaciones son inmutables; una corrección crea una nueva versión y referencia explícitamente a la anterior.
+- Las versiones de afirmaciones, componentes y piezas son inmutables; cada secuencia numérica es única dentro de su objeto lógico y una corrección crea una versión nueva que referencia explícitamente a la anterior.
 - Las propiedades no declaradas se rechazan en el esquema 0.2.0. La evolución compatible añade una versión nueva del esquema o una migración explícita; no se amplía silenciosamente un catálogo cerrado.
 - Las fechas se serializan como strings ISO 8601 UTC; los valores originales y su precisión se preservan en observaciones separadas.
 - No se prescribe base de datos, motor de grafo, almacenamiento de objetos ni arquitectura de despliegue.
