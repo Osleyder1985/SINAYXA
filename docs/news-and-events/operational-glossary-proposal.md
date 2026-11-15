@@ -146,17 +146,19 @@ Si la identidad no puede resolverse con la evidencia disponible, los registros p
 | Se anuncia una propuesta regulatoria | Acontecimiento/proceso en estado de propuesta | No describir como norma aprobada o vigente |
 | Un exchange anuncia suspensión de retiros | Acontecimiento; catalizador potencial si la afectación y exposición se pueden documentar | Cambio operativo con mecanismo plausible de riesgo/acceso |
 
-## 6. Estados probatorios mínimos y preservación
+## 6. Estados probatorios y preservación
 
-El estado probatorio debe aplicarse a cada afirmación concreta, no globalmente a una noticia o a un acontecimiento con múltiples afirmaciones:
+El estado probatorio debe aplicarse a cada afirmación concreta, no globalmente a una noticia o a un acontecimiento con múltiples afirmaciones.
 
-- PRIMARY_EVIDENCE_SUPPORTED: evidencia primaria respalda el alcance exacto de la afirmación.
-- ATTRIBUTED_UNCORROBORATED: afirmación atribuida a una fuente identificable sin corroboración suficiente.
-- PARTIALLY_CORROBORATED: solo una parte o detalle está respaldado.
-- UNVERIFIED: evidencia insuficiente para confirmar o refutar.
-- CONTRADICTED_OR_RETRACTED: evidencia posterior contradice la afirmación o la fuente la rectifica/retira; conservar el historial y la atribución.
+Para evitar crear un vocabulario paralelo, esta propuesta adopta como referencia semántica las denominaciones descriptivas ya recogidas en `catalyst-taxonomy.md`:
 
-Estos identificadores son etiquetas semánticas propuestas, no un contrato de API ni una máquina de estados aprobada. No deben implementarse hasta resolver las decisiones de evidencia y ciclo de vida (#15 y #25).
+- **Confirmada por evidencia primaria:** evidencia primaria respalda el alcance exacto de la afirmación.
+- **Atribuida a fuente identificada:** la afirmación se atribuye explícitamente, pero no está confirmada de forma independiente.
+- **Parcialmente corroborada:** solo una parte o detalle está respaldado.
+- **No corroborada:** existe una referencia identificable, pero no corroboración suficiente.
+- **Posteriormente desmentida:** evidencia posterior contradice la afirmación o la fuente la rectifica/retira; se conserva el historial y la atribución.
+
+Estas denominaciones describen el estado de una afirmación y no constituyen por sí mismas una máquina de estados, un contrato de API ni una decisión sobre transiciones, precedencia o caducidad. Las reglas detalladas de evaluación, independencia de fuentes, contradicciones y ciclo de vida permanecen reservadas a los Issues #15, #16 y #25.
 
 La confirmación de una afirmación no confirma automáticamente todas las afirmaciones de la misma publicación, el acontecimiento completo ni una hipótesis de impacto.
 
