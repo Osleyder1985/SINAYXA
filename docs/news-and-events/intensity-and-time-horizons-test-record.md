@@ -109,7 +109,7 @@ Los resultados esperados se resumen aquí para facilitar el control. La descripc
 | T02 | I1; sustituto solo atenúa si disponibilidad, capacidad y acceso están demostrados | NOT_EXECUTED | I1; INDETERMINADA (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 12; ejecución conforme al protocolo pendiente |
 | T03 | I2; separar efecto observado de efecto potencial restante | NOT_EXECUTED | I2; NEGATIVA para el segmento institucional afectado (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 13; ejecución conforme al protocolo pendiente |
 | T04 | I3; demostrar exposición amplia/central y separar efecto observado/potencial | NOT_EXECUTED | I3; NEGATIVA para el ecosistema DELTA definido (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 14; ejecución conforme al protocolo pendiente |
-| T05 | I4; amenaza concreta a función esencial o viabilidad demostrada | NOT_EXECUTED | PENDIENTE | PENDIENTE |
+| T05 | I4; amenaza concreta a función esencial o viabilidad demostrada | NOT_EXECUTED | I4; NEGATIVA para el servicio de autorización de retiros EPSILON (decisión humana posterior a recomendación IA; desviación de secuencia) | Sección 15; ejecución conforme al protocolo pendiente |
 | T06 | INDETERMINADA; exposición amplia no compensa mecanismo especulativo | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T07 | I4 para escenario condicional sustentado; condición pendiente separada, sin probabilidad inventada | NOT_EXECUTED | PENDIENTE | PENDIENTE |
 | T08 | Separación por segmentos; MIXTA agregada solo con unidad agregada explícita y respaldada | NOT_EXECUTED | PENDIENTE | PENDIENTE |
@@ -445,3 +445,44 @@ Para completar una ejecución formal conforme al protocolo, será necesaria una 
 ### 14.4 Resultado de auditoría
 
 La decisión **I3 / NEGATIVA para el ecosistema DELTA definido** queda documentada como decisión humana asistida. **T04 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
+
+
+## 15. Registro de decisión asistida — T05
+
+### 15.1 Identificación del caso
+
+| Campo | Registro |
+| --- | --- |
+| Caso | T05 |
+| Paquete | `SINAYXA-IH-T01-T19-SYNTHETIC-003` |
+| Versión del paquete | `1.2.0` |
+| SHA-256 del paquete | `5E02420E11FF6F9A1E456F6AFC227EB983B85F61C0AB2624F15D71484957F5BB` |
+| Unidad | Servicio de autorización de retiros de la red ficticia de custodia EPSILON |
+| Corte | `2026-01-10T12:00:00Z` |
+| Evidencias examinadas | T05-E1, T05-E2 y T05-E3 |
+| Decisión humana comunicada | I4; dirección NEGATIVA para el servicio de autorización de retiros EPSILON |
+| Estado de ejecución formal | NOT_EXECUTED |
+
+### 15.2 Razonamiento y decisión adoptada
+
+El propietario aceptó la recomendación metodológica de asignar **I4** y dirección **NEGATIVA** para el servicio de autorización de retiros EPSILON.
+
+- T05-E1 aporta un informe forense que confirma el compromiso del único servicio de autorización.
+- T05-E2 establece que no existe una ruta independiente de autorización para la unidad de custodia declarada.
+- T05-E3 documenta que el servicio comprometido es necesario para ejecutar retiros y que existe una amenaza al acceso esencial de los clientes a sus activos.
+
+La combinación de compromiso confirmado, dependencia exclusiva y amenaza documentada a una función esencial respalda I4. No se trata solamente de una degradación de una capacidad secundaria ni de una interrupción acotada con alternativa demostrada.
+
+La dirección NEGATIVA se refiere a la seguridad y al acceso esencial a los activos dentro de la unidad declarada. El registro no afirma que los activos hayan sido sustraídos, que exista una pérdida de fondos, que se haya producido insolvencia ni que el daño se haya materializado. Esas conclusiones no están respaldadas por las evidencias T05 disponibles.
+
+### 15.3 Desviación del protocolo y límites de validez
+
+La recomendación de IA se presentó antes de que el propietario comunicara su decisión. Por tanto, esta interacción no cumple la secuencia de evaluación primaria humana sellada antes de la crítica de IA establecida en el protocolo de evaluador único.
+
+La aceptación se conserva como **decisión humana asistida por IA**, con exposición previa a la recomendación. No se etiqueta como evaluación ciega, independiente ni como ejecución conforme al protocolo. No se afirma acuerdo interevaluador, consenso, validez empírica ni ejecución integral de T05.
+
+Para completar una ejecución formal conforme al protocolo, será necesaria una nueva evaluación con el paquete congelado: primero se registra y sella la evaluación humana sin conocer la salida de IA y, después, se realiza la crítica auxiliar separada. La nueva ejecución se conservará como un registro distinto, sin sobrescribir esta decisión.
+
+### 15.4 Resultado de auditoría
+
+La decisión **I4 / NEGATIVA para el servicio de autorización de retiros EPSILON** queda documentada como decisión humana asistida. **T05 permanece NOT_EXECUTED en la matriz formal** hasta completar una ejecución que respete el protocolo y documente sus artefactos. La coincidencia con el resultado esperado del fixture no se considera prueba de validez metodológica.
