@@ -149,7 +149,7 @@ foreach ($edge in $package.provenance_edges) {
     }
     if ($null -ne $edge.recorded_at) { Stop-IfFalse (Test-Utc $edge.recorded_at 'recorded_at') 'Provenance edge recorded_at must be UTC.' }
     if ($null -ne $edge.valid_from -and $null -ne $edge.valid_to) {
-        Stop-IfFalse (Test-Utc $edge.valid_from 'valid_from' -and (Test-Utc $edge.valid_to 'valid_to')) 'Provenance validity timestamps must be UTC.'
+        Stop-IfFalse ((Test-Utc $edge.valid_from 'valid_from') -and (Test-Utc $edge.valid_to 'valid_to')) 'Provenance validity timestamps must be UTC.'
         Stop-IfFalse ([DateTimeOffset]::Parse([string]$edge.valid_to) -ge [DateTimeOffset]::Parse([string]$edge.valid_from)) 'Provenance edge valid_to precedes valid_from.'
     }
 }
@@ -187,6 +187,14 @@ foreach ($assessment in $package.claim_assessments) {
     Stop-IfFalse ($assessment.evidentiary_status -in @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADICHA','REFUTADA','NO_RESUELTA')) 'Unsupported #15 evidentiary status.'
     Stop-IfFalse ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
     foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) { Stop-IfFalse (Test-HasRef $evidenceIds ([string]$reference)) 'Claim assessment references unknown evidence.' }
+    foreach ($reference in @($assessment.independence_assessment_refs)) { Stop-IfFalse (Test-HasRef $sets.independence_assessments ([string]$reference)) 'Claim assessment references unknown independence assessment.' }
+    $linkedSupport = @($package.claim_evidence_links | Where-Object { $_.claim_component_id -eq $assessment.claim_component_id -and $_.evidence_role -eq 'SUPPORTING' } | ForEach-Object { $_.evidence_id })
+    $linkedContrary = @($package.claim_evidence_links | Where-Object { $_.claim_component_id -eq $assessment.claim_component_id -and $_.evidence_role -eq 'CONTRARY' } | ForEach-Object { $_.evidence_id })
+    foreach ($reference in @($assessment.supporting_evidence_refs)) { Stop-IfFalse ($reference -in $linkedSupport) 'Supporting evidence reference has no SUPPORTING claim-evidence link for this component.' }
+    foreach ($reference in @($assessment.contrary_evidence_refs)) { Stop-IfFalse ($reference -in $linkedContrary) 'Contrary evidence reference has no CONTRARY claim-evidence link for this component.' }
+    if ($assessment.evidentiary_status -eq 'CONTRADICHA') { Stop-IfFalse (@($assessment.supporting_evidence_refs).Count -gt 0 -and @($assessment.contrary_evidence_refs).Count -gt 0) 'CONTRADICHA requires traceable evidence on both sides.' }
+    if ($assessment.evidentiary_status -eq 'REFUTADA') { Stop-IfFalse (@($assessment.contrary_evidence_refs).Count -gt 0) 'REFUTADA requires direct, relevant contrary evidence.' }
+    if ($assessment.evidentiary_status -eq 'CORROBORADA') { Stop-IfFalse (@($assessment.supporting_evidence_refs).Count -gt 0) 'CORROBORADA requires supporting evidence.' }
     Stop-IfFalse (Test-Utc $assessment.assessment_cutoff 'assessment_cutoff') 'Claim assessment cutoff must be UTC.'
     if ($null -ne $assessment.supersedes_assessment_id) {
         Stop-IfFalse (Test-HasRef $sets.claim_assessments ([string]$assessment.supersedes_assessment_id)) 'Claim assessment supersedes an unknown assessment.'
