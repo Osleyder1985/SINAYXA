@@ -85,8 +85,6 @@ No se establecen umbrales numéricos, puntuaciones ni probabilidades en este glo
 - Si la evidencia no permite decidir, el resultado es INDETERMINADO / EVIDENCIA INSUFICIENTE; no se fuerza una categoría ni se completa información ausente.
 - Un vínculo temporal entre acontecimiento y precio no demuestra causalidad. Deben mantenerse separadas reacción observada, hipótesis explicativa y atribución causal.
 
-
-
 ## 4.1 Evaluación de relevancia económica
 
 La relevancia debe justificarse mediante una cadena explícita y revisable, no mediante la notoriedad de la noticia ni por una variación de precio observada:
@@ -117,7 +115,7 @@ Una actualización que aporta evidencia adicional sobre el mismo hito se registr
 
 Si la identidad no puede resolverse con la evidencia disponible, los registros permanecen provisionalmente separados y relacionados como posible duplicado; no se fuerza una fusión irreversible. Esta regla es semántica y no define todavía claves técnicas, algoritmos de matching ni ventanas temporales.
 
-## 5.1 Casos límite y tratamiento conservador
+## 5. Casos límite y tratamiento conservador
 
 | Caso | Tratamiento propuesto | Límite que debe respetarse |
 | --- | --- | --- |
@@ -131,8 +129,7 @@ Si la identidad no puede resolverse con la evidencia disponible, los registros p
 | Una empresa anuncia una alianza sin compromisos, producto o implementación verificables | Registrar la afirmación/anuncio; evaluar catalizador solo si se identifica exposición y mecanismo concreto | No inferir adopción, ingresos o demanda futura |
 | Una noticia coincide con un movimiento de precio, pero existen otros factores simultáneos | Mantener la reacción observada y las hipótesis alternativas separadas | No atribuir causalidad por coincidencia temporal |
 
-
-## 5. Ejemplos positivos y negativos
+## 6. Ejemplos positivos y negativos
 
 | Caso | Tratamiento propuesto | Motivo |
 | --- | --- | --- |
@@ -146,7 +143,7 @@ Si la identidad no puede resolverse con la evidencia disponible, los registros p
 | Se anuncia una propuesta regulatoria | Acontecimiento/proceso en estado de propuesta | No describir como norma aprobada o vigente |
 | Un exchange anuncia suspensión de retiros | Acontecimiento; catalizador potencial si la afectación y exposición se pueden documentar | Cambio operativo con mecanismo plausible de riesgo/acceso |
 
-## 6. Estados probatorios y preservación
+## 7. Estados probatorios y preservación
 
 El estado probatorio debe aplicarse a cada afirmación concreta, no globalmente a una noticia o a un acontecimiento con múltiples afirmaciones.
 
@@ -162,7 +159,7 @@ Estas denominaciones describen el estado de una afirmación y no constituyen por
 
 La confirmación de una afirmación no confirma automáticamente todas las afirmaciones de la misma publicación, el acontecimiento completo ni una hipótesis de impacto.
 
-## 7. Decisiones explícitamente reservadas
+## 8. Decisiones explícitamente reservadas
 
 Este glosario no resuelve:
 
@@ -177,7 +174,20 @@ Este glosario no resuelve:
 - estados y caducidad del ciclo de vida (#25);
 - relaciones y efectos combinados (#26).
 
-## 8. Criterios de aceptación para el Issue #13
+## 9. Trazabilidad con el Issue #13
+
+| Requisito o decisión del Issue | Secciones que lo desarrollan | Evidencia documental de cobertura |
+| --- | --- | --- |
+| Definir operativamente acontecimiento y catalizador | §1 | Definiciones diferenciadas, con relevancia potencial separada de reacción y causalidad observadas |
+| Distinguir noticia, hecho, indicio, rumor, filtración y acontecimiento programado | §1–§2 | Definiciones individuales y tabla de qué acredita y qué no acredita cada concepto |
+| Establecer criterios de relevancia para expectativas y precios | §3–§4.1 | Regla de inclusión y cadena exposición–mecanismo–condiciones–alcance–horizonte–contraste; prohíbe inferir causalidad por coincidencia de precio |
+| Definir inclusión, exclusión y clasificación múltiple | §3–§6 | Regla de entrada al universo de investigación, categoría principal y secundarias, indeterminación, casos límite y ejemplos positivos/negativos |
+| Asegurar coherencia con el alcance de Noticias y acontecimientos | §7–§8 | Estados probatorios alineados con la taxonomía aprobada y decisiones técnicas/metodológicas reservadas a sus Issues |
+| Cumplir los criterios de cierre: glosario inequívoco y ejemplos coherentes | §1–§9 | Definiciones, separaciones obligatorias, tratamiento conservador, ejemplos y esta matriz de trazabilidad |
+
+La matriz acredita cobertura documental propuesta, no aceptación del propietario ni validación de una implementación. Si un requisito se interpreta de forma distinta durante la revisión, debe corregirse aquí antes de considerar cerrado el Issue.
+
+## 10. Criterios de aceptación para el Issue #13
 
 - [ ] El propietario acepta o modifica las definiciones de acontecimiento y catalizador.
 - [ ] El propietario acepta o modifica las distinciones entre publicación, hecho, afirmación, indicio, rumor, filtración y acontecimiento programado.
