@@ -88,7 +88,8 @@ if ($actualIds.Count -ne $expectedCaseCount) {
     throw "Expected exactly $expectedCaseCount cases; found $($actualIds.Count)."
 }
 
-if (($actualIds | Select-Object -Unique).Count -ne $expectedCaseCount) {
+$uniqueIds = @($actualIds | Sort-Object -Unique)
+if ($uniqueIds.Count -ne $expectedCaseCount) {
     throw "Duplicate case IDs detected."
 }
 
