@@ -212,7 +212,7 @@ Resultado real informado:
 - SHA-256 del validador y de `Get-FileHash` coincidentes: `E685D6BB4459F5A580ABFAC11979D4FCABF385EE7856EC28C16541C2AD05948C`
 - `git status --short`: vacío.
 
-**Alcance del PASS:** integridad estructural del fixture v1.1.0 y comprobaciones temporales deterministas. No acredita la corrección semántica de las clasificaciones esperadas de T01–T19, ni ejecución formal de esos casos, ni acuerdo entre evaluadores. La matriz de ejecución permanece sin cambios: T01–T15 y T17–T19 NOT_EXECUTED; T16 BLOCKED.
+**Alcance del PASS:** integridad estructural del fixture v1.1.0 y comprobaciones temporales deterministas. No acredita la corrección semántica de las clasificaciones esperadas de T01–T19, ni ejecución formal de esos casos, ni acuerdo entre evaluadores. **Estado histórico de ese snapshot v1.1.0:** T01–T15 y T17–T19 NOT_EXECUTED; T16 BLOCKED por el requisito de dos evaluadores humanos que entonces contenía el protocolo. Ese bloqueo fue sustituido en v1.2.0; el estado vigente de T16 es NOT_EXECUTED bajo el protocolo de un único evaluador humano con crítica auxiliar de IA (secciones 1 y 9).
 
 ## 9. Fixture sintético v1.2.0 — adaptación de T16 al proyecto de un único humano
 
