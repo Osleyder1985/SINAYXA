@@ -143,7 +143,7 @@ El grafo debe permitir nodos de tipo SOURCE_VERSION, EVIDENCE_ITEM, DOCUMENT, DA
 Cada arista se orienta **desde el nodo dependiente hacia su antecedente/origen** y contiene:
 
 - `edge_id`.
-- `from_node_id`, `to_node_id`.
+- `dependent_node_id`, `origin_node_id`. La arista se interpreta como `dependent_node_id → origin_node_id`; no se admiten alias alternativos en el paquete JSON.
 - `relation_type`: ORIGEN_DIRECTO, CITA_DE, SINDICADA_DE, DERIVADA_DE, DOCUMENTO_COMÚN, CONTACTO_COMÚN, ORIGEN_NO_DETERMINADO o ANÁLISIS_SEPARADO_SOBRE_DATOS_COMUNES.
   - `ORIGEN_NO_DETERMINADO` debe apuntar a un nodo `UNKNOWN_ORIGIN`; no representa evidencia de que exista una fuente concreta ni autoriza inferir independencia.
 - `claim_component_id`: alcance concreto.
