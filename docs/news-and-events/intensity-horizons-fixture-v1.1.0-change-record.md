@@ -9,7 +9,7 @@
 | Fixture | `tests/fixtures/methodology/intensity-horizons/t01-t19-synthetic-evidence-v1.1.0.json` |
 | Commit de incorporación del fixture | `3dcac246c91d695a7f773835e76ae532998a9911` |
 | Git blob SHA del fixture | `4c5bf467e62cd0b9d86c90cd74a356a03c8bcab5` |
-| SHA-256 del contenido | **PENDIENTE DE VERIFICACIÓN LOCAL** |
+| SHA-256 del contenido | `E685D6BB4459F5A580ABFAC11979D4FCABF385EE7856EC28C16541C2AD05948C` |
 | Paquete anterior | `SINAYXA-IH-T01-T19-SYNTHETIC-001`, versión `1.0.0` |
 | SHA-256 del paquete anterior | `467F5B5236481C0EFDCAFF562DA3D4DFF27EF71C1FCB9D486E19072ABA902D22` |
 
@@ -63,10 +63,12 @@ Para la versión 1.1.0, el validador añade comprobaciones de contrato estructur
 Desde la raíz del repositorio, en Windows PowerShell 5.1:
 
 ```powershell
-.scriptsalidationalidate_intensity_horizon_fixture.ps1 -FixturePath .	estsixturesmethodologyintensity-horizons	01-t19-synthetic-evidence-v1.1.0.json
+.\scripts\validation\validate_intensity_horizon_fixture.ps1 -FixturePath .\tests\fixtures\methodology\intensity-horizons\t01-t19-synthetic-evidence-v1.1.0.json
 ```
 
-La ejecución local y el SHA-256 del nuevo archivo deben registrarse después de ejecutar el comando. Hasta entonces, el SHA-256 de 1.1.0 permanece pendiente y no se declara PASS local.
+**Ejecución local del propietario — Windows PowerShell 5.1, commit `3e28232fa7c6a0e261a6fb9b9b5097ef8569a200`: PASS** para la validación estructural del fixture y las comprobaciones temporales deterministas T11, T12, T13, T14, T15, T18 y T19. Se detectaron 19 casos; T16 permaneció BLOCKED. El SHA-256 informado por el validador coincidió exactamente con `Get-FileHash -Algorithm SHA256`: `E685D6BB4459F5A580ABFAC11979D4FCABF385EE7856EC28C16541C2AD05948C`. `git status --short` quedó vacío.
+
+Este PASS acredita estructura, integridad del archivo y vectores temporales automatizados. No constituye ejecución semántica de T01–T19, evaluación humana independiente, acuerdo interevaluador ni validación empírica.
 
 ## 5. Estados y límites de gobernanza
 
