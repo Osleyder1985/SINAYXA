@@ -1021,7 +1021,10 @@
       ],
       "claim_version_id": "claim-btc-purchase-v1",
       "claim_component_version_id": "component-entity-v1",
-      "reviewed_at": null
+      "reviewed_at": null,
+      "rationale": "La pieza acredita que existe una declaración atribuida, pero no demuestra la ejecución del hecho subyacente.",
+      "supported_scope": null,
+      "unsupported_scope": null
     },
     {
       "claim_assessment_id": "assessment-amount-v1",
@@ -1047,7 +1050,10 @@
       "supersedes_assessment_id": null,
       "claim_version_id": "claim-btc-purchase-v1",
       "claim_component_version_id": "component-amount-v1",
-      "reviewed_at": null
+      "reviewed_at": null,
+      "rationale": "No existe evidencia verificable suficiente para determinar el importe.",
+      "supported_scope": null,
+      "unsupported_scope": null
     }
   ],
   "retention_records": [
