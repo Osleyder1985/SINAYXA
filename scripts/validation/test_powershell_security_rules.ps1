@@ -10,22 +10,22 @@ New-Item -ItemType Directory -Path $tempDirectory | Out-Null
 $cases = @(
     [pscustomobject]@{
         Name = "plaintext-password-parameter"
-        Rule = "AvoidUsingPlainTextForPassword"
-        Source = 'function Test-SecretInput { param([string]$Password) }'
+        Rule = "PSAvoidUsingPlainTextForPassword"
+        Source = "function Test-SecretInput {`n    [CmdletBinding()]`n    param([string]`$Password)`n}"
     }
     [pscustomobject]@{
         Name = "dynamic-expression-execution"
-        Rule = "AvoidUsingInvokeExpression"
+        Rule = "PSAvoidUsingInvokeExpression"
         Source = "Invoke-Expression 'Get-Process'"
     }
     [pscustomobject]@{
         Name = "plaintext-secure-string-conversion"
-        Rule = "AvoidUsingConvertToSecureStringWithPlainText"
+        Rule = "PSAvoidUsingConvertToSecureStringWithPlainText"
         Source = "ConvertTo-SecureString 'not-a-secret' -AsPlainText -Force"
     }
     [pscustomobject]@{
         Name = "hardcoded-computer-name"
-        Rule = "AvoidUsingComputerNameHardcoded"
+        Rule = "PSAvoidUsingComputerNameHardcoded"
         Source = "Invoke-Command -ComputerName 'server.example.invalid' -ScriptBlock { Get-Process }"
     }
 )
