@@ -1,5 +1,5 @@
 {
-  "package_id": "SINAYXA-IH-T01-T19-SYNTHETIC-004",
+  "package_id": "SINAYXA-IH-T01-T20-SYNTHETIC-004",
   "package_version": "1.3.0",
   "status": "SYNTHETIC_TEST_FIXTURE_NOT_REAL_WORLD_EVIDENCE",
   "purpose": "Versioned successor to package 1.2.0. Adds T20 to distinguish elapsed age since a past milestone from any future horizon. The age is descriptive only and must never be classified as INMEDIATO, CORTO, MEDIO, or LARGO. All entities and events are fictional; this fixture does not establish empirical validity, real market behavior, causal impact, or human inter-evaluator agreement.",
