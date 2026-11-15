@@ -12,11 +12,11 @@ if ([string]::IsNullOrWhiteSpace($FixturePath)) {
 
 function Get-FixtureCase {
     param([string]$Id)
-    $matches = @($fixture.cases | Where-Object { $_.id -eq $Id })
-    if ($matches.Count -ne 1) {
-        throw "Expected exactly one fixture case $Id; found $($matches.Count)."
+    $matchingCases = @($fixture.cases | Where-Object { $_.id -eq $Id })
+    if ($matchingCases.Count -ne 1) {
+        throw "Expected exactly one fixture case $Id; found $($matchingCases.Count)."
     }
-    return $matches[0]
+    return $matchingCases[0]
 }
 
 function ConvertTo-DateTimeOffset {
@@ -358,16 +358,16 @@ if ([Math]::Abs($t19SourceASeconds - 85800) -gt 0.001 -or
 
 $hash = (Get-FileHash -LiteralPath $resolvedPath -Algorithm SHA256).Hash
 
-Write-Host "Fixture structure and semantic contract validation: PASS"
-Write-Host "Package: $($fixture.package_id) v$($fixture.package_version)"
-Write-Host "Cases: $($actualIds.Count)"
-Write-Host "Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)"
-Write-Host "Semantic fixture checks: PASS (T01,T03,T04,T08,T10 when package v1.2.0)"
+Write-Information "Fixture structure and semantic contract validation: PASS" -InformationAction Continue
+Write-Information "Package: $($fixture.package_id) v$($fixture.package_version)" -InformationAction Continue
+Write-Information "Cases: $($actualIds.Count)" -InformationAction Continue
+Write-Information "Temporal fixture checks: PASS (T11,T12,T13,T14,T15,T18,T19)" -InformationAction Continue
+Write-Information "Semantic fixture checks: PASS (T01,T03,T04,T08,T10 when package v1.2.0)" -InformationAction Continue
 if ($fixture.package_id -eq "SINAYXA-IH-T01-T19-SYNTHETIC-003") {
-    Write-Host "T16: SINGLE-HUMAN PROTOCOL DEFINED (not an execution result)"
+    Write-Information "T16: SINGLE-HUMAN PROTOCOL DEFINED (not an execution result)" -InformationAction Continue
 }
 else {
-    Write-Host "T16: BLOCKED (historical fixture requirement correctly preserved)"
+    Write-Information "T16: BLOCKED (historical fixture requirement correctly preserved)" -InformationAction Continue
 }
-Write-Host "SHA256: $hash"
-Write-Host "Path: $resolvedPath"
+Write-Information "SHA256: $hash" -InformationAction Continue
+Write-Information "Path: $resolvedPath" -InformationAction Continue
