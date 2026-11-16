@@ -442,3 +442,40 @@ Permanecen ABIERTAS las cinco áreas A–E. En particular, continúan sin demost
 La trazabilidad individual de cada escenario debe leerse junto con los nombres de pruebas de la matriz y el código ejecutado en el HEAD citado. Los estados históricos de CI de commits anteriores no deben presentarse como si fueran ejecuciones del HEAD actual.
 
 No se aprueba el contrato 0.2.1, no se fusiona PR #85, no se selecciona proveedor y no se habilitan persistencia productiva, captura, crawling, vigilancia ni automatización.
+
+
+## Reconciliación de estado — aprobación del propietario y HEAD vigente (2026-11-16)
+
+Esta sección actualiza el estado de gobernanza del contrato sin alterar el historial de ejecuciones anteriores ni declarar cerradas las áreas A–E.
+
+### Decisión del propietario
+
+El propietario aprobó expresamente el contrato lógico 0.2.1 y autorizó continuar su revisión formal el 2026-11-16. La decisión está registrada en la descripción y comentarios de PR #85 y en el Issue #78. Esta aprobación de alcance contractual **no equivale** a aprobación técnica final, cierre de las áreas A–E ni autorización de merge.
+
+### HEAD y evidencia vigente de PR #85
+
+- HEAD: `d7c39217dafefa305249ef028fd16f32777e50a4`.
+- PowerShell quality gate [run 43927115430](https://github.com/Osleyder1985/SINAYXA/actions/runs/43927115430): SUCCESS; 124 pruebas correctivas PASS; PowerShell 7.6.6; cero errores de parser; PSScriptAnalyzer 1.24.0 con cero findings.
+- Security/dependency quality gate [run 43927115374](https://github.com/Osleyder1985/SINAYXA/actions/runs/43927115374): SUCCESS; Gitleaks, Markdown lint, npm audit y OSV PR scan SUCCESS. OSV full SKIPPED; no se contabiliza como PASS.
+- La corrección COR-03 conserva las evaluaciones históricas y separa fecha declarada de primera observación/detección/recuperación.
+- La corrección COR-04 de vínculos duplicados fue incorporada en la historia del HEAD y su cobertura forma parte de la suite de 124 pruebas.
+
+### Estado de las áreas
+
+| Área | Estado | Límite pendiente que impide declarar cierre |
+| --- | --- | --- |
+| A — Independencia | ABIERTA | Los tests sintéticos no prueban descubrimiento exhaustivo de dependencias ni independencia factual de fuentes reales. |
+| B — Corroboración | ABIERTA | La suficiencia semántica, autenticidad y correspondencia real entre fragmentos y alcances requieren revisión humana. |
+| C — Eliminación | ABIERTA | La cobertura sintética y el laboratorio PostgreSQL no demuestran borrado físico, expiración/reconciliación en proveedor externo ni anonimización exhaustiva; RET-09 continúa sujeto a los límites del contrato 0.2.2 en PR #99. |
+| D — Archivo | ABIERTA | No hay evidencia operacional de retención WORM/Object Lock o mecanismo equivalente aplicado al objeto/versión real. |
+| E — Migración | ABIERTA | Los fixtures y snapshots en memoria no demuestran migración productiva ni preservación duradera externa. |
+
+### Dependencia 0.2.2
+
+PR #99 permanece DRAFT y apilada sobre la rama de PR #85. No debe retargetearse ni fusionarse antes de que 0.2.1 supere su propia puerta de integración; después de integrar 0.2.1 será necesario rebasar/retargetear #99 y ejecutar nuevamente ambos quality gates sobre el nuevo HEAD.
+
+### Dictamen actualizado
+
+La cobertura automatizada del contrato 0.2.1 está ejecutada y pasa en el HEAD indicado. No se identificó en esta revisión una justificación para duplicar pruebas sintéticas ya cubiertas. La siguiente brecha no es un fallo genérico de CI: son límites de evidencia real, revisión semántica y controles operacionales externos descritos arriba.
+
+PR #85 permanece OPEN / NOT MERGED. Issue #88 permanece OPEN. No se cierran las cinco áreas ni se autoriza merge por inferencia.
