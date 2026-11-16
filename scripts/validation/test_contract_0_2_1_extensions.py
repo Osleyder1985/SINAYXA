@@ -119,7 +119,7 @@ class Contract021ExtensionTests(unittest.TestCase):
 
     def test_primary_statement_scope_passes_only_for_direct_act(self):
         primary = [{"source_type": "PRIMARIA", "source_id": "s1", "source_version_id": "v1",
-                    "authenticity_status": "AUTENTICADA", "access_status": "PÚBLICO_LEGÍTIMO",
+                    "authenticity_status": "AUTENTICADA", "access_status": "PÚBLICO_LEGÍTIMO", "unit_access_status": "PÚBLICO_LEGÍTIMO",
                     "knowledge_basis": "REGISTRO_ORIGINAL", "scope_note": "La institución emitió el comunicado.",
                     "available_at": "2026-01-01T00:00:00Z"}]
         validate_corroboration(
@@ -131,7 +131,7 @@ class Contract021ExtensionTests(unittest.TestCase):
 
     def test_primary_evidence_from_unrelated_source_cannot_corroborate(self):
         primary = [{"source_type": "PRIMARIA", "source_id": "other-source", "source_version_id": "other-version",
-                    "authenticity_status": "AUTENTICADA", "access_status": "PÚBLICO_LEGÍTIMO",
+                    "authenticity_status": "AUTENTICADA", "access_status": "PÚBLICO_LEGÍTIMO", "unit_access_status": "PÚBLICO_LEGÍTIMO",
                     "knowledge_basis": "REGISTRO_ORIGINAL", "scope_note": "Acto directamente acreditado.",
                     "available_at": "2026-01-01T00:00:00Z"}]
         units = [{"assessment_unit_id": "u1", "source_id": "s1", "source_version_id": "v1",
@@ -150,7 +150,7 @@ class Contract021ExtensionTests(unittest.TestCase):
 
     def test_ambas_requires_independence_even_when_primary_evidence_exists(self):
         primary = [{"source_type": "PRIMARIA", "source_id": "s1", "source_version_id": "v1",
-                    "authenticity_status": "AUTENTICADA", "access_status": "PÚBLICO_LEGÍTIMO",
+                    "authenticity_status": "AUTENTICADA", "access_status": "PÚBLICO_LEGÍTIMO", "unit_access_status": "PÚBLICO_LEGÍTIMO",
                     "knowledge_basis": "REGISTRO_ORIGINAL", "scope_note": "La institución emitió el documento.",
                     "available_at": "2026-01-01T00:00:00Z"}]
         primary_units = [
