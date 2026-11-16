@@ -1584,6 +1584,28 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_package(package)
 
+    def test_021_partial_corroboration_rejects_late_contrary_evidence(self):
+        schema, package = self.load_contract_021_fixture()
+        package["claim_evidence_links"][1].update({
+            "evidence_role": "CONTRARY",
+            "scope_note": "Registro contrario disponible después del corte.",
+            "limitations": ["Caso sintético."],
+        })
+        package["evidence_availability"][1]["available_at"] = "2026-11-15T22:01:00Z"
+        assessment = package["claim_assessments"][0]
+        assessment.update({
+            "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+            "supporting_evidence_refs": ["evidence-a"],
+            "contrary_evidence_refs": ["evidence-b"],
+            "supported_scope": "La declaración fue emitida.",
+            "unsupported_scope": "La ejecución no está demostrada.",
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
     def test_021_partial_corroboration_rejects_evidence_in_both_roles(self):
         schema, package = self.load_contract_021_fixture()
         assessment = package["claim_assessments"][0]
