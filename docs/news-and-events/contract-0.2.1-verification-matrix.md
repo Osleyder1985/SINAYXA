@@ -204,7 +204,7 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | IND-08 | `test_021_package_accepts_evidenced_dependency_for_exact_component`; `test_021_package_rejects_dependency_edge_without_evidence`; `test_021_package_rejects_dependency_edge_from_another_component`; `test_021_dependency_edge_must_connect_two_assessed_source_versions`; `test_021_dependency_edge_cannot_connect_a_source_version_to_itself` | La arista debe conectar dos source versions distintas incluidas en el conjunto exacto evaluado; pruebas nuevas pendientes de CI |
 | COR-01 | `test_primary_statement_scope_passes_only_for_direct_act`; `test_021_package_accepts_primary_corroboration_only_for_directly_observed_act` | Emisión/acto directo cubierto |
 | COR-02 | `test_primary_authenticity_does_not_allow_unsupported_external_claim`; `test_021_package_rejects_primary_corroboration_overclaim` | Sobreafirmación rechazada |
-| COR-03 | `test_021_source_correction_is_a_new_version_and_preserves_prior_version`; `test_021_source_version_chain_rejects_self_or_future_supersession`; `test_021_source_version_chain_rejects_forked_successors`; `test_021_source_correction_creates_new_temporal_contradiction_without_rewriting_prior_assessment` | Añade versión corregida y evaluación contradictoria en corte posterior; conserva evaluación anterior y su source_version; CI PASS en run 43794411000 sobre HEAD `b7faa0a`. Se requiere ampliar casos temporales y de alcance |
+| COR-03 | `test_021_source_correction_is_a_new_version_and_preserves_prior_version`; `test_021_source_version_chain_rejects_self_or_future_supersession`; `test_021_source_version_chain_rejects_forked_successors`; `test_021_source_correction_creates_new_temporal_contradiction_without_rewriting_prior_assessment`; `test_021_source_correction_unavailable_after_cutoff_cannot_contradict_prior_assessment` | La nueva versión y evaluación posterior preservan la evaluación previa. El escenario positivo diferencia `published_at` declarado antes del corte original de `first_publicly_observed_at`, `first_detected_at` y `retrieved_at` posteriores; el escenario negativo rechaza evidencia disponible después del corte de la reevaluación. CI PASS en run #762 sobre HEAD `19979f5`. Sigue pendiente el juicio humano sobre el alcance sustantivo exacto de una rectificación parcial |
 | COR-04 | `test_021_contradicted_assessment_requires_exact_scoped_contrary_evidence`; `test_021_contradicted_assessment_rejects_cross_component_contrary_link` | La contradicción requiere evidencia contraria vinculada al mismo componente, versión y corte; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
 | COR-05 | `test_primary_statement_scope_passes_only_for_direct_act`; `test_primary_inference_without_direct_knowledge_cannot_corroborate` | Se rechaza inferencia no directa aunque la fuente sea primaria, auténtica y de acceso legítimo; CI PASS en run #599 sobre HEAD `0b2f886` |
 | COR-06 | `test_021_package_accepts_corroboration_from_reviewed_independent_sources` | Positivo cubierto |
@@ -278,9 +278,18 @@ Los commits posteriores a `56759d2` añaden:
 
 La suite de 98 tests y ambos quality gates terminaron SUCCESS sobre el HEAD `8730437`. El solapamiento semántico entre alcances sigue sujeto a revisión humana; las cinco áreas permanecen ABIERTAS.
 
-### Rectificación contradictoria con corte temporal — CI PASS en HEAD `b7faa0a` (run 43794411000)
+### Rectificación contradictoria con corte temporal — evidencia ampliada en HEAD `19979f5`
 
-El escenario positivo crea una nueva `source_version`, con publicación, detección y recuperación posteriores al corte original, y una evaluación contradictoria posterior. La evaluación previa conserva su cutoff y referencia a la versión anterior. El test pasa en CI; no autoriza retroactividad ni demuestra causalidad. Los casos de frontera y rectificaciones parciales siguen pendientes.
+La prueba positiva `test_021_source_correction_creates_new_temporal_contradiction_without_rewriting_prior_assessment` ahora cubre una rectificación cuya fecha `published_at` declarada es anterior al corte original, mientras `first_publicly_observed_at`, `first_detected_at` y `retrieved_at` son posteriores. La evaluación histórica conserva su corte y su referencia a `version-a1`; la nueva evaluación solo se construye con evidencia disponible en el corte posterior. Esto evita tratar una fecha declarada/backdated como prueba de disponibilidad histórica.
+
+La prueba negativa `test_021_source_correction_unavailable_after_cutoff_cannot_contradict_prior_assessment` rechaza la rectificación cuando la evidencia no estaba disponible al corte de la nueva evaluación.
+
+CI sobre el mismo HEAD `19979f5eb846221d736bde27e1c2d56a75afb282`:
+- PowerShell quality gate [run #762](https://github.com/Osleyder1985/SINAYXA/actions/runs/43926602085): SUCCESS; 124 pruebas correctivas PASS; PowerShell 7.6.6; 0 errores de parser; PSScriptAnalyzer 1.24.0 con 0 findings.
+- Security/dependency quality gate [run #609](https://github.com/Osleyder1985/SINAYXA/actions/runs/43926602624): SUCCESS; Gitleaks, npm audit y OSV PR scan SUCCESS. OSV full quedó SKIPPED y no se contabiliza como PASS.
+- Artefacto PowerShell: `powershell-validation-evidence-43926602085`, SHA-256 `e38fe43bc4fb2a6494254e56839c0b5da9bad0e418315c9c3d0b3088c1b365b7`.
+
+Límite: las pruebas demuestran consistencia temporal de los campos y preservación de versiones dentro del contrato sintético. No deciden si la rectificación contradice todo el componente o solo una parte; la interpretación del alcance y la evidencia sigue requiriendo revisión humana. No se demuestra causalidad ni se reescribe la evaluación histórica.
 
 ## 8. Fuera de alcance
 
