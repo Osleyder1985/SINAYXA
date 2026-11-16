@@ -773,7 +773,14 @@
           "$ref": "#/$defs/utc"
         },
         "retention_subject_token": {
-          "$ref": "#/$defs/opaqueId"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/opaqueId"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
