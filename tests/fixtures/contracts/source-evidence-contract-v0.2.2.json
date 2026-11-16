@@ -1098,7 +1098,7 @@
       "copy_id": null,
       "from_copy_state": null,
       "to_copy_state": null,
-      "actor_role_code": "SYNTHETIC_TEST",
+      "actor_role_code": "SYSTEM",
       "reason_code": "RECORD_CREATED",
       "actor_role_catalog_version": "1.0.0",
       "reason_catalog_version": "1.0.0"
@@ -1114,7 +1114,7 @@
       "copy_id": null,
       "from_copy_state": null,
       "to_copy_state": null,
-      "actor_role_code": "SYNTHETIC_TEST",
+      "actor_role_code": "SYSTEM",
       "reason_code": "REFERENCE_ONLY_SELECTED",
       "actor_role_catalog_version": "1.0.0",
       "reason_catalog_version": "1.0.0"
