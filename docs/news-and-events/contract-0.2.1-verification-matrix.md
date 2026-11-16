@@ -316,3 +316,14 @@ Los dos quality gates finalizaron SUCCESS sobre el mismo HEAD:
 - **Área E / MIG-03/04/08:** las pruebas existentes rechazan mutaciones históricas representativas y preservan la versión metodológica. Sigue pendiente la comparación exhaustiva de todos los registros/campos y una prueba aislada completa de MIG-08 sobre el migrador real.
 
 **Decisión:** el PASS del HEAD `d257c8d` confirma el conjunto de validaciones automatizadas, no la cobertura completa de las cinco áreas. A–E permanecen ABIERTAS; no implica aprobación metodológica ni autorización de merge.
+
+### Verificación COR-04 ampliada — HEAD b8037db30e151d58ec07d2452a0b55b7af3f957e
+
+Ambos quality gates finalizaron SUCCESS sobre el mismo SHA:
+
+- PowerShell quality gate: [run 43798883045](https://github.com/Osleyder1985/SINAYXA/actions/runs/43798883045) — 110 tests PASS; JSON Schema Draft 2020-12 válido; PSScriptAnalyzer 1.24.0 con cero hallazgos.
+- Security and dependency quality gate: [run 43798883441](https://github.com/Osleyder1985/SINAYXA/actions/runs/43798883441) — SUCCESS. OSV full quedó SKIPPED y no se contabiliza como PASS.
+- test_021_contradiction_within_one_source_version_uses_distinct_evidence_items: positivo; dos evidencias distintas de la misma versión documental pueden ocupar los roles de apoyo y contrario cuando representan fragmentos/unidades diferenciados.
+- test_021_contradiction_rejects_same_evidence_item_in_both_roles: negativo; se rechaza que el mismo evidence_id figure en ambos roles.
+
+**Alcance y límite:** esta corrección impide la doble asignación de una misma pieza y representa contradicción con piezas distintas dentro de una versión. No autentica los fragmentos ni demuestra que su contenido sea verdadero; tampoco resuelve automáticamente solapamientos semánticos, límites de fragmentos o contradicciones entre cortes temporales/versiones diferentes. COR-04 mantiene brechas de frontera y revisión humana. Las cinco áreas A–E permanecen ABIERTAS.
