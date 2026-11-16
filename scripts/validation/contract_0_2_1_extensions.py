@@ -88,15 +88,34 @@ def validate_retention_scope(
     copies: list[dict[str, Any]],
     transition_events: list[dict[str, Any]],
 ) -> None:
-    """Require complete copy/derivative scope before declaring deletion complete."""
+    """Require an auditable copy/derivative inventory before declaring deletion complete."""
     ids = [copy["copy_id"] for copy in copies]
     _require(len(ids) == len(set(ids)), "copy identifiers must be unique")
     known = set(ids)
+    event_ids = [event["audit_event_id"] for event in transition_events]
+    _require(len(event_ids) == len(set(event_ids)), "copy transition event identifiers must be unique")
+    event_by_id = {event["audit_event_id"]: event for event in transition_events}
     for copy in copies:
         parent = copy.get("parent_copy_id")
         _require(parent is None or parent in known, "copy lineage contains an unknown parent")
         _require(copy["state"] in {"PRESENT", "DELETE_PENDING", "DELETED"},
                  "unsupported copy lifecycle state")
+        previous = copy.get("previous_state")
+        allowed = {None: {"PRESENT"}, "PRESENT": {"DELETE_PENDING"},
+                   "DELETE_PENDING": {"DELETED"}, "DELETED": set()}
+        _require(copy["state"] in allowed.get(previous, set()), "invalid or terminal copy lifecycle transition")
+        event = event_by_id.get(copy.get("transition_event_ref"))
+        _require(event is not None, "copy transition event reference is missing")
+        _require(event.get("copy_id") == copy["copy_id"]
+                 and event.get("from_copy_state") == previous
+                 and event.get("to_copy_state") == copy["state"],
+                 "copy transition audit event does not match the recorded state transition")
+        expected_action = {"PRESENT": "COPY_DISCOVERED",
+                           "DELETE_PENDING": "COPY_DELETION_REQUESTED",
+                           "DELETED": "COPY_DELETED"}[copy["state"]]
+        _require(event.get("action") == expected_action, "copy transition audit action is inconsistent")
+        _require(bool(event.get("reason")) and bool(event.get("actor_role"))
+                 and bool(event.get("occurred_at")), "copy transition audit event lacks actor, time, or reason")
     for copy in copies:
         seen = set()
         current = copy
@@ -104,21 +123,16 @@ def validate_retention_scope(
             _require(current["copy_id"] not in seen, "copy lineage cannot contain cycles")
             seen.add(current["copy_id"])
             current = next(item for item in copies if item["copy_id"] == current["parent_copy_id"])
-    _require(len(transition_events) == len(copies),
-             "each in-scope copy requires exactly one correlated transition event")
-    event_copy_ids = [event["copy_id"] for event in transition_events]
-    _require(set(event_copy_ids) == known and len(event_copy_ids) == len(set(event_copy_ids)),
-             "transition events must cover each in-scope copy exactly once")
     if disposition == "DELETED":
-        _require(all(copy["state"] == "DELETED" and copy.get("verified_at") and copy.get("verification_reference")
-                     for copy in copies),
+        _require(bool(copies), "DELETED scope must declare every copy in its scope")
+        _require(all(copy["state"] == "DELETED" and copy.get("verified_at")
+                     and copy.get("verification_reference") for copy in copies),
                  "DELETED requires verified deletion of every in-scope copy and derivative")
     elif disposition == "DELETE_PENDING":
         _require(any(copy["state"] in {"PRESENT", "DELETE_PENDING"} for copy in copies),
                  "DELETE_PENDING must retain an explicitly tracked outstanding copy")
     else:
         raise ContractViolation("this check accepts only DELETE_PENDING or DELETED dispositions")
-
 
 def validate_archive_attestation(availability: dict[str, Any], attestation: dict[str, Any], cutoff: str) -> None:
     """Check archive capture provenance; never infer authenticity or truth."""
