@@ -100,19 +100,19 @@ class Contract022MigrationTests(unittest.TestCase):
             self._migrate(self._uuid_compatible_source(), mappings)
 
     def test_reason_action_mismatch_is_rejected(self):
-        mappings = copy.deepcopy(self.mappings)
+        mappings = self._mapping_for(self._uuid_compatible_source())
         mappings["reasons"]["Registro sintético de referencia sin conservar contenido."]["target_code"] = "RECORD_CREATED"
         with self.assertRaisesRegex(MigrationRejected, "not permitted"):
             self._migrate(self._uuid_compatible_source(), mappings)
 
     def test_non_object_mapping_entries_are_rejected(self):
-        mappings = copy.deepcopy(self.mappings)
+        mappings = self._mapping_for(self._uuid_compatible_source())
         mappings["actor_roles"]["SYNTHETIC_TEST"] = ["SYSTEM"]
         with self.assertRaisesRegex(MigrationRejected, "mapping entry"):
             self._migrate(self._uuid_compatible_source(), mappings)
 
     def test_stale_mapping_entries_are_rejected(self):
-        mappings = copy.deepcopy(self.mappings)
+        mappings = self._mapping_for(self._uuid_compatible_source())
         mappings["actor_roles"]["OLD_UNUSED_ROLE"] = {"target_code": "SYSTEM", "evidence_refs": ["evidence-a"], "rationale": "stale"}
         with self.assertRaisesRegex(MigrationRejected, "exactly match"):
             self._migrate(self._uuid_compatible_source(), mappings)
