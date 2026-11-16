@@ -23,7 +23,7 @@ Instalar PostgreSQL 18.7 y Python 3.12 en el entorno local autorizado. Crear una
 ```powershell
 python -m pip install --requirement requirements-temporal-contract-validation.txt
 $env:SINAYXA_DATABASE_URL = "postgresql://USUARIO:CONTRASENA@localhost:5432/sinayxa"
-python scripts/news_and_events/register_event.py init
+python -m scripts.news_and_events.register_event init
 ```
 
 La migración crea el esquema sinayxa y sus tablas. Puede ejecutarse nuevamente sin duplicar los objetos principales. La base de datos y sus credenciales permanecen bajo control local del operador.
@@ -45,13 +45,13 @@ Crear un archivo JSON, por ejemplo event.json:
 Ejecutar:
 
 ```powershell
-python scripts/news_and_events/register_event.py create-event --input .\event.json
+python -m scripts.news_and_events.register_event create-event --input .\event.json
 ```
 
 Las referencias iniciales se conservan con el registro. Una fuente conocida posteriormente se incorpora sin modificar el acontecimiento original:
 
 ```powershell
-python scripts/news_and_events/register_event.py add-source --event-id event-protocol-release-001 --source-ref source-follow-up-example
+python -m scripts.news_and_events.register_event add-source --event-id event-protocol-release-001 --source-ref source-follow-up-example
 ```
 
 ## 4. Añadir una afirmación temporal
@@ -86,7 +86,7 @@ Crear assertion-v1.json:
 Anexar la versión:
 
 ```powershell
-python scripts/news_and_events/register_event.py append-assertion --input .\assertion-v1.json
+python -m scripts.news_and_events.register_event append-assertion --input .\assertion-v1.json
 ```
 
 Si la agenda cambia, se añade una segunda afirmación con version: 2, un nuevo temporal_assertion_id y supersedes_assertion_id apuntando a la versión inmediatamente anterior. No se edita ni se elimina la primera versión.
@@ -96,13 +96,13 @@ Si la agenda cambia, se añade una segunda afirmación con version: 2, un nuevo 
 Historial completo:
 
 ```powershell
-python scripts/news_and_events/register_event.py history --event-id event-protocol-release-001
+python -m scripts.news_and_events.register_event history --event-id event-protocol-release-001
 ```
 
 Información conocida en un instante concreto:
 
 ```powershell
-python scripts/news_and_events/register_event.py show-as-of --event-id event-protocol-release-001 --cutoff-utc 2026-11-16T12:03:30Z
+python -m scripts.news_and_events.register_event show-as-of --event-id event-protocol-release-001 --cutoff-utc 2026-11-16T12:03:30Z
 ```
 
 El corte debe expresarse en UTC con sufijo Z. Una afirmación cuyo recorded_at sea posterior al corte queda excluida.
