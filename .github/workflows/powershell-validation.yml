@@ -268,7 +268,7 @@ jobs:
           python 'scripts/validation/validate_source_evidence_contract_0_2_1.py'
           if ($LASTEXITCODE -ne 0) { throw 'The Issue #78 contract 0.2.1 schema or semantic fixture validation failed.' }
 
-      - name: Run contract 0.2.2 audit catalog and mutation tests
+      - name: Run Issue #98 contract 0.2.2 audit catalog and mutation tests
         shell: pwsh
         working-directory: source
         run: |
@@ -276,14 +276,14 @@ jobs:
           python -m unittest discover -s scripts/validation -p 'test_source_evidence_contract_0_2_2.py' -v
           if ($LASTEXITCODE -ne 0) { throw 'The contract 0.2.2 audit mutation tests failed.' }
 
-      - name: Validate contract 0.2.2 schema, catalogs and synthetic fixture
+      - name: Validate Issue #98 contract 0.2.2 schema, catalogs and synthetic fixture
         shell: pwsh
         working-directory: source
         run: |
           $ErrorActionPreference = 'Stop'
           python 'scripts/validation/validate_source_evidence_contract_0_2_2.py'
           if ($LASTEXITCODE -ne 0) { throw 'The contract 0.2.2 schema or audit fixture validation failed.' }
-      - name: Run fail-closed contract 0.2.1 to 0.2.2 migration tests
+      - name: Run Issue #98 fail-closed contract 0.2.1 to 0.2.2 migration tests
         shell: pwsh
         working-directory: source
         run: |
