@@ -1,6 +1,12 @@
 """Unit tests for the five corrective contract 0.2.1 verification areas."""
 import copy
+import json
 import unittest
+from pathlib import Path
+
+from jsonschema import Draft202012Validator, FormatChecker
+
+from validate_source_evidence_contract_0_2_1 import validate_package
 
 from contract_0_2_1_extensions import (
     ContractViolation,
@@ -243,6 +249,109 @@ class Contract021ExtensionTests(unittest.TestCase):
                     "rules_applied": ["preserve-history"], "result": "PASS"}
         with self.assertRaises(ContractViolation):
             validate_migration(source, target, manifest)
+
+
+    def load_contract_021_fixture(self):
+        root = Path(__file__).resolve().parents[2]
+        schema = json.loads((root / "schemas" / "source-evidence-contract-0.2.1.schema.json").read_text(encoding="utf-8"))
+        package = json.loads((root / "tests" / "fixtures" / "contracts" / "source-evidence-contract-v0.2.1.json").read_text(encoding="utf-8"))
+        return schema, package
+
+    def assert_schema_valid(self, schema, package):
+        errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(package))
+        self.assertEqual(errors, [], "; ".join(error.message for error in errors))
+
+    def test_021_base_fixture_passes_schema_and_semantics(self):
+        schema, package = self.load_contract_021_fixture()
+        Draft202012Validator.check_schema(schema)
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_archive_attestation_is_required_and_does_not_authenticate_content(self):
+        schema, package = self.load_contract_021_fixture()
+        package["archive_attestations"].append({
+            "archive_attestation_id": "archive-1", "archive_service": "Synthetic Archive",
+            "capture_record_reference": "capture-record-1", "captured_at": "2026-11-15T20:04:00Z",
+            "imported_at": "2026-11-15T22:00:00Z", "recorded_at": "2026-11-15T22:00:00Z",
+            "integrity_result": "MATCH", "capture_record_verified": True,
+            "content_authenticity": "UNKNOWN", "content_truth": "UNKNOWN"
+        })
+        package["evidence_availability"][0]["availability_basis"] = "INDEPENDENT_ARCHIVE"
+        package["evidence_availability"][0]["archive_attestation_id"] = "archive-1"
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_archive_integrity_mismatch_is_not_verified_availability(self):
+        schema, package = self.load_contract_021_fixture()
+        package["archive_attestations"].append({
+            "archive_attestation_id": "archive-1", "archive_service": "Synthetic Archive",
+            "capture_record_reference": "capture-record-1", "captured_at": "2026-11-15T20:04:00Z",
+            "imported_at": "2026-11-15T22:00:00Z", "recorded_at": "2026-11-15T22:00:00Z",
+            "integrity_result": "MISMATCH", "capture_record_verified": True,
+            "content_authenticity": "UNKNOWN", "content_truth": "UNKNOWN"
+        })
+        package["evidence_availability"][0]["availability_basis"] = "INDEPENDENT_ARCHIVE"
+        package["evidence_availability"][0]["archive_attestation_id"] = "archive-1"
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_delete_pending_copy_inventory_passes_schema_and_semantics(self):
+        schema, package = self.load_contract_021_fixture()
+        record = package["retention_records"][0]
+        record.update({"content_retained": True, "legal_basis_status": "NOT_ESTABLISHED",
+                       "disposition": "DELETE_PENDING", "previous_disposition": "RETAIN",
+                       "expires_at": "2026-11-15T23:00:00Z", "recorded_at": "2026-11-15T22:01:00Z",
+                       "review_at": "2026-11-15T22:01:00Z", "copy_scope_ids": ["copy-primary"]})
+        package["retention_copy_records"].append({
+            "copy_id": "copy-primary", "retention_id": "retention-a", "subject_ref": "evidence-a",
+            "copy_kind": "PRIMARY", "parent_copy_id": None, "state": "DELETE_PENDING",
+            "recorded_at": "2026-11-15T22:01:00Z", "verified_at": None,
+            "verification_reference": None, "scheduled_disposition_at": "2026-11-16T00:00:00Z",
+            "previous_state": "PRESENT", "transition_event_ref": "copy-event-1"
+        })
+        package["audit_events"].append({
+            "audit_event_id": "copy-event-1", "subject_ref": "evidence-a", "action": "COPY_DELETION_REQUESTED",
+            "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:01:00Z",
+            "reason": "Synthetic deletion request", "retention_id": "retention-a",
+            "copy_id": "copy-primary", "from_copy_state": "PRESENT", "to_copy_state": "DELETE_PENDING"
+        })
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_deleted_scope_rejects_uninventoried_replica(self):
+        schema, package = self.load_contract_021_fixture()
+        record = package["retention_records"][0]
+        record.update({"content_retained": False, "disposition": "DELETED",
+                       "previous_disposition": "DELETE_PENDING", "recorded_at": "2026-11-15T22:10:00Z",
+                       "copy_scope_ids": ["copy-primary", "copy-replica"]})
+        package["retention_copy_records"].append({
+            "copy_id": "copy-primary", "retention_id": "retention-a", "subject_ref": "evidence-a",
+            "copy_kind": "PRIMARY", "parent_copy_id": None, "state": "DELETED",
+            "recorded_at": "2026-11-15T22:10:00Z", "verified_at": "2026-11-15T22:10:00Z",
+            "verification_reference": "verify-primary", "scheduled_disposition_at": None,
+            "previous_state": "DELETE_PENDING", "transition_event_ref": "copy-event-1"
+        })
+        package["retention_copy_records"].append({
+            "copy_id": "copy-replica", "retention_id": "retention-a", "subject_ref": "evidence-a",
+            "copy_kind": "REPLICA", "parent_copy_id": "copy-primary", "state": "PRESENT",
+            "recorded_at": "2026-11-15T22:10:00Z", "verified_at": None,
+            "verification_reference": None, "scheduled_disposition_at": None,
+            "previous_state": None, "transition_event_ref": "copy-event-2"
+        })
+        package["audit_events"].extend([
+            {"audit_event_id": "copy-event-1", "subject_ref": "evidence-a", "action": "COPY_DELETED",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:10:00Z", "reason": "Primary deleted",
+             "retention_id": "retention-a", "copy_id": "copy-primary",
+             "from_copy_state": "DELETE_PENDING", "to_copy_state": "DELETED"},
+            {"audit_event_id": "copy-event-2", "subject_ref": "evidence-a", "action": "COPY_DISCOVERED",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:10:00Z", "reason": "Replica discovered",
+             "retention_id": "retention-a", "copy_id": "copy-replica",
+             "from_copy_state": None, "to_copy_state": "PRESENT"}
+        ])
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
 
 
 if __name__ == "__main__":
