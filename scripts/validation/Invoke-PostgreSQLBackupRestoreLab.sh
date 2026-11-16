@@ -13,6 +13,9 @@ SERVER_VERSION=NOT_DETECTED
 CLIENT_VERSION=NOT_DETECTED
 SERVER_ENCODING=NOT_DETECTED
 SERVER_TIMEZONE=NOT_DETECTED
+DOCKER_SERVER_VERSION=NOT_DETECTED
+DOCKER_CLIENT_VERSION=NOT_DETECTED
+HOST_OS=NOT_DETECTED
 BACKUP_SHA256=NOT_CREATED
 BACKUP_SIZE=0
 
@@ -59,6 +62,9 @@ write_report() {
   "postgres_client_version": "$CLIENT_VERSION",
   "server_encoding": "$SERVER_ENCODING",
   "server_timezone": "$SERVER_TIMEZONE",
+  "docker_server_version": "$DOCKER_SERVER_VERSION",
+  "docker_client_version": "$DOCKER_CLIENT_VERSION",
+  "host_os": "$HOST_OS",
   "started_at_utc": "$STARTED_AT_UTC",
   "duration_seconds": $((end_epoch - START_EPOCH)),
   "backup_sha256": "$BACKUP_SHA256",
@@ -134,6 +140,9 @@ trap cleanup EXIT
 
 command -v docker >/dev/null
 docker info >/dev/null
+DOCKER_SERVER_VERSION="$(docker version --format '{{.Server.Version}}')"
+DOCKER_CLIENT_VERSION="$(docker version --format '{{.Client.Version}}')"
+HOST_OS="$(uname -srm)"
 
 docker pull "$IMAGE_TAG"
 IMAGE_DIGEST="$(docker image inspect --format '{{index .RepoDigests 0}}' "$IMAGE_TAG")"
