@@ -163,8 +163,8 @@ if command -v docker >/dev/null 2>&1 && docker buildx version >/dev/null 2>&1; t
     OCI_HASH_LINE="$(sha256sum "$OCI_INSPECT_FILE")"
     read -r SERVER_OCI_INSPECT_SHA256 _ <<< "$OCI_HASH_LINE"
     SERVER_OCI_DIGEST="$(awk '/^Digest:/ {print $2; exit}' "$OCI_INSPECT_FILE" || true)"
-    SERVER_OCI_DIGEST_LINUX_AMD64="$(awk '/^  Name:/ {manifest=$2} /^  Platform:[[:space:]]+linux\\/amd64/ {sub(/^.*@/, \"\", manifest); print manifest; exit}' \"$OCI_INSPECT_FILE\" || true)"
-    SERVER_OCI_DIGEST_LINUX_ARM64="$(awk '/^  Name:/ {manifest=$2} /^  Platform:[[:space:]]+linux\\/arm64/ {sub(/^.*@/, \"\", manifest); print manifest; exit}' \"$OCI_INSPECT_FILE\" || true)"
+    SERVER_OCI_DIGEST_LINUX_AMD64="$(awk '/^  Name:/ {manifest=$2} /^  Platform:[[:space:]]+linux\\/amd64/ {sub(/^.*@/, "", manifest); print manifest; exit}' "$OCI_INSPECT_FILE" || true)"
+    SERVER_OCI_DIGEST_LINUX_ARM64="$(awk '/^  Name:/ {manifest=$2} /^  Platform:[[:space:]]+linux\\/arm64/ {sub(/^.*@/, "", manifest); print manifest; exit}' "$OCI_INSPECT_FILE" || true)"
   fi
 fi
 
