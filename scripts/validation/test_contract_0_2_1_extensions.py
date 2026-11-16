@@ -110,18 +110,18 @@ class Contract021ExtensionTests(unittest.TestCase):
             )
 
     def test_retained_copy_inventory_has_discovery_audit(self):
-        copies = [{"copy_id": "primary", "parent_copy_id": None, "state": "PRESENT",
-                   "previous_state": None, "transition_event_ref": "event-1"}]
-        events = [{"audit_event_id": "event-1", "copy_id": "primary",
+        copies = [{"copy_id": "primary", "retention_id": "retention-a", "subject_ref": "evidence-a", "parent_copy_id": None, "state": "PRESENT",
+                   "previous_state": None, "transition_event_ref": "event-1", "recorded_at": "2026-01-01T00:00:00Z"}]
+        events = [{"audit_event_id": "event-1", "copy_id": "primary", "retention_id": "retention-a", "subject_ref": "evidence-a",
                    "from_copy_state": None, "to_copy_state": "PRESENT",
                    "action": "COPY_DISCOVERED", "actor_role": "DATA_CUSTODIAN",
                    "occurred_at": "2026-01-01T00:00:00Z", "reason": "Synthetic copy inventory"}]
         validate_retention_scope("RETAIN", copies, events)
 
     def test_delete_pending_requires_outstanding_copy_inventory(self):
-        copies = [{"copy_id": "primary", "parent_copy_id": None, "state": "DELETE_PENDING",
-                   "previous_state": "PRESENT", "transition_event_ref": "event-1"}]
-        events = [{"audit_event_id": "event-1", "copy_id": "primary",
+        copies = [{"copy_id": "primary", "retention_id": "retention-a", "subject_ref": "evidence-a", "parent_copy_id": None, "state": "DELETE_PENDING",
+                   "previous_state": "PRESENT", "transition_event_ref": "event-1", "recorded_at": "2026-01-01T00:00:00Z"}]
+        events = [{"audit_event_id": "event-1", "copy_id": "primary", "retention_id": "retention-a", "subject_ref": "evidence-a",
                    "from_copy_state": "PRESENT", "to_copy_state": "DELETE_PENDING",
                    "action": "COPY_DELETION_REQUESTED", "actor_role": "DATA_CUSTODIAN",
                    "occurred_at": "2026-01-01T00:00:00Z", "reason": "Synthetic deletion request"}]
@@ -129,38 +129,38 @@ class Contract021ExtensionTests(unittest.TestCase):
 
     def test_deleted_requires_every_copy_and_derivative_verified(self):
         copies = [
-            {"copy_id": "primary", "parent_copy_id": None, "state": "DELETED", "previous_state": "DELETE_PENDING",
-             "transition_event_ref": "event-1", "verified_at": "2026-01-01T01:00:00Z", "verification_reference": "verify-1"},
-            {"copy_id": "replica", "parent_copy_id": "primary", "state": "DELETED", "previous_state": "DELETE_PENDING",
-             "transition_event_ref": "event-2", "verified_at": "2026-01-01T01:01:00Z", "verification_reference": "verify-2"},
+            {"copy_id": "primary", "retention_id": "retention-a", "subject_ref": "evidence-a", "parent_copy_id": None, "state": "DELETED", "previous_state": "DELETE_PENDING",
+             "transition_event_ref": "event-1", "recorded_at": "2026-01-01T01:00:00Z", "verified_at": "2026-01-01T01:00:00Z", "verification_reference": "verify-1"},
+            {"copy_id": "replica", "retention_id": "retention-a", "subject_ref": "evidence-a", "parent_copy_id": "primary", "state": "DELETED", "previous_state": "DELETE_PENDING",
+             "transition_event_ref": "event-2", "recorded_at": "2026-01-01T01:01:00Z", "verified_at": "2026-01-01T01:01:00Z", "verification_reference": "verify-2"},
         ]
         events = [
-            {"audit_event_id": "event-1", "copy_id": "primary", "from_copy_state": "DELETE_PENDING", "to_copy_state": "DELETED",
+            {"audit_event_id": "event-1", "copy_id": "primary", "retention_id": "retention-a", "subject_ref": "evidence-a", "from_copy_state": "DELETE_PENDING", "to_copy_state": "DELETED",
              "action": "COPY_DELETED", "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-01-01T01:00:00Z", "reason": "Verified"},
-            {"audit_event_id": "event-2", "copy_id": "replica", "from_copy_state": "DELETE_PENDING", "to_copy_state": "DELETED",
+            {"audit_event_id": "event-2", "copy_id": "replica", "retention_id": "retention-a", "subject_ref": "evidence-a", "from_copy_state": "DELETE_PENDING", "to_copy_state": "DELETED",
              "action": "COPY_DELETED", "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-01-01T01:01:00Z", "reason": "Verified"},
         ]
         validate_retention_scope("DELETED", copies, events)
 
     def test_deleted_rejects_unverified_backup(self):
         copies = [
-            {"copy_id": "primary", "parent_copy_id": None, "state": "DELETED", "previous_state": "DELETE_PENDING",
-             "transition_event_ref": "event-1", "verified_at": "2026-01-01T01:00:00Z", "verification_reference": "verify-1"},
-            {"copy_id": "backup", "parent_copy_id": "primary", "state": "DELETE_PENDING", "previous_state": "PRESENT",
-             "transition_event_ref": "event-2"},
+            {"copy_id": "primary", "retention_id": "retention-a", "subject_ref": "evidence-a", "parent_copy_id": None, "state": "DELETED", "previous_state": "DELETE_PENDING",
+             "transition_event_ref": "event-1", "recorded_at": "2026-01-01T01:00:00Z", "verified_at": "2026-01-01T01:00:00Z", "verification_reference": "verify-1"},
+            {"copy_id": "backup", "retention_id": "retention-a", "subject_ref": "evidence-a", "parent_copy_id": "primary", "state": "DELETE_PENDING", "previous_state": "PRESENT",
+             "transition_event_ref": "event-2", "recorded_at": "2026-01-01T01:01:00Z"},
         ]
         events = [
-            {"audit_event_id": "event-1", "copy_id": "primary", "from_copy_state": "DELETE_PENDING", "to_copy_state": "DELETED",
+            {"audit_event_id": "event-1", "copy_id": "primary", "retention_id": "retention-a", "subject_ref": "evidence-a", "from_copy_state": "DELETE_PENDING", "to_copy_state": "DELETED",
              "action": "COPY_DELETED", "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-01-01T01:00:00Z", "reason": "Verified"},
-            {"audit_event_id": "event-2", "copy_id": "backup", "from_copy_state": "PRESENT", "to_copy_state": "DELETE_PENDING",
+            {"audit_event_id": "event-2", "copy_id": "backup", "retention_id": "retention-a", "subject_ref": "evidence-a", "from_copy_state": "PRESENT", "to_copy_state": "DELETE_PENDING",
              "action": "COPY_DELETION_REQUESTED", "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-01-01T01:01:00Z", "reason": "Pending"},
         ]
         with self.assertRaises(ContractViolation):
             validate_retention_scope("DELETED", copies, events)
 
     def test_retention_rejects_missing_copy_transition(self):
-        copies = [{"copy_id": "primary", "parent_copy_id": None, "state": "DELETE_PENDING",
-                   "previous_state": "PRESENT", "transition_event_ref": "missing"}]
+        copies = [{"copy_id": "primary", "retention_id": "retention-a", "subject_ref": "evidence-a", "parent_copy_id": None, "state": "DELETE_PENDING",
+                   "previous_state": "PRESENT", "transition_event_ref": "missing", "recorded_at": "2026-01-01T00:00:00Z"}]
         with self.assertRaises(ContractViolation):
             validate_retention_scope("DELETE_PENDING", copies, [])
 
