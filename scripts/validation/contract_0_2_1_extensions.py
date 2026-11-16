@@ -66,6 +66,11 @@ def validate_corroboration(
     if status != "CORROBORADA":
         return
     _require(bool(supporting_units), "corroboration requires supporting units")
+    component_versions = {unit.get("claim_component_version_id") for unit in supporting_units}
+    cutoffs = {unit.get("assessment_cutoff") for unit in supporting_units}
+    _require(len(component_versions) == 1 and None not in component_versions,
+             "corroboration units must cover one exact component version")
+    _require(cutoffs == {cutoff}, "corroboration units must share the exact assessment cutoff")
     non_primary = [unit for unit in supporting_units if unit["source_type"] != "PRIMARIA"]
     if non_primary:
         _require(basis in {"CORROBORACION_INDEPENDIENTE", "AMBAS"},
@@ -85,6 +90,9 @@ def validate_corroboration(
             and item.get("knowledge_basis") in {"OBSERVACIÓN_DIRECTA", "REGISTRO_ORIGINAL"}
             and item.get("scope_note")
             and item.get("available_at", "") <= cutoff
+            and any(unit["source_id"] == item.get("source_id")
+                    and unit["source_version_id"] == item.get("source_version_id")
+                    for unit in supporting_units)
         ]
         _require(bool(eligible),
                  "primary-direct basis requires authenticated, legitimate, direct evidence scoped to the component")
