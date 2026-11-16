@@ -107,6 +107,15 @@ def _validate_source_version_chains(package: dict[str, Any]) -> None:
         sequences = [item["version_sequence"] for item in ordered]
         require(sequences == list(range(1, len(ordered) + 1)),
                 f"source {source_id} version_sequence must be unique and contiguous from 1")
+        for version in ordered:
+            detected_at = version["first_detected_at"]
+            retrieved_at = version["retrieved_at"]
+            if detected_at is not None and retrieved_at is not None:
+                require(detected_at <= retrieved_at,
+                        "source version cannot be retrieved before its first detection")
+            if retrieved_at is not None:
+                require(retrieved_at <= version["recorded_at"],
+                        "source version retrieval cannot postdate its record timestamp")
         for index, version in enumerate(ordered):
             predecessor_id = version["supersedes_source_version_id"]
             if index == 0:
