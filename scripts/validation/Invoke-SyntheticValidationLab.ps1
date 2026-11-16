@@ -8,6 +8,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 function Get-FileManifest {
+    [OutputType([pscustomobject[]])]
     [CmdletBinding()]
     param([Parameter(Mandatory)][string]$Root)
     $rootPath = [System.IO.Path]::GetFullPath($Root).TrimEnd([System.IO.Path]::DirectorySeparatorChar)
@@ -26,6 +27,7 @@ function Get-FileManifest {
 }
 
 function Test-FileManifest {
+    [OutputType([bool])]
     [CmdletBinding()]
     param([Parameter(Mandatory)][string]$Root, [Parameter(Mandatory)][object[]]$Expected)
     if (-not (Test-Path -LiteralPath $Root -PathType Container)) { return $false }
