@@ -86,16 +86,32 @@ def migrate_package(
     reason_map = mappings.get("reasons", {})
     if not isinstance(role_map, dict) or not isinstance(reason_map, dict):
         raise MigrationRejected("mapping file must contain actor_roles and reasons objects")
-    if not all(isinstance(key, str) and isinstance(value, str) for key, value in role_map.items()):
-        raise MigrationRejected("actor_roles mapping must contain only string-to-string entries")
-    if not all(isinstance(key, str) and isinstance(value, str) for key, value in reason_map.items()):
-        raise MigrationRejected("reasons mapping must contain only string-to-string entries")
     historical_roles = {event["actor_role"] for event in source.get("audit_events", [])}
     historical_reasons = {event["reason"] for event in source.get("audit_events", [])}
     if set(role_map) != historical_roles:
         raise MigrationRejected("actor_roles mapping keys must exactly match the historical actor_role values")
     if set(reason_map) != historical_reasons:
         raise MigrationRejected("reasons mapping keys must exactly match the historical reason values")
+    evidence_ids = {
+        item["evidence_id"] for item in source.get("evidence_items", [])
+        if isinstance(item, dict) and isinstance(item.get("evidence_id"), str)
+    }
+    def resolve_mapping(mapping: dict[str, Any], historical_value: str, allowed_codes: set[str], label: str) -> str:
+        entry = mapping.get(historical_value)
+        if not isinstance(entry, dict) or set(entry) != {"target_code", "evidence_refs", "rationale"}:
+            raise MigrationRejected(f"{label}: mapping entry must contain exactly target_code, evidence_refs and rationale")
+        target_code = entry["target_code"]
+        if not isinstance(target_code, str) or target_code not in allowed_codes:
+            raise MigrationRejected(f"{label}: target_code is not present in the controlled catalog")
+        refs = entry["evidence_refs"]
+        if not isinstance(refs, list) or not refs or not all(isinstance(ref, str) and ref in evidence_ids for ref in refs):
+            raise MigrationRejected(f"{label}: evidence_refs must resolve to existing source evidence_items")
+        if len(refs) != len(set(refs)):
+            raise MigrationRejected(f"{label}: evidence_refs must be unique")
+        rationale = entry["rationale"]
+        if not isinstance(rationale, str) or not rationale.strip():
+            raise MigrationRejected(f"{label}: rationale must explain the evidenced correspondence")
+        return target_code
 
     output = copy.deepcopy(source)
     losses: list[str] = []
@@ -126,17 +142,9 @@ def migrate_package(
         require_uuid4(event["subject_ref"], f"audit_events[{index}].subject_ref")
         audit_ids.add(event["audit_event_id"])
         old_role = event["actor_role"]
-        role_code = role_map.get(old_role)
-        if role_code not in role_codes:
-            raise MigrationRejected(
-                f"audit_events[{index}].actor_role: no explicit mapping to a current controlled role code"
-            )
+        role_code = resolve_mapping(role_map, old_role, role_codes, f"audit_events[{index}].actor_role")
         old_reason = event["reason"]
-        reason_code = reason_map.get(old_reason)
-        if reason_code not in reason_actions:
-            raise MigrationRejected(
-                f"audit_events[{index}].reason: no explicit mapping to a current controlled reason code"
-            )
+        reason_code = resolve_mapping(reason_map, old_reason, set(reason_actions), f"audit_events[{index}].reason")
         if event["action"] not in reason_actions[reason_code]:
             raise MigrationRejected(
                 f"audit_events[{index}].reason: mapped reason code is not permitted for the event action"
