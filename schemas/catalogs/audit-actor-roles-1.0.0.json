@@ -23,10 +23,6 @@
     {
       "code": "LEGAL_REVIEWER",
       "description": "Responsable de revisión jurídica."
-    },
-    {
-      "code": "SYNTHETIC_TEST",
-      "description": "Actor reservado a fixtures y pruebas sintéticas; prohibido para operaciones reales."
     }
   ]
 }
