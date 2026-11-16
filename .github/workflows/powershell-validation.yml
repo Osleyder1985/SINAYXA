@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - quality/powershell-analyzer-hardening
+      - feature/issue-98-contract-0.2.2-on-0.2.1
   pull_request:
     branches:
       - main
