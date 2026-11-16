@@ -2259,6 +2259,7 @@
         "verified_at",
         "verification_reference",
         "scheduled_disposition_at",
+        "backup_expiration_policy_ref",
         "previous_state",
         "transition_event_ref"
       ],
@@ -2310,6 +2311,12 @@
         },
         "scheduled_disposition_at": {
           "$ref": "#/$defs/optionalUtc"
+        },
+        "backup_expiration_policy_ref": {
+          "anyOf": [
+            { "$ref": "#/$defs/id" },
+            { "type": "null" }
+          ]
         },
         "previous_state": {
           "type": [
