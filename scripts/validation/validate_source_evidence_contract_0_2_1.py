@@ -316,6 +316,8 @@ def _validate_claim_assessment_evidence(package: dict[str, Any]) -> None:
                     "partial corroboration scope separation requires explicit human review")
             _validate_scoped_claim_evidence(package, assessment, supporting, "SUPPORTING")
         elif status == "CONTRADICHA":
+            require(set(supporting).isdisjoint(contrary),
+                    "a single evidence item cannot be both supporting and contrary; represent distinct scoped fragments as separate evidence items")
             _validate_scoped_claim_evidence(package, assessment, supporting, "SUPPORTING")
             _validate_scoped_claim_evidence(package, assessment, contrary, "CONTRARY")
         elif status == "REFUTADA":
