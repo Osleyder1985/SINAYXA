@@ -29,6 +29,8 @@ Validar `pg_dump` y `pg_restore` con una instancia PostgreSQL efímera, aislada 
 
 El reporte JSON clasifica la ejecución como `LAB_SYNTHETIC` y cada comprobación como `PASS`, `FAIL` o `NOT_RUN`. Un fallo aborta el ensayo y produce un reporte `FAIL`.
 
+La comprobación `cleanup` solo puede ser `PASS` si la consulta al daemon Docker termina correctamente y confirma que el contenedor temporal ya no existe. Si Docker no responde o el contenedor permanece, el reporte global debe ser `FAIL`; la ausencia de respuesta nunca se interpreta como prueba de eliminación.
+
 ## Límites de evidencia
 
 No demuestra backup físico del clúster ni PITR, independencia física de backups externos, WORM/Object Lock, eliminación física, reconciliación de snapshots externos ni migración productiva. Un PASS cubre exclusivamente el ensayo PostgreSQL sintético y no cierra #88, #89, #91 ni las áreas C/D/E.
