@@ -273,7 +273,7 @@ class Contract021ExtensionTests(unittest.TestCase):
         attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
                        "captured_at": "2026-01-03T00:00:00Z", "recorded_at": "2026-01-03T00:01:00Z", "integrity_result": "MATCH",
                        "capture_record_verified": True, "verification_method": "INDEPENDENT_RECORD_REVIEW",
-                       "verified_at": "2026-01-01T00:01:00Z", "verified_by_role": "ARCHIVE_REVIEWER",
+                       "verified_at": "2026-01-03T00:01:00Z", "verified_by_role": "ARCHIVE_REVIEWER",
                        "content_authenticity": "UNKNOWN",
                        "content_truth": "UNKNOWN"}
         with self.assertRaises(ContractViolation):
