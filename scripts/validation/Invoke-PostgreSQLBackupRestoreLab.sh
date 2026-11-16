@@ -64,6 +64,7 @@ EOF
 }
 cleanup() {
   local rc=$?
+  set -x
   trap - EXIT
   set +e
   local container_names volume_names
