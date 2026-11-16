@@ -194,8 +194,11 @@ def _validate_independence_assessments(package: dict[str, Any]) -> None:
                 edge = edges_by_id[edge_id]
                 require(edge["relation_type"] in dependency_relations,
                         "dependency assessment references a non-dependency relation")
-                require(edge["claim_component_version_id"] == assessment["claim_component_version_id"],
-                        "dependency edge belongs to a different component version")
+                require(
+                    edge["claim_component_id"] == assessment["claim_component_id"]
+                    and edge["claim_component_version_id"] == assessment["claim_component_version_id"],
+                    "dependency edge belongs to a different claim component or component version",
+                )
                 dependent = nodes_by_id.get(edge["dependent_node_id"])
                 origin = nodes_by_id.get(edge["origin_node_id"])
                 require(dependent is not None and origin is not None,
