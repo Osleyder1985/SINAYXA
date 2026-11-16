@@ -34,7 +34,7 @@ El token de sujeto se utiliza para correlación interna entre los registros de r
 
 ## 4. Catálogos y evolución
 
-Los catálogos de roles y motivos se versionan de forma independiente y usan códigos estables, no descripciones libres. La descripción humana es documentación del catálogo y nunca se copia al evento.
+Los catálogos de roles y motivos se versionan de forma independiente y usan códigos estables, no descripciones libres. No existe un rol operativo `SYNTHETIC_TEST`: los fixtures usan roles válidos del catálogo y los mapeos sintéticos solo demuestran el mecanismo de correspondencia, nunca constituyen una recomendación de asignación para datos reales. La descripción humana es documentación del catálogo y nunca se copia al evento.
 
 Cada motivo declara explícitamente las acciones permitidas. Un motivo válido en el catálogo pero no permitido para la acción concreta debe ser rechazado por el validador semántico.
 
