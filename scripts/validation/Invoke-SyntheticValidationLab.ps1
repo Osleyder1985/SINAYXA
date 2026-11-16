@@ -22,7 +22,7 @@ function Get-FileManifest {
             }
         }
     )
-    return ,$entries
+    return $entries
 }
 
 function Test-FileManifest {
@@ -118,6 +118,7 @@ try {
     $tamperDetected = -not (Test-FileManifest -Root $tamperRoot -Expected $manifest)
     $report.checks.tamper_detection = if ($tamperDetected) { 'PASS' } else { 'FAIL' }
     if (-not $tamperDetected) { throw 'Integrity validation failed to detect the intentional mutation.' }
+    Remove-Item -LiteralPath $tamperRoot -Recurse -Force -ErrorAction Stop
 
     $managedCopies = @($datasetRoot, $exportPayloadRoot, $restorePayloadRoot)
     $deletionRequest = [ordered]@{
