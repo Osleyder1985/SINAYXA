@@ -256,6 +256,12 @@ jobs:
           $evidenceStandardFixtureHash = (Get-FileHash -LiteralPath $evidenceStandardFixture -Algorithm SHA256).Hash
           $alertFixture = 'tests/fixtures/methodology/alerts/a01-a15-synthetic-conformance-v1.0.0.json'
           $alertFixtureHash = (Get-FileHash -LiteralPath $alertFixture -Algorithm SHA256).Hash
+          $temporalFixture = 'tests/fixtures/contracts/temporal-event-contract-v1.0.0.json'
+          $temporalFixtureHash = (Get-FileHash -LiteralPath $temporalFixture -Algorithm SHA256).Hash
+          $temporalSchema = 'schemas/temporal-event-contract-1.0.0.schema.json'
+          $temporalSchemaHash = (Get-FileHash -LiteralPath $temporalSchema -Algorithm SHA256).Hash
+          $temporalValidator = 'scripts/validation/validate_temporal_event_contract.py'
+          $temporalValidatorHash = (Get-FileHash -LiteralPath $temporalValidator -Algorithm SHA256).Hash
           $evidence = [ordered]@{
             source_commit = $commit
             workflow_commit = '${{ github.sha }}'
@@ -267,6 +273,12 @@ jobs:
             evidence_standard_fixture_sha256 = $evidenceStandardFixtureHash
             alert_fixture = $alertFixture
             alert_fixture_sha256 = $alertFixtureHash
+            temporal_fixture = $temporalFixture
+            temporal_fixture_sha256 = $temporalFixtureHash
+            temporal_schema = $temporalSchema
+            temporal_schema_sha256 = $temporalSchemaHash
+            temporal_validator = $temporalValidator
+            temporal_validator_sha256 = $temporalValidatorHash
             powerShell_files = @(git ls-files '*.ps1' '*.psm1').Count
             run_id = '${{ github.run_id }}'
             event = '${{ github.event_name }}'
