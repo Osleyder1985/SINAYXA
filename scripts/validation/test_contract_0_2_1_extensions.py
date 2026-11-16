@@ -129,6 +129,25 @@ class Contract021ExtensionTests(unittest.TestCase):
             primary, set(), self.cutoff
         )
 
+    def test_primary_evidence_from_unrelated_source_cannot_corroborate(self):
+        primary = [{"source_type": "PRIMARIA", "source_id": "other-source", "source_version_id": "other-version",
+                    "authenticity_status": "AUTENTICADA", "access_status": "PÚBLICO_LEGÍTIMO",
+                    "knowledge_basis": "REGISTRO_ORIGINAL", "scope_note": "Acto directamente acreditado.",
+                    "available_at": "2026-01-01T00:00:00Z"}]
+        units = [{"assessment_unit_id": "u1", "source_id": "s1", "source_version_id": "v1",
+                  "claim_component_version_id": "cv1", "assessment_cutoff": self.cutoff,
+                  "source_type": "PRIMARIA"}]
+        with self.assertRaises(ContractViolation):
+            validate_corroboration("CORROBORADA", "EVIDENCIA_PRIMARIA_DIRECTA",
+                                   units, primary, set(), self.cutoff)
+
+    def test_corroboration_rejects_mixed_component_versions(self):
+        units = copy.deepcopy(self.units)
+        units[1]["claim_component_version_id"] = "cv2"
+        with self.assertRaises(ContractViolation):
+            validate_corroboration("CORROBORADA", "CORROBORACION_INDEPENDIENTE",
+                                   units, [], {"u1", "u2"}, self.cutoff)
+
     def test_ambas_requires_independence_even_when_primary_evidence_exists(self):
         primary = [{"source_type": "PRIMARIA", "source_id": "s1", "source_version_id": "v1",
                     "authenticity_status": "AUTENTICADA", "access_status": "PÚBLICO_LEGÍTIMO",
