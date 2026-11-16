@@ -298,7 +298,7 @@ class Contract021ExtensionTests(unittest.TestCase):
 
     def test_archive_capture_verified_for_cutoff_passes_without_authenticating_content(self):
         availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
-                        "available_at": "2026-01-01T00:00:00Z"}
+                        "available_at": "2026-01-01T00:00:00Z", "recorded_at": "2026-01-01T00:02:00Z"}
         attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
                        "captured_at": "2026-01-01T00:00:00Z", "recorded_at": "2026-01-01T00:01:00Z", "integrity_result": "MATCH",
                        "capture_record_verified": True, "verification_method": "INDEPENDENT_RECORD_REVIEW",
@@ -513,6 +513,7 @@ class Contract021ExtensionTests(unittest.TestCase):
              "reason": "Synthetic deletion request", "retention_id": "retention-a", "copy_id": "copy-primary",
              "from_copy_state": "PRESENT", "to_copy_state": "DELETE_PENDING"}
         ])
+        package["claim_assessments"][0]["assessed_at"] = "2026-11-15T22:00:30Z"
         self.assert_schema_valid(schema, package)
         validate_package(package)
 
