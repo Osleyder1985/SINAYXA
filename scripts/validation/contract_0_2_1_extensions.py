@@ -249,10 +249,15 @@ def validate_archive_attestation(
     _require(attestation.get("hash_algorithm") == "SHA-256"
              and integrity.get("algorithm") == "SHA-256",
              "archive content binding requires SHA-256 on both evidence and attestation")
+    expected_digest = integrity.get("expected_digest")
+    observed_digest = integrity.get("observed_digest")
+    checked_at = integrity.get("checked_at")
     _require(integrity.get("result") == "MATCH"
-             and bool(integrity.get("observed_digest"))
-             and attestation.get("captured_content_hash") == integrity.get("observed_digest"),
-             "archive captured content hash must match the verified evidence digest")
+             and bool(expected_digest)
+             and expected_digest == observed_digest == attestation.get("captured_content_hash"),
+             "archive captured content hash must match the expected and observed evidence digests")
+    _require(bool(checked_at) and attestation["captured_at"] <= checked_at <= attestation["recorded_at"],
+             "evidence digest verification must follow capture and precede attestation recording")
     _require(bool(attestation.get("archive_service")), "archive service must be identified")
     _require(bool(attestation.get("capture_record_reference")), "capture record reference is required")
     _require(bool(attestation.get("captured_at")), "capture timestamp is required")
