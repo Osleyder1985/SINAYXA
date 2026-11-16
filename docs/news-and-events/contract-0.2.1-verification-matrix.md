@@ -161,14 +161,14 @@ contract_version y methodology_version son dimensiones independientes. Una migra
 
 ### Evidencia integrada en CI
 
-- HEAD verificado para esta ejecución: `183421f35f7b6447096330d324ca3cae72b6be58` (PowerShell y Security/dependency quality gates SUCCESS sobre el mismo SHA).
-- PowerShell quality gate: [run 43791512399](https://github.com/Osleyder1985/SINAYXA/actions/runs/43791512399) — SUCCESS; PowerShell 7.6.6, 11 archivos parseados, 0 errores, PSScriptAnalyzer 1.24.0 con 0 findings.
-- Security and dependency quality gate: [run 43791512670](https://github.com/Osleyder1985/SINAYXA/actions/runs/43791512670) — SUCCESS; npm audit, Gitleaks y OSV PR SUCCESS; OSV full SKIPPED.
-- Suite semántica correctiva 0.2.1: 87 tests — PASS sobre el HEAD `183421f35f7b6447096330d324ca3cae72b6be58`.
+- HEAD verificado para esta ejecución: `8dbb2235bef5a09cddd5bd9ddb2fe46ce50b1cd2` (PowerShell y Security/dependency quality gates SUCCESS sobre el mismo SHA).
+- PowerShell quality gate: [run 43792511757](https://github.com/Osleyder1985/SINAYXA/actions/runs/43792511757) — SUCCESS; PowerShell 7.6.6, 11 archivos parseados, 0 errores, PSScriptAnalyzer 1.24.0 con 0 findings.
+- Security and dependency quality gate: [run 43792511971](https://github.com/Osleyder1985/SINAYXA/actions/runs/43792511971) — SUCCESS; npm audit, Gitleaks y OSV PR SUCCESS; OSV full SKIPPED.
+- Suite semántica correctiva 0.2.1: 95 tests — PASS sobre el HEAD `8dbb2235bef5a09cddd5bd9ddb2fe46ce50b1cd2`.
 - JSON Schema Draft 2020-12: PASS.
 - Fixture 0.2.1 y validador semántico: PASS.
 - Auditoría npm, Gitleaks y OSV PR: SUCCESS. Los pasos SKIPPED no se contabilizan como PASS.
-- Artefacto de evidencia PowerShell: [powershell-validation-evidence-43791512399](https://github.com/Osleyder1985/SINAYXA/actions/runs/43791512399).
+- Artefacto de evidencia PowerShell: [powershell-validation-evidence-43792511757](https://github.com/Osleyder1985/SINAYXA/actions/runs/43792511757).
 
 ### Trazabilidad actual por área
 
@@ -182,7 +182,7 @@ contract_version y methodology_version son dimensiones independientes. Una migra
 
 ### Decisión de cierre
 
-La ejecución actual sobre `183421f35f7b6447096330d324ca3cae72b6be58` demuestra que el arnés integrado, el migrador real 0.2.0→0.2.1 y sus 87 pruebas correctivas pasan en ese HEAD. PowerShell y seguridad/dependencias terminaron SUCCESS; OSV full continúa SKIPPED por diseño y no se contabiliza como PASS. **Esto no demuestra todavía que cada escenario normativo de la matriz esté cubierto**. Las cinco áreas permanecen ABIERTAS hasta completar la trazabilidad individual, los casos fronterizos restantes y la verificación histórica sobre un mismo HEAD. Issue #88 registra las brechas residuales. No se infiere aprobación metodológica ni se autoriza merge.
+La ejecución actual sobre `8dbb2235bef5a09cddd5bd9ddb2fe46ce50b1cd2` demuestra que el arnés integrado, el migrador real 0.2.0→0.2.1 y sus 95 pruebas correctivas pasan en ese HEAD. PowerShell y seguridad/dependencias terminaron SUCCESS; OSV full continúa SKIPPED por diseño y no se contabiliza como PASS. **Esto no demuestra todavía que cada escenario normativo de la matriz esté cubierto**. Las cinco áreas permanecen ABIERTAS hasta completar la trazabilidad individual, los casos fronterizos restantes y la verificación histórica sobre un mismo HEAD. Issue #88 registra las brechas residuales. No se infiere aprobación metodológica ni se autoriza merge.
 
 ### Trazabilidad individual de escenarios (estado verificable)
 
@@ -191,7 +191,7 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | Escenario | Prueba directamente relacionada | Resultado de cobertura |
 | --- | --- | --- |
 | IND-01 | `test_independent_distinct_observation_paths_pass`; `test_021_package_accepts_independent_distinct_terminal_origins` | Positivo cubierto |
-| IND-02 | `test_independence_rejects_shared_terminal_origin`; `test_021_citation_dependency_is_explicit_between_evaluated_sources`; `test_021_citation_edge_cannot_be_claimed_as_independent_origin` | La cita entre dos fuentes evaluadas se representa como dependencia y no como origen independiente; CI PASS en run 43791512399 sobre HEAD `183421f` |
+| IND-02 | `test_independence_rejects_shared_terminal_origin`; `test_021_citation_dependency_is_explicit_between_evaluated_sources`; `test_021_citation_edge_cannot_be_claimed_as_independent_origin` | La cita entre dos fuentes evaluadas se representa como dependencia y no como origen independiente; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
 | IND-03 | `test_independence_rejects_two_versions_of_same_source` | Rechazo cubierto |
 | IND-04 | `test_distinct_analysis_processes_over_common_dataset_are_representable`; `test_021_package_rejects_independence_from_analyses_over_common_dataset` | Separación de replicación y origen cubierta |
 | IND-05 | `test_021_package_accepts_unknown_independence_when_provenance_is_incomplete` | Representación positiva de DESCONOCIDA validada contra esquema y semántica, sin afirmar independencia ni dependencia |
@@ -200,39 +200,39 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | IND-08 | `test_021_package_accepts_evidenced_dependency_for_exact_component`; `test_021_package_rejects_dependency_edge_without_evidence`; `test_021_package_rejects_dependency_edge_from_another_component`; `test_021_dependency_edge_must_connect_two_assessed_source_versions`; `test_021_dependency_edge_cannot_connect_a_source_version_to_itself` | La arista debe conectar dos source versions distintas incluidas en el conjunto exacto evaluado; pruebas nuevas pendientes de CI |
 | COR-01 | `test_primary_statement_scope_passes_only_for_direct_act`; `test_021_package_accepts_primary_corroboration_only_for_directly_observed_act` | Emisión/acto directo cubierto |
 | COR-02 | `test_primary_authenticity_does_not_allow_unsupported_external_claim`; `test_021_package_rejects_primary_corroboration_overclaim` | Sobreafirmación rechazada |
-| COR-03 | `test_021_source_correction_is_a_new_version_and_preserves_prior_version`; `test_021_source_version_chain_rejects_self_or_future_supersession`; `test_021_source_version_chain_rejects_forked_successors` | Se añade rectificación como nueva versión y rechazo de autosupersession/bifurcación; CI PASS en run 43791512399 sobre HEAD `183421f`. Falta escenario explícito de rectificación contradictoria con evaluación temporal del contenido |
-| COR-04 | `test_021_contradicted_assessment_requires_exact_scoped_contrary_evidence`; `test_021_contradicted_assessment_rejects_cross_component_contrary_link` | La contradicción requiere evidencia contraria vinculada al mismo componente, versión y corte; CI PASS en run 43791512399 sobre HEAD `183421f` |
+| COR-03 | `test_021_source_correction_is_a_new_version_and_preserves_prior_version`; `test_021_source_version_chain_rejects_self_or_future_supersession`; `test_021_source_version_chain_rejects_forked_successors` | Se añade rectificación como nueva versión y rechazo de autosupersession/bifurcación; CI PASS en run 43792511757 sobre HEAD `8dbb223`. Falta escenario explícito de rectificación contradictoria con evaluación temporal del contenido |
+| COR-04 | `test_021_contradicted_assessment_requires_exact_scoped_contrary_evidence`; `test_021_contradicted_assessment_rejects_cross_component_contrary_link` | La contradicción requiere evidencia contraria vinculada al mismo componente, versión y corte; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
 | COR-05 | `test_primary_statement_scope_passes_only_for_direct_act` | Alcance directo cubierto; falta mutación específica de base de conocimiento no directa |
 | COR-06 | `test_021_package_accepts_corroboration_from_reviewed_independent_sources` | Positivo cubierto |
 | COR-07 | `test_secondary_corroboration_rejects_incomplete_review`; `test_021_package_rejects_independent_corroboration_without_reviewed_independence` | Rechazo cubierto |
-| COR-08 | `test_021_partial_corroboration_preserves_distinct_supported_and_unsupported_scopes`; `test_021_partial_corroboration_rejects_identical_scopes` | Se representa el alcance sustentado/no sustentado y se rechaza su duplicación; CI PASS en run 43791512399 sobre HEAD `183421f` |
-| COR-09 | `test_primary_hash_integrity_without_authenticity_cannot_corroborate` | Rechaza corroboración primaria con autenticidad UNKNOWN aunque el hash coincida; CI PASS en run 43791512399 sobre HEAD `183421f` |
-| COR-10 | `test_primary_private_unauthorized_or_unknown_access_cannot_corroborate`; `test_ambas_requires_independence_even_when_primary_evidence_exists` | Se añaden rechazos unitarios para acceso privado no autorizado y desconocido; CI PASS en run 43791512399 sobre HEAD `183421f` |
+| COR-08 | `test_021_partial_corroboration_preserves_distinct_supported_and_unsupported_scopes`; `test_021_partial_corroboration_rejects_identical_scopes` | Se representa el alcance sustentado/no sustentado y se rechaza su duplicación; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
+| COR-09 | `test_primary_hash_integrity_without_authenticity_cannot_corroborate` | Rechaza corroboración primaria con autenticidad UNKNOWN aunque el hash coincida; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
+| COR-10 | `test_primary_private_unauthorized_or_unknown_access_cannot_corroborate`; `test_ambas_requires_independence_even_when_primary_evidence_exists` | Se añaden rechazos unitarios para acceso privado no autorizado y desconocido; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
 | RET-01 | `test_delete_pending_requires_outstanding_copy_inventory`; `test_021_package_rejects_new_assessment_after_delete_pending` | Pendiente y bloqueo analítico cubiertos |
 | RET-02/03 | `test_deleted_requires_every_copy_and_derivative_verified`; `test_021_deleted_scope_rejects_uninventoried_replica` | Copias/derivados incompletos rechazados |
-| RET-04 | `test_deleted_rejects_unverified_backup`; `test_retention_deleted_scope_rejects_restored_backup_copy` | Backup no verificado y copia restaurada dentro de un alcance DELETED se rechazan; falta política de expiración y reconciliación operativa completa |
+| RET-04 | `test_deleted_rejects_unverified_backup`; `test_retention_deleted_scope_rejects_restored_backup_copy`; `test_backup_copy_requires_policy_reference_and_scheduled_expiration`; `test_backup_expiration_schedule_does_not_prove_deletion`; `test_non_backup_copy_rejects_backup_expiration_policy_reference` | Backup exige referencia de política y fecha programada; expiración vencida sin verificación no permite declarar DELETED. La referencia de política aún no demuestra por sí sola la revisión del contenido/alcance de esa política ni la reconciliación operativa del proveedor |
 | RET-05 | `test_021_package_accepts_deletion_after_every_copy_and_replica_is_verified` | Positivo cubierto |
 | RET-06 | `test_021_deleted_scope_rejects_uninventoried_replica` | Inventario incompleto rechazado |
 | RET-07 | `test_021_package_rejects_new_assessment_after_delete_pending` | Rechazo cubierto |
 | RET-08 | `test_deleted_copy_cannot_be_restored_to_present` | Rechazo de transición terminal directa cubierto; restauración/reconciliación de backup sigue abierta |
-| RET-09 | `test_021_audit_subject_reference_must_resolve_to_internal_object`; `test_021_audit_events_reject_reidentifying_metadata`; `test_021_audit_actor_role_rejects_personal_contact_metadata` | Se rechazan referencias no internas y URL, digest, email o IP en reason/actor_role; no demuestra ausencia absoluta de reidentificación ni cubre todos los datos personales posibles; CI PASS en run 43791512399 sobre HEAD `183421f` |
-| ARC-01 | `test_archive_capture_verified_for_cutoff_passes_without_authenticating_content`; `test_021_archive_attestation_is_required_and_does_not_authenticate_content`; `test_021_archive_attestation_cannot_be_reused_for_another_evidence_item`; `test_021_archive_attestation_cannot_claim_another_source_version` | Atestación vinculada a una pieza y versión exactas; CI pendiente |
+| RET-09 | `test_021_audit_subject_reference_must_resolve_to_internal_object`; `test_021_audit_events_reject_reidentifying_metadata`; `test_021_audit_actor_role_rejects_personal_contact_metadata` | Se rechazan referencias no internas y URL, digest, email o IP en reason/actor_role; no demuestra ausencia absoluta de reidentificación ni cubre todos los datos personales posibles; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
+| ARC-01 | `test_archive_capture_verified_for_cutoff_passes_without_authenticating_content`; `test_021_archive_attestation_is_required_and_does_not_authenticate_content`; `test_021_archive_attestation_cannot_be_reused_for_another_evidence_item`; `test_021_archive_attestation_cannot_claim_another_source_version` | Atestación vinculada a una pieza y versión exactas; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
 | ARC-02/05 | `test_archive_timestamp_without_capture_proof_is_rejected`; `test_021_orphan_archive_attestation_is_rejected` | Falta de prueba de captura rechazada |
 | ARC-03 | `test_archive_capture_after_cutoff_is_rejected` | Rechazo cubierto |
-| ARC-04 | `test_021_archive_integrity_mismatch_is_not_verified_availability`; `test_021_archive_attestation_rejects_captured_content_hash_mismatch`; `test_021_archive_attestation_rejects_expected_digest_mismatch`; `test_021_archive_attestation_requires_verified_evidence_digest` | Mismatch del registro, expected/observed digest o verificación ausente rechaza disponibilidad; CI pendiente |
-| ARC-06 | `test_archive_import_cannot_predate_capture`; `test_021_pre_release_detection_is_distinct_from_publication_and_retrieval`; `test_021_source_version_rejects_retrieval_before_first_detection` | Se distinguen publicación, primera detección y recuperación; detección pre-release es representable y recuperación anterior a detección se rechaza; CI PASS en run 43791512399 sobre HEAD `183421f` |
-| ARC-07 | `test_021_source_stated_timestamp_does_not_prove_historical_availability` | SOURCE_STATED con timestamp declarado no se acepta como disponibilidad verificada; CI PASS en run 43791512399 sobre HEAD `183421f` |
-| ARC-08 | `test_021_archived_evidence_cannot_be_rebound_to_another_source_version`; `test_021_archive_attestation_cannot_be_reused_for_another_evidence_item`; `test_021_archive_attestation_cannot_claim_another_source_version`; `test_021_archive_attestation_rejects_captured_content_hash_mismatch`; `test_021_archive_attestation_rejects_expected_digest_mismatch` | Atestación ligada a evidence_id, source_version_id y SHA-256 exactos; CI pendiente. Falta prueba de inmutabilidad del archivo físico/objeto frente a alteración posterior |
+| ARC-04 | `test_021_archive_integrity_mismatch_is_not_verified_availability`; `test_021_archive_attestation_rejects_captured_content_hash_mismatch`; `test_021_archive_attestation_rejects_expected_digest_mismatch`; `test_021_archive_attestation_requires_verified_evidence_digest` | Mismatch del registro, expected/observed digest o verificación ausente rechaza disponibilidad; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
+| ARC-06 | `test_archive_import_cannot_predate_capture`; `test_021_pre_release_detection_is_distinct_from_publication_and_retrieval`; `test_021_source_version_rejects_retrieval_before_first_detection` | Se distinguen publicación, primera detección y recuperación; detección pre-release es representable y recuperación anterior a detección se rechaza; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
+| ARC-07 | `test_021_source_stated_timestamp_does_not_prove_historical_availability` | SOURCE_STATED con timestamp declarado no se acepta como disponibilidad verificada; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
+| ARC-08 | `test_021_archived_evidence_cannot_be_rebound_to_another_source_version`; `test_021_archive_attestation_cannot_be_reused_for_another_evidence_item`; `test_021_archive_attestation_cannot_claim_another_source_version`; `test_021_archive_attestation_rejects_captured_content_hash_mismatch`; `test_021_archive_attestation_rejects_expected_digest_mismatch` | Atestación ligada a evidence_id, source_version_id y SHA-256 exactos; CI PASS en run 43792511757 sobre HEAD `8dbb223`. Falta prueba de inmutabilidad del archivo físico/objeto frente a alteración posterior |
 | MIG-01 | `test_021_migration_manifest_is_schema_valid_and_lossless` | Migración sintética válida cubierta |
 | MIG-02 | `test_021_real_020_to_021_migration_is_deterministic_without_duplicates`; `test_021_historical_assessed_at_null_is_preserved_for_claim_and_factor` | Representa `claim_assessments.assessed_at=null` sin inferir fecha; conserva los timestamps existentes de `factor_assessments`. La clave sigue siendo obligatoria. |
-| MIG-03/04 | `test_migration_rejects_historical_status_change`; `test_migration_rejects_changed_historical_assessment_cutoff`; `test_migration_rejects_changed_historical_evidence_references` | Se añaden rechazos explícitos para cambiar assessment_cutoff y sustituir referencias históricas de evidencia; CI PASS en run 43791512399 sobre HEAD `183421f` |
+| MIG-03/04 | `test_migration_rejects_historical_status_change`; `test_migration_rejects_changed_historical_assessment_cutoff`; `test_migration_rejects_changed_historical_evidence_references` | Se añaden rechazos explícitos para cambiar assessment_cutoff y sustituir referencias históricas de evidencia; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
 | MIG-05 | `test_migration_rejects_dropped_unknown_source_field` | Pérdida silenciosa de campo rechazada |
 | MIG-06 | `test_021_real_020_to_021_migration_is_deterministic_without_duplicates` | Ejecuta dos veces el migrador real con la misma entrada/plan, compara paquete y snapshots completos, verifica cardinalidades y rechaza reentrada sobre 0.2.1. |
 | MIG-07 | `test_migration_rejects_methodology_version_rewrite` | Reescritura metodológica rechazada |
 | MIG-08 | `test_migration_preserves_historical_records_and_versions` | Cambio de contract_version 0.2.0→0.2.1 conserva methodology_version y registros históricos; cobertura positiva existente |
 | MIG-09 | `test_021_package_rejects_unresolvable_migration_snapshot_reference` | Referencia no resoluble rechazada |
 
-### Actualización posterior al PASS de `ba0e16b` — verificada en CI sobre el HEAD `183421f`
+### Actualización posterior al PASS de `ba0e16b` — verificada en CI sobre el HEAD `8dbb223`
 
 Los cambios `8a445a7` y `51a775d` amplían el validador y la suite con:
 
@@ -240,9 +240,9 @@ Los cambios `8a445a7` y `51a775d` amplían el validador y la suite con:
 - Dependencias limitadas a dos source versions distintas dentro del conjunto exacto de unidades evaluadas.
 - Rechazos para hash sin autenticidad, acceso privado no autorizado/desconocido, `SOURCE_STATED` como disponibilidad probada, reasignación de evidencia archivada y alteración de cortes/referencias históricas durante migración.
 
-El PASS de 64 tests y ambos quality gates corresponde exclusivamente a `ba0e16b`. La suite ampliada y el validador pasaron CI sobre el HEAD actualizado `183421f`; la aceptación metodológica permanece pendiente. **Las cinco áreas A–E permanecen ABIERTAS.** No se fusiona la PR ni se aprueba el contrato por inferencia.
+El PASS de 64 tests y ambos quality gates corresponde exclusivamente a `ba0e16b`. La suite ampliada y el validador pasaron CI sobre el HEAD actualizado `8dbb223`; la aceptación metodológica permanece pendiente. **Las cinco áreas A–E permanecen ABIERTAS.** No se fusiona la PR ni se aprueba el contrato por inferencia.
 
-### Cobertura adicional añadida después del HEAD `0acb99c` — verificada en CI sobre `183421f`
+### Cobertura adicional añadida después del HEAD `0acb99c` — verificada en CI sobre `8dbb223`
 
 Los commits `32d5fb8`, `0acb99c`, `7787b80` y `770de14` añaden controles para:
 
@@ -254,13 +254,13 @@ Los commits `32d5fb8`, `0acb99c`, `7787b80` y `770de14` añaden controles para:
 - Relación `CITA_DE` representada como dependencia, nunca como origen independiente.
 - Cronología diferenciada entre publicación, primera detección y recuperación, admitiendo detección pre-release y rechazando recuperación anterior a detección.
 
-El último HEAD con ambos quality gates verificados es `183421f35f7b6447096330d324ca3cae72b6be58` (87 tests PASS). Las áreas A–E siguen ABIERTAS; la cobertura añadida no equivale a cierre mientras existan escenarios, positivos, negativos, fronterizos o trazabilidad pendientes.
+El último HEAD con ambos quality gates verificados es `8dbb2235bef5a09cddd5bd9ddb2fe46ce50b1cd2` (95 tests PASS). Las áreas A–E siguen ABIERTAS; la cobertura añadida no equivale a cierre mientras existan escenarios, positivos, negativos, fronterizos o trazabilidad pendientes.
 
-### Controles adicionales de privacidad de auditoría — verificados en CI sobre `183421f`
+### Controles adicionales de privacidad de auditoría — verificados en CI sobre `8dbb223`
 
-Los commits `3dde82e` y `a28a851` añaden pruebas negativas para impedir que `reason` o `actor_role` incorporen URLs, hashes SHA-256, correos electrónicos o direcciones IPv4. La expresión regular fue corregida para usar límites de palabra y separadores literales reales. Las pruebas y ambos quality gates terminaron SUCCESS sobre `183421f`.
+Los commits `3dde82e` y `a28a851` añaden pruebas negativas para impedir que `reason` o `actor_role` incorporen URLs, hashes SHA-256, correos electrónicos o direcciones IPv4. La expresión regular fue corregida para usar límites de palabra y separadores literales reales. Las pruebas y ambos quality gates terminaron SUCCESS sobre `8dbb223`.
 
-### Extensión de atestación archivística — CI pendiente
+### Extensión de atestación archivística — verificada en CI sobre `8dbb223`
 
 Se endureció ARC-01/04/08: cada `archive_attestation` ahora requiere `evidence_id`, `source_version_id`, `captured_content_hash` y `hash_algorithm=SHA-256`. El digest debe coincidir con `expected_digest` y `observed_digest` de la evidencia, con `integrity_check.result=MATCH` y `checked_at` posterior a la captura. Se rechaza reutilizar una atestación para otra pieza o versión. Esta regla acredita vinculación e integridad de la copia examinada, no autenticidad del autor ni verdad factual.
 
