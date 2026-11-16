@@ -206,8 +206,7 @@
       },
       "authenticity_status": "NO_APLICA",
       "access_status": "PÚBLICO_LEGÍTIMO",
-      "recorded_at": "2026-11-15T22:00:00Z",
-      "retention_subject_token": "00000000-0000-4000-8000-000000000101"
+      "recorded_at": "2026-11-15T22:00:00Z"
     },
     {
       "evidence_id": "evidence-b",
@@ -225,8 +224,7 @@
       },
       "authenticity_status": "NO_VERIFICADA",
       "access_status": "PÚBLICO_LEGÍTIMO",
-      "recorded_at": "2026-11-15T22:00:00Z",
-      "retention_subject_token": null
+      "recorded_at": "2026-11-15T22:00:00Z"
     }
   ],
   "evidence_availability": [
@@ -1094,7 +1092,7 @@
   "audit_events": [
     {
       "audit_event_id": "00000000-0000-4000-8000-000000000200",
-      "subject_ref": "00000000-0000-4000-8000-000000000101",
+      "subject_ref": "00000000-0000-4000-8000-000000000102",
       "action": "CREATED",
       "occurred_at": "2026-11-15T22:00:00Z",
       "copy_id": null,
@@ -1125,5 +1123,9 @@
   "archive_attestations": [],
   "retention_copy_records": [],
   "migration_records": [],
-  "analysis_processes": []
+  "analysis_processes": [],
+  "audit_subject_tokens": [
+    "00000000-0000-4000-8000-000000000101",
+    "00000000-0000-4000-8000-000000000102"
+  ]
 }
