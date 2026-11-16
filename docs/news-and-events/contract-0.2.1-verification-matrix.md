@@ -9,6 +9,7 @@
 ## 1. Criterio general de cierre
 
 Una área solo se declarará CERRADA cuando existan simultáneamente:
+
 1. Regla normativa precisa y compatible con #15/#16.
 2. Fixture positivo, negativo y fronterizo.
 3. Validación JSON Schema y validación semántica ejecutable.
