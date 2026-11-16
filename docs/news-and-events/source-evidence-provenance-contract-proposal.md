@@ -476,3 +476,25 @@ La evidencia utilizada para evaluar un factor de credibilidad de una fuente no t
 ## 23. Base explícita de la corroboración
 
 Cada `Claim component assessment` registra `corroboration_basis`: `EVIDENCIA_PRIMARIA_DIRECTA`, `CORROBORACION_INDEPENDIENTE`, `AMBAS` o `NO_APLICA`. Para `CORROBORADA`, una fuente primaria puede bastar solo si la evidencia es `AUTENTICADA`, el acceso es legítimo, el vínculo documenta el alcance directo y la base de conocimiento es `OBSERVACIÓN_DIRECTA` o `REGISTRO_ORIGINAL`. Si participa cualquier unidad no primaria, la base debe ser `CORROBORACION_INDEPENDIENTE` o `AMBAS`, y una evaluación `INDEPENDIENTE` revisada debe cubrir todas las unidades que sustentan el componente y corte. `AMBAS` exige cumplir simultáneamente los dos caminos. Los demás estados probatorios usan `NO_APLICA`.
+
+## 24. Evolución correctiva propuesta 0.2.1
+
+La versión 0.2.1 conserva el contrato 0.2.0 como base y añade reglas explícitas para cinco áreas cuya cobertura requiere escenarios adicionales:
+
+1. Independencia en escenarios complejos, separando observación, origen de datos y replicación analítica.
+2. Alcance de corroboración primaria, sin inferir que autenticidad documental demuestra todo el contenido.
+3. Inventario de copias y derivados, transiciones auditables y eliminación verificable del alcance declarado.
+4. Atestación de capturas archivísticas concretas, sin convertir archivo independiente en autenticidad o veracidad.
+5. Manifiesto de migración con hashes de entrada/salida y preservación de los datos históricos y sus versiones.
+
+Documentos y artefactos de la propuesta:
+
+- Addendum normativo: `docs/news-and-events/source-evidence-contract-0.2.1-addendum.md`.
+- Matriz de verificación: `docs/news-and-events/contract-0.2.1-verification-matrix.md`.
+- JSON Schema Draft 2020-12: `schemas/source-evidence-contract-0.2.1.schema.json`.
+- Fixture sintético: `tests/fixtures/contracts/source-evidence-contract-v0.2.1.json`.
+- Validadores y pruebas: `scripts/validation/contract_0_2_1_extensions.py`, `scripts/validation/test_contract_0_2_1_extensions.py` y `scripts/validation/validate_source_evidence_contract_0_2_1.py`.
+
+La matriz define criterios de aceptación; no es evidencia de cierre. Las cinco áreas permanecen ABIERTAS hasta que esquema, fixtures, validadores y CI demuestren sus escenarios positivos, negativos y fronterizos sobre el mismo HEAD revisado. La propuesta 0.2.1 continúa pendiente de aprobación expresa.
+
+Esta evolución no altera #15 ni #16, no selecciona motor de persistencia, no autoriza captura/crawling y no establece plazos legales universales de retención.
