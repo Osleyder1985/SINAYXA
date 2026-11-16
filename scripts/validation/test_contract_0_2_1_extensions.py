@@ -562,6 +562,58 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_package(package)
 
+    def test_021_package_accepts_deletion_after_every_copy_and_replica_is_verified(self):
+        schema, package = self.load_contract_021_fixture()
+        record = package["retention_records"][0]
+        record.update({"content_retained": False, "legal_basis_status": "NOT_ESTABLISHED",
+                       "disposition": "DELETED", "previous_disposition": "DELETE_PENDING",
+                       "recorded_at": "2026-11-15T22:12:00Z", "copy_scope_ids": ["copy-primary", "copy-replica"]})
+        package["retention_copy_records"].extend([
+            {"copy_id": "copy-primary", "retention_id": "retention-a", "subject_ref": "evidence-a",
+             "copy_kind": "PRIMARY", "parent_copy_id": None, "state": "DELETED",
+             "recorded_at": "2026-11-15T22:09:00Z", "verified_at": "2026-11-15T22:09:00Z",
+             "verification_reference": "verify-primary", "scheduled_disposition_at": None,
+             "previous_state": "DELETE_PENDING", "transition_event_ref": "primary-event-3"},
+            {"copy_id": "copy-replica", "retention_id": "retention-a", "subject_ref": "evidence-a",
+             "copy_kind": "REPLICA", "parent_copy_id": "copy-primary", "state": "DELETED",
+             "recorded_at": "2026-11-15T22:12:00Z", "verified_at": "2026-11-15T22:12:00Z",
+             "verification_reference": "verify-replica", "scheduled_disposition_at": None,
+             "previous_state": "DELETE_PENDING", "transition_event_ref": "replica-event-3"}
+        ])
+        package["audit_events"].extend([
+            {"audit_event_id": "retention-transition", "subject_ref": "evidence-a", "action": "DELETED",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:12:00Z",
+             "reason": "All copies verified deleted", "retention_id": "retention-a",
+             "from_disposition": "DELETE_PENDING", "to_disposition": "DELETED",
+             "copy_id": None, "from_copy_state": None, "to_copy_state": None},
+            {"audit_event_id": "primary-event-1", "subject_ref": "evidence-a", "action": "COPY_DISCOVERED",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:07:00Z",
+             "reason": "Primary discovered", "retention_id": "retention-a", "copy_id": "copy-primary",
+             "from_copy_state": None, "to_copy_state": "PRESENT"},
+            {"audit_event_id": "primary-event-2", "subject_ref": "evidence-a", "action": "COPY_DELETION_REQUESTED",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:08:00Z",
+             "reason": "Primary deletion requested", "retention_id": "retention-a", "copy_id": "copy-primary",
+             "from_copy_state": "PRESENT", "to_copy_state": "DELETE_PENDING"},
+            {"audit_event_id": "primary-event-3", "subject_ref": "evidence-a", "action": "COPY_DELETED",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:09:00Z",
+             "reason": "Primary deletion verified", "retention_id": "retention-a", "copy_id": "copy-primary",
+             "from_copy_state": "DELETE_PENDING", "to_copy_state": "DELETED"},
+            {"audit_event_id": "replica-event-1", "subject_ref": "evidence-a", "action": "COPY_DISCOVERED",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:10:00Z",
+             "reason": "Replica discovered", "retention_id": "retention-a", "copy_id": "copy-replica",
+             "from_copy_state": None, "to_copy_state": "PRESENT"},
+            {"audit_event_id": "replica-event-2", "subject_ref": "evidence-a", "action": "COPY_DELETION_REQUESTED",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:11:00Z",
+             "reason": "Replica deletion requested", "retention_id": "retention-a", "copy_id": "copy-replica",
+             "from_copy_state": "PRESENT", "to_copy_state": "DELETE_PENDING"},
+            {"audit_event_id": "replica-event-3", "subject_ref": "evidence-a", "action": "COPY_DELETED",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:12:00Z",
+             "reason": "Replica deletion verified", "retention_id": "retention-a", "copy_id": "copy-replica",
+             "from_copy_state": "DELETE_PENDING", "to_copy_state": "DELETED"}
+        ])
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
     def test_021_deleted_scope_rejects_uninventoried_replica(self):
         schema, package = self.load_contract_021_fixture()
         record = package["retention_records"][0]
