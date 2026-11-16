@@ -50,20 +50,20 @@ def validate_package(package: dict[str, Any], schema: dict[str, Any], roles: dic
 
     role_codes = {item["code"] for item in roles["roles"]}
     reason_by_code = {item["code"]: set(item["allowed_actions"]) for item in reasons["reasons"]}
-    evidence_tokens = {
-        item.get("retention_subject_token")
-        for item in package.get("evidence_items", [])
-        if item.get("retention_subject_token") is not None
-    }
-    _require(len(evidence_tokens) == sum(
-        item.get("retention_subject_token") is not None for item in package.get("evidence_items", [])
-    ), "retention subject tokens must be unique per evidence item")
+    subject_tokens = package.get("audit_subject_tokens", [])
+    _require(bool(subject_tokens) or not (
+        package.get("retention_records") or package.get("audit_events") or package.get("retention_copy_records")
+    ), "audit_subject_tokens are required when audit, retention or copy records exist")
+    _require(len(subject_tokens) == len(set(subject_tokens)), "audit subject tokens must be unique")
+    _require(all(isinstance(token, str) and UUID4.fullmatch(token) for token in subject_tokens),
+             "audit subject tokens must be canonical UUIDv4 values")
+    subject_token_set = set(subject_tokens)
 
     retention_by_id = {item["retention_id"]: item for item in package.get("retention_records", [])}
     _require(len(retention_by_id) == len(package.get("retention_records", [])), "duplicate retention_id")
     for record in package.get("retention_records", []):
-        _require(record["subject_ref"] in evidence_tokens,
-                 "retention subject_ref must resolve to exactly one evidence retention_subject_token")
+        _require(record["subject_ref"] in subject_token_set,
+                 "retention subject_ref must resolve to a declared opaque audit subject token")
 
     audit_ids: set[str] = set()
     for event in package.get("audit_events", []):
@@ -79,8 +79,8 @@ def validate_package(package: dict[str, Any], schema: dict[str, Any], roles: dic
                  "actor-role catalog version mismatch")
         _require(event["reason_catalog_version"] == reasons["catalog_version"],
                  "reason catalog version mismatch")
-        _require(event["subject_ref"] in evidence_tokens,
-                 "audit subject_ref does not resolve to a declared opaque evidence token")
+        _require(event["subject_ref"] in subject_token_set,
+                 "audit subject_ref does not resolve to a declared opaque subject token")
         if event.get("retention_id") is not None:
             _require(event["retention_id"] in retention_by_id, "audit retention_id is unresolved")
             _require(retention_by_id[event["retention_id"]]["subject_ref"] == event["subject_ref"],
@@ -89,7 +89,7 @@ def validate_package(package: dict[str, Any], schema: dict[str, Any], roles: dic
     copy_ids = {item["copy_id"] for item in package.get("retention_copy_records", [])}
     _require(len(copy_ids) == len(package.get("retention_copy_records", [])), "duplicate copy_id")
     for copy in package.get("retention_copy_records", []):
-        _require(copy["subject_ref"] in evidence_tokens, "copy subject_ref does not resolve to an opaque evidence token")
+        _require(copy["subject_ref"] in subject_token_set, "copy subject_ref does not resolve to a declared opaque subject token")
         _require(copy["retention_id"] in retention_by_id, "copy retention_id is unresolved")
         _require(retention_by_id[copy["retention_id"]]["subject_ref"] == copy["subject_ref"],
                  "copy and retention subject references differ")
