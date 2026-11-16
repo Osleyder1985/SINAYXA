@@ -33,7 +33,6 @@ El reporte JSON clasifica la ejecución como `LAB_SYNTHETIC` y cada comprobació
 
 La comprobación `cleanup` solo puede ser `PASS` si las consultas al daemon Docker terminan correctamente y confirman que tanto el contenedor temporal como el volumen anónimo de datos PostgreSQL ya no existen. El arnés lee `PGDATA` desde el contenedor en ejecución, inspecciona todos los mounts Docker y localiza el volumen anónimo cuyo destino contiene `PGDATA`. Esto contempla el cambio de la imagen oficial PostgreSQL 18 (`PGDATA=/var/lib/postgresql/18/docker`, volumen `/var/lib/postgresql`) y evita asumir la ruta histórica `/var/lib/postgresql/data`. El reporte registra `PGDATA` y el destino del volumen, y verifica la desaparición del volumen identificado después de `docker rm -v`. Si Docker no responde, no puede identificarse el volumen o cualquiera de los dos recursos permanece, el reporte global debe ser `FAIL`; la ausencia de respuesta nunca se interpreta como prueba de eliminación.
 
-
 El arnés normaliza exclusivamente las líneas de guardia `\\restrict` y `\\unrestrict` que PostgreSQL 18 genera con tokens aleatorios en cada volcado. No elimina ni omite sentencias DDL, datos, restricciones o índices de la comparación.
 
 ## Evidencia de ejecución PostgreSQL 18.7
