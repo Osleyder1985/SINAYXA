@@ -355,6 +355,36 @@ def validate_package(
                 "claim assessment execution cannot predate its evidence cutoff")
 
     retention_by_id = _index(package["retention_records"], "retention_id", "retention_id")
+    disposition_actions = {
+        "RETAIN": "RETENTION_SET", "REFERENCE_ONLY": "REFERENCE_ONLY",
+        "RESTRICTED": "RESTRICTED", "DELETE_PENDING": "DELETION_REQUESTED",
+        "DELETED": "DELETED",
+    }
+    for retention_id, record in retention_by_id.items():
+        transitions = [
+            event for event in package["audit_events"]
+            if event.get("retention_id") == retention_id
+            and event.get("copy_id") is None
+            and event.get("to_disposition") is not None
+        ]
+        matching = [
+            event for event in transitions
+            if event.get("from_disposition") == record["previous_disposition"]
+            and event.get("to_disposition") == record["disposition"]
+        ]
+        require(len(matching) == 1,
+                "retention disposition requires exactly one matching audited transition")
+        transition = matching[0]
+        require(transition["subject_ref"] == record["subject_ref"]
+                and transition["action"] == disposition_actions[record["disposition"]]
+                and transition["occurred_at"] <= record["recorded_at"]
+                and bool(transition["actor_role"]) and bool(transition["reason"]),
+                "retention disposition audit event does not match subject, action, actor, time, or reason")
+        require(record["previous_disposition"] != "DELETED",
+                "DELETED retention disposition is terminal and cannot be reopened")
+        if record["disposition"] == "DELETED":
+            require(record["previous_disposition"] == "DELETE_PENDING",
+                    "DELETED must follow an explicit DELETE_PENDING disposition")
     copy_ids = [item["copy_id"] for item in package["retention_copy_records"]]
     require(len(copy_ids) == len(set(copy_ids)), "duplicate copy_id across retention scopes")
     event_ids = [event["audit_event_id"] for event in package["audit_events"]]
