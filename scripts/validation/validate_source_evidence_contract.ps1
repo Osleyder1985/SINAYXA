@@ -410,6 +410,9 @@ foreach ($assessment in $package.claim_assessments) {
     $component = @($package.claim_components | Where-Object { $_.claim_component_id -eq $assessment.claim_component_id })[0]
     Test-Condition ($component.claim_id -eq $assessment.claim_id -and $component.claim_version_id -eq $assessment.claim_version_id -and $component.claim_component_version_id -eq $assessment.claim_component_version_id) 'Claim assessment is not bound to the exact claim/component versions.'
     Test-Condition ($assessment.evidentiary_status -in @('NO_CORROBORADA','PARCIALMENTE_CORROBORADA','CORROBORADA','CONTRADICHA','REFUTADA','NO_RESUELTA')) 'Unsupported #15 evidentiary status.'
+    if ($assessment.evidentiary_status -eq 'PARCIALMENTE_CORROBORADA') {
+        Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.supported_scope) -and -not [string]::IsNullOrWhiteSpace([string]$assessment.unsupported_scope)) 'Partial corroboration requires non-empty supported_scope and unsupported_scope.'
+    }
     Test-Condition ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
     Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.rationale)) 'Claim assessment requires a non-empty rationale.'
     Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.rationale)) 'Claim assessment rationale must be non-empty.'
