@@ -96,13 +96,16 @@ def migrate_package(
         item["evidence_id"] for item in source.get("evidence_items", [])
         if isinstance(item, dict) and isinstance(item.get("evidence_id"), str)
     }
-    def resolve_mapping(mapping: dict[str, Any], historical_value: str, allowed_codes: set[str], label: str) -> str:
+    def resolve_mapping(mapping: dict[str, Any], historical_value: str, allowed_codes: set[str], expected_event_refs: set[str], label: str) -> str:
         entry = mapping.get(historical_value)
-        if not isinstance(entry, dict) or set(entry) != {"target_code", "evidence_refs", "rationale"}:
-            raise MigrationRejected(f"{label}: mapping entry must contain exactly target_code, evidence_refs and rationale")
+        if not isinstance(entry, dict) or set(entry) != {"target_code", "event_refs", "evidence_refs", "rationale"}:
+            raise MigrationRejected(f"{label}: mapping entry must contain exactly target_code, event_refs, evidence_refs and rationale")
         target_code = entry["target_code"]
         if not isinstance(target_code, str) or target_code not in allowed_codes:
             raise MigrationRejected(f"{label}: target_code is not present in the controlled catalog")
+        event_refs = entry["event_refs"]
+        if not isinstance(event_refs, list) or set(event_refs) != expected_event_refs:
+            raise MigrationRejected(f"{label}: event_refs must exactly identify every historical audit event using this value")
         refs = entry["evidence_refs"]
         if not isinstance(refs, list) or not refs or not all(isinstance(ref, str) and ref in evidence_ids for ref in refs):
             raise MigrationRejected(f"{label}: evidence_refs must resolve to existing source evidence_items")
@@ -148,9 +151,11 @@ def migrate_package(
         require_uuid4(event["subject_ref"], f"audit_events[{index}].subject_ref")
         audit_ids.add(event["audit_event_id"])
         old_role = event["actor_role"]
-        role_code = resolve_mapping(role_map, old_role, role_codes, f"audit_events[{index}].actor_role")
+        role_event_refs = {item["audit_event_id"] for item in output.get("audit_events", []) if item["actor_role"] == old_role}
+        role_code = resolve_mapping(role_map, old_role, role_codes, role_event_refs, f"audit_events[{index}].actor_role")
         old_reason = event["reason"]
-        reason_code = resolve_mapping(reason_map, old_reason, set(reason_actions), f"audit_events[{index}].reason")
+        reason_event_refs = {item["audit_event_id"] for item in output.get("audit_events", []) if item["reason"] == old_reason}
+        reason_code = resolve_mapping(reason_map, old_reason, set(reason_actions), reason_event_refs, f"audit_events[{index}].reason")
         if event["action"] not in reason_actions[reason_code]:
             raise MigrationRejected(
                 f"audit_events[{index}].reason: mapped reason code is not permitted for the event action"
