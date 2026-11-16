@@ -36,6 +36,13 @@ on:
       - "scripts/validation/validate_source_evidence_contract_0_2_1.py"
       - "docs/news-and-events/source-evidence-contract-0.2.1-addendum.md"
       - "docs/news-and-events/contract-0.2.1-verification-matrix.md"
+      - "schemas/source-evidence-contract-0.2.2.schema.json"
+      - "schemas/catalogs/audit-actor-roles-1.0.0.json"
+      - "schemas/catalogs/audit-reason-codes-1.0.0.json"
+      - "tests/fixtures/contracts/source-evidence-contract-v0.2.2.json"
+      - "scripts/validation/validate_source_evidence_contract_0_2_2.py"
+      - "scripts/validation/test_source_evidence_contract_0_2_2.py"
+      - "docs/news-and-events/contract-0.2.2-audit-minimization.md"
       - "requirements-contract-validation.txt"
       - "scripts/validation/test_source_evidence_contract.ps1"
       - "scripts/validation/validate_source_independence_fixture.ps1"
@@ -256,6 +263,23 @@ jobs:
           $ErrorActionPreference = 'Stop'
           python 'scripts/validation/validate_source_evidence_contract_0_2_1.py'
           if ($LASTEXITCODE -ne 0) { throw 'The Issue #78 contract 0.2.1 schema or semantic fixture validation failed.' }
+
+      - name: Run contract 0.2.2 audit catalog and mutation tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m unittest discover -s scripts/validation -p 'test_source_evidence_contract_0_2_2.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'The contract 0.2.2 audit mutation tests failed.' }
+
+      - name: Validate contract 0.2.2 schema, catalogs and synthetic fixture
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python 'scripts/validation/validate_source_evidence_contract_0_2_2.py'
+          if ($LASTEXITCODE -ne 0) { throw 'The contract 0.2.2 schema or audit fixture validation failed.' }
+
 
       - name: Validate Issue #17 A01-A15 synthetic alert fixture
         shell: pwsh
