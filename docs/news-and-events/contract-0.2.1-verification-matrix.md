@@ -200,7 +200,7 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | IND-08 | `test_021_package_accepts_evidenced_dependency_for_exact_component`; `test_021_package_rejects_dependency_edge_without_evidence`; `test_021_package_rejects_dependency_edge_from_another_component`; `test_021_dependency_edge_must_connect_two_assessed_source_versions`; `test_021_dependency_edge_cannot_connect_a_source_version_to_itself` | La arista debe conectar dos source versions distintas incluidas en el conjunto exacto evaluado; pruebas nuevas pendientes de CI |
 | COR-01 | `test_primary_statement_scope_passes_only_for_direct_act`; `test_021_package_accepts_primary_corroboration_only_for_directly_observed_act` | Emisión/acto directo cubierto |
 | COR-02 | `test_primary_authenticity_does_not_allow_unsupported_external_claim`; `test_021_package_rejects_primary_corroboration_overclaim` | Sobreafirmación rechazada |
-| COR-03 | `test_021_source_correction_is_a_new_version_and_preserves_prior_version`; `test_021_source_version_chain_rejects_self_or_future_supersession`; `test_021_source_version_chain_rejects_forked_successors` | Se añade rectificación como nueva versión y rechazo de autosupersession/bifurcación; CI PASS en run 43792511757 sobre HEAD `8dbb223`. Falta escenario explícito de rectificación contradictoria con evaluación temporal del contenido |
+| COR-03 | `test_021_source_correction_is_a_new_version_and_preserves_prior_version`; `test_021_source_version_chain_rejects_self_or_future_supersession`; `test_021_source_version_chain_rejects_forked_successors`; `test_021_source_correction_creates_new_temporal_contradiction_without_rewriting_prior_assessment` | Añade versión corregida y evaluación contradictoria en corte posterior; conserva evaluación anterior y su source_version; CI pendiente. Se requiere ampliar casos temporales y de alcance |
 | COR-04 | `test_021_contradicted_assessment_requires_exact_scoped_contrary_evidence`; `test_021_contradicted_assessment_rejects_cross_component_contrary_link` | La contradicción requiere evidencia contraria vinculada al mismo componente, versión y corte; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
 | COR-05 | `test_primary_statement_scope_passes_only_for_direct_act`; `test_primary_inference_without_direct_knowledge_cannot_corroborate` | Se rechaza inferencia no directa aunque la fuente sea primaria, auténtica y de acceso legítimo; CI PASS en run #599 sobre HEAD `0b2f886` |
 | COR-06 | `test_021_package_accepts_corroboration_from_reviewed_independent_sources` | Positivo cubierto |
@@ -273,6 +273,10 @@ Los commits posteriores a `56759d2` añaden:
 - Prueba específica de migración que conserva `DESCONOCIDA` y rechaza su promoción a `INDEPENDIENTE`.
 
 La suite de 98 tests y ambos quality gates terminaron SUCCESS sobre el HEAD `8730437`. El solapamiento semántico entre alcances sigue sujeto a revisión humana; las cinco áreas permanecen ABIERTAS.
+
+### Rectificación contradictoria con corte temporal — CI pendiente
+
+Se añade un escenario positivo en el que una corrección crea una nueva `source_version`, se detecta y recupera después del corte original, y genera una evaluación contradictoria posterior. La evaluación previa conserva su cutoff y referencia a la versión anterior. El test no autoriza retroactividad ni demuestra causalidad; queda pendiente ampliar los casos de frontera y rectificaciones parciales.
 
 ## 8. Fuera de alcance
 
