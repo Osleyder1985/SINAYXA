@@ -1010,6 +1010,49 @@ class Contract021ExtensionTests(unittest.TestCase):
         self.assert_schema_valid(schema, package)
         validate_package(package)
 
+    def test_021_package_accepts_unknown_independence_when_provenance_is_incomplete(self):
+        schema, package = self.load_contract_021_fixture()
+        for assessment in package["independence_assessments"]:
+            assessment.update({
+                "status": "DESCONOCIDA",
+                "supporting_evidence_refs": [],
+                "dependency_edge_refs": [],
+                "independent_path_edge_refs": [],
+                "human_review_status": "PENDING",
+                "reviewed_at": None,
+            })
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_package_rejects_dependency_edge_from_another_component(self):
+        schema, package = self.load_contract_021_fixture()
+        package["provenance_edges"].append({
+            "edge_id": "cross-component-dependency",
+            "dependent_node_id": "node-version-a",
+            "origin_node_id": "node-version-b",
+            "relation_type": "SINDICADA_DE",
+            "claim_component_id": "component-amount",
+            "evidence_refs": ["evidence-a"],
+            "recorded_at": "2026-11-15T22:00:00Z",
+            "valid_from": None,
+            "valid_to": None,
+            "claim_component_version_id": "component-entity-v1",
+        })
+        assessment = next(
+            item for item in package["independence_assessments"]
+            if item["claim_component_id"] == "component-entity"
+        )
+        assessment.update({
+            "status": "DEPENDIENTE",
+            "supporting_evidence_refs": ["evidence-a"],
+            "dependency_edge_refs": ["cross-component-dependency"],
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
     def test_021_orphan_copy_audit_event_is_rejected(self):
         schema, package = self.load_contract_021_fixture()
         package["audit_events"].append({
