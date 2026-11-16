@@ -248,7 +248,7 @@ compare_db() {
 
   # PostgreSQL 18 emits random psql guard tokens; normalize only those lines.
   for dump_file in "$WORK_DIR/$db-schema.sql" "$WORK_DIR/$db-data.sql"; do
-    grep -v -e "^\\\\\\\\restrict " -e "^\\\\\\\\unrestrict " "$dump_file" > "$dump_file.normalized"
+    grep -v -e "^\\\\restrict " -e "^\\\\unrestrict " "$dump_file" > "$dump_file.normalized"
     mv "$dump_file.normalized" "$dump_file"
   done
 }
