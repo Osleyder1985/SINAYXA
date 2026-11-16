@@ -1461,5 +1461,82 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_retention_scope("DELETED", copies, events)
 
+
+    def test_021_citation_dependency_is_explicit_between_evaluated_sources(self):
+        schema, package = self.load_contract_021_fixture()
+        package["provenance_edges"].append({
+            "edge_id": "citation-dependency",
+            "dependent_node_id": "node-version-a",
+            "origin_node_id": "node-version-b",
+            "relation_type": "CITA_DE",
+            "claim_component_id": "component-entity",
+            "evidence_refs": ["evidence-a"],
+            "recorded_at": "2026-11-15T22:00:00Z",
+            "valid_from": None,
+            "valid_to": None,
+            "claim_component_version_id": "component-entity-v1",
+        })
+        assessment = package["independence_assessments"][0]
+        assessment.update({
+            "status": "DEPENDIENTE",
+            "supporting_evidence_refs": ["evidence-a"],
+            "dependency_edge_refs": ["citation-dependency"],
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_citation_edge_cannot_be_claimed_as_independent_origin(self):
+        schema, package = self.load_contract_021_fixture()
+        package["provenance_nodes"].extend([
+            {"node_id": "origin-a", "node_type": "DATASET", "entity_ref": "origin-record-a"},
+            {"node_id": "origin-b", "node_type": "DOCUMENT", "entity_ref": "origin-record-b"},
+        ])
+        package["provenance_edges"].extend([
+            {"edge_id": "path-a", "dependent_node_id": "node-version-a", "origin_node_id": "origin-a",
+             "relation_type": "ORIGEN_DIRECTO", "claim_component_id": "component-entity",
+             "evidence_refs": ["evidence-a"], "recorded_at": "2026-11-15T22:00:00Z",
+             "valid_from": None, "valid_to": None, "claim_component_version_id": "component-entity-v1"},
+            {"edge_id": "path-b", "dependent_node_id": "node-version-b", "origin_node_id": "origin-b",
+             "relation_type": "CITA_DE", "claim_component_id": "component-entity",
+             "evidence_refs": ["evidence-b"], "recorded_at": "2026-11-15T22:00:00Z",
+             "valid_from": None, "valid_to": None, "claim_component_version_id": "component-entity-v1"},
+        ])
+        assessment = package["independence_assessments"][0]
+        assessment.update({
+            "status": "INDEPENDIENTE",
+            "supporting_evidence_refs": ["evidence-a", "evidence-b"],
+            "independent_path_edge_refs": ["path-a", "path-b"],
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_pre_release_detection_is_distinct_from_publication_and_retrieval(self):
+        schema, package = self.load_contract_021_fixture()
+        version = package["source_versions"][0]
+        version.update({
+            "published_at": "2026-11-15T20:00:00Z",
+            "first_detected_at": "2026-11-15T19:50:00Z",
+            "first_publicly_observed_at": "2026-11-15T20:00:00Z",
+            "retrieved_at": "2026-11-15T19:55:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_source_version_rejects_retrieval_before_first_detection(self):
+        schema, package = self.load_contract_021_fixture()
+        version = package["source_versions"][0]
+        version.update({
+            "first_detected_at": "2026-11-15T20:10:00Z",
+            "retrieved_at": "2026-11-15T20:05:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
