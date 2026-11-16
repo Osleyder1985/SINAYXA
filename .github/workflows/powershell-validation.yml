@@ -29,6 +29,8 @@ on:
       - "scripts/validation/test_source_independence_fixture.ps1"
       - "scripts/validation/validate_alert_fixture.ps1"
       - "scripts/validation/test_alert_fixture.ps1"
+      - "scripts/validation/Invoke-SyntheticValidationLab.ps1"
+      - "docs/validation/synthetic-validation-lab.md"
       - ".github/workflows/powershell-validation.yml"
       - ".github/workflows/security-quality.yml"
   workflow_dispatch:
@@ -207,6 +209,14 @@ jobs:
           $ErrorActionPreference = 'Stop'
           & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_alert_fixture.ps1'
           if ($LASTEXITCODE -ne 0) { throw 'The Issue #17 alert fixture test harness failed.' }
+
+      - name: Run Issue #93 isolated synthetic validation lab
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/Invoke-SyntheticValidationLab.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'Issue #93 synthetic validation lab failed.' }
 
       - name: Record source and fixture provenance
         shell: pwsh
