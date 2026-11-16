@@ -235,6 +235,7 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 ### Actualización posterior al PASS de `ba0e16b` — CI pendiente en el nuevo HEAD
 
 Los cambios `8a445a7` y `51a775d` amplían el validador y la suite con:
+
 - Cadena de `source_versions` única, ordenada y no ramificada; la rectificación se representa como una nueva versión sin sobrescribir la anterior.
 - Dependencias limitadas a dos source versions distintas dentro del conjunto exacto de unidades evaluadas.
 - Rechazos para hash sin autenticidad, acceso privado no autorizado/desconocido, `SOURCE_STATED` como disponibilidad probada, reasignación de evidencia archivada y alteración de cortes/referencias históricas durante migración.
