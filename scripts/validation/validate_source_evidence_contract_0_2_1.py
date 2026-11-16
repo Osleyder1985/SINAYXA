@@ -338,6 +338,14 @@ def _contains_ipv6_address(value: str) -> bool:
     return False
 
 
+def _contains_long_numeric_identifier(value: str) -> bool:
+    """Detect phone-like or long numeric identifiers in free-form audit metadata.
+
+    This is a conservative heuristic, not a complete PII detector or anonymizer.
+    """
+    return re.search(r"(?<![A-Za-z0-9])(?:\\+?\\d[\\s().-]*){7,15}(?!\\d)", value) is not None
+
+
 def _validate_audit_subject_references(package: dict[str, Any]) -> None:
     reference_keys = {
         "package_id", "claim_id", "claim_version_id", "claim_component_id",
@@ -377,6 +385,8 @@ def _validate_audit_subject_references(package: dict[str, Any]) -> None:
                     f"audit {field} must not expose an IP address")
             require(not _contains_ipv6_address(value),
                     f"audit {field} must not expose an IPv6 address")
+            require(not _contains_long_numeric_identifier(value),
+                    f"audit {field} must not expose a phone-like or long numeric identifier")
 
 
 def _validate_corroborated_claims(package: dict[str, Any]) -> None:
