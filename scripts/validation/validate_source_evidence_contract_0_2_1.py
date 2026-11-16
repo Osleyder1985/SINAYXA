@@ -280,6 +280,8 @@ def _validate_scoped_claim_evidence(
     ]
     require({link["evidence_id"] for link in scoped_links} == set(evidence_refs),
             f"every {role.lower()} item requires an exact claim/component/version link")
+    require(len(scoped_links) == len(set(evidence_refs)),
+            f"each {role.lower()} evidence item must have exactly one link for the assessed component/version")
     for evidence_id in evidence_refs:
         require(evidence_id in evidence_by_id, f"claim assessment references unknown {role.lower()} evidence")
         evidence = evidence_by_id[evidence_id]
