@@ -6,7 +6,7 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-from validate_source_evidence_contract_0_2_1 import _available_at, validate_package
+from validate_source_evidence_contract_0_2_1 import (\n    _available_at, _validate_claim_assessment_chains, validate_package,\n)
 from migrate_source_evidence_contract_0_2_0_to_0_2_1 import migrate_package
 
 from contract_0_2_1_extensions import (
@@ -2576,6 +2576,81 @@ class Contract021ExtensionTests(unittest.TestCase):
         validate_retention_scope("DELETE_PENDING", [primary, backup], events)
         with self.assertRaises(ContractViolation):
             validate_retention_scope("DELETED", [primary, backup], events)
+
+class ClaimAssessmentChainTests(unittest.TestCase):
+    @staticmethod
+    def assessment(assessment_id, cutoff, predecessor=None, **overrides):
+        item = {
+            "claim_assessment_id": assessment_id,
+            "claim_id": "claim-1",
+            "claim_component_id": "component-1",
+            "claim_version_id": "claim-version-1",
+            "claim_component_version_id": "component-version-1",
+            "assessment_cutoff": cutoff,
+            "assessed_at": cutoff,
+            "supersedes_assessment_id": predecessor,
+        }
+        item.update(overrides)
+        return item
+
+    def test_single_root_assessment_passes(self):
+        package = {"claim_assessments": [
+            self.assessment("assessment-1", "2026-01-01T00:00:00Z")
+        ]}
+        _validate_claim_assessment_chains(package)
+
+    def test_chronological_supersession_chain_passes(self):
+        package = {"claim_assessments": [
+            self.assessment("assessment-1", "2026-01-01T00:00:00Z"),
+            self.assessment("assessment-2", "2026-02-01T00:00:00Z", "assessment-1"),
+            self.assessment("assessment-3", "2026-03-01T00:00:00Z", "assessment-2"),
+        ]}
+        _validate_claim_assessment_chains(package)
+
+    def test_supersession_rejects_unknown_predecessor(self):
+        package = {"claim_assessments": [
+            self.assessment("assessment-1", "2026-01-01T00:00:00Z"),
+            self.assessment("assessment-2", "2026-02-01T00:00:00Z", "missing"),
+        ]}
+        with self.assertRaises(ValueError):
+            _validate_claim_assessment_chains(package)
+
+    def test_supersession_rejects_same_or_earlier_cutoff(self):
+        package = {"claim_assessments": [
+            self.assessment("assessment-1", "2026-02-01T00:00:00Z"),
+            self.assessment("assessment-2", "2026-02-01T00:00:00Z", "assessment-1"),
+        ]}
+        with self.assertRaises(ValueError):
+            _validate_claim_assessment_chains(package)
+
+    def test_supersession_rejects_cross_component_reference(self):
+        package = {"claim_assessments": [
+            self.assessment("assessment-1", "2026-01-01T00:00:00Z"),
+            self.assessment("assessment-2", "2026-02-01T00:00:00Z", "assessment-1",
+                            claim_component_id="different-component"),
+        ]}
+        with self.assertRaises(ValueError):
+            _validate_claim_assessment_chains(package)
+
+    def test_assessment_history_rejects_forked_successors(self):
+        package = {"claim_assessments": [
+            self.assessment("assessment-1", "2026-01-01T00:00:00Z"),
+            self.assessment("assessment-2", "2026-02-01T00:00:00Z", "assessment-1"),
+            self.assessment("assessment-3", "2026-03-01T00:00:00Z", "assessment-1"),
+        ]}
+        with self.assertRaises(ValueError):
+            _validate_claim_assessment_chains(package)
+
+    def test_assessment_execution_time_cannot_move_backwards(self):
+        package = {"claim_assessments": [
+            self.assessment("assessment-1", "2026-01-01T00:00:00Z",
+                            assessed_at="2026-02-01T00:00:00Z"),
+            self.assessment("assessment-2", "2026-02-02T00:00:00Z", "assessment-1",
+                            assessed_at="2026-01-31T00:00:00Z"),
+        ]}
+        with self.assertRaises(ValueError):
+            _validate_claim_assessment_chains(package)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
