@@ -49,9 +49,23 @@ EOF
 }
 cleanup() {
   local rc=$?
+  local container_names
   if [[ "$CONTAINER_CREATED" == true ]]; then docker rm -fv "$CONTAINER" >/dev/null 2>&1 || true; fi
-  if docker ps -a --format '{{.Names}}' | grep -Fxq "$CONTAINER"; then RESULT_cleanup=FAIL; else RESULT_cleanup=PASS; fi
-  if [[ "$rc" -eq 0 && "$RESULT_cleanup" == PASS ]]; then write_report PASS; else write_report FAIL; [[ "$rc" -ne 0 ]] || rc=1; fi
+  if container_names="$(docker ps -a --format '{{.Names}}')"; then
+    if printf '%s\n' "$container_names" | grep -Fxq "$CONTAINER"; then
+      RESULT_cleanup=FAIL
+    else
+      RESULT_cleanup=PASS
+    fi
+  else
+    RESULT_cleanup=FAIL
+  fi
+  if [[ "$rc" -eq 0 && "$RESULT_cleanup" == PASS ]]; then
+    write_report PASS
+  else
+    write_report FAIL
+    [[ "$rc" -ne 0 ]] || rc=1
+  fi
   rm -rf "$WORK_DIR"
   exit "$rc"
 }
