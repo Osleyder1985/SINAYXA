@@ -143,9 +143,24 @@ def _validate_independence_assessments(package: dict[str, Any]) -> None:
                         "dependency assessment references a non-dependency relation")
                 require(edge["claim_component_version_id"] == assessment["claim_component_version_id"],
                         "dependency edge belongs to a different component version")
+                dependent = nodes_by_id.get(edge["dependent_node_id"])
+                origin = nodes_by_id.get(edge["origin_node_id"])
+                require(dependent is not None and origin is not None,
+                        "dependency edge references an unknown provenance node")
+                require(dependent["node_type"] == "SOURCE_VERSION"
+                        and dependent["entity_ref"] in {unit["source_version_id"] for unit in units},
+                        "dependency edge must identify an evaluated dependent source version")
+                require(origin["node_type"] != "UNKNOWN_ORIGIN" and bool(origin["entity_ref"]),
+                        "dependency edge must identify the demonstrated common or upstream origin")
                 require(bool(edge["evidence_refs"]), "dependency edge requires evidence")
                 require(set(edge["evidence_refs"]).issubset(set(assessment["supporting_evidence_refs"])),
                         "dependency edge evidence must be included in assessment supporting evidence")
+                dependent_unit = next(unit for unit in units if unit["source_version_id"] == dependent["entity_ref"])
+                for evidence_id in edge["evidence_refs"]:
+                    require(evidence_id in evidence_by_id, "dependency edge references unknown evidence")
+                    require(evidence_by_id[evidence_id]["source_version_id"] == dependent["entity_ref"],
+                            "dependency evidence must belong to the evaluated dependent source version")
+                    _available_at(package, evidence_id, dependent_unit)
 
 
 def _validate_corroborated_claims(package: dict[str, Any]) -> None:
