@@ -410,3 +410,26 @@ En `511c89d0df4210da67540a5675071de29c1fcea5` se contrastaron los nombres de pru
 - Security/dependency quality gate [run 43807727745](https://github.com/Osleyder1985/SINAYXA/actions/runs/43807727745): SUCCESS.
 
 Esta comprobación resuelve la discrepancia documental que afirmaba que faltaba la tabla de trazabilidad A/B. No transforma los tests sintéticos en prueba de autenticidad, verdad sustantiva o descubrimiento exhaustivo de relaciones reales. La matriz mantiene A–E ABIERTAS hasta que la revisión formal confirme el cierre conforme a sus criterios y se resuelva la brecha RET-09.
+
+
+## Verificación de HEAD vigente — 2026-11-16
+
+Esta sección registra la verificación del HEAD actual de la PR #85 y prevalece sobre los conteos/estados intermedios anteriores cuando estos difieran.
+
+- HEAD exacto: `20d1fb6605cbb6f515168def8a85f4d4fccab62a`.
+- PowerShell quality gate: [run 43808230523](https://github.com/Osleyder1985/SINAYXA/actions/runs/43808230523) — SUCCESS.
+- Suite correctiva del contrato 0.2.1: **124 tests ejecutados; 124 OK**.
+- Validación de JSON Schema, fixture y validación semántica del contrato: SUCCESS.
+- Security/dependency quality gate: [run 43808231052](https://github.com/Osleyder1985/SINAYXA/actions/runs/43808231052) — SUCCESS.
+- Gitleaks, npm audit y OSV PR scan: SUCCESS. OSV full: SKIPPED; no se contabiliza como PASS.
+- PR #85: OPEN / NOT MERGED; sin reviews ni hilos de revisión registrados al momento de esta verificación.
+
+### Interpretación y límites
+
+El resultado de 124 tests acredita únicamente los comportamientos ejecutados por esa suite sobre el HEAD indicado. No cierra automáticamente los escenarios normativos que siguen pendientes de revisión humana o evidencia operacional externa.
+
+Permanecen ABIERTAS las cinco áreas A–E. En particular, continúan sin demostración operacional: reconciliación efectiva de copias/restauraciones de backups con un proveedor real; ausencia de reidentificación residual; retención física inmutable del objeto archivado (WORM/Object Lock o equivalente); y migración en un entorno representativo externo. La cobertura sintética de migración no sustituye esa validación.
+
+La trazabilidad individual de cada escenario debe leerse junto con los nombres de pruebas de la matriz y el código ejecutado en el HEAD citado. Los estados históricos de CI de commits anteriores no deben presentarse como si fueran ejecuciones del HEAD actual.
+
+No se aprueba el contrato 0.2.1, no se fusiona PR #85, no se selecciona proveedor y no se habilitan persistencia productiva, captura, crawling, vigilancia ni automatización.
