@@ -201,15 +201,22 @@ def canonical_sha256(value: Any) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def canonical_migration_payload_sha256(package: dict[str, Any]) -> str:
+    """Hash the canonical package payload, excluding embedded migration manifests."""
+    payload = dict(package)
+    payload.pop("migration_records", None)
+    return canonical_sha256(payload)
+
+
 def validate_migration(source: dict[str, Any], target: dict[str, Any], manifest: dict[str, Any]) -> None:
     """Verify declared migration provenance and preservation of protected history."""
     _require(manifest.get("source_contract_version") == source.get("contract_version"),
              "migration source version does not match source package")
     _require(manifest.get("target_contract_version") == target.get("contract_version"),
              "migration target version does not match target package")
-    _require(manifest.get("input_sha256") == canonical_sha256(source),
+    _require(manifest.get("input_sha256") == canonical_migration_payload_sha256(source),
              "migration input digest does not match source package")
-    _require(manifest.get("output_sha256") == canonical_sha256(target),
+    _require(manifest.get("output_sha256") == canonical_migration_payload_sha256(target),
              "migration output digest does not match target package")
     _require(bool(manifest.get("migration_id")) and bool(manifest.get("migrator_version")),
              "migration identity and migrator version are required")
