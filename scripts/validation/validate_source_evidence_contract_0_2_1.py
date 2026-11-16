@@ -247,6 +247,7 @@ def validate_package(
     package: dict[str, Any],
     base_schema: dict[str, Any] | None = None,
     current_schema: dict[str, Any] | None = None,
+    migration_snapshots: dict[str, dict[str, Any]] | None = None,
 ) -> None:
     units_by_id = _index(package["evaluation_units"], "assessment_unit_id", "assessment_unit_id")
     source_versions = _index(package["source_versions"], "source_version_id", "source_version_id")
@@ -349,15 +350,21 @@ def validate_package(
             require(not record["loss_report"], "successful migration cannot report data loss")
             require(base_schema is not None and current_schema is not None,
                     "migration verification requires both source and target JSON Schemas")
-            source_snapshot = record["source_snapshot"]
-            target_snapshot = record["target_snapshot"]
+            require(migration_snapshots is not None,
+                    "migration verification requires a snapshot resolver")
+            source_ref = record["source_snapshot_ref"]
+            target_ref = record["target_snapshot_ref"]
+            require(source_ref in migration_snapshots and target_ref in migration_snapshots,
+                    "migration source or target snapshot reference cannot be resolved")
+            source_snapshot = migration_snapshots[source_ref]
+            target_snapshot = migration_snapshots[target_ref]
             source_errors = list(Draft202012Validator(base_schema, format_checker=FormatChecker()).iter_errors(source_snapshot))
             target_errors = list(Draft202012Validator(current_schema, format_checker=FormatChecker()).iter_errors(target_snapshot))
             require(not source_errors and not target_errors,
                     "migration source or target snapshot fails its versioned JSON Schema")
             require(not target_snapshot["migration_records"],
                     "migration target snapshot cannot recursively embed migration records")
-            validate_package(target_snapshot, base_schema, current_schema)
+            validate_package(target_snapshot, base_schema, current_schema, migration_snapshots)
             validate_migration(source_snapshot, target_snapshot, record)
 
 
@@ -389,7 +396,12 @@ def main() -> None:
     if errors:
         details = "\n".join(f"- {list(error.path)}: {error.message}" for error in errors)
         raise SystemExit(f"Contract 0.2.1 schema validation failed:\n{details}")
-    validate_package(package, base_schema, schema)
+    base_fixture_path = ROOT / "tests" / "fixtures" / "contracts" / "source-evidence-contract-v0.2.0.json"
+    migration_snapshots = {
+        "fixture://source-evidence-contract-v0.2.0": json.loads(base_fixture_path.read_text(encoding="utf-8")),
+        "fixture://source-evidence-contract-v0.2.1": {**package, "migration_records": []},
+    }
+    validate_package(package, base_schema, schema, migration_snapshots)
     print("Result: PASS")
     print("ContractVersion: 0.2.1")
     print(f"ArchiveAttestations: {len(package['archive_attestations'])}")
