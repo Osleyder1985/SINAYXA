@@ -45,10 +45,9 @@ Ejecución CI: [run #43937072219](https://github.com/Osleyder1985/SINAYXA/action
 - Servidor y cliente: PostgreSQL 18.7.
 - `PGDATA=/var/lib/postgresql/18/docker`; volumen anónimo montado en `/var/lib/postgresql`.
 - Dataset sintético: 3 activos y 4 observaciones.
-- Docker Engine y CLI: ambos `29.10.0`; el reporte registra además el kernel/host OS.
 - Backup custom: 5.980 bytes; SHA-256 `52cb1250653716c6d10072847392a1bc5da57a3fb37b1b2c06599d4fb627a813`.
 - Diez comprobaciones: **10/10 PASS**, incluidas integridad, restauración repetida, rechazo del dump truncado y eliminación del contenedor/volumen.
-- Reporte: artefacto `postgresql-synthetic-lab-43936241123`; `status=PASS`, `synthetic_data_only=true`, `production_data_used=false`, `external_database_connections=false`.
+- Reporte: artefacto `postgresql-synthetic-lab-43937072219`; `status=PASS`, `synthetic_data_only=true`, `production_data_used=false`, `external_database_connections=false`.
 
 Security/dependency gate: [run #43937072696](https://github.com/Osleyder1985/SINAYXA/actions/runs/43937072696) — SUCCESS. Gitleaks, npm audit y OSV PR scan SUCCESS; OSV full SKIPPED, no contabilizado como PASS.
 
