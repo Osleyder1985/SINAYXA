@@ -118,9 +118,13 @@ def validate_retention_scope(
         event = event_by_id.get(copy.get("transition_event_ref"))
         _require(event is not None, "copy transition event reference is missing")
         _require(event.get("copy_id") == copy["copy_id"]
+                 and event.get("retention_id") == copy["retention_id"]
+                 and event.get("subject_ref") == copy["subject_ref"]
                  and event.get("from_copy_state") == previous
                  and event.get("to_copy_state") == copy["state"],
-                 "copy transition audit event does not match the recorded state transition")
+                 "copy transition audit event does not match the copy, subject, or recorded state transition")
+        _require(event.get("occurred_at", "") >= copy.get("recorded_at", ""),
+                 "copy transition audit event cannot predate the recorded state")
         expected_action = {"PRESENT": "COPY_DISCOVERED",
                            "DELETE_PENDING": "COPY_DELETION_REQUESTED",
                            "DELETED": "COPY_DELETED"}[copy["state"]]
