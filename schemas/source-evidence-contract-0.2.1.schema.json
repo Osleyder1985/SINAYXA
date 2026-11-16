@@ -2296,8 +2296,8 @@
         "rules_applied",
         "result",
         "loss_report",
-        "source_snapshot",
-        "target_snapshot"
+        "source_snapshot_ref",
+        "target_snapshot_ref"
       ],
       "properties": {
         "migration_id": {
@@ -2343,29 +2343,11 @@
             "$ref": "#/$defs/nonEmpty"
           }
         },
-        "source_snapshot": {
-          "type": "object",
-          "required": [
-            "contract_version"
-          ],
-          "properties": {
-            "contract_version": {
-              "$ref": "#/$defs/nonEmpty"
-            }
-          },
-          "additionalProperties": true
+        "source_snapshot_ref": {
+          "$ref": "#/$defs/nonEmpty"
         },
-        "target_snapshot": {
-          "type": "object",
-          "required": [
-            "contract_version"
-          ],
-          "properties": {
-            "contract_version": {
-              "$ref": "#/$defs/nonEmpty"
-            }
-          },
-          "additionalProperties": true
+        "target_snapshot_ref": {
+          "$ref": "#/$defs/nonEmpty"
         }
       },
       "allOf": [
