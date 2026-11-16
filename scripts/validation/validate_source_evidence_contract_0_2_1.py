@@ -251,6 +251,90 @@ def _validate_independence_assessments(package: dict[str, Any]) -> None:
                     "DESCONOCIDA cannot assert established dependency edges")
 
 
+def _validate_scoped_claim_evidence(
+    package: dict[str, Any], assessment: dict[str, Any], evidence_refs: list[str], role: str
+) -> None:
+    evidence_by_id = _index(package["evidence_items"], "evidence_id", "evidence_id")
+    units = package["evaluation_units"]
+    links = package["claim_evidence_links"]
+    scoped_links = [
+        link for link in links
+        if link["claim_id"] == assessment["claim_id"]
+        and link["claim_component_id"] == assessment["claim_component_id"]
+        and link["claim_version_id"] == assessment["claim_version_id"]
+        and link["claim_component_version_id"] == assessment["claim_component_version_id"]
+        and link["evidence_id"] in set(evidence_refs)
+        and link["evidence_role"] == role
+    ]
+    require({link["evidence_id"] for link in scoped_links} == set(evidence_refs),
+            f"every {role.lower()} item requires an exact claim/component/version link")
+    for evidence_id in evidence_refs:
+        require(evidence_id in evidence_by_id, f"claim assessment references unknown {role.lower()} evidence")
+        evidence = evidence_by_id[evidence_id]
+        matching_units = [
+            unit for unit in units
+            if unit["claim_id"] == assessment["claim_id"]
+            and unit["claim_component_id"] == assessment["claim_component_id"]
+            and unit["claim_version_id"] == assessment["claim_version_id"]
+            and unit["claim_component_version_id"] == assessment["claim_component_version_id"]
+            and unit["assessment_cutoff"] == assessment["assessment_cutoff"]
+            and unit["source_version_id"] == evidence["source_version_id"]
+        ]
+        require(bool(matching_units),
+                f"{role.lower()} evidence has no evaluation unit for the exact component and cutoff")
+        for unit in matching_units:
+            _available_at(package, evidence_id, unit)
+
+
+def _validate_claim_assessment_evidence(package: dict[str, Any]) -> None:
+    for assessment in package["claim_assessments"]:
+        status = assessment["evidentiary_status"]
+        supporting = assessment["supporting_evidence_refs"]
+        contrary = assessment["contrary_evidence_refs"]
+        if status == "PARCIALMENTE_CORROBORADA":
+            require(bool(supporting), "partial corroboration requires at least one scoped supporting item")
+            supported = assessment.get("supported_scope")
+            unsupported = assessment.get("unsupported_scope")
+            require(bool(supported and supported.strip()) and bool(unsupported and unsupported.strip()),
+                    "partial corroboration requires explicit supported and unsupported scopes")
+            require(supported.strip() != unsupported.strip(),
+                    "partial corroboration scopes must distinguish supported from unsupported content")
+            _validate_scoped_claim_evidence(package, assessment, supporting, "SUPPORTING")
+        elif status == "CONTRADICHA":
+            _validate_scoped_claim_evidence(package, assessment, supporting, "SUPPORTING")
+            _validate_scoped_claim_evidence(package, assessment, contrary, "CONTRARY")
+        elif status == "REFUTADA":
+            _validate_scoped_claim_evidence(package, assessment, contrary, "CONTRARY")
+
+
+def _validate_audit_subject_references(package: dict[str, Any]) -> None:
+    reference_keys = {
+        "package_id", "claim_id", "claim_version_id", "claim_component_id",
+        "claim_component_version_id", "source_id", "source_version_id",
+        "identity_assessment_id", "assessment_unit_id", "evidence_id",
+        "node_id", "edge_id", "factor_assessment_id", "independence_assessment_id",
+        "claim_assessment_id", "retention_id", "copy_id", "archive_attestation_id",
+        "migration_id", "process_id",
+    }
+    collections = (
+        "claims", "claim_components", "sources", "source_versions", "identity_assessments",
+        "evaluation_units", "evidence_items", "provenance_nodes", "provenance_edges",
+        "factor_assessments", "independence_assessments", "claim_assessments",
+        "retention_records", "retention_copy_records", "archive_attestations",
+        "migration_records", "analysis_processes",
+    )
+    known_refs = {package["package_id"]}
+    for collection in collections:
+        for record in package[collection]:
+            for key in reference_keys:
+                value = record.get(key)
+                if isinstance(value, str):
+                    known_refs.add(value)
+    for event in package["audit_events"]:
+        require(event["subject_ref"] in known_refs,
+                "audit subject_ref must resolve to an internal contract object identifier")
+
+
 def _validate_corroborated_claims(package: dict[str, Any]) -> None:
     evidence_by_id = _index(package["evidence_items"], "evidence_id", "evidence_id")
     independence_by_id = _index(
@@ -385,7 +469,9 @@ def validate_package(
 
     _validate_analysis_processes(package)
     _validate_independence_assessments(package)
+    _validate_claim_assessment_evidence(package)
     _validate_corroborated_claims(package)
+    _validate_audit_subject_references(package)
     for assessment in package["claim_assessments"]:
         # Historical migrated records may have no recoverable execution time.
         # Preserve null; never substitute migration time or assessment cutoff.
