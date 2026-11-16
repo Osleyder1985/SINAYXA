@@ -458,6 +458,21 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_package(package)
 
+    def test_021_package_rejects_availability_record_predating_archive_attestation(self):
+        schema, package = self.load_contract_021_fixture()
+        package["archive_attestations"].append({
+            "archive_attestation_id": "archive-late-record", "archive_service": "Synthetic Archive",
+            "capture_record_reference": "capture-late-record", "captured_at": "2026-11-15T20:04:00Z",
+            "imported_at": "2026-11-15T22:01:00Z", "recorded_at": "2026-11-15T22:01:00Z",
+            "integrity_result": "MATCH", "capture_record_verified": True,
+            "verification_method": "INDEPENDENT_RECORD_REVIEW", "verified_at": "2026-11-15T21:59:00Z",
+            "verified_by_role": "ARCHIVE_REVIEWER", "content_authenticity": "UNKNOWN", "content_truth": "UNKNOWN"
+        })
+        package["evidence_availability"][0]["availability_basis"] = "INDEPENDENT_ARCHIVE"
+        package["evidence_availability"][0]["archive_attestation_id"] = "archive-late-record"
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
     def test_021_archive_integrity_mismatch_is_not_verified_availability(self):
         schema, package = self.load_contract_021_fixture()
         package["archive_attestations"].append({
