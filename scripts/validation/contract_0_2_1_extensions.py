@@ -139,6 +139,51 @@ def validate_archive_attestation(availability: dict[str, Any], attestation: dict
              "archive attestation cannot promote factual truth")
 
 
+def validate_backup_expiration(copy_record: dict[str, Any], checked_at: str) -> None:
+    """Keep a backup pending until its documented expiry and deletion are verified."""
+    _require(copy_record.get("copy_type") == "BACKUP", "backup expiry rules apply only to backup copies")
+    _require(bool(copy_record.get("expiry_policy_ref")), "backup expiry policy reference is required")
+    expires_at = copy_record.get("expires_at")
+    _require(bool(expires_at), "documented backup expiry timestamp is required")
+    _require(copy_record.get("state") in {"DELETE_PENDING", "DELETED"},
+             "backup must remain DELETE_PENDING or become DELETED after verification")
+    if checked_at < expires_at:
+        _require(copy_record.get("state") == "DELETE_PENDING",
+                 "backup cannot be DELETED before its documented expiry")
+        _require(not copy_record.get("deletion_verified_at"),
+                 "backup deletion cannot be verified before its documented expiry")
+        return
+    if copy_record.get("state") == "DELETED":
+        verified_at = copy_record.get("deletion_verified_at")
+        _require(bool(verified_at), "expired backup requires an explicit deletion verification")
+        _require(expires_at <= verified_at <= checked_at,
+                 "backup deletion verification must occur after expiry and no later than the check")
+        _require(bool(copy_record.get("verification_reference")),
+                 "backup deletion verification reference is required")
+
+
+def validate_backup_restore(restore_record: dict[str, Any], reconciliation: dict[str, Any]) -> None:
+    """Prevent restored deleted material from becoming available before reconciliation."""
+    _require(restore_record.get("source_disposition") == "DELETED",
+             "restore reconciliation applies to material previously declared DELETED")
+    _require(bool(restore_record.get("restore_id")), "restore event identity is required")
+    _require(bool(restore_record.get("restored_copy_id")), "restored copy identity is required")
+    _require(restore_record.get("restored_state") == "DELETE_PENDING",
+             "restored material must enter DELETE_PENDING before reconciliation")
+    _require(restore_record.get("exposed") is False,
+             "restored material cannot be exposed before reconciliation and suppression")
+    _require(reconciliation.get("restore_id") == restore_record.get("restore_id"),
+             "reconciliation must reference the exact restore event")
+    _require(reconciliation.get("copy_id") == restore_record.get("restored_copy_id"),
+             "reconciliation must reference the exact restored copy")
+    _require(reconciliation.get("status") == "VERIFIED",
+             "restored material requires verified reconciliation")
+    _require(reconciliation.get("suppression_applied") is True,
+             "restored deleted material must be suppressed before any exposure")
+    _require(bool(reconciliation.get("verified_at")) and bool(reconciliation.get("verification_reference")),
+             "reconciliation requires a timestamp and verification reference")
+
+
 PROTECTED_HISTORY_FIELDS = (
     "claims", "claim_components", "sources", "source_versions", "identity_assessments",
     "evaluation_units", "evidence_items", "evidence_availability", "claim_evidence_links",
