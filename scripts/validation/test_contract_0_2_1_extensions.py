@@ -6,7 +6,9 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-from validate_source_evidence_contract_0_2_1 import (\n    _available_at, _validate_claim_assessment_chains, validate_package,\n)
+from validate_source_evidence_contract_0_2_1 import (
+    _available_at, _validate_claim_assessment_chains, validate_package,
+)
 from migrate_source_evidence_contract_0_2_0_to_0_2_1 import migrate_package
 
 from contract_0_2_1_extensions import (
