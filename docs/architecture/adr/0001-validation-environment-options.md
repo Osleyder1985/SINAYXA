@@ -172,6 +172,61 @@ No se calculará una puntuación total mientras existan criterios críticos NOT_
 
 La matriz es una comparación de estado de evidencia, no una selección tecnológica. Los valores DOCUMENTABLE o PARCIAL tampoco sustituyen la ejecución de la prueba correspondiente.
 
+### 8.1 Comparación de candidatos concretos (documentación oficial consultada el 2026-11-16)
+
+Esta comparación reduce la indeterminación tecnológica sin seleccionar proveedor, región, licencia de producción ni modalidad de despliegue. Separa el motor relacional del almacén de objetos: no son alternativas intercambiables.
+
+| Capa | Candidato local/autogestionado | Candidato administrado | Hechos verificables y límites |
+| --- | --- | --- | --- |
+| Base relacional | PostgreSQL 16.3 en contenedor aislado, coherente con el laboratorio #96 | Amazon RDS for PostgreSQL | PostgreSQL 16 documenta SQL dump, backup filesystem y archivado continuo/PITR como familias distintas; `pg_dump` cubre una base individual, no todos los objetos globales del clúster. RDS documenta backups automáticos y PITR dentro del periodo de retención configurado, de 0 a 35 días para una instancia. No equivale a WORM ni a reconciliación de eliminaciones. |
+| Objetos/versiones/WORM | MinIO AIStor Free, despliegue single-node | Amazon S3 con Object Lock | Ambos documentan versionado y retención por versión. En ambos, un DELETE sin version ID puede crear un delete marker mientras la versión protegida permanece retenida. Por tanto, ocultar la versión actual no prueba borrado físico ni eliminación terminal. |
+| Modelo de operación | Autogestión del host, discos, copias, actualizaciones, permisos y reloj/NTP | Servicio administrado y controles IAM/políticas del proveedor | El local facilita experimentos aislados y control de configuración, pero no independencia física frente al administrador del host. El administrado aporta controles de servicio, pero exige comprobar región, permisos, contratos, logs, copias y comportamiento real. |
+| Licencia/límites publicados | MinIO AIStor Free: gratuito para despliegue single-node. La edición MinIO OSS AGPLv3 anterior está EOL y ya no recibe mantenimiento ni parches. Multi-node: Enterprise Lite sujeto a suscripción y límite publicado inferior a 400 TiB; precio exacto no publicado en la página consultada. | AWS S3/RDS: pago por uso; el coste depende de región y consumo. La elegibilidad Free Tier depende de fecha/plan de alta y límites aplicables; no debe suponerse gratuita para esta cuenta. | No se puede tratar MinIO OSS antiguo como una alternativa mantenida equivalente a AIStor Free. No se presupone que el proyecto tenga una suscripción MinIO ni créditos AWS. |
+| Reversibilidad | Contenedor/volúmenes desechables para pruebas; los datos/volúmenes deben inventariarse y destruirse explícitamente | S3 Object Lock: una vez habilitado en bucket, no puede deshabilitarse ni suspenderse el versionado | No crear bucket real con Object Lock durante esta fase. Compliance puede impedir la eliminación incluso al administrador/root durante el periodo de retención. |
+| Coste | No monetizado: hardware, discos, energía, mantenimiento, respaldo externo y horas operativas | No monetizado: horas de instancia RDS, almacenamiento, backups/snapshots, solicitudes, recuperación, transferencia, replicación y características de gestión de S3 | Faltan región, clase de almacenamiento, instancia, GB-mes, requests, transferencia, retención y número de versiones. No hay base para una cifra mensual responsable. |
+
+#### Riesgos específicos de los candidatos
+
+1. **Amazon S3 Object Lock:** requiere versionado y protege una versión concreta, no todas las versiones futuras por defecto salvo que se configure una política adecuada. Un DELETE simple puede crear un delete marker; la versión bloqueada permanece. En GOVERNANCE existe bypass mediante permisos especiales; COMPLIANCE impide eliminar la versión protegida antes del vencimiento incluso para root. Habilitar Object Lock no puede revertirse deshabilitando el control o suspendiendo versionado. Por su irreversibilidad, queda excluido de cualquier ensayo real sin decisión expresa.
+2. **Amazon RDS for PostgreSQL:** la retención de backups automáticos documentada para una instancia es de 0 a 35 días; el PITR se limita a la ventana de backup. AWS factura, entre otros, horas de instancia, almacenamiento, I/O/IOPS cuando aplique, backups/snapshots y transferencia. Estos backups no se consideran por ello un repositorio WORM.
+3. **MinIO AIStor:** la edición gratuita publicada es single-node. La edición OSS previa aparece como no mantenida/EOL; no debe recomendarse para un despliegue nuevo que requiera parches de seguridad. AIStor documenta WORM y versionado, pero los delete markers no eliminan las versiones retenidas. Además, la documentación indica que la expiración de todas las versiones no está disponible en buckets con Object Lock; el diseño de eliminación y retención debe probarse por versión y no inferirse de compatibilidad S3.
+4. **PostgreSQL 16.3 local:** el laboratorio #96 demuestra backup/restore custom en un contenedor efímero, no PITR ni recuperación de clúster. La propia documentación distingue `pg_dump` de `pg_dumpall` y del archivado continuo; el protocolo de #89 debe declarar qué nivel de recuperación pretende probar.
+
+#### Matriz de evaluación por candidato
+
+| Criterio | PostgreSQL 16.3 + MinIO AIStor Free single-node | Amazon RDS for PostgreSQL + Amazon S3 Object Lock |
+| --- | --- | --- |
+| Exportación/restauración relacional | DOCUMENTADO; laboratorio PostgreSQL #96 PASS para backup custom/restore | DOCUMENTADO por RDS; ejecución en cuenta/región SIN VERIFICAR |
+| WORM por versión | DOCUMENTADO por AIStor; instalación, versión/licencia y prueba adversarial SIN VERIFICAR | DOCUMENTADO por S3; cuenta/región/bucket y prueba adversarial SIN VERIFICAR |
+| Eliminación de todas las versiones/copies | REQUIERE PRUEBA; delete marker no equivale a eliminación | REQUIERE PRUEBA; delete marker no elimina versión bloqueada |
+| Coste numérico total | NOT_ASSESSED; single-node Free no elimina costes de hardware/operación/backup | NOT_ASSESSED; depende de región, instancia, storage, requests, transfer y retención |
+| Límite gratuito | AIStor Free publicado como single-node; no se asume soporte multi-node gratuito | Free Tier sujeto a fecha de alta/plan y límites; no se asume elegibilidad |
+| Disponibilidad en el equipo objetivo | NOT_ASSESSED; requiere comprobar despliegue y compatibilidad en Windows 11/Docker del entorno real | NOT_ASSESSED; requiere comprobar conectividad, región y condiciones de acceso |
+| Jurisdicción/residencia | NOT_ASSESSED; depende de ubicación física y administración del host | NOT_ASSESSED; requiere región elegida, términos y subprocesadores |
+| Reversibilidad | Alta para contenedor efímero sin Object Lock; retención WORM cambia el perfil | Limitada una vez habilitado Object Lock en bucket; no usar sin aprobación |
+| Dependencia de proveedor | Menor dependencia de servicio, mayor carga de operación y licencia AIStor | Dependencia de APIs, precios, región y condiciones AWS |
+
+#### Conclusión comparativa no vinculante
+
+- Para **validar migraciones relacionales y procedimientos de backup/restore sin cargos externos**, el candidato local PostgreSQL 16.3 ya tiene evidencia sintética de ejecución mediante #96. Esto no lo convierte en arquitectura productiva recomendada.
+- Para **ensayar controles administrados de retención por versión**, Amazon S3 Object Lock es un candidato documentado, pero su irreversibilidad y conflicto potencial con supresión impiden habilitarlo sin diseño de retención aprobado y autorización explícita.
+- Para **WORM autogestionado**, MinIO AIStor es el candidato actual documentado; la antigua edición OSS ya no es una opción mantenida. AIStor Free está limitado a single-node, de modo que no acredita independencia física de copias ni alta disponibilidad.
+- El **híbrido** podría separar PostgreSQL local de S3 administrado, pero añade transferencia, credenciales, coste y dos planos de administración. No se justifica antes de conocer requisitos de residencia, volumen y presupuesto.
+
+No se asignan pesos ni puntuaciones: los criterios críticos de coste, jurisdicción, disponibilidad en el entorno objetivo y recuperación operacional siguen NOT_ASSESSED. No se recomienda desplegar ni crear cuenta/recursos a partir de esta comparación.
+
+Fuentes oficiales actualizadas:
+- [PostgreSQL 16 — Backup and Restore](https://www.postgresql.org/docs/16/backup.html)
+- [PostgreSQL 16 — pg_dump](https://www.postgresql.org/docs/16/app-pgdump.html)
+- [AWS — S3 Object Lock](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html)
+- [AWS — Configuring S3 Object Lock](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock-configure.html)
+- [AWS — Object Lock considerations](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock-managing.html)
+- [AWS — Amazon RDS for PostgreSQL pricing](https://aws.amazon.com/rds/postgresql/pricing/)
+- [AWS — RDS backup retention period](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithAutomatedBackups.BackupRetention.html)
+- [MinIO AIStor — Object Locking and Immutability](https://docs.min.io/aistor/administration/object-locking-and-immutability/)
+- [MinIO AIStor — Object Deletion](https://docs.min.io/aistor/administration/objects-and-versioning/object-delete/)
+- [MinIO — Subscriptions and pricing](https://www.min.io/pricing)
+
 ## 9. Evaluación provisional
 
 No se selecciona una alternativa tecnológica en esta ADR. La decisión segura que puede prepararse sin costes ni servicios externos es especificar primero el protocolo reproducible del laboratorio local con datos sintéticos. La selección de implementación concreta (incluidos productos autogestionados) requiere comprobar licencias, versiones, controles y requisitos del equipo; la alternativa administrada requiere región, estimación de uso, términos de retención y aprobación de costes.
