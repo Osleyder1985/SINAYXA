@@ -1,6 +1,6 @@
 # ADR-0001 — Entorno para validar eliminación, archivo y migración
 
-- **Estado:** PROPUESTA PARA REVISIÓN; no aprobada como selección tecnológica.
+- **Estado:** DECISIÓN ACEPTADA PARA PREPARACIÓN DEL LABORATORIO LOCAL; no constituye selección de proveedor ni autorización de persistencia productiva.
 - **Fecha:** 2026-11-16.
 - **Issue:** [#91](https://github.com/Osleyder1985/SINAYXA/issues/91).
 - **Dependencias:** [#78](https://github.com/Osleyder1985/SINAYXA/issues/78), [#88](https://github.com/Osleyder1985/SINAYXA/issues/88), [#89](https://github.com/Osleyder1985/SINAYXA/issues/89).
@@ -230,13 +230,15 @@ Fuentes oficiales actualizadas:
 
 ## 9. Evaluación provisional
 
-No se selecciona una alternativa tecnológica en esta ADR. La decisión segura que puede prepararse sin costes ni servicios externos es especificar primero el protocolo reproducible del laboratorio local con datos sintéticos. La selección de implementación concreta (incluidos productos autogestionados) requiere comprobar licencias, versiones, controles y requisitos del equipo; la alternativa administrada requiere región, estimación de uso, términos de retención y aprobación de costes.
+El propietario acepta la arquitectura limitada para la primera etapa: **PostgreSQL local, datos exclusivamente sintéticos, laboratorio aislado, versiones estables GA fijadas y ausencia de servicios administrados, proveedores externos y costes externos**.
 
-**Recomendación para revisión del propietario:** autorizar únicamente la preparación del laboratorio local sintético, sin despliegue ni persistencia productiva. Mantener la selección de proveedor/servicio administrado y cualquier recurso facturable como decisiones posteriores separadas.
+Esta aceptación autoriza continuar la preparación y validación del laboratorio local dentro de ese alcance. No selecciona MinIO AIStor, AWS ni otro proveedor de almacenamiento de objetos; tampoco autoriza Object Lock irreversible, cuentas externas, recursos facturables, captura de datos reales ni persistencia productiva. Cualquier ampliación de alcance requerirá una decisión separada.
+
+La arquitectura sigue siendo neutral respecto del almacenamiento de objetos y de la solución productiva definitiva. Los requisitos que dependan de WORM externo, eliminación física, copias independientes o recuperación ante desastres permanecen NOT_VERIFIED hasta contar con evidencia operacional específica.
 
 ## 10. Consecuencias
 
-- #91 seguirá abierto hasta que el propietario revise esta ADR y se resuelvan sus criterios de aceptación.
+- #91 registra la aceptación de la fase local sintética; permanece abierto para completar la preparación, las pruebas y la evidencia de los criterios de aceptación.
 - #89 seguirá abierto hasta obtener evidencia operacional externa suficiente.
 - #88 seguirá abierto; A–E no se cierran por este documento.
 - Esta ADR no cambia la aprobación del contrato 0.2.1 ni autoriza merge de PR #85.
