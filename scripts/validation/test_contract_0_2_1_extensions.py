@@ -6,6 +6,8 @@ from contract_0_2_1_extensions import (
     ContractViolation,
     canonical_sha256,
     validate_archive_attestation,
+    validate_backup_expiration,
+    validate_backup_restore,
     validate_corroboration,
     validate_independence,
     validate_migration,
@@ -182,6 +184,71 @@ class Contract021ExtensionTests(unittest.TestCase):
                     "rules_applied": ["preserve-history"], "result": "PASS"}
         with self.assertRaises(ContractViolation):
             validate_migration(source, target, manifest)
+
+
+    def test_backup_before_documented_expiry_remains_pending(self):
+        validate_backup_expiration(
+            {"copy_type": "BACKUP", "expiry_policy_ref": "policy-1",
+             "expires_at": "2026-02-01T00:00:00Z", "state": "DELETE_PENDING"},
+            "2026-01-31T23:59:59Z"
+        )
+
+    def test_backup_cannot_be_deleted_before_expiry(self):
+        with self.assertRaises(ContractViolation):
+            validate_backup_expiration(
+                {"copy_type": "BACKUP", "expiry_policy_ref": "policy-1",
+                 "expires_at": "2026-02-01T00:00:00Z", "state": "DELETED",
+                 "deletion_verified_at": "2026-01-31T12:00:00Z",
+                 "verification_reference": "verify-1"},
+                "2026-01-31T23:59:59Z"
+            )
+
+    def test_expired_backup_without_verification_cannot_be_deleted(self):
+        with self.assertRaises(ContractViolation):
+            validate_backup_expiration(
+                {"copy_type": "BACKUP", "expiry_policy_ref": "policy-1",
+                 "expires_at": "2026-02-01T00:00:00Z", "state": "DELETED"},
+                "2026-02-02T00:00:00Z"
+            )
+
+    def test_expired_backup_with_post_expiry_verification_passes(self):
+        validate_backup_expiration(
+            {"copy_type": "BACKUP", "expiry_policy_ref": "policy-1",
+             "expires_at": "2026-02-01T00:00:00Z", "state": "DELETED",
+             "deletion_verified_at": "2026-02-02T00:00:00Z",
+             "verification_reference": "verify-1"},
+            "2026-02-03T00:00:00Z"
+        )
+
+    def test_restored_deleted_backup_requires_verified_suppression(self):
+        restore = {"restore_id": "restore-1", "restored_copy_id": "copy-1",
+                   "source_disposition": "DELETED", "restored_state": "DELETE_PENDING",
+                   "exposed": False}
+        reconciliation = {"restore_id": "restore-1", "copy_id": "copy-1",
+                          "status": "VERIFIED", "suppression_applied": True,
+                          "verified_at": "2026-02-03T00:00:00Z",
+                          "verification_reference": "reconcile-1"}
+        validate_backup_restore(restore, reconciliation)
+
+    def test_restored_deleted_backup_cannot_be_exposed_before_suppression(self):
+        restore = {"restore_id": "restore-2", "restored_copy_id": "copy-2",
+                   "source_disposition": "DELETED", "restored_state": "DELETE_PENDING",
+                   "exposed": True}
+        reconciliation = {"restore_id": "restore-2", "copy_id": "copy-2",
+                          "status": "PENDING", "suppression_applied": False}
+        with self.assertRaises(ContractViolation):
+            validate_backup_restore(restore, reconciliation)
+
+    def test_restore_reconciliation_must_match_exact_restored_copy(self):
+        restore = {"restore_id": "restore-3", "restored_copy_id": "copy-3",
+                   "source_disposition": "DELETED", "restored_state": "DELETE_PENDING",
+                   "exposed": False}
+        reconciliation = {"restore_id": "restore-3", "copy_id": "different-copy",
+                          "status": "VERIFIED", "suppression_applied": True,
+                          "verified_at": "2026-02-03T00:00:00Z",
+                          "verification_reference": "reconcile-3"}
+        with self.assertRaises(ContractViolation):
+            validate_backup_restore(restore, reconciliation)
 
 
 if __name__ == "__main__":
