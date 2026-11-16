@@ -151,10 +151,10 @@ def migrate_package(
         require_uuid4(event["subject_ref"], f"audit_events[{index}].subject_ref")
         audit_ids.add(event["audit_event_id"])
         old_role = event["actor_role"]
-        role_event_refs = {item["audit_event_id"] for item in output.get("audit_events", []) if item["actor_role"] == old_role}
+        role_event_refs = {item["audit_event_id"] for item in source.get("audit_events", []) if item["actor_role"] == old_role}
         role_code = resolve_mapping(role_map, old_role, role_codes, role_event_refs, f"audit_events[{index}].actor_role")
         old_reason = event["reason"]
-        reason_event_refs = {item["audit_event_id"] for item in output.get("audit_events", []) if item["reason"] == old_reason}
+        reason_event_refs = {item["audit_event_id"] for item in source.get("audit_events", []) if item["reason"] == old_reason}
         reason_code = resolve_mapping(reason_map, old_reason, set(reason_actions), reason_event_refs, f"audit_events[{index}].reason")
         if event["action"] not in reason_actions[reason_code]:
             raise MigrationRejected(
