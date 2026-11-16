@@ -932,6 +932,40 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_package(package)
 
+    def test_021_package_accepts_unknown_independence_without_asserted_paths(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = package["independence_assessments"][0]
+        self.assertEqual(assessment["status"], "DESCONOCIDA")
+        self.assertEqual(assessment["independent_path_edge_refs"], [])
+        self.assertEqual(assessment["dependency_edge_refs"], [])
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_package_rejects_unknown_independence_with_asserted_path(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = package["independence_assessments"][0]
+        assessment["independent_path_edge_refs"] = ["unverified-path"]
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_package_rejects_dependency_leaking_across_components(self):
+        schema, package = self.load_contract_021_fixture()
+        package["provenance_edges"].append({
+            "edge_id": "entity-dependency", "dependent_node_id": "node-version-a",
+            "origin_node_id": "node-version-b", "relation_type": "SINDICADA_DE",
+            "claim_component_id": "component-entity", "evidence_refs": ["evidence-a"],
+            "recorded_at": "2026-11-15T22:00:00Z", "valid_from": None, "valid_to": None,
+            "claim_component_version_id": "component-entity-v1"
+        })
+        amount_assessment = package["independence_assessments"][1]
+        amount_assessment.update({
+            "status": "DEPENDIENTE", "supporting_evidence_refs": ["evidence-a"],
+            "dependency_edge_refs": ["entity-dependency"], "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z"
+        })
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
     def test_021_package_accepts_evidenced_dependency_for_exact_component(self):
         schema, package = self.load_contract_021_fixture()
         package["provenance_edges"].append({
