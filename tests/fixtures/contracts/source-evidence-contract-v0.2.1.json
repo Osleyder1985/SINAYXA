@@ -1037,7 +1037,8 @@
       "rationale": "La pieza acredita que existe una declaración atribuida, pero no demuestra la ejecución del hecho subyacente.",
       "supported_scope": null,
       "unsupported_scope": null,
-      "corroboration_basis": "NO_APLICA"
+      "corroboration_basis": "NO_APLICA",
+      "assessed_at": "2026-11-15T22:05:00Z"
     },
     {
       "claim_assessment_id": "assessment-amount-v1",
@@ -1067,7 +1068,8 @@
       "rationale": "No existe evidencia verificable suficiente para determinar el importe.",
       "supported_scope": null,
       "unsupported_scope": null,
-      "corroboration_basis": "NO_APLICA"
+      "corroboration_basis": "NO_APLICA",
+      "assessed_at": "2026-11-15T22:05:00Z"
     }
   ],
   "retention_records": [
