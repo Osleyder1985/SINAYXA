@@ -6,7 +6,9 @@ Validar `pg_dump` y `pg_restore` con una instancia PostgreSQL efímera, aislada 
 
 ## Entorno y límites
 
-- Imagen fijada a PostgreSQL `postgres:16.3`.
+- Imagen de PostgreSQL `postgres:18.7`; el arnés descarga el tag de release concreto, resuelve el `RepoDigest` del artefacto y ejecuta el contenedor por referencia inmutable `repository@sha256:...`.
+- El reporte conserva tag, digest, plataforma, versión esperada y versiones reales de servidor/cliente. La ejecución falla si servidor o cliente no corresponden a 18.7.
+- El tag es un mecanismo de resolución, no la referencia usada para ejecutar el contenedor.
 - Un contenedor temporal y tres bases: origen, restauración y repetición.
 - El contenedor se elimina al finalizar, incluso si una comprobación falla.
 - No conecta a bases externas ni a bases reales de SINAYXA.
@@ -29,7 +31,7 @@ Validar `pg_dump` y `pg_restore` con una instancia PostgreSQL efímera, aislada 
 
 El reporte JSON clasifica la ejecución como `LAB_SYNTHETIC` y cada comprobación como `PASS`, `FAIL` o `NOT_RUN`. La limpieza se desglosa en `container_cleanup` y `volume_cleanup`; `cleanup` solo será PASS si ambas comprobaciones son PASS. Un fallo aborta el ensayo y produce un reporte `FAIL`.
 
-La comprobación `cleanup` solo puede ser `PASS` si las consultas al daemon Docker terminan correctamente y confirman que tanto el contenedor temporal como el volumen anónimo de datos PostgreSQL ya no existen. El arnés identifica el volumen montado en `/var/lib/postgresql/data` antes de la limpieza y verifica su ausencia después de `docker rm -v`. Si Docker no responde, no puede identificarse el volumen o cualquiera de los dos recursos permanece, el reporte global debe ser `FAIL`; la ausencia de respuesta nunca se interpreta como prueba de eliminación.
+La comprobación `cleanup` solo puede ser `PASS` si las consultas al daemon Docker terminan correctamente y confirman que tanto el contenedor temporal como el volumen anónimo de datos PostgreSQL ya no existen. El arnés lee `PGDATA` desde el contenedor en ejecución, inspecciona todos los mounts Docker y localiza el volumen anónimo cuyo destino contiene `PGDATA`. Esto contempla el cambio de la imagen oficial PostgreSQL 18 (`PGDATA=/var/lib/postgresql/18/docker`, volumen `/var/lib/postgresql`) y evita asumir la ruta histórica `/var/lib/postgresql/data`. El reporte registra `PGDATA` y el destino del volumen, y verifica la desaparición del volumen identificado después de `docker rm -v`. Si Docker no responde, no puede identificarse el volumen o cualquiera de los dos recursos permanece, el reporte global debe ser `FAIL`; la ausencia de respuesta nunca se interpreta como prueba de eliminación.
 
 ## Límites de evidencia
 
