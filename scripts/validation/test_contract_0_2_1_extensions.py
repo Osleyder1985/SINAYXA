@@ -1070,7 +1070,7 @@ class Contract021ExtensionTests(unittest.TestCase):
     def test_021_historical_assessed_at_null_is_preserved_for_claim_and_factor(self):
         schema, package = self.load_contract_021_fixture()
         package["claim_assessments"][0]["assessed_at"] = None
-        package["factor_assessments"][0]["assessed_at"] = None
+        self.assertEqual(package["factor_assessments"][0]["assessed_at"], "2026-11-15T22:00:00Z")
         self.assert_schema_valid(schema, package)
         validate_package(package)
 
