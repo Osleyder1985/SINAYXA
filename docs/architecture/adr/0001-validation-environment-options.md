@@ -253,7 +253,7 @@ El laboratorio utilizará exclusivamente versiones **estables de disponibilidad 
 | PostgreSQL | **18.7** (GA, 2026-11-12) | Usar la última versión menor de la rama estable 18. PostgreSQL 19 RC 2 no se considera GA y queda excluido. |
 | MinIO AIStor Server | Imagen oficial `quay.io/minio/aistor/minio`; la documentación oficial indica que `latest` corresponde a la última imagen estable | Resolver el release exacto desde el endpoint oficial de releases inmediatamente antes del ensayo; registrar etiqueta de release, digest SHA-256/SHA-256 OCI, SBOM y licencia. No dejar `:latest` en la configuración reproducible final. |
 | MinIO AIStor Client (`mc`) | Último release estable oficial disponible en la fecha de ejecución | Resolver y fijar versión exacta, checksum y SBOM si se publica. |
-| Docker Engine | **29.9.3** (2026-11-03) como versión estable documentada más reciente en esta revisión | Confirmar actualización estable más reciente antes del ensayo y registrar versión de Engine, CLI, Compose y plataforma. |
+| Docker Engine | **29.10.0** (2026-11-16), release estable publicada en la fecha de esta revisión | Confirmar actualización estable más reciente antes del ensayo y registrar versión de Engine, CLI, Compose y plataforma. Revisar el cambio de tratamiento de registros locales loopback configurados como inseguros. |
 
 Fuentes oficiales de referencia:
 
