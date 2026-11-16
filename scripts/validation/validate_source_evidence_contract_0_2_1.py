@@ -214,6 +214,11 @@ def _validate_independence_assessments(package: dict[str, Any]) -> None:
                     require(evidence_by_id[evidence_id]["source_version_id"] == dependent["entity_ref"],
                             "dependency evidence must belong to the evaluated dependent source version")
                     _available_at(package, evidence_id, dependent_unit)
+        elif assessment["status"] == "DESCONOCIDA":
+            require(not assessment["independent_path_edge_refs"],
+                    "DESCONOCIDA cannot assert established independent provenance paths")
+            require(not assessment["dependency_edge_refs"],
+                    "DESCONOCIDA cannot assert established dependency edges")
 
 
 def _validate_corroborated_claims(package: dict[str, Any]) -> None:
