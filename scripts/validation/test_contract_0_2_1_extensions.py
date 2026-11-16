@@ -604,11 +604,16 @@ class Contract021ExtensionTests(unittest.TestCase):
             "output_sha256": canonical_migration_payload_sha256(target_snapshot),
             "rules_applied": ["preserve-history", "add-nullable-attestation-ref"],
             "result": "PASS", "loss_report": [],
-            "source_snapshot": source_snapshot, "target_snapshot": target_snapshot
+            "source_snapshot_ref": "fixture://source-evidence-contract-v0.2.0",
+            "target_snapshot_ref": "fixture://source-evidence-contract-v0.2.1"
         }
         target_package["migration_records"].append(manifest)
         self.assert_schema_valid(schema, target_package)
-        validate_package(target_package, base_schema, schema)
+        snapshots = {
+            manifest["source_snapshot_ref"]: source_snapshot,
+            manifest["target_snapshot_ref"]: target_snapshot,
+        }
+        validate_package(target_package, base_schema, schema, snapshots)
 
     def test_021_successful_migration_cannot_report_data_loss(self):
         schema, package = self.load_contract_021_fixture()
@@ -618,8 +623,8 @@ class Contract021ExtensionTests(unittest.TestCase):
             "executed_at": "2026-11-15T22:00:00Z", "input_sha256": "a" * 64,
             "output_sha256": "b" * 64, "rules_applied": ["preserve-history"],
             "result": "PASS", "loss_report": ["unknown field discarded"],
-            "source_snapshot": {"contract_version": "0.2.0"},
-            "target_snapshot": {"contract_version": "0.2.1"}
+            "source_snapshot_ref": "fixture://source-evidence-contract-v0.2.0",
+            "target_snapshot_ref": "fixture://source-evidence-contract-v0.2.1"
         })
         errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(package))
         self.assertTrue(errors, "PASS migration with a non-empty loss_report must be rejected by the schema")
