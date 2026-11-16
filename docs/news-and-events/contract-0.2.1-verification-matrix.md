@@ -161,7 +161,7 @@ contract_version y methodology_version son dimensiones independientes. Una migra
 
 ### Evidencia integrada en CI
 
-- HEAD verificado para esta ejecución: `ba0e16badcc8646950a313e65dde2bc9d2ce66d3` (PowerShell quality gate y Security/dependency quality gate SUCCESS).
+- HEAD verificado para esta ejecución: `ba0e16badcc8646950a313e65dde2bc9d2ce66d3` (PowerShell quality gate y Security/dependency quality gate SUCCESS). Los commits posteriores `8a445a7` y `51a775d` aún no están cubiertos por esa ejecución.
 - PowerShell quality gate: [run 43789304711](https://github.com/Osleyder1985/SINAYXA/actions/runs/43789304711) — SUCCESS; PowerShell 7.6.6, 11 archivos parseados, 0 errores, PSScriptAnalyzer 1.24.0 con 0 findings.
 - Security and dependency quality gate: [run 43789304954](https://github.com/Osleyder1985/SINAYXA/actions/runs/43789304954) — SUCCESS.
 - Suite semántica correctiva 0.2.1: 64 tests — PASS sobre el HEAD `ba0e16badcc8646950a313e65dde2bc9d2ce66d3`.
@@ -197,17 +197,17 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | IND-05 | `test_021_package_accepts_unknown_independence_when_provenance_is_incomplete` | Representación positiva de DESCONOCIDA validada contra esquema y semántica, sin afirmar independencia ni dependencia |
 | IND-06 | `test_independence_rejects_shared_terminal_origin` | Rechazo cubierto |
 | IND-07 | `test_independence_rejects_missing_source_path`; `test_021_package_rejects_independent_status_without_integrated_origin_paths`; `test_021_package_accepts_unknown_independence_when_provenance_is_incomplete` | Rechaza INDEPENDIENTE y representa DESCONOCIDA cuando la procedencia no permite decidir |
-| IND-08 | `test_021_package_accepts_evidenced_dependency_for_exact_component`; `test_021_package_rejects_dependency_edge_without_evidence`; `test_021_package_rejects_dependency_edge_from_another_component` | La arista debe coincidir en componente y versión; se rechaza una arista asociada a otro componente |
+| IND-08 | `test_021_package_accepts_evidenced_dependency_for_exact_component`; `test_021_package_rejects_dependency_edge_without_evidence`; `test_021_package_rejects_dependency_edge_from_another_component`; `test_021_dependency_edge_must_connect_two_assessed_source_versions`; `test_021_dependency_edge_cannot_connect_a_source_version_to_itself` | La arista debe conectar dos source versions distintas incluidas en el conjunto exacto evaluado; pruebas nuevas pendientes de CI |
 | COR-01 | `test_primary_statement_scope_passes_only_for_direct_act`; `test_021_package_accepts_primary_corroboration_only_for_directly_observed_act` | Emisión/acto directo cubierto |
 | COR-02 | `test_primary_authenticity_does_not_allow_unsupported_external_claim`; `test_021_package_rejects_primary_corroboration_overclaim` | Sobreafirmación rechazada |
-| COR-03 | — | **Brecha:** rectificación posterior y conservación/versionado temporal |
-| COR-04 | — | **Brecha:** contradicción interna material |
+| COR-03 | `test_021_source_correction_is_a_new_version_and_preserves_prior_version`; `test_021_source_version_chain_rejects_self_or_future_supersession`; `test_021_source_version_chain_rejects_forked_successors` | Se añade rectificación como nueva versión y rechazo de autosupersession/bifurcación; CI pendiente. Falta escenario explícito de rectificación contradictoria con evaluación temporal del contenido |
+| COR-04 | — | **Brecha:** contradicción interna material y preservación de evidencia contraria en la evaluación |
 | COR-05 | `test_primary_statement_scope_passes_only_for_direct_act` | Alcance directo cubierto; falta mutación específica de base de conocimiento no directa |
 | COR-06 | `test_021_package_accepts_corroboration_from_reviewed_independent_sources` | Positivo cubierto |
 | COR-07 | `test_secondary_corroboration_rejects_incomplete_review`; `test_021_package_rejects_independent_corroboration_without_reviewed_independence` | Rechazo cubierto |
 | COR-08 | — | **Brecha:** estado parcial con alcance sustentado y no sustentado delimitados |
-| COR-09 | — | **Brecha:** hash/integridad coincidente sin autenticidad ni atribución |
-| COR-10 | `test_ambas_requires_independence_even_when_primary_evidence_exists` | No cubre por sí sola acceso ilegítimo; **brecha** de acceso privado no autorizado/no determinado |
+| COR-09 | `test_primary_hash_integrity_without_authenticity_cannot_corroborate` | Rechaza corroboración primaria con autenticidad UNKNOWN aunque el hash coincida; CI pendiente |
+| COR-10 | `test_primary_private_unauthorized_or_unknown_access_cannot_corroborate`; `test_ambas_requires_independence_even_when_primary_evidence_exists` | Se añaden rechazos unitarios para acceso privado no autorizado y desconocido; CI pendiente |
 | RET-01 | `test_delete_pending_requires_outstanding_copy_inventory`; `test_021_package_rejects_new_assessment_after_delete_pending` | Pendiente y bloqueo analítico cubiertos |
 | RET-02/03 | `test_deleted_requires_every_copy_and_derivative_verified`; `test_021_deleted_scope_rejects_uninventoried_replica` | Copias/derivados incompletos rechazados |
 | RET-04 | `test_deleted_rejects_unverified_backup` | Backup no verificado rechazado; falta política de expiración documentada y reconciliación de restauración |
@@ -221,16 +221,25 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | ARC-03 | `test_archive_capture_after_cutoff_is_rejected` | Rechazo cubierto |
 | ARC-04 | `test_021_archive_integrity_mismatch_is_not_verified_availability` | Mismatch no se considera disponibilidad verificada |
 | ARC-06 | `test_archive_import_cannot_predate_capture` | Orden temporal de importación cubierto; primera observación/recuperación no está diferenciada |
-| ARC-07 | — | **Brecha:** SOURCE_STATED separado de disponibilidad demostrada |
-| ARC-08 | — | **Brecha:** versión archivada modificada y conservación inmutable |
+| ARC-07 | `test_021_source_stated_timestamp_does_not_prove_historical_availability` | SOURCE_STATED con timestamp declarado no se acepta como disponibilidad verificada; CI pendiente |
+| ARC-08 | `test_021_archived_evidence_cannot_be_rebound_to_another_source_version` | Rechaza reasignar evidencia a otra source_version; CI pendiente. Falta caso positivo/negativo de conservación inmutable del contenido archivado |
 | MIG-01 | `test_021_migration_manifest_is_schema_valid_and_lossless` | Migración sintética válida cubierta |
 | MIG-02 | `test_021_real_020_to_021_migration_is_deterministic_without_duplicates`; `test_021_historical_assessed_at_null_is_preserved_for_claim_and_factor` | Representa `claim_assessments.assessed_at=null` sin inferir fecha; conserva los timestamps existentes de `factor_assessments`. La clave sigue siendo obligatoria. |
-| MIG-03/04 | `test_migration_rejects_historical_status_change` | Cambio de estado histórico rechazado; corte/evidencia requieren trazabilidad individual |
+| MIG-03/04 | `test_migration_rejects_historical_status_change`; `test_migration_rejects_changed_historical_assessment_cutoff`; `test_migration_rejects_changed_historical_evidence_references` | Se añaden rechazos explícitos para cambiar assessment_cutoff y sustituir referencias históricas de evidencia; CI pendiente |
 | MIG-05 | `test_migration_rejects_dropped_unknown_source_field` | Pérdida silenciosa de campo rechazada |
 | MIG-06 | `test_021_real_020_to_021_migration_is_deterministic_without_duplicates` | Ejecuta dos veces el migrador real con la misma entrada/plan, compara paquete y snapshots completos, verifica cardinalidades y rechaza reentrada sobre 0.2.1. |
 | MIG-07 | `test_migration_rejects_methodology_version_rewrite` | Reescritura metodológica rechazada |
 | MIG-08 | `test_migration_preserves_historical_records_and_versions` | Preservación de versiones cubierta; cambio aislado de contract_version necesita caso específico |
 | MIG-09 | `test_021_package_rejects_unresolvable_migration_snapshot_reference` | Referencia no resoluble rechazada |
+
+### Actualización posterior al PASS de `ba0e16b` — CI pendiente en el nuevo HEAD
+
+Los cambios `8a445a7` y `51a775d` amplían el validador y la suite con:
+- Cadena de `source_versions` única, ordenada y no ramificada; la rectificación se representa como una nueva versión sin sobrescribir la anterior.
+- Dependencias limitadas a dos source versions distintas dentro del conjunto exacto de unidades evaluadas.
+- Rechazos para hash sin autenticidad, acceso privado no autorizado/desconocido, `SOURCE_STATED` como disponibilidad probada, reasignación de evidencia archivada y alteración de cortes/referencias históricas durante migración.
+
+El PASS de 64 tests y ambos quality gates corresponde exclusivamente a `ba0e16b`. La nueva suite y el validador deben pasar CI sobre el HEAD actualizado antes de aceptar estas correcciones. **Las cinco áreas A–E permanecen ABIERTAS.** No se fusiona la PR ni se aprueba el contrato por inferencia.
 
 ## 8. Fuera de alcance
 
