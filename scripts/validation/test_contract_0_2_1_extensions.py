@@ -761,7 +761,7 @@ class Contract021ExtensionTests(unittest.TestCase):
         self.assert_schema_valid(schema, package)
         validate_package(package)
 
-    def test_021_package_accepts_corrobation_from_reviewed_independent_sources(self):
+    def test_021_package_accepts_corroboration_from_reviewed_independent_sources(self):
         schema, package = self.load_contract_021_fixture()
         package["provenance_nodes"].extend([
             {"node_id": "origin-a", "node_type": "DATASET", "entity_ref": "origin-record-a"},
@@ -781,6 +781,7 @@ class Contract021ExtensionTests(unittest.TestCase):
         independence.update({"status": "INDEPENDIENTE", "supporting_evidence_refs": ["evidence-a", "evidence-b"],
                              "independent_path_edge_refs": ["path-a", "path-b"],
                              "human_review_status": "REVIEWED", "reviewed_at": "2026-11-15T22:00:00Z"})
+        package["claim_evidence_links"][1]["evidence_role"] = "SUPPORTING"
         assessment = package["claim_assessments"][0]
         assessment.update({"evidentiary_status": "CORROBORADA", "corroboration_basis": "CORROBORACION_INDEPENDIENTE",
                            "supporting_evidence_refs": ["evidence-a", "evidence-b"],
