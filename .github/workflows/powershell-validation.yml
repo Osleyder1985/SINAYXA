@@ -212,6 +212,28 @@ jobs:
           & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_source_evidence_contract.ps1'
           if ($LASTEXITCODE -ne 0) { throw 'The Issue #78 source-evidence contract mutation tests failed.' }
 
+      - name: Set up Python 3.12 for JSON Schema validation
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned JSON Schema validator
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m pip install --disable-pip-version-check --no-input "jsonschema==4.26.0"
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned jsonschema installation failed.' }
+          $installed = python -c "from importlib.metadata import version; print(version('jsonschema'))"
+          if ($LASTEXITCODE -ne 0 -or $installed.Trim() -ne '4.26.0') { throw "Expected jsonschema 4.26.0; found '$installed'." }
+
+      - name: Validate Issue #78 JSON Schema and #15/#16 compatibility
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python 'scripts/validation/validate_source_evidence_contract_schema.py'
+          if ($LASTEXITCODE -ne 0) { throw 'The Issue #78 JSON Schema or #15/#16 compatibility validation failed.' }
+
       - name: Validate Issue #17 A01-A15 synthetic alert fixture
         shell: pwsh
         working-directory: source
