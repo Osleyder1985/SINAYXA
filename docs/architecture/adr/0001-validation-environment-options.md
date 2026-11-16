@@ -101,7 +101,7 @@ Fuentes oficiales consultadas el 2026-11-16:
 ## 5. Matriz de requisitos de #89 y evidencia exigida
 
 | Requisito #89 | Prueba de laboratorio | Evidencia operacional necesaria para cerrar |
-|---|---|---|
+| --- | --- | --- |
 | C — Inventario de copias | Inventario sintético de primario, réplica, caché, exportación y backup | Inventario real del proveedor y alcance contractual/técnico |
 | C — DELETE_PENDING bloquea lecturas | Intentar lectura y evaluación en cada ruta de acceso | Logs/telemetría del sistema objetivo y prueba negativa reproducible |
 | C — Eliminación | Borrar datos sintéticos por capa | Resultado por cada copia/versión y confirmación independiente |
