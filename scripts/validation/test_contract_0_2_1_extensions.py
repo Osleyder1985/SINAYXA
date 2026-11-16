@@ -1883,7 +1883,8 @@ class Contract021ExtensionTests(unittest.TestCase):
             "human_review_status": "PENDING",
             "reviewed_at": None,
         })
-        self.assert_schema_valid(schema, package)
+        errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(package))
+        self.assertTrue(any("'REVIEWED' was expected" in error.message for error in errors))
         with self.assertRaises(ContractViolation):
             validate_package(package)
 
