@@ -1900,7 +1900,10 @@
         "action",
         "actor_role",
         "occurred_at",
-        "reason"
+        "reason",
+        "copy_id",
+        "from_copy_state",
+        "to_copy_state"
       ],
       "properties": {
         "audit_event_id": {
@@ -1920,7 +1923,10 @@
             "RETENTION_REVIEWED",
             "DELETION_REQUESTED",
             "DELETED",
-            "ACCESS_DENIED"
+            "ACCESS_DENIED",
+            "COPY_DISCOVERED",
+            "COPY_DELETION_REQUESTED",
+            "COPY_DELETED"
           ]
         },
         "actor_role": {
@@ -1960,6 +1966,36 @@
             "DELETE_PENDING",
             "DELETED",
             "RESTRICTED",
+            null
+          ]
+        },
+        "copy_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "from_copy_state": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "PRESENT",
+            "DELETE_PENDING",
+            "DELETED",
+            null
+          ]
+        },
+        "to_copy_state": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "PRESENT",
+            "DELETE_PENDING",
+            "DELETED",
             null
           ]
         }
@@ -2041,7 +2077,9 @@
         "recorded_at",
         "verified_at",
         "verification_reference",
-        "scheduled_disposition_at"
+        "scheduled_disposition_at",
+        "previous_state",
+        "transition_event_ref"
       ],
       "properties": {
         "copy_id": {
@@ -2091,6 +2129,21 @@
         },
         "scheduled_disposition_at": {
           "$ref": "#/$defs/optionalUtc"
+        },
+        "previous_state": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "PRESENT",
+            "DELETE_PENDING",
+            "DELETED",
+            null
+          ]
+        },
+        "transition_event_ref": {
+          "$ref": "#/$defs/id"
         }
       },
       "allOf": [
