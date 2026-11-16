@@ -75,7 +75,7 @@ def initialize_database(connection: psycopg.Connection) -> None:
     """Apply the local registry migration; no remote services are contacted."""
     migration = MIGRATION_PATH.read_text(encoding="utf-8")
     with connection.transaction():
-        connection.execute(migration)
+        connection.execute(migration, prepare=False)
 
 
 def create_event(connection: psycopg.Connection, event: dict[str, Any]) -> None:
