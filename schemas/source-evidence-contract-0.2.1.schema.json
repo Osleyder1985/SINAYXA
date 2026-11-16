@@ -2291,7 +2291,9 @@
         "output_sha256",
         "rules_applied",
         "result",
-        "loss_report"
+        "loss_report",
+        "source_snapshot",
+        "target_snapshot"
       ],
       "properties": {
         "migration_id": {
@@ -2336,6 +2338,30 @@
           "items": {
             "$ref": "#/$defs/nonEmpty"
           }
+        },
+        "source_snapshot": {
+          "type": "object",
+          "required": [
+            "contract_version"
+          ],
+          "properties": {
+            "contract_version": {
+              "$ref": "#/$defs/nonEmpty"
+            }
+          },
+          "additionalProperties": true
+        },
+        "target_snapshot": {
+          "type": "object",
+          "required": [
+            "contract_version"
+          ],
+          "properties": {
+            "contract_version": {
+              "$ref": "#/$defs/nonEmpty"
+            }
+          },
+          "additionalProperties": true
         }
       },
       "allOf": [
