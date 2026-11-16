@@ -132,6 +132,7 @@ class TemporalContractTests(unittest.TestCase):
         self.assert_invalid(lambda p: None, "derived temporal state must be FUTURE")
 
     def test_assessment_unknown_assertion_forces_undetermined_state(self):
+        self.package["temporal_assessments"][0]["event_id"] = "event-2"
         self.package["temporal_assessments"][0]["assertion_refs"] = ["ta-event-2-v1"]
         self.package["temporal_assessments"][0]["derived_temporal_state"] = "FUTURE"
         self.assert_invalid(lambda p: None, "derived temporal state must be UNDETERMINED")
