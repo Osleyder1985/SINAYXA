@@ -1068,7 +1068,7 @@ class Contract021ExtensionTests(unittest.TestCase):
             validate_package(package)
 
 
-    def test_021_real_020_to_021_migration_is_deterministic_and_idempotent(self):
+    def test_021_real_020_to_021_migration_is_deterministic_without_duplicates(self):
         root = Path(__file__).resolve().parents[2]
         source_schema = json.loads((root / "schemas" / "source-evidence-contract-0.2.0.schema.json").read_text(encoding="utf-8"))
         target_schema = json.loads((root / "schemas" / "source-evidence-contract-0.2.1.schema.json").read_text(encoding="utf-8"))
