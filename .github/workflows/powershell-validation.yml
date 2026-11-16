@@ -28,6 +28,7 @@ on:
       - "schemas/source-evidence-contract-0.2.0.schema.json"
       - "tests/fixtures/contracts/source-evidence-contract-v0.2.0.json"
       - "scripts/validation/validate_source_evidence_contract_schema.py"
+      - "requirements-contract-validation.txt"
       - "scripts/validation/test_source_evidence_contract.ps1"
       - "scripts/validation/validate_source_independence_fixture.ps1"
       - "scripts/validation/test_source_independence_fixture.ps1"
