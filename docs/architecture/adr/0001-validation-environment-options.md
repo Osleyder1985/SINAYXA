@@ -381,6 +381,31 @@ Fuentes oficiales:
 - [Docker Hub — Official PostgreSQL image, PGDATA and VOLUME change](https://hub.docker.com/_/postgres).
 - [Docker Library — PostgreSQL 18 Dockerfile](https://github.com/docker-library/postgres/blob/master/18/bookworm/Dockerfile).
 
+
+### 11.4 Baseline sintético verificado en CI — 2026-11-16
+
+La PR #96 ejecutó el laboratorio aislado con versiones explícitas y referencias inmutables:
+
+| Componente | Versión / referencia verificada |
+| --- | --- |
+| PostgreSQL server/client | 18.7 |
+| Imagen PostgreSQL | `postgres:18.7` |
+| Digest OCI ejecutado | `postgres@sha256:2ea8630df176ad090ec92136dee850397c5af8781e4bcf2e4162593691c61bbc` |
+| Docker Engine server/client | 29.10.0 / 29.10.0 |
+| Acción de provisión Docker | `docker/setup-docker-action` v5, commit `3f1ab1ab0e29231562e4db4ca600c1a49653bac6` |
+| Plataforma imagen | `linux/amd64` |
+| Host CI | Linux, kernel `7.0.0-1019-azure`, x86_64 |
+
+Evidencia:
+- Workflow [#43937271457](https://github.com/Osleyder1985/SINAYXA/actions/runs/43937271457): SUCCESS.
+- Workflow security/dependency [#43937271570](https://github.com/Osleyder1985/SINAYXA/actions/runs/43937271570): SUCCESS; OSV full SKIPPED y no contabilizado como PASS.
+- Reporte `postgresql-synthetic-lab-43937271457`: `status=PASS`; 10/10 controles PASS; backup custom 5.980 bytes; SHA-256 `24641c95d98fadc60e5b2d79eb429c1c0df786a1b79347c70131f3627ba8b16c`.
+- El reporte confirma `PGDATA=/var/lib/postgresql/18/docker`, volumen `/var/lib/postgresql`, `synthetic_data_only=true`, `production_data_used=false` y `external_database_connections=false`.
+
+La ejecución demuestra compatibilidad del baseline PostgreSQL 18.7 + Docker 29.10.0 en un runner efímero Linux. **No demuestra** compatibilidad del host Windows local ni de Compose, porque Compose no se utilizó en este ensayo. La validación en el equipo local debe registrar su propio manifiesto y evidencia.
+
+AIStor Server/Client permanece sin release GA y digest verificados en el manifiesto actual; por tanto, el laboratorio integrado C/D/E sigue BLOCKED. No se ha seleccionado proveedor, solicitado licencia ni creado infraestructura externa.
+
 ### Criterio de aceptación adicional
 
 El protocolo de #89 no puede comenzar hasta que el manifiesto de versiones esté completo, cada imagen esté fijada por digest y las verificaciones de procedencia disponibles estén registradas. Si no se puede acreditar que un componente es estable/mantenido o resolver su digest, el ensayo queda BLOCKED; no se sustituye silenciosamente por una versión antigua ni por un pre-release.
