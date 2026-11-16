@@ -95,6 +95,20 @@ class Contract022MigrationTests(unittest.TestCase):
         with self.assertRaisesRegex(MigrationRejected, "string-to-string"):
             self._migrate(self._uuid_compatible_source(), mappings)
 
+    def test_stale_mapping_entries_are_rejected(self):
+        mappings = copy.deepcopy(self.mappings)
+        mappings["actor_roles"]["OLD_UNUSED_ROLE"] = "SYSTEM"
+        with self.assertRaisesRegex(MigrationRejected, "exactly match"):
+            self._migrate(self._uuid_compatible_source(), mappings)
+
+    def test_mapping_root_must_be_an_object(self):
+        with self.assertRaisesRegex(MigrationRejected, "mapping file root"):
+            self._migrate(self._uuid_compatible_source(), [])
+
+    def test_source_root_must_be_an_object(self):
+        with self.assertRaisesRegex(MigrationRejected, "source package root"):
+            self._migrate([], self.mappings)
+
     def test_migration_is_deterministic_for_identical_inputs_and_parameters(self):
         source = self._uuid_compatible_source()
         first, first_manifest = self._migrate(source)
