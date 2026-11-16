@@ -411,10 +411,9 @@ En `511c89d0df4210da67540a5675071de29c1fcea5` se contrastaron los nombres de pru
 
 Esta comprobación resuelve la discrepancia documental que afirmaba que faltaba la tabla de trazabilidad A/B. No transforma los tests sintéticos en prueba de autenticidad, verdad sustantiva o descubrimiento exhaustivo de relaciones reales. La matriz mantiene A–E ABIERTAS hasta que la revisión formal confirme el cierre conforme a sus criterios y se resuelva la brecha RET-09.
 
+## Verificación del HEAD previo — 2026-11-16
 
-## Verificación de HEAD vigente — 2026-11-16
-
-Esta sección registra la verificación del HEAD actual de la PR #85 y prevalece sobre los conteos/estados intermedios anteriores cuando estos difieran.
+Esta sección conserva la verificación del HEAD previo de PR #85. Para el HEAD más reciente, consultar la sección «Verificación del commit de reconciliación» al final de este documento.
 
 - HEAD exacto: `20d1fb6605cbb6f515168def8a85f4d4fccab62a`.
 - PowerShell quality gate: [run 43808230523](https://github.com/Osleyder1985/SINAYXA/actions/runs/43808230523) — SUCCESS.
