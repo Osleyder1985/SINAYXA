@@ -251,7 +251,9 @@ class Contract021ExtensionTests(unittest.TestCase):
                         "available_at": "2026-01-01T00:00:00Z"}
         attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
                        "captured_at": "2026-01-01T00:00:00Z", "recorded_at": "2026-01-01T00:01:00Z", "integrity_result": "MATCH",
-                       "capture_record_verified": True, "content_authenticity": "UNKNOWN",
+                       "capture_record_verified": True, "verification_method": "INDEPENDENT_RECORD_REVIEW",
+                       "verified_at": "2026-01-01T00:01:00Z", "verified_by_role": "ARCHIVE_REVIEWER",
+                       "content_authenticity": "UNKNOWN",
                        "content_truth": "UNKNOWN"}
         validate_archive_attestation(availability, attestation, self.cutoff)
 
@@ -270,7 +272,9 @@ class Contract021ExtensionTests(unittest.TestCase):
                         "available_at": "2026-01-03T00:00:00Z"}
         attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
                        "captured_at": "2026-01-03T00:00:00Z", "recorded_at": "2026-01-03T00:01:00Z", "integrity_result": "MATCH",
-                       "capture_record_verified": True, "content_authenticity": "UNKNOWN",
+                       "capture_record_verified": True, "verification_method": "INDEPENDENT_RECORD_REVIEW",
+                       "verified_at": "2026-01-01T00:01:00Z", "verified_by_role": "ARCHIVE_REVIEWER",
+                       "content_authenticity": "UNKNOWN",
                        "content_truth": "UNKNOWN"}
         with self.assertRaises(ContractViolation):
             validate_archive_attestation(availability, attestation, self.cutoff)
@@ -281,7 +285,9 @@ class Contract021ExtensionTests(unittest.TestCase):
         attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
                        "captured_at": "2026-01-01T00:00:00Z", "imported_at": "2025-12-31T23:59:00Z",
                        "recorded_at": "2026-01-01T00:01:00Z", "integrity_result": "MATCH",
-                       "capture_record_verified": True, "content_authenticity": "UNKNOWN",
+                       "capture_record_verified": True, "verification_method": "INDEPENDENT_RECORD_REVIEW",
+                       "verified_at": "2026-01-01T00:01:00Z", "verified_by_role": "ARCHIVE_REVIEWER",
+                       "content_authenticity": "UNKNOWN",
                        "content_truth": "UNKNOWN"}
         with self.assertRaises(ContractViolation):
             validate_archive_attestation(availability, attestation, self.cutoff)
@@ -291,7 +297,9 @@ class Contract021ExtensionTests(unittest.TestCase):
                         "available_at": "2026-01-01T00:00:00Z"}
         attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
                        "captured_at": "2026-01-01T00:00:00Z", "recorded_at": "2026-01-01T00:01:00Z", "integrity_result": "MATCH",
-                       "capture_record_verified": True, "content_authenticity": "AUTENTICADA",
+                       "capture_record_verified": True, "verification_method": "INDEPENDENT_RECORD_REVIEW",
+                       "verified_at": "2026-01-01T00:01:00Z", "verified_by_role": "ARCHIVE_REVIEWER",
+                       "content_authenticity": "AUTENTICADA",
                        "content_truth": "UNKNOWN"}
         with self.assertRaises(ContractViolation):
             validate_archive_attestation(availability, attestation, self.cutoff)
@@ -378,7 +386,8 @@ class Contract021ExtensionTests(unittest.TestCase):
             "capture_record_reference": "capture-record-1", "captured_at": "2026-11-15T20:04:00Z",
             "imported_at": "2026-11-15T22:00:00Z", "recorded_at": "2026-11-15T22:00:00Z",
             "integrity_result": "MATCH", "capture_record_verified": True,
-            "content_authenticity": "UNKNOWN", "content_truth": "UNKNOWN"
+            "verification_method": "INDEPENDENT_RECORD_REVIEW", "verified_at": "2026-11-15T21:59:00Z",
+            "verified_by_role": "ARCHIVE_REVIEWER", "content_authenticity": "UNKNOWN", "content_truth": "UNKNOWN"
         })
         package["evidence_availability"][0]["availability_basis"] = "INDEPENDENT_ARCHIVE"
         package["evidence_availability"][0]["archive_attestation_id"] = "archive-1"
@@ -392,7 +401,8 @@ class Contract021ExtensionTests(unittest.TestCase):
             "capture_record_reference": "capture-orphan", "captured_at": "2026-11-15T20:04:00Z",
             "imported_at": "2026-11-15T22:00:00Z", "recorded_at": "2026-11-15T22:00:00Z",
             "integrity_result": "MATCH", "capture_record_verified": True,
-            "content_authenticity": "UNKNOWN", "content_truth": "UNKNOWN"
+            "verification_method": "INDEPENDENT_RECORD_REVIEW", "verified_at": "2026-11-15T21:59:00Z",
+            "verified_by_role": "ARCHIVE_REVIEWER", "content_authenticity": "UNKNOWN", "content_truth": "UNKNOWN"
         })
         self.assert_schema_valid(schema, package)
         with self.assertRaises(ContractViolation):
@@ -405,7 +415,8 @@ class Contract021ExtensionTests(unittest.TestCase):
             "capture_record_reference": "capture-record-1", "captured_at": "2026-11-15T20:04:00Z",
             "imported_at": "2026-11-15T22:00:00Z", "recorded_at": "2026-11-15T22:00:00Z",
             "integrity_result": "MISMATCH", "capture_record_verified": True,
-            "content_authenticity": "UNKNOWN", "content_truth": "UNKNOWN"
+            "verification_method": "INDEPENDENT_RECORD_REVIEW", "verified_at": "2026-11-15T21:59:00Z",
+            "verified_by_role": "ARCHIVE_REVIEWER", "content_authenticity": "UNKNOWN", "content_truth": "UNKNOWN"
         })
         package["evidence_availability"][0]["availability_basis"] = "INDEPENDENT_ARCHIVE"
         package["evidence_availability"][0]["archive_attestation_id"] = "archive-1"
