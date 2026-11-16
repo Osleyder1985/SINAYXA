@@ -1219,6 +1219,67 @@ class Contract021ExtensionTests(unittest.TestCase):
                 with self.assertRaises(ContractViolation):
                     validate_migration(source, target, manifest)
 
+    def test_migration_rejects_mutation_of_each_historical_leaf_value(self):
+        root = Path(__file__).resolve().parents[2]
+        source_schema = json.loads(
+            (root / "schemas" / "source-evidence-contract-0.2.0.schema.json").read_text(encoding="utf-8")
+        )
+        target_schema = json.loads(
+            (root / "schemas" / "source-evidence-contract-0.2.1.schema.json").read_text(encoding="utf-8")
+        )
+        source = json.loads(
+            (root / "tests" / "fixtures" / "contracts" / "source-evidence-contract-v0.2.0.json").read_text(encoding="utf-8")
+        )
+        plan = {
+            "migration_id": "migration-every-historical-leaf",
+            "executed_at": "2026-11-16T00:00:00Z",
+            "source_snapshot_ref": "memory://migration/every-leaf-source",
+            "target_snapshot_ref": "memory://migration/every-leaf-target",
+        }
+        migrated, _ = migrate_package(source, source_schema, target_schema, **plan)
+
+        def leaf_paths(value, path=()):
+            if isinstance(value, dict):
+                for key, child in value.items():
+                    yield from leaf_paths(child, path + (key,))
+            elif isinstance(value, list):
+                for index, child in enumerate(value):
+                    yield from leaf_paths(child, path + (index,))
+            else:
+                yield path, value
+
+        historical_collections = (
+            "claims", "claim_components", "sources", "source_versions",
+            "identity_assessments", "evaluation_units", "evidence_items",
+            "evidence_availability", "claim_evidence_links", "provenance_nodes",
+            "provenance_edges", "factor_assessments", "independence_assessments",
+            "claim_assessments", "retention_records", "audit_events",
+        )
+        checked = 0
+        for collection in historical_collections:
+            for record_index, source_record in enumerate(source[collection]):
+                for path, value in leaf_paths(source_record):
+                    target = copy.deepcopy(migrated)
+                    parent = target[collection][record_index]
+                    for segment in path[:-1]:
+                        parent = parent[segment]
+                    if isinstance(value, bool):
+                        changed = not value
+                    elif isinstance(value, str):
+                        changed = value + "-mutated"
+                    elif value is None:
+                        changed = "mutated"
+                    else:
+                        changed = value + 1
+                    parent[path[-1]] = changed
+                    manifest = copy.deepcopy(migrated["migration_records"][0])
+                    manifest["output_sha256"] = canonical_migration_payload_sha256(target)
+                    with self.subTest(collection=collection, record=record_index, path=path):
+                        with self.assertRaises(ContractViolation):
+                            validate_migration(source, target, manifest)
+                    checked += 1
+        self.assertGreater(checked, 700)
+
     def test_021_historical_assessed_at_null_is_preserved_for_claim_and_factor(self):
         schema, package = self.load_contract_021_fixture()
         package["claim_assessments"][0]["assessed_at"] = None
