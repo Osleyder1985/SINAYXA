@@ -79,7 +79,7 @@ Se añade la colección retention_copy_records. Cada copia o derivado se identif
 
 Las referencias forman un grafo acíclico de copias y derivados. Una transición de estado debe tener exactamente un evento de auditoría correlacionado, identificando copy_id, estado anterior, nuevo estado, actor por rol, instante y motivo.
 
-DELETE_PENDING bloquea el uso analítico nuevo de esa copia desde el instante de transición. DELETED requiere que todas las copias dentro del alcance declarado estén DELETED y tengan verified_at y verification_reference. Una copia o backup pendiente, un derivado no inventariado o una verificación ausente impide declarar la eliminación completa del alcance.
+DELETE_PENDING bloquea el uso analítico nuevo de esa copia desde el instante de transición. Cada claim_assessment registra assessed_at, distinto de assessment_cutoff. El validador rechaza una evaluación creada después de la primera solicitud de eliminación cuando usa la evidencia afectada; el corte histórico no se confunde con la hora de ejecución de la evaluación. DELETED requiere que todas las copias dentro del alcance declarado estén DELETED y tengan verified_at y verification_reference. Una copia o backup pendiente, un derivado no inventariado o una verificación ausente impide declarar la eliminación completa del alcance.
 
 La restauración de un backup no puede reintroducir material terminalmente eliminado a un ámbito de análisis sin reconciliar antes el estado de supresión. El contrato no exige eliminación física instantánea de backups ni fija plazos universales: se conserva la política aplicable y el estado real verificable.
 
