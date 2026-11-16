@@ -28,6 +28,9 @@ on:
       - "schemas/source-evidence-contract-0.2.0.schema.json"
       - "tests/fixtures/contracts/source-evidence-contract-v0.2.0.json"
       - "scripts/validation/validate_source_evidence_contract_schema.py"
+      - "scripts/validation/contract_0_2_1_extensions.py"
+      - "scripts/validation/test_contract_0_2_1_extensions.py"
+      - "docs/news-and-events/contract-0.2.1-verification-matrix.md"
       - "requirements-contract-validation.txt"
       - "scripts/validation/test_source_evidence_contract.ps1"
       - "scripts/validation/validate_source_independence_fixture.ps1"
@@ -232,6 +235,14 @@ jobs:
           $ErrorActionPreference = 'Stop'
           python 'scripts/validation/validate_source_evidence_contract_schema.py'
           if ($LASTEXITCODE -ne 0) { throw 'The Issue #78 JSON Schema or #15/#16 compatibility validation failed.' }
+
+      - name: Run Issue #78 contract 0.2.1 corrective semantic tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m unittest discover -s scripts/validation -p 'test_contract_0_2_1_extensions.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'The Issue #78 contract 0.2.1 corrective semantic tests failed.' }
 
       - name: Validate Issue #17 A01-A15 synthetic alert fixture
         shell: pwsh
