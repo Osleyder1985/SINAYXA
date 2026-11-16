@@ -309,8 +309,6 @@ if ! cmp -s "$WORK_DIR/sinayxa_source-data.sql" "$WORK_DIR/sinayxa_restored-data
  diff -u "$WORK_DIR/sinayxa_source-data.sql" "$WORK_DIR/sinayxa_restored-data.sql" >&2 || true
  exit 1
 fi
-SOURCE_META="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_source -Atc "SELECT (SELECT count(*) FROM research.assets)||':'||(SELECT count(*) FROM research.observations)||':'||current_setting('server_encoding')||':'||current_setting('TimeZone')")"
-RESTORE_META="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_restored -Atc "SELECT (SELECT count(*) FROM research.assets)||':'||(SELECT count(*) FROM research.observations)||':'||current_setting('server_encoding')||':'||current_setting('TimeZone')")"
 if [[ "$SOURCE_META" != "$RESTORE_META" ]]; then
  echo "Restored PostgreSQL metadata differs: source=$SOURCE_META restored=$RESTORE_META" >&2
  exit 1
