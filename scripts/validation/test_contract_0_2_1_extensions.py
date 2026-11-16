@@ -503,6 +503,14 @@ class Contract021ExtensionTests(unittest.TestCase):
             "verification_reference": None, "scheduled_disposition_at": "2026-11-16T00:00:00Z",
             "previous_state": "PRESENT", "transition_event_ref": "copy-event-2"
         })
+        package["audit_events"].append({
+            "audit_event_id": "retention-transition", "subject_ref": "evidence-a",
+            "action": "DELETION_REQUESTED", "actor_role": "DATA_CUSTODIAN",
+            "occurred_at": "2026-11-15T22:01:00Z", "reason": "Retention deletion requested",
+            "retention_id": "retention-a", "from_disposition": "RETAIN",
+            "to_disposition": "DELETE_PENDING", "copy_id": None,
+            "from_copy_state": None, "to_copy_state": None
+        })
         package["audit_events"].extend([
             {"audit_event_id": "copy-event-1", "subject_ref": "evidence-a", "action": "COPY_DISCOVERED",
              "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:00:00Z",
@@ -530,6 +538,14 @@ class Contract021ExtensionTests(unittest.TestCase):
             "recorded_at": "2026-11-15T22:01:00Z", "verified_at": None,
             "verification_reference": None, "scheduled_disposition_at": "2026-11-16T00:00:00Z",
             "previous_state": "PRESENT", "transition_event_ref": "copy-event-2"
+        })
+        package["audit_events"].append({
+            "audit_event_id": "retention-transition", "subject_ref": "evidence-a",
+            "action": "DELETION_REQUESTED", "actor_role": "DATA_CUSTODIAN",
+            "occurred_at": "2026-11-15T22:01:00Z", "reason": "Retention deletion requested",
+            "retention_id": "retention-a", "from_disposition": "RETAIN",
+            "to_disposition": "DELETE_PENDING", "copy_id": None,
+            "from_copy_state": None, "to_copy_state": None
         })
         package["audit_events"].extend([
             {"audit_event_id": "copy-event-1", "subject_ref": "evidence-a", "action": "COPY_DISCOVERED",
@@ -568,6 +584,14 @@ class Contract021ExtensionTests(unittest.TestCase):
                 "previous_state": None, "transition_event_ref": "copy-event-4"
             }
         ])
+        package["audit_events"].append({
+            "audit_event_id": "retention-transition", "subject_ref": "evidence-a",
+            "action": "DELETED", "actor_role": "DATA_CUSTODIAN",
+            "occurred_at": "2026-11-15T22:10:00Z", "reason": "Retention scope deletion verified",
+            "retention_id": "retention-a", "from_disposition": "DELETE_PENDING",
+            "to_disposition": "DELETED", "copy_id": None,
+            "from_copy_state": None, "to_copy_state": None
+        })
         package["audit_events"].extend([
             {"audit_event_id": "copy-event-1", "subject_ref": "evidence-a", "action": "COPY_DISCOVERED",
              "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:07:00Z", "reason": "Primary discovered",
