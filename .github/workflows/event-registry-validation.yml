@@ -9,7 +9,7 @@ on:
       - "scripts/news_and_events/event_registry.py"
       - "scripts/validation/validate_temporal_event_contract.py"
       - "schemas/temporal-event-contract-1.0.0.schema.json"
-      - "tests/news_and_events/test_event_registry.py"
+      - "tests/**"
       - "tests/fixtures/contracts/temporal-event-contract-v1.0.0.json"
       - "requirements-temporal-contract-validation.txt"
       - ".github/workflows/event-registry-validation.yml"
