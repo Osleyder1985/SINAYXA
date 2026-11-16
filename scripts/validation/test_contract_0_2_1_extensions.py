@@ -2426,5 +2426,59 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_package(package)
 
+
+    def test_021_backup_expiration_not_yet_reached_keeps_copy_present(self):
+        backup = {
+            "copy_id": "backup-unexpired", "retention_id": "retention-a",
+            "subject_ref": "evidence-a", "copy_kind": "BACKUP",
+            "parent_copy_id": "primary", "state": "PRESENT",
+            "previous_state": None, "transition_event_ref": "backup-discovered",
+            "recorded_at": "2026-01-01T00:01:00Z", "verified_at": None,
+            "verification_reference": None,
+            "scheduled_disposition_at": "2026-02-01T00:00:00Z",
+            "backup_expiration_policy_ref": "policy-backup-90d",
+        }
+        events = [{
+            "audit_event_id": "backup-discovered", "copy_id": "backup-unexpired",
+            "retention_id": "retention-a", "subject_ref": "evidence-a",
+            "from_copy_state": None, "to_copy_state": "PRESENT",
+            "action": "COPY_DISCOVERED", "actor_role": "DATA_CUSTODIAN",
+            "occurred_at": "2026-01-01T00:01:00Z", "reason": "Backup inventoried",
+        }]
+        validate_backup_expiration_policy(backup)
+        validate_retention_scope("RETAIN", [backup], events)
+
+    def test_021_backup_expiration_reached_without_verification_remains_pending(self):
+        backup = {
+            "copy_id": "backup-expired-unverified", "retention_id": "retention-a",
+            "subject_ref": "evidence-a", "copy_kind": "BACKUP",
+            "parent_copy_id": "primary", "state": "DELETE_PENDING",
+            "previous_state": "PRESENT", "transition_event_ref": "backup-delete-requested",
+            "recorded_at": "2026-04-01T00:02:00Z", "verified_at": None,
+            "verification_reference": None,
+            "scheduled_disposition_at": "2026-03-31T00:00:00Z",
+            "backup_expiration_policy_ref": "policy-backup-90d",
+        }
+        events = [
+            {
+                "audit_event_id": "backup-discovered-expired", "copy_id": "backup-expired-unverified",
+                "retention_id": "retention-a", "subject_ref": "evidence-a",
+                "from_copy_state": None, "to_copy_state": "PRESENT",
+                "action": "COPY_DISCOVERED", "actor_role": "DATA_CUSTODIAN",
+                "occurred_at": "2026-01-01T00:01:00Z", "reason": "Backup inventoried",
+            },
+            {
+                "audit_event_id": "backup-delete-requested", "copy_id": "backup-expired-unverified",
+                "retention_id": "retention-a", "subject_ref": "evidence-a",
+                "from_copy_state": "PRESENT", "to_copy_state": "DELETE_PENDING",
+                "action": "COPY_DELETION_REQUESTED", "actor_role": "DATA_CUSTODIAN",
+                "occurred_at": "2026-04-01T00:01:00Z", "reason": "Policy expiry reached; deletion awaits verification",
+            },
+        ]
+        validate_backup_expiration_policy(backup)
+        validate_retention_scope("DELETE_PENDING", [backup], events)
+        with self.assertRaises(ContractViolation):
+            validate_retention_scope("DELETED", [backup], events)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
