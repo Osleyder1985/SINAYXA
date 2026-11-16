@@ -310,6 +310,9 @@ def _validate_claim_assessment_evidence(package: dict[str, Any]) -> None:
                     "partial corroboration requires explicit supported and unsupported scopes")
             require(supported.strip() != unsupported.strip(),
                     "partial corroboration scopes must distinguish supported from unsupported content")
+            require(assessment["human_review_status"] == "REVIEWED"
+                    and assessment["reviewed_at"] is not None,
+                    "partial corroboration scope separation requires explicit human review")
             _validate_scoped_claim_evidence(package, assessment, supporting, "SUPPORTING")
         elif status == "CONTRADICHA":
             _validate_scoped_claim_evidence(package, assessment, supporting, "SUPPORTING")
