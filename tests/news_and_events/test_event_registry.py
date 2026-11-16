@@ -73,7 +73,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         }
         append_temporal_assertion(self.connection, first)
 
-        second_recorded = now - timedelta(minutes=1)
+        second_recorded = now - timedelta(seconds=40)
         second = {
             **first,
             "temporal_assertion_id": f"{event_id}-v2",
