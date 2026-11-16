@@ -131,6 +131,21 @@ def validate_corroboration(
         raise ContractViolation("unsupported corroboration basis for CORROBORADA")
 
 
+def validate_backup_expiration_policy(copy: dict[str, Any]) -> None:
+    """Require an explicit policy reference and scheduled date for backup copies.
+
+    A scheduled expiry is a policy date, not evidence that the backup was deleted.
+    """
+    if copy.get("copy_kind") == "BACKUP":
+        _require(bool(copy.get("backup_expiration_policy_ref")),
+                 "backup copy requires a documented expiration policy reference")
+        _require(bool(copy.get("scheduled_disposition_at")),
+                 "backup copy requires its policy-scheduled expiration time")
+    else:
+        _require(copy.get("backup_expiration_policy_ref") is None,
+                 "non-backup copy cannot carry a backup expiration policy reference")
+
+
 def validate_retention_scope(
     disposition: str,
     copies: list[dict[str, Any]],
