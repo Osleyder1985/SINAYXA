@@ -30,15 +30,19 @@ def validate_package(package: dict) -> None:
         require(key not in archive_by_id, "duplicate archive_attestation_id")
         archive_by_id[key] = item
 
+    referenced_archive_ids = set()
     for availability in package["evidence_availability"]:
         if availability["availability_basis"] == "INDEPENDENT_ARCHIVE":
             ref = availability["archive_attestation_id"]
             require(ref in archive_by_id, "INDEPENDENT_ARCHIVE availability lacks a matching capture attestation")
+            referenced_archive_ids.add(ref)
             unit = next(u for u in package["evaluation_units"] if u["assessment_unit_id"] == availability["assessment_unit_id"])
             validate_archive_attestation(availability, archive_by_id[ref], unit["assessment_cutoff"])
         else:
             require(availability["archive_attestation_id"] is None,
                     "non-archive availability cannot reference an archive attestation")
+    require(set(archive_by_id) == referenced_archive_ids,
+            "archive attestation collection contains an orphan capture record")
 
     retention_by_id = {r["retention_id"]: r for r in package["retention_records"]}
     require(len(retention_by_id) == len(package["retention_records"]), "duplicate retention_id")
