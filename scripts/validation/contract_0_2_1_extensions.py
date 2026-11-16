@@ -129,10 +129,13 @@ def validate_retention_scope(
                      and copy.get("verification_reference") for copy in copies),
                  "DELETED requires verified deletion of every in-scope copy and derivative")
     elif disposition == "DELETE_PENDING":
-        _require(any(copy["state"] in {"PRESENT", "DELETE_PENDING"} for copy in copies),
+        _require(bool(copies) and any(copy["state"] in {"PRESENT", "DELETE_PENDING"} for copy in copies),
                  "DELETE_PENDING must retain an explicitly tracked outstanding copy")
+    elif disposition in {"RETAIN", "RESTRICTED"}:
+        _require(bool(copies) and all(copy["state"] == "PRESENT" for copy in copies),
+                 "RETAIN/RESTRICTED requires a complete inventory of present copies")
     else:
-        raise ContractViolation("this check accepts only DELETE_PENDING or DELETED dispositions")
+        raise ContractViolation("unsupported retention disposition for copy-scope validation")
 
 def validate_archive_attestation(availability: dict[str, Any], attestation: dict[str, Any], cutoff: str) -> None:
     """Check archive capture provenance; never infer authenticity or truth."""
