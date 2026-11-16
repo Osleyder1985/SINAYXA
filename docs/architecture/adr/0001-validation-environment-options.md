@@ -367,6 +367,20 @@ Un manifiesto incompleto, una incompatibilidad, una licencia no aclarada o una f
 8. Registrar por separado la versión de PostgreSQL del laboratorio y la versión histórica 16.3 usada por PR #96. La prueba anterior sigue siendo evidencia válida para el artefacto ensayado, pero no acredita el comportamiento de PostgreSQL 18.7.
 9. No instalar ni descargar software automáticamente en el equipo del propietario; la selección y el manifiesto se preparan primero y el despliegue requiere la autorización operacional correspondiente.
 
+
+### 11.3 Compatibilidad específica de la imagen oficial PostgreSQL 18+
+
+La imagen oficial `postgres` cambió el directorio de datos y el volumen declarado a partir de PostgreSQL 18:
+
+- PostgreSQL 17 y anteriores: `PGDATA=/var/lib/postgresql/data`; volumen de datos habitual `/var/lib/postgresql/data`.
+- PostgreSQL 18: `PGDATA=/var/lib/postgresql/18/docker`; volumen declarado `/var/lib/postgresql`.
+
+Por tanto, el arnés histórico #96 que identifica el volumen por destino `/var/lib/postgresql/data` y usa PostgreSQL 16.3 **no puede reutilizarse sin adaptación** con la imagen 18.7. La actualización debe detectar el destino real montado por la imagen y verificar su eliminación; no debe asumir una ruta fija común a ambas generaciones. La nueva versión también requiere volver a ejecutar el conjunto completo de comprobaciones y generar evidencia nueva: los resultados 16.3 no se transfieren a 18.7.
+
+Fuentes oficiales:
+- [Docker Hub — Official PostgreSQL image, PGDATA and VOLUME change](https://hub.docker.com/_/postgres).
+- [Docker Library — PostgreSQL 18 Dockerfile](https://github.com/docker-library/postgres/blob/master/18/bookworm/Dockerfile).
+
 ### Criterio de aceptación adicional
 
 El protocolo de #89 no puede comenzar hasta que el manifiesto de versiones esté completo, cada imagen esté fijada por digest y las verificaciones de procedencia disponibles estén registradas. Si no se puede acreditar que un componente es estable/mantenido o resolver su digest, el ensayo queda BLOCKED; no se sustituye silenciosamente por una versión antigua ni por un pre-release.
