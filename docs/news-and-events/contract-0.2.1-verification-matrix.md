@@ -368,7 +368,6 @@ La prueba `test_021_contradiction_rejects_duplicate_component_evidence_links` co
 
 **Estado de verificación — actualizado sobre HEAD `1d29fed7a8e1e4194dd4be5113ad9f1fecde6313`:** la regla y la prueba superaron CI. `test_021_contradiction_rejects_duplicate_component_evidence_links` rechaza la duplicación del vínculo favorable y del vínculo contrario. La suite correctiva contiene 124 pruebas y el workflow completó todas las validaciones de contrato sin fallos. La limitación semántica de fragmentos y alcances continúa requiriendo revisión humana; COR-04 y el Área B permanecen ABIERTAS.
 
-
 ### Consolidación de verificación — HEAD `1d29fed7a8e1e4194dd4be5113ad9f1fecde6313` (2026-11-16)
 
 Esta actualización sustituye cualquier estado anterior que indicara que la prueba de vínculos duplicados de COR-04 estaba pendiente de CI. No elimina los límites ni convierte un PASS global en cierre de áreas.
