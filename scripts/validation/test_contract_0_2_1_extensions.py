@@ -1661,7 +1661,9 @@ class Contract021ExtensionTests(unittest.TestCase):
                 "human_review_status": "REVIEWED",
                 "reviewed_at": "2026-11-15T22:00:00Z",
             })
-            package["claim_evidence_links"].append(copy.deepcopy(package["claim_evidence_links"][duplicate_index]))
+            duplicate_link = copy.deepcopy(package["claim_evidence_links"][duplicate_index])
+            duplicate_link["link_id"] = f"duplicate-link-{duplicate_index}"
+            package["claim_evidence_links"].append(duplicate_link)
             with self.subTest(duplicate_role=package["claim_evidence_links"][duplicate_index]["evidence_role"]):
                 self.assert_schema_valid(schema, package)
                 with self.assertRaises(ContractViolation):
