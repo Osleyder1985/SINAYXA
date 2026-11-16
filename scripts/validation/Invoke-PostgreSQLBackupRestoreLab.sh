@@ -52,20 +52,23 @@ cleanup() {
   local rc=$?
   local container_names volume_names
   if [[ "$CONTAINER_CREATED" == true ]]; then docker rm -fv "$CONTAINER" >/dev/null 2>&1 || true; fi
-  RESULT_cleanup=PASS
-  if ! container_names="$(docker ps -a --format '{{.Names}}')"; then
-    RESULT_cleanup=FAIL
-  elif printf '%s\n' "$container_names" | grep -Fxq "$CONTAINER"; then
-    RESULT_cleanup=FAIL
-  fi
-  if [[ "$POSTGRES_VOLUME" != NOT_DETECTED ]]; then
-    if ! volume_names="$(docker volume ls --format '{{.Name}}')"; then
+  RESULT_cleanup=NOT_RUN
+  if [[ "$CONTAINER_CREATED" == true ]]; then
+    RESULT_cleanup=PASS
+    if ! container_names="$(docker ps -a --format '{{.Names}}')"; then
       RESULT_cleanup=FAIL
-    elif printf '%s\n' "$volume_names" | grep -Fxq -- "$POSTGRES_VOLUME"; then
+    elif printf '%s\n' "$container_names" | grep -Fxq "$CONTAINER"; then
       RESULT_cleanup=FAIL
     fi
-  else
-    RESULT_cleanup=FAIL
+    if [[ "$POSTGRES_VOLUME" != NOT_DETECTED ]]; then
+      if ! volume_names="$(docker volume ls --format '{{.Name}}')"; then
+        RESULT_cleanup=FAIL
+      elif printf '%s\n' "$volume_names" | grep -Fxq -- "$POSTGRES_VOLUME"; then
+        RESULT_cleanup=FAIL
+      fi
+    else
+      RESULT_cleanup=FAIL
+    fi
   fi
   if [[ "$rc" -eq 0 && "$RESULT_cleanup" == PASS ]]; then
     write_report PASS
