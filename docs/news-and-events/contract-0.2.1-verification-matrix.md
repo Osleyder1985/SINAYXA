@@ -102,6 +102,8 @@ Registrar una solicitud no demuestra que la eliminación terminó. El modelo deb
 - El evento no conserva contenido, digest, URL ni metadatos reidentificadores.
 - La restauración de backup no puede reintroducir silenciosamente material terminalmente eliminado; requiere reconciliación/supresión antes de exponerlo.
 - Los plazos de backup describen la política aplicable, no una garantía inventada.
+- El validador rechaza URL, digest SHA-256, email, IPv4/IPv6 y secuencias numéricas largas o con formato telefónico en `reason` y `actor_role`; las pruebas RET-09 correspondientes deben ejecutarse en CI.
+- Esta detección es una defensa heurística acotada, no anonimización ni detección completa de datos personales. Nombres, domicilios y combinaciones contextuales pueden seguir reidentificando; el uso de vocabularios controlados para `actor_role` y motivos sigue siendo una decisión de diseño pendiente y no se presume resuelta.
 
 ## 5. Área D — Confiabilidad de archivos independientes y procedencia temporal
 
