@@ -217,6 +217,8 @@ def validate_archive_attestation(availability: dict[str, Any], attestation: dict
              "archive capture integrity must be verified for temporal availability")
     _require(attestation["captured_at"] <= availability["available_at"] <= cutoff,
              "archive capture and availability must not exceed the assessment cutoff")
+    _require(attestation.get("recorded_at", "") <= availability.get("recorded_at", ""),
+             "archive capture attestation must be recorded before its availability record")
     _require(attestation.get("capture_record_verified") is True,
              "the specific capture record must be verified")
     _require(attestation.get("verification_method") in {
