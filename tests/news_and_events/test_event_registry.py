@@ -47,7 +47,6 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "created_at": created_at,
         }
         create_event(self.connection, event)
-        add_source_reference(self.connection, event_id, "source-calendar-b")
 
         first = {
             "temporal_assertion_id": f"{event_id}-v1",
