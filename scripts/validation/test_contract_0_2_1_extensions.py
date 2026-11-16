@@ -1580,6 +1580,47 @@ class Contract021ExtensionTests(unittest.TestCase):
         self.assert_schema_valid(schema, package)
         validate_package(package)
 
+    def test_021_contradiction_within_one_source_version_uses_distinct_evidence_items(self):
+        schema, package = self.load_contract_021_fixture()
+        package["evidence_items"][1]["source_version_id"] = "version-a1"
+        package["evidence_items"][1]["authenticity_status"] = "AUTENTICADA"
+        package["evidence_availability"][1]["assessment_unit_id"] = "unit-a-entity"
+        package["claim_evidence_links"][1].update({
+            "evidence_role": "CONTRARY",
+            "scope_note": "Fragmento distinto de la misma versión documental que contradice el fragmento favorable.",
+            "limitations": ["La separación de fragmentos es sintética y requiere revisión humana."],
+        })
+        assessment = package["claim_assessments"][0]
+        assessment.update({
+            "evidentiary_status": "CONTRADICHA",
+            "supporting_evidence_refs": ["evidence-a"],
+            "contrary_evidence_refs": ["evidence-b"],
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_contradiction_rejects_same_evidence_item_in_both_roles(self):
+        schema, package = self.load_contract_021_fixture()
+        package["claim_evidence_links"][1].update({
+            "evidence_id": "evidence-a",
+            "evidence_role": "CONTRARY",
+            "scope_note": "Intento inválido de reutilizar la pieza completa en sentido contrario.",
+            "limitations": ["No existe un fragmento independiente."],
+        })
+        assessment = package["claim_assessments"][0]
+        assessment.update({
+            "evidentiary_status": "CONTRADICHA",
+            "supporting_evidence_refs": ["evidence-a"],
+            "contrary_evidence_refs": ["evidence-a"],
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
     def test_021_contradicted_assessment_rejects_cross_component_contrary_link(self):
         schema, package = self.load_contract_021_fixture()
         package["claim_evidence_links"][1].update({
