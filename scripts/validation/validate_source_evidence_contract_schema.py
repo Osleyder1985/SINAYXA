@@ -51,14 +51,12 @@ def main() -> int:
     partial_invalid["claim_assessments"][0]["supported_scope"] = None
     partial_invalid["claim_assessments"][0]["unsupported_scope"] = None
     partial_errors = list(validator.iter_errors(partial_invalid))
-    if not any(
-        error.validator == "$ref"
-        and tuple(error.absolute_path) in {
-            ("claim_assessments", 0, "supported_scope"),
-            ("claim_assessments", 0, "unsupported_scope"),
-        }
-        for error in partial_errors
-    ):
+    invalid_paths = {tuple(error.absolute_path) for error in partial_errors}
+    required_scope_paths = {
+        ("claim_assessments", 0, "supported_scope"),
+        ("claim_assessments", 0, "unsupported_scope"),
+    }
+    if not required_scope_paths.issubset(invalid_paths):
         raise ValueError("The JSON Schema did not reject partial corroboration without both delimited scopes.")
 
     definitions = schema["$defs"]
