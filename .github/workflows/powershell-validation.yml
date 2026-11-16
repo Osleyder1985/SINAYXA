@@ -43,6 +43,8 @@ on:
       - "schemas/catalogs/audit-reason-codes-1.0.0.json"
       - "tests/fixtures/contracts/source-evidence-contract-v0.2.2.json"
       - "scripts/validation/validate_source_evidence_contract_0_2_2.py"
+      - "scripts/validation/opaque_identifier.py"
+      - "scripts/validation/test_opaque_identifier.py"
       - "scripts/validation/test_source_evidence_contract_0_2_2.py"
       - "scripts/validation/migrate_source_evidence_contract_0_2_1_to_0_2_2.py"
       - "scripts/validation/test_migrate_source_evidence_contract_0_2_1_to_0_2_2.py"
@@ -283,6 +285,14 @@ jobs:
           $ErrorActionPreference = 'Stop'
           python 'scripts/validation/validate_source_evidence_contract_0_2_2.py'
           if ($LASTEXITCODE -ne 0) { throw 'The contract 0.2.2 schema or audit fixture validation failed.' }
+
+      - name: Run Issue #98 CSPRNG opaque identifier tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m unittest discover -s scripts/validation -p 'test_opaque_identifier.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'The CSPRNG opaque identifier tests failed.' }
       - name: Run Issue #98 fail-closed contract 0.2.1 to 0.2.2 migration tests
         shell: pwsh
         working-directory: source
