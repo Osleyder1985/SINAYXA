@@ -507,8 +507,13 @@ class Contract021ExtensionTests(unittest.TestCase):
 
     def test_021_archive_attestation_is_required_and_does_not_authenticate_content(self):
         schema, package = self.load_contract_021_fixture()
+        self.set_archive_evidence_integrity(package)
         package["archive_attestations"].append({
-            "archive_attestation_id": "archive-1", "archive_service": "Synthetic Archive",
+            "archive_attestation_id": "archive-1",
+            "evidence_id": "evidence-a",
+            "source_version_id": "version-a1",
+            "captured_content_hash": "a" * 64,
+            "hash_algorithm": "SHA-256", "archive_service": "Synthetic Archive",
             "capture_record_reference": "capture-record-1", "captured_at": "2026-11-15T20:04:00Z",
             "imported_at": "2026-11-15T22:00:00Z", "recorded_at": "2026-11-15T22:00:00Z",
             "integrity_result": "MATCH", "capture_record_verified": True,
@@ -522,8 +527,13 @@ class Contract021ExtensionTests(unittest.TestCase):
 
     def test_021_orphan_archive_attestation_is_rejected(self):
         schema, package = self.load_contract_021_fixture()
+        self.set_archive_evidence_integrity(package)
         package["archive_attestations"].append({
-            "archive_attestation_id": "archive-orphan", "archive_service": "Synthetic Archive",
+            "archive_attestation_id": "archive-orphan",
+            "evidence_id": "evidence-a",
+            "source_version_id": "version-a1",
+            "captured_content_hash": "a" * 64,
+            "hash_algorithm": "SHA-256", "archive_service": "Synthetic Archive",
             "capture_record_reference": "capture-orphan", "captured_at": "2026-11-15T20:04:00Z",
             "imported_at": "2026-11-15T22:00:00Z", "recorded_at": "2026-11-15T22:00:00Z",
             "integrity_result": "MATCH", "capture_record_verified": True,
@@ -536,8 +546,13 @@ class Contract021ExtensionTests(unittest.TestCase):
 
     def test_021_package_rejects_availability_record_predating_archive_attestation(self):
         schema, package = self.load_contract_021_fixture()
+        self.set_archive_evidence_integrity(package)
         package["archive_attestations"].append({
-            "archive_attestation_id": "archive-late-record", "archive_service": "Synthetic Archive",
+            "archive_attestation_id": "archive-late-record",
+            "evidence_id": "evidence-a",
+            "source_version_id": "version-a1",
+            "captured_content_hash": "a" * 64,
+            "hash_algorithm": "SHA-256", "archive_service": "Synthetic Archive",
             "capture_record_reference": "capture-late-record", "captured_at": "2026-11-15T20:04:00Z",
             "imported_at": "2026-11-15T22:01:00Z", "recorded_at": "2026-11-15T22:01:00Z",
             "integrity_result": "MATCH", "capture_record_verified": True,
@@ -551,8 +566,13 @@ class Contract021ExtensionTests(unittest.TestCase):
 
     def test_021_archive_integrity_mismatch_is_not_verified_availability(self):
         schema, package = self.load_contract_021_fixture()
+        self.set_archive_evidence_integrity(package)
         package["archive_attestations"].append({
-            "archive_attestation_id": "archive-1", "archive_service": "Synthetic Archive",
+            "archive_attestation_id": "archive-1",
+            "evidence_id": "evidence-a",
+            "source_version_id": "version-a1",
+            "captured_content_hash": "a" * 64,
+            "hash_algorithm": "SHA-256", "archive_service": "Synthetic Archive",
             "capture_record_reference": "capture-record-1", "captured_at": "2026-11-15T20:04:00Z",
             "imported_at": "2026-11-15T22:00:00Z", "recorded_at": "2026-11-15T22:00:00Z",
             "integrity_result": "MISMATCH", "capture_record_verified": True,
