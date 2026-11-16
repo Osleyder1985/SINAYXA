@@ -3,6 +3,7 @@ set -Eeuo pipefail
 
 IMAGE_TAG=postgres:18.7
 EXPECTED_VERSION=18.7
+EXPECTED_DOCKER_VERSION=29.10.0
 IMAGE=NOT_RESOLVED
 IMAGE_DIGEST=NOT_RESOLVED
 IMAGE_PLATFORM=NOT_RESOLVED
@@ -62,6 +63,7 @@ write_report() {
   "postgres_client_version": "$CLIENT_VERSION",
   "server_encoding": "$SERVER_ENCODING",
   "server_timezone": "$SERVER_TIMEZONE",
+  "docker_expected_version": "$EXPECTED_DOCKER_VERSION",
   "docker_server_version": "$DOCKER_SERVER_VERSION",
   "docker_client_version": "$DOCKER_CLIENT_VERSION",
   "host_os": "$HOST_OS",
@@ -143,6 +145,10 @@ docker info >/dev/null
 DOCKER_SERVER_VERSION="$(docker version --format '{{.Server.Version}}')"
 DOCKER_CLIENT_VERSION="$(docker version --format '{{.Client.Version}}')"
 HOST_OS="$(uname -srm)"
+if [[ "$DOCKER_SERVER_VERSION" != "$EXPECTED_DOCKER_VERSION" || "$DOCKER_CLIENT_VERSION" != "$EXPECTED_DOCKER_VERSION" ]]; then
+  echo "Docker Engine/CLI must be $EXPECTED_DOCKER_VERSION; found server=$DOCKER_SERVER_VERSION client=$DOCKER_CLIENT_VERSION." >&2
+  exit 1
+fi
 
 docker pull "$IMAGE_TAG"
 IMAGE_DIGEST="$(docker image inspect --format '{{index .RepoDigests 0}}' "$IMAGE_TAG")"
