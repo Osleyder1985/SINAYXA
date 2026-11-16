@@ -282,14 +282,27 @@ compare_db() {
  local db="$1"
  docker exec "$CONTAINER" pg_dump --schema-only --no-owner --no-acl -U postgres -d "$db" > "$WORK_DIR/$db-schema.sql"
  docker exec "$CONTAINER" pg_dump --data-only --column-inserts --no-owner --no-acl -U postgres -d "$db" > "$WORK_DIR/$db-data.sql"
+ # PostgreSQL 18 adds per-dump random psql guard tokens; remove only those non-schema lines before byte comparison.
+ sed -i -e '/^\\restrict /d' -e '/^\\unrestrict /d' "$WORK_DIR/$db-schema.sql" "$WORK_DIR/$db-data.sql"
 }
 compare_db sinayxa_source
 compare_db sinayxa_restored
-cmp -s "$WORK_DIR/sinayxa_source-schema.sql" "$WORK_DIR/sinayxa_restored-schema.sql"
-cmp -s "$WORK_DIR/sinayxa_source-data.sql" "$WORK_DIR/sinayxa_restored-data.sql"
+if ! cmp -s "$WORK_DIR/sinayxa_source-schema.sql" "$WORK_DIR/sinayxa_restored-schema.sql"; then
+ echo "Restored PostgreSQL schema differs from source." >&2
+ diff -u "$WORK_DIR/sinayxa_source-schema.sql" "$WORK_DIR/sinayxa_restored-schema.sql" >&2 || true
+ exit 1
+fi
+if ! cmp -s "$WORK_DIR/sinayxa_source-data.sql" "$WORK_DIR/sinayxa_restored-data.sql"; then
+ echo "Restored PostgreSQL data differs from source." >&2
+ diff -u "$WORK_DIR/sinayxa_source-data.sql" "$WORK_DIR/sinayxa_restored-data.sql" >&2 || true
+ exit 1
+fi
 SOURCE_META="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_source -Atc "SELECT (SELECT count(*) FROM research.assets)||':'||(SELECT count(*) FROM research.observations)||':'||current_setting('server_encoding')||':'||current_setting('TimeZone')")"
 RESTORE_META="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_restored -Atc "SELECT (SELECT count(*) FROM research.assets)||':'||(SELECT count(*) FROM research.observations)||':'||current_setting('server_encoding')||':'||current_setting('TimeZone')")"
-[[ "$SOURCE_META" == "$RESTORE_META" ]]
+if [[ "$SOURCE_META" != "$RESTORE_META" ]]; then
+ echo "Restored PostgreSQL metadata differs: source=$SOURCE_META restored=$RESTORE_META" >&2
+ exit 1
+fi
 RESULT_integrity=PASS
 head -c 128 "$WORK_DIR/backup.dump" > "$WORK_DIR/corrupt.dump"
 if docker exec -i "$CONTAINER" pg_restore --list < "$WORK_DIR/corrupt.dump" >"$WORK_DIR/corrupt.out" 2>"$WORK_DIR/corrupt.err"; then
