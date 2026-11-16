@@ -104,7 +104,7 @@ def migrate_package(
         if not isinstance(target_code, str) or target_code not in allowed_codes:
             raise MigrationRejected(f"{label}: target_code is not present in the controlled catalog")
         event_refs = entry["event_refs"]
-        if not isinstance(event_refs, list) or set(event_refs) != expected_event_refs:
+        if not isinstance(event_refs, list) or not all(isinstance(ref, str) for ref in event_refs) or set(event_refs) != expected_event_refs:
             raise MigrationRejected(f"{label}: event_refs must exactly identify every historical audit event using this value")
         refs = entry["evidence_refs"]
         if not isinstance(refs, list) or not refs or not all(isinstance(ref, str) and ref in evidence_ids for ref in refs):
