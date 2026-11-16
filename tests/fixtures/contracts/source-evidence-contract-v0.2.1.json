@@ -1094,7 +1094,10 @@
       "action": "CREATED",
       "actor_role": "SYNTHETIC_TEST",
       "occurred_at": "2026-11-15T22:00:00Z",
-      "reason": "Creación de fixture sintético de conformidad."
+      "reason": "Creación de fixture sintético de conformidad.",
+      "copy_id": null,
+      "from_copy_state": null,
+      "to_copy_state": null
     },
     {
       "audit_event_id": "audit-retention-reference",
@@ -1105,7 +1108,10 @@
       "reason": "Registro sintético de referencia sin conservar contenido.",
       "retention_id": "retention-a",
       "from_disposition": null,
-      "to_disposition": "REFERENCE_ONLY"
+      "to_disposition": "REFERENCE_ONLY",
+      "copy_id": null,
+      "from_copy_state": null,
+      "to_copy_state": null
     }
   ],
   "archive_attestations": [],
