@@ -7,6 +7,7 @@ from pathlib import Path
 from jsonschema import Draft202012Validator, FormatChecker
 
 from validate_source_evidence_contract_0_2_1 import validate_package
+from migrate_source_evidence_contract_0_2_0_to_0_2_1 import migrate_package
 
 from contract_0_2_1_extensions import (
     ContractViolation,
@@ -1066,6 +1067,41 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_package(package)
 
+
+    def test_021_real_020_to_021_migration_is_deterministic_and_idempotent(self):
+        root = Path(__file__).resolve().parents[2]
+        source_schema = json.loads((root / "schemas" / "source-evidence-contract-0.2.0.schema.json").read_text(encoding="utf-8"))
+        target_schema = json.loads((root / "schemas" / "source-evidence-contract-0.2.1.schema.json").read_text(encoding="utf-8"))
+        source = json.loads((root / "tests" / "fixtures" / "contracts" / "source-evidence-contract-v0.2.0.json").read_text(encoding="utf-8"))
+        plan = {
+            "migration_id": "migration-020-021-synthetic-001",
+            "executed_at": "2026-11-16T00:00:00Z",
+            "source_snapshot_ref": "memory://migration/source-001",
+            "target_snapshot_ref": "memory://migration/target-001",
+        }
+        migrated, snapshots = migrate_package(source, source_schema, target_schema, **plan)
+        repeated, repeated_snapshots = migrate_package(source, source_schema, target_schema, **plan)
+        self.assertEqual(migrated, repeated)
+        self.assertEqual(snapshots, repeated_snapshots)
+        self.assertEqual(migrated["contract_version"], "0.2.1")
+        self.assertEqual(len(migrated["migration_records"]), 1)
+        self.assertEqual(migrated["claim_assessments"][0]["assessed_at"], None)
+        self.assertEqual(
+            migrated["factor_assessments"][0]["assessed_at"],
+            source["factor_assessments"][0]["assessed_at"],
+        )
+        for collection in ("archive_attestations", "retention_copy_records", "analysis_processes"):
+            self.assertEqual(migrated[collection], [])
+        for collection in ("claims", "claim_components", "sources", "source_versions",
+                           "evaluation_units", "evidence_items", "provenance_nodes",
+                           "provenance_edges", "factor_assessments", "independence_assessments",
+                           "claim_assessments", "retention_records", "audit_events"):
+            self.assertEqual(len(migrated[collection]), len(source[collection]), collection)
+        errors = list(Draft202012Validator(target_schema, format_checker=FormatChecker()).iter_errors(migrated))
+        self.assertEqual(errors, [], "; ".join(error.message for error in errors))
+        validate_package(migrated, source_schema, target_schema, snapshots)
+        with self.assertRaisesRegex(ValueError, "accepts only contract_version 0.2.0"):
+            migrate_package(migrated, source_schema, target_schema, **plan)
 
     def test_021_historical_assessed_at_null_is_preserved_for_claim_and_factor(self):
         schema, package = self.load_contract_021_fixture()
