@@ -217,14 +217,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install pinned JSON Schema validator
+      - name: Install pinned contract-validation dependencies
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          python -m pip install --disable-pip-version-check --no-input "jsonschema==4.26.0"
-          if ($LASTEXITCODE -ne 0) { throw 'Pinned jsonschema installation failed.' }
-          $installed = python -c "from importlib.metadata import version; print(version('jsonschema'))"
-          if ($LASTEXITCODE -ne 0 -or $installed.Trim() -ne '4.26.0') { throw "Expected jsonschema 4.26.0; found '$installed'." }
+          python -m pip install --disable-pip-version-check --no-input -r requirements-contract-validation.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned contract-validation dependencies installation failed.' }
 
       - name: Validate Issue #78 JSON Schema and #15/#16 compatibility
         shell: pwsh
