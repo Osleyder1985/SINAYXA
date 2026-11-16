@@ -6,7 +6,8 @@ on:
       - feature/issue-2-temporal-contract-1.0.0
     paths:
       - "database/migrations/**"
-      - "scripts/news_and_events/event_registry.py"
+      - "scripts/news_and_events/**"
+      - "docs/news-and-events/event-registry.md"
       - "scripts/validation/validate_temporal_event_contract.py"
       - "schemas/temporal-event-contract-1.0.0.schema.json"
       - "tests/**"
@@ -18,8 +19,8 @@ on:
       - feature/issue-2-event-registry
     paths:
       - "database/migrations/**"
-      - "scripts/news_and_events/event_registry.py"
-      - "tests/news_and_events/test_event_registry.py"
+      - "scripts/news_and_events/**"
+      - "tests/**"
       - "requirements-temporal-contract-validation.txt"
       - ".github/workflows/event-registry-validation.yml"
 
@@ -65,6 +66,12 @@ jobs:
 
       - name: Run temporal contract regression tests
         run: python -m unittest scripts.validation.test_temporal_event_contract -v
+
+      - name: Compile the event registry and CLI
+        run: python -m compileall -q scripts/news_and_events
+
+      - name: Verify the local CLI entry point
+        run: python scripts/news_and_events/register_event.py --help
 
       - name: Run PostgreSQL event registry integration tests
         run: python -m unittest tests.news_and_events.test_event_registry -v
