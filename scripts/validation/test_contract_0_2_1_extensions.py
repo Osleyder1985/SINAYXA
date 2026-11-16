@@ -1678,5 +1678,135 @@ class Contract021ExtensionTests(unittest.TestCase):
                 "scheduled_disposition_at": None,
             })
 
+
+    def test_021_archive_attestation_cannot_be_reused_for_another_evidence_item(self):
+        schema, package = self.load_contract_021_fixture()
+        self.set_archive_evidence_integrity(package)
+        package["archive_attestations"].append({
+            "archive_attestation_id": "archive-bound",
+            "evidence_id": "evidence-a",
+            "source_version_id": "version-a1",
+            "captured_content_hash": "a" * 64,
+            "hash_algorithm": "SHA-256",
+            "archive_service": "Synthetic Archive",
+            "capture_record_reference": "capture-bound",
+            "captured_at": "2026-11-15T20:04:00Z",
+            "imported_at": "2026-11-15T22:00:00Z",
+            "recorded_at": "2026-11-15T22:00:00Z",
+            "integrity_result": "MATCH",
+            "capture_record_verified": True,
+            "verification_method": "INDEPENDENT_RECORD_REVIEW",
+            "verified_at": "2026-11-15T21:59:00Z",
+            "verified_by_role": "ARCHIVE_REVIEWER",
+            "content_authenticity": "UNKNOWN",
+            "content_truth": "UNKNOWN",
+        })
+        availability = package["evidence_availability"][0]
+        availability.update({
+            "evidence_id": "evidence-b",
+            "assessment_unit_id": "unit-b-entity",
+            "availability_basis": "INDEPENDENT_ARCHIVE",
+            "archive_attestation_id": "archive-bound",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_archive_attestation_cannot_claim_another_source_version(self):
+        schema, package = self.load_contract_021_fixture()
+        self.set_archive_evidence_integrity(package)
+        package["archive_attestations"].append({
+            "archive_attestation_id": "archive-wrong-version",
+            "evidence_id": "evidence-a",
+            "source_version_id": "version-b1",
+            "captured_content_hash": "a" * 64,
+            "hash_algorithm": "SHA-256",
+            "archive_service": "Synthetic Archive",
+            "capture_record_reference": "capture-wrong-version",
+            "captured_at": "2026-11-15T20:04:00Z",
+            "imported_at": "2026-11-15T22:00:00Z",
+            "recorded_at": "2026-11-15T22:00:00Z",
+            "integrity_result": "MATCH",
+            "capture_record_verified": True,
+            "verification_method": "INDEPENDENT_RECORD_REVIEW",
+            "verified_at": "2026-11-15T21:59:00Z",
+            "verified_by_role": "ARCHIVE_REVIEWER",
+            "content_authenticity": "UNKNOWN",
+            "content_truth": "UNKNOWN",
+        })
+        package["evidence_availability"][0].update({
+            "availability_basis": "INDEPENDENT_ARCHIVE",
+            "archive_attestation_id": "archive-wrong-version",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_archive_attestation_rejects_captured_content_hash_mismatch(self):
+        schema, package = self.load_contract_021_fixture()
+        self.set_archive_evidence_integrity(package)
+        package["archive_attestations"].append({
+            "archive_attestation_id": "archive-wrong-digest",
+            "evidence_id": "evidence-a",
+            "source_version_id": "version-a1",
+            "captured_content_hash": "b" * 64,
+            "hash_algorithm": "SHA-256",
+            "archive_service": "Synthetic Archive",
+            "capture_record_reference": "capture-wrong-digest",
+            "captured_at": "2026-11-15T20:04:00Z",
+            "imported_at": "2026-11-15T22:00:00Z",
+            "recorded_at": "2026-11-15T22:00:00Z",
+            "integrity_result": "MATCH",
+            "capture_record_verified": True,
+            "verification_method": "INDEPENDENT_RECORD_REVIEW",
+            "verified_at": "2026-11-15T21:59:00Z",
+            "verified_by_role": "ARCHIVE_REVIEWER",
+            "content_authenticity": "UNKNOWN",
+            "content_truth": "UNKNOWN",
+        })
+        package["evidence_availability"][0].update({
+            "availability_basis": "INDEPENDENT_ARCHIVE",
+            "archive_attestation_id": "archive-wrong-digest",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_archive_attestation_requires_verified_evidence_digest(self):
+        schema, package = self.load_contract_021_fixture()
+        package["evidence_items"][0]["integrity_check"] = {
+            "algorithm": "SHA-256",
+            "expected_digest": None,
+            "observed_digest": "a" * 64,
+            "checked_at": None,
+            "result": "NOT_CHECKED",
+        }
+        package["archive_attestations"].append({
+            "archive_attestation_id": "archive-unverified-evidence",
+            "evidence_id": "evidence-a",
+            "source_version_id": "version-a1",
+            "captured_content_hash": "a" * 64,
+            "hash_algorithm": "SHA-256",
+            "archive_service": "Synthetic Archive",
+            "capture_record_reference": "capture-unverified-evidence",
+            "captured_at": "2026-11-15T20:04:00Z",
+            "imported_at": "2026-11-15T22:00:00Z",
+            "recorded_at": "2026-11-15T22:00:00Z",
+            "integrity_result": "MATCH",
+            "capture_record_verified": True,
+            "verification_method": "INDEPENDENT_RECORD_REVIEW",
+            "verified_at": "2026-11-15T21:59:00Z",
+            "verified_by_role": "ARCHIVE_REVIEWER",
+            "content_authenticity": "UNKNOWN",
+            "content_truth": "UNKNOWN",
+        })
+        package["evidence_availability"][0].update({
+            "availability_basis": "INDEPENDENT_ARCHIVE",
+            "archive_attestation_id": "archive-unverified-evidence",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
