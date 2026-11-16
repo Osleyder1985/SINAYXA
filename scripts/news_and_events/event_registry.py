@@ -115,12 +115,21 @@ def add_source_reference(
     if not source_ref or not source_ref.strip():
         raise EventRegistryError("source_ref must be non-empty")
     with connection.transaction():
+        event_row = connection.execute(
+            "SELECT inserted_at FROM sinayxa.events WHERE event_id = %s FOR KEY SHARE",
+            (event_id,),
+        ).fetchone()
+        if event_row is None:
+            raise EventRegistryError(f"unknown event_id: {event_id}")
+        recorded_at = _utc(recorded_at_utc) if recorded_at_utc else None
+        if recorded_at is not None and recorded_at < event_row[0]:
+            raise EventRegistryError("source reference cannot be recorded before the event entered the registry")
         connection.execute(
             """
             INSERT INTO sinayxa.event_sources (event_id, source_ref, recorded_at)
             VALUES (%s, %s, COALESCE(%s, transaction_timestamp()))
             """,
-            (event_id, source_ref, _utc(recorded_at_utc) if recorded_at_utc else None),
+            (event_id, source_ref, recorded_at),
         )
 
 
