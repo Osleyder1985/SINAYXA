@@ -96,6 +96,30 @@ def _validate_analysis_processes(package: dict[str, Any]) -> None:
             validate_analytic_replication(records, cutoff)
 
 
+def _validate_source_version_chains(package: dict[str, Any]) -> None:
+    """Require one ordered, non-branching version chain per source."""
+    by_source: dict[str, list[dict[str, Any]]] = {}
+    versions_by_id = _index(package["source_versions"], "source_version_id", "source_version_id")
+    for version in package["source_versions"]:
+        by_source.setdefault(version["source_id"], []).append(version)
+    for source_id, versions in by_source.items():
+        ordered = sorted(versions, key=lambda item: item["version_sequence"])
+        sequences = [item["version_sequence"] for item in ordered]
+        require(sequences == list(range(1, len(ordered) + 1)),
+                f"source {source_id} version_sequence must be unique and contiguous from 1")
+        for index, version in enumerate(ordered):
+            predecessor_id = version["supersedes_source_version_id"]
+            if index == 0:
+                require(predecessor_id is None,
+                        "the first source version cannot supersede another version")
+                continue
+            require(predecessor_id in versions_by_id,
+                    "every non-initial source version must reference its predecessor")
+            predecessor = versions_by_id[predecessor_id]
+            require(predecessor["source_id"] == source_id
+                    and predecessor["version_sequence"] == index,
+                    "source version must supersede the immediately preceding version of the same source")
+
 def _validate_independence_assessments(package: dict[str, Any]) -> None:
     units_by_id = _index(package["evaluation_units"], "assessment_unit_id", "assessment_unit_id")
     nodes_by_id = _index(package["provenance_nodes"], "node_id", "provenance node_id")
@@ -206,8 +230,11 @@ def _validate_independence_assessments(package: dict[str, Any]) -> None:
                 require(dependent["node_type"] == "SOURCE_VERSION"
                         and dependent["entity_ref"] in {unit["source_version_id"] for unit in units},
                         "dependency edge must identify an evaluated dependent source version")
-                require(origin["node_type"] != "UNKNOWN_ORIGIN" and bool(origin["entity_ref"]),
-                        "dependency edge must identify the demonstrated common or upstream origin")
+                evaluated_version_ids = {unit["source_version_id"] for unit in units}
+                require(origin["node_type"] == "SOURCE_VERSION"
+                        and origin["entity_ref"] in evaluated_version_ids
+                        and origin["entity_ref"] != dependent["entity_ref"],
+                        "dependency edge must connect two distinct source versions in the same evaluated unit set")
                 require(bool(edge["evidence_refs"]), "dependency edge requires evidence")
                 require(set(edge["evidence_refs"]).issubset(set(assessment["supporting_evidence_refs"])),
                         "dependency edge evidence must be included in assessment supporting evidence")
@@ -322,6 +349,7 @@ def validate_package(
         require(evidence["source_version_id"] is None or evidence["source_version_id"] in source_versions,
                 "evidence item references an unknown source version")
 
+    _validate_source_version_chains(package)
     archive_by_id = _index(package["archive_attestations"], "archive_attestation_id", "archive_attestation_id")
     for availability in package["evidence_availability"]:
         require(availability["evidence_id"] in evidence_by_id, "availability references unknown evidence")
