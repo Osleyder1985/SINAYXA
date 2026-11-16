@@ -241,3 +241,40 @@ No se selecciona una alternativa tecnológica en esta ADR. La decisión segura q
 - #88 seguirá abierto; A–E no se cierran por este documento.
 - Esta ADR no cambia la aprobación del contrato 0.2.1 ni autoriza merge de PR #85.
 - No habilita captura real, crawling, vigilancia, automatización ni persistencia productiva.
+
+## 11. Política obligatoria de versiones del laboratorio
+
+El laboratorio utilizará exclusivamente versiones **estables de disponibilidad general (GA)** y mantenidas en la fecha de preparación de cada ejecución. «Última versión» no significa usar una versión Beta, Alpha, Preview o Release Candidate. Si el último número publicado es pre-release, se utilizará la última versión GA compatible y mantenida, dejando constancia de la excepción.
+
+### Referencia de versiones consultada el 2026-11-16
+
+| Componente | Referencia estable identificada | Política de selección |
+| --- | --- | --- |
+| PostgreSQL | **18.7** (GA, 2026-11-12) | Usar la última versión menor de la rama estable 18. PostgreSQL 19 RC 2 no se considera GA y queda excluido. |
+| MinIO AIStor Server | Imagen oficial `quay.io/minio/aistor/minio`; la documentación oficial indica que `latest` corresponde a la última imagen estable | Resolver el release exacto desde el endpoint oficial de releases inmediatamente antes del ensayo; registrar etiqueta de release, digest SHA-256/SHA-256 OCI, SBOM y licencia. No dejar `:latest` en la configuración reproducible final. |
+| MinIO AIStor Client (`mc`) | Último release estable oficial disponible en la fecha de ejecución | Resolver y fijar versión exacta, checksum y SBOM si se publica. |
+| Docker Engine | **29.9.3** (2026-11-03) como versión estable documentada más reciente en esta revisión | Confirmar actualización estable más reciente antes del ensayo y registrar versión de Engine, CLI, Compose y plataforma. |
+
+Fuentes oficiales de referencia:
+- PostgreSQL: https://www.postgresql.org/about/newsarchive/pgsql/ y https://www.postgresql.org/
+- Docker Engine: https://docs.docker.com/engine/release-notes/29/
+- AIStor latest stable image: https://docs.min.io/aistor/installation/container/install/
+- AIStor release metadata/API y artefactos: https://docs.min.io/aistor/operations/release-artifacts/ y https://dl.min.io/api/releases/aistor/latest
+- AIStor container deployment for development/testing: https://docs.min.io/aistor/installation/container/
+
+### Reglas de reproducibilidad y seguridad
+
+1. Resolver versiones estables antes de ejecutar; no asumir que un número de versión conocido sigue siendo el último.
+2. Registrar para cada imagen: nombre completo, tag inmutable de release, digest OCI, plataforma/arquitectura, fecha UTC de descarga y checksum de los artefactos disponibles.
+3. No utilizar etiquetas flotantes (`:latest`) en el manifiesto final de ejecución. Pueden usarse únicamente para descubrir la última versión, seguida de resolución y fijación por digest.
+4. Conservar SBOM CycloneDX/SPDX y notas de versión cuando el proveedor las publique; registrar explícitamente cuando no estén disponibles.
+5. Verificar firmas/checksums según el mecanismo oficial disponible. No inventar una verificación de firma si el proveedor solo publica checksum.
+6. Ejecutar comprobaciones de compatibilidad entre servidor, cliente, Docker Engine, Compose y sistema operativo; documentar incompatibilidades y vulnerabilidades conocidas.
+7. Actualizar la matriz de versiones si aparece una versión estable más reciente antes de comenzar el ensayo; una vez iniciado, mantener fijados los artefactos para que la ejecución sea reproducible.
+8. Registrar por separado la versión de PostgreSQL del laboratorio y la versión histórica 16.3 usada por PR #96. La prueba anterior sigue siendo evidencia válida para el artefacto ensayado, pero no acredita el comportamiento de PostgreSQL 18.7.
+9. No instalar ni descargar software automáticamente en el equipo del propietario; la selección y el manifiesto se preparan primero y el despliegue requiere la autorización operacional correspondiente.
+
+### Criterio de aceptación adicional
+
+El protocolo de #89 no puede comenzar hasta que el manifiesto de versiones esté completo, cada imagen esté fijada por digest y las verificaciones de procedencia disponibles estén registradas. Si no se puede acreditar que un componente es estable/mantenido o resolver su digest, el ensayo queda BLOCKED; no se sustituye silenciosamente por una versión antigua ni por un pre-release.
+
