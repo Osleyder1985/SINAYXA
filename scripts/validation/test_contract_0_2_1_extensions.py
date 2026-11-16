@@ -1525,6 +1525,92 @@ class Contract021ExtensionTests(unittest.TestCase):
             validate_retention_scope("DELETED", copies, events)
 
 
+    def restored_backup_package(self):
+        schema, package = self.load_contract_021_fixture()
+        package["retention_records"].append({
+            "retention_id": "retention-restored-backup",
+            "subject_ref": "evidence-a",
+            "content_retained": True,
+            "legal_basis_status": "PENDING_REVIEW",
+            "purpose": "Reconciliación de backup restaurado en prueba sintética.",
+            "responsible_role": "DATA_CUSTODIAN",
+            "review_at": "2026-11-16T22:10:00Z",
+            "expires_at": None,
+            "disposition": "DELETE_PENDING",
+            "previous_disposition": None,
+            "authorization_reference": None,
+            "recorded_at": "2026-11-15T22:10:00Z",
+            "copy_scope_ids": ["backup-restored"],
+        })
+        package["audit_events"].extend([
+            {
+                "audit_event_id": "restored-retention-pending",
+                "subject_ref": "evidence-a",
+                "action": "DELETION_REQUESTED",
+                "actor_role": "DATA_CUSTODIAN",
+                "occurred_at": "2026-11-15T22:10:00Z",
+                "reason": "Backup restaurado aislado y enviado a supresión antes de exposición.",
+                "retention_id": "retention-restored-backup",
+                "from_disposition": None,
+                "to_disposition": "DELETE_PENDING",
+                "copy_id": None,
+                "from_copy_state": None,
+                "to_copy_state": None,
+            },
+            {
+                "audit_event_id": "restored-backup-discovered",
+                "subject_ref": "evidence-a",
+                "action": "COPY_DISCOVERED",
+                "actor_role": "DATA_CUSTODIAN",
+                "occurred_at": "2026-11-15T22:09:00Z",
+                "reason": "Restauración de backup detectada; contenido aislado.",
+                "retention_id": "retention-restored-backup",
+                "copy_id": "backup-restored",
+                "from_copy_state": None,
+                "to_copy_state": "PRESENT",
+            },
+            {
+                "audit_event_id": "restored-backup-pending",
+                "subject_ref": "evidence-a",
+                "action": "COPY_DELETION_REQUESTED",
+                "actor_role": "DATA_CUSTODIAN",
+                "occurred_at": "2026-11-15T22:10:00Z",
+                "reason": "Supresión requerida antes de cualquier exposición.",
+                "retention_id": "retention-restored-backup",
+                "copy_id": "backup-restored",
+                "from_copy_state": "PRESENT",
+                "to_copy_state": "DELETE_PENDING",
+            },
+        ])
+        package["retention_copy_records"].append({
+            "copy_id": "backup-restored",
+            "retention_id": "retention-restored-backup",
+            "subject_ref": "evidence-a",
+            "copy_kind": "BACKUP",
+            "parent_copy_id": None,
+            "state": "DELETE_PENDING",
+            "recorded_at": "2026-11-15T22:10:00Z",
+            "verified_at": None,
+            "verification_reference": None,
+            "scheduled_disposition_at": "2026-11-17T00:00:00Z",
+            "backup_expiration_policy_ref": "backup-policy-2026-01",
+            "previous_state": "PRESENT",
+            "transition_event_ref": "restored-backup-pending",
+        })
+        return schema, package
+
+    def test_restored_backup_starts_new_delete_pending_cycle_before_exposure(self):
+        schema, package = self.restored_backup_package()
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_restored_backup_rejects_assessment_after_reconciliation_pending(self):
+        schema, package = self.restored_backup_package()
+        package["claim_assessments"][0]["assessed_at"] = "2026-11-15T22:11:00Z"
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
     def test_021_citation_dependency_is_explicit_between_evaluated_sources(self):
         schema, package = self.load_contract_021_fixture()
         package["provenance_edges"].append({
