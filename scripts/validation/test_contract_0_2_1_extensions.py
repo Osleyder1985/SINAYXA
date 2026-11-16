@@ -1891,6 +1891,26 @@ class Contract021ExtensionTests(unittest.TestCase):
                 with self.assertRaises(ContractViolation):
                     validate_package(package)
 
+    def test_021_audit_events_reject_phone_like_and_long_numeric_identifiers(self):
+        forbidden_values = (
+            "Contact phone: +1 (202) 555-0147",
+            "Contact phone: 2025550147",
+            "Personal identifier: 123-45-6789",
+        )
+        for value in forbidden_values:
+            schema, package = self.load_contract_021_fixture()
+            package["audit_events"][0]["reason"] = value
+            with self.subTest(value=value):
+                self.assert_schema_valid(schema, package)
+                with self.assertRaises(ContractViolation):
+                    validate_package(package)
+
+    def test_021_audit_metadata_allows_short_ordinary_numbers(self):
+        schema, package = self.load_contract_021_fixture()
+        package["audit_events"][0]["reason"] = "Reviewed 3 records in batch 2026."
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
     def test_021_audit_reason_allows_ordinary_hexadecimal_words(self):
         schema, package = self.load_contract_021_fixture()
         package["audit_events"][0]["reason"] = (
