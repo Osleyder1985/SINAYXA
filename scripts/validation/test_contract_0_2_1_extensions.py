@@ -573,7 +573,9 @@ class Contract021ExtensionTests(unittest.TestCase):
             "target_contract_version": "0.2.1", "migrator_version": "1.0.0",
             "executed_at": "2026-11-15T22:00:00Z", "input_sha256": "a" * 64,
             "output_sha256": "b" * 64, "rules_applied": ["preserve-history"],
-            "result": "PASS", "loss_report": ["unknown field discarded"]
+            "result": "PASS", "loss_report": ["unknown field discarded"],
+            "source_snapshot": {"contract_version": "0.2.0"},
+            "target_snapshot": {"contract_version": "0.2.1"}
         })
         errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(package))
         self.assertTrue(errors, "PASS migration with a non-empty loss_report must be rejected by the schema")
@@ -619,6 +621,37 @@ class Contract021ExtensionTests(unittest.TestCase):
         unit.update({"source_type": "PRIMARIA", "source_subtype": "REGISTRO_ORIGINAL",
                      "knowledge_basis": "DOCUMENTO_DE_TERCEROS"})
         package["evidence_items"][0]["authenticity_status"] = "AUTENTICADA"
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_package_accepts_evidenced_dependency_for_exact_component(self):
+        schema, package = self.load_contract_021_fixture()
+        package["provenance_edges"].append({
+            "edge_id": "dependency-edge", "dependent_node_id": "node-version-a",
+            "origin_node_id": "node-version-b", "relation_type": "SINDICADA_DE",
+            "claim_component_id": "component-entity", "evidence_refs": ["evidence-a"],
+            "recorded_at": "2026-11-15T22:00:00Z", "valid_from": None, "valid_to": None,
+            "claim_component_version_id": "component-entity-v1"
+        })
+        assessment = package["independence_assessments"][0]
+        assessment.update({"status": "DEPENDIENTE", "supporting_evidence_refs": ["evidence-a"],
+                           "dependency_edge_refs": ["dependency-edge"], "human_review_status": "REVIEWED",
+                           "reviewed_at": "2026-11-15T22:00:00Z"})
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_package_rejects_dependency_edge_without_evidence(self):
+        schema, package = self.load_contract_021_fixture()
+        package["provenance_edges"].append({
+            "edge_id": "dependency-edge", "dependent_node_id": "node-version-a",
+            "origin_node_id": "node-version-b", "relation_type": "SINDICADA_DE",
+            "claim_component_id": "component-entity", "evidence_refs": [],
+            "recorded_at": "2026-11-15T22:00:00Z", "valid_from": None, "valid_to": None,
+            "claim_component_version_id": "component-entity-v1"
+        })
+        assessment = package["independence_assessments"][0]
+        assessment.update({"status": "DEPENDIENTE", "dependency_edge_refs": ["dependency-edge"],
+                           "human_review_status": "REVIEWED", "reviewed_at": "2026-11-15T22:00:00Z"})
         with self.assertRaises(ContractViolation):
             validate_package(package)
 
