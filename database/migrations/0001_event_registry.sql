@@ -19,6 +19,13 @@ CREATE TABLE IF NOT EXISTS sinayxa.events (
     CONSTRAINT events_payload_is_object CHECK (jsonb_typeof(event_payload) = 'object')
 );
 
+CREATE TABLE IF NOT EXISTS sinayxa.event_sources (
+    event_id varchar(128) NOT NULL REFERENCES sinayxa.events(event_id) ON DELETE RESTRICT,
+    source_ref varchar(4000) NOT NULL CHECK (length(btrim(source_ref)) > 0),
+    inserted_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+    PRIMARY KEY (event_id, source_ref)
+);
+
 CREATE TABLE IF NOT EXISTS sinayxa.temporal_assertions (
     temporal_assertion_id varchar(128) PRIMARY KEY,
     event_id varchar(128) NOT NULL,
