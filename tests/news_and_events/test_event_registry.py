@@ -71,9 +71,16 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "published_at": iso(now - timedelta(minutes=4)),
             "first_observed_at": iso(now - timedelta(minutes=3, seconds=30)),
         }
+        first["recorded_at"] = iso(now + timedelta(seconds=10))
         append_temporal_assertion(self.connection, first)
+        add_source_reference(
+            self.connection,
+            event_id,
+            "source-calendar-b",
+            recorded_at_utc=iso(now + timedelta(seconds=40)),
+        )
 
-        second_recorded = now - timedelta(seconds=40)
+        second_recorded = now + timedelta(seconds=60)
         second = {
             **first,
             "temporal_assertion_id": f"{event_id}-v2",
@@ -90,20 +97,23 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "normalized_end_utc": iso(now + timedelta(days=7, hours=23, minutes=59, seconds=59)),
             "source_ref": "source-calendar-b",
             "evidence_ref": "evidence-calendar-b",
-            "retrieved_at": iso(now - timedelta(seconds=50)),
+            "retrieved_at": iso(now + timedelta(seconds=50)),
             "recorded_at": iso(second_recorded),
             "supersedes_assertion_id": first["temporal_assertion_id"],
-            "published_at": iso(now - timedelta(seconds=55)),
-            "first_observed_at": iso(now - timedelta(seconds=52)),
+            "published_at": iso(now + timedelta(seconds=45)),
+            "first_observed_at": iso(now + timedelta(seconds=48)),
         }
         append_temporal_assertion(self.connection, second)
 
         historical = get_event_as_of(
-            self.connection, event_id, iso(now - timedelta(minutes=1, seconds=30))
+            self.connection, event_id, iso(now + timedelta(seconds=20))
         )
-        current = get_event_as_of(self.connection, event_id, iso(now))
+        current = get_event_as_of(
+            self.connection, event_id, iso(now + timedelta(minutes=2))
+        )
         self.assertIsNotNone(historical)
         self.assertEqual([1], [item["version"] for item in historical["temporal_assertions"]])
+        self.assertEqual(["source-calendar-a"], historical["event"]["source_refs"])
         self.assertEqual([1, 2], [item["version"] for item in current["temporal_assertions"]])
         self.assertEqual(
             ["source-calendar-a", "source-calendar-b"],
