@@ -57,6 +57,8 @@ Autenticidad, atribución, legitimidad de acceso, naturaleza de la pieza, relaci
 | COR-01 | Documento oficial auténtico demuestra que una institución emitió una declaración | Puede corroborar la emisión, no automáticamente su contenido sustantivo |
 | COR-02 | La declaración afirma un hecho externo no observado por el emisor | No extender corroboración al hecho externo |
 | COR-03 | Documento auténtico posteriormente rectificado | Preservar versiones y evaluar alcance temporal |
+
+**Control adicional COR-03 — cadena de reevaluaciones:** cada nueva evaluación de un mismo claim/component version debe referenciar la evaluación inmediatamente anterior mediante `supersedes_assessment_id`; la referencia debe existir y pertenecer al mismo claim, componente y versiones; el corte temporal debe avanzar estrictamente; la ejecución no puede retroceder; no se permiten bifurcaciones, raíces múltiples ni historiales desconectados. La rectificación crea nueva versión de fuente y nueva evaluación; nunca modifica la evaluación histórica.
 | COR-04 | Documento auténtico con contradicción interna material | No declarar corroboración automática |
 | COR-05 | Fuente primaria auténtica, pero conocimiento no directo ni registro original | Rechazar EVIDENCIA_PRIMARIA_DIRECTA |
 | COR-06 | Fuentes no primarias con independencia revisada para todas las unidades de apoyo | CORROBORACION_INDEPENDIENTE admisible si la evidencia es suficiente |
