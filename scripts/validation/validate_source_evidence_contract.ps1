@@ -81,6 +81,7 @@ foreach ($component in $package.claim_components) { Test-Condition (-not [string
 $componentVersionIds = $sets.claim_components
 $sourceIds = $sets.sources
 $versionIds = $sets.source_versions
+$identityAssessmentKeys = @{}
 $unitIds = $sets.evaluation_units
 $evidenceIds = $sets.evidence_items
 $nodeIds = $sets.provenance_nodes
@@ -157,6 +158,9 @@ foreach ($version in $package.source_versions) {
     }
 }
 foreach ($identity in $package.identity_assessments) {
+    $identityKey = "{0}|{1}" -f $identity.source_id, $identity.assessment_cutoff
+    Test-Condition (-not $identityAssessmentKeys.ContainsKey($identityKey)) 'Duplicate identity assessment exists for the same source and assessment cutoff.'
+    $identityAssessmentKeys[$identityKey] = $true
     Test-Condition (Test-HasRef $sourceIds ([string]$identity.source_id)) 'Identity assessment references an unknown source.'
     Test-Condition (Test-Utc $identity.assessment_cutoff 'assessment_cutoff') 'Identity assessment cutoff must be UTC.'
     Test-Condition (Test-Utc $identity.recorded_at 'recorded_at') 'Identity assessment recorded_at must be UTC.'
