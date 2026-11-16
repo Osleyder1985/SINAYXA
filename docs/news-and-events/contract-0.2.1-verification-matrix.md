@@ -194,10 +194,10 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | IND-02 | `test_independence_rejects_shared_terminal_origin` | Rechazo de origen convergente; falta caso explícito de republicación/cita |
 | IND-03 | `test_independence_rejects_two_versions_of_same_source` | Rechazo cubierto |
 | IND-04 | `test_distinct_analysis_processes_over_common_dataset_are_representable`; `test_021_package_rejects_independence_from_analyses_over_common_dataset` | Separación de replicación y origen cubierta |
-| IND-05 | `test_021_package_accepts_unknown_independence_without_asserted_paths` | Representación positiva de DESCONOCIDA cubierta para procedencia incompleta, sin afirmar independencia ni dependencia |
+| IND-05 | `test_021_package_accepts_unknown_independence_when_provenance_is_incomplete` | Representación positiva de DESCONOCIDA validada contra esquema y semántica, sin afirmar independencia ni dependencia |
 | IND-06 | `test_independence_rejects_shared_terminal_origin` | Rechazo cubierto |
-| IND-07 | `test_independence_rejects_missing_source_path`; `test_021_package_rejects_independent_status_without_integrated_origin_paths`; `test_021_package_accepts_unknown_independence_without_asserted_paths` | Rechaza INDEPENDIENTE y representa DESCONOCIDA sin vías afirmadas |
-| IND-08 | `test_021_package_accepts_evidenced_dependency_for_exact_component`; `test_021_package_rejects_dependency_edge_without_evidence`; `test_021_package_rejects_dependency_leaking_across_components` | Dependencia acotada al componente; rechazo de propagación a otro componente |
+| IND-07 | `test_independence_rejects_missing_source_path`; `test_021_package_rejects_independent_status_without_integrated_origin_paths`; `test_021_package_accepts_unknown_independence_when_provenance_is_incomplete` | Rechaza INDEPENDIENTE y representa DESCONOCIDA cuando la procedencia no permite decidir |
+| IND-08 | `test_021_package_accepts_evidenced_dependency_for_exact_component`; `test_021_package_rejects_dependency_edge_without_evidence`; `test_021_package_rejects_dependency_edge_from_another_component` | La arista debe coincidir en componente y versión; se rechaza una arista asociada a otro componente |
 | COR-01 | `test_primary_statement_scope_passes_only_for_direct_act`; `test_021_package_accepts_primary_corroboration_only_for_directly_observed_act` | Emisión/acto directo cubierto |
 | COR-02 | `test_primary_authenticity_does_not_allow_unsupported_external_claim`; `test_021_package_rejects_primary_corroboration_overclaim` | Sobreafirmación rechazada |
 | COR-03 | — | **Brecha:** rectificación posterior y conservación/versionado temporal |
