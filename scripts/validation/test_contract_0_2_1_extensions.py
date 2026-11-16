@@ -653,6 +653,58 @@ class Contract021ExtensionTests(unittest.TestCase):
         errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(package))
         self.assertTrue(errors, "PASS migration with a non-empty loss_report must be rejected by the schema")
 
+    def test_021_package_represents_distinct_analyses_over_common_dataset(self):
+        schema, package = self.load_contract_021_fixture()
+        package["provenance_nodes"].append(
+            {"node_id": "dataset-common", "node_type": "DATASET", "entity_ref": "dataset-origin-common"}
+        )
+        package["analysis_processes"] = [
+            {"process_id": "analysis-a", "dataset_origin_id": "dataset-origin-common",
+             "claim_component_version_id": "component-entity-v1", "method_reference": "method-a",
+             "output_evidence_ref": "evidence-a", "available_at": "2026-11-15T20:05:00Z",
+             "assessment_cutoff": "2026-11-15T22:00:00Z", "recorded_at": "2026-11-15T22:00:00Z"},
+            {"process_id": "analysis-b", "dataset_origin_id": "dataset-origin-common",
+             "claim_component_version_id": "component-entity-v1", "method_reference": "method-b",
+             "output_evidence_ref": "evidence-b", "available_at": "2026-11-15T20:06:00Z",
+             "assessment_cutoff": "2026-11-15T22:00:00Z", "recorded_at": "2026-11-15T22:00:00Z"}
+        ]
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_package_rejects_independence_from_analyses_over_common_dataset(self):
+        schema, package = self.load_contract_021_fixture()
+        package["provenance_nodes"].extend([
+            {"node_id": "origin-a", "node_type": "DOCUMENT", "entity_ref": "analysis-output-a"},
+            {"node_id": "origin-b", "node_type": "DOCUMENT", "entity_ref": "analysis-output-b"},
+            {"node_id": "dataset-common", "node_type": "DATASET", "entity_ref": "dataset-origin-common"}
+        ])
+        package["analysis_processes"] = [
+            {"process_id": "analysis-a", "dataset_origin_id": "dataset-origin-common",
+             "claim_component_version_id": "component-entity-v1", "method_reference": "method-a",
+             "output_evidence_ref": "evidence-a", "available_at": "2026-11-15T20:05:00Z",
+             "assessment_cutoff": "2026-11-15T22:00:00Z", "recorded_at": "2026-11-15T22:00:00Z"},
+            {"process_id": "analysis-b", "dataset_origin_id": "dataset-origin-common",
+             "claim_component_version_id": "component-entity-v1", "method_reference": "method-b",
+             "output_evidence_ref": "evidence-b", "available_at": "2026-11-15T20:06:00Z",
+             "assessment_cutoff": "2026-11-15T22:00:00Z", "recorded_at": "2026-11-15T22:00:00Z"}
+        ]
+        package["provenance_edges"].extend([
+            {"edge_id": "path-a", "dependent_node_id": "node-version-a", "origin_node_id": "origin-a",
+             "relation_type": "ORIGEN_DIRECTO", "claim_component_id": "component-entity",
+             "evidence_refs": ["evidence-a"], "recorded_at": "2026-11-15T22:00:00Z",
+             "valid_from": None, "valid_to": None, "claim_component_version_id": "component-entity-v1"},
+            {"edge_id": "path-b", "dependent_node_id": "node-version-b", "origin_node_id": "origin-b",
+             "relation_type": "ORIGEN_DIRECTO", "claim_component_id": "component-entity",
+             "evidence_refs": ["evidence-b"], "recorded_at": "2026-11-15T22:00:00Z",
+             "valid_from": None, "valid_to": None, "claim_component_version_id": "component-entity-v1"}
+        ])
+        assessment = package["independence_assessments"][0]
+        assessment.update({"status": "INDEPENDIENTE", "supporting_evidence_refs": ["evidence-a", "evidence-b"],
+                           "independent_path_edge_refs": ["path-a", "path-b"],
+                           "human_review_status": "REVIEWED", "reviewed_at": "2026-11-15T22:00:00Z"})
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
     def test_021_package_rejects_independent_status_without_integrated_origin_paths(self):
         schema, package = self.load_contract_021_fixture()
         assessment = package["independence_assessments"][0]
