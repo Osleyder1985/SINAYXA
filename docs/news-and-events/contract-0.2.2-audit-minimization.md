@@ -50,6 +50,18 @@ La migración 0.2.1 → 0.2.2 es fail-closed:
 - No se inventan roles, motivos, tiempos, autorizaciones ni estados históricos. Un valor no mapeable no se convierte en un código positivo por inferencia.
 - El requisito de determinismo se aplica a la misma entrada, migrador, reglas y parámetros explícitos. No se permite generar tokens aleatorios nuevos en cada repetición y declarar determinismo.
 
+### 5.1. Ruta histórica desde 0.2.0
+
+No existe una conversión directa 0.2.0 → 0.2.2. La única ruta admitida es secuencial:
+
+1. Ejecutar el migrador versionado 0.2.0 → 0.2.1 con sus esquemas de origen/destino y conservar el snapshot intermedio y su manifiesto.
+2. Validar íntegramente el paquete intermedio con el validador 0.2.1.
+3. Ejecutar el migrador 0.2.1 → 0.2.2 sobre ese paquete, incluyendo el manifiesto histórico 0.2.0 → 0.2.1 como dato preservado.
+4. Si los identificadores de sujeto, auditoría, retención y copias no son UUIDv4 preexistentes, o faltan correspondencias de rol/motivo respaldadas por referencias de evidencia, detener la cadena con REJECTED. No se emiten tokens sustitutos ni se elimina el snapshot 0.2.1.
+5. Mantener disponibles ambos paquetes intermedios y sus manifiestos como evidencia de procedencia. El éxito de la primera etapa no implica que la segunda sea migrable.
+
+La ruta conserva el historial de migraciones y no modifica los valores originales de 0.2.0. Los paquetes no migrables permanecen utilizables bajo su versión original; no se fuerza una actualización de versión para aparentar conformidad 0.2.2.
+
 La migración no reescribe `methodology_version`, cortes temporales ni evaluaciones históricas.
 
 ## 6.1. Migración ejecutable
