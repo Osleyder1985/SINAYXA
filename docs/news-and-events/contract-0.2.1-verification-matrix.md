@@ -399,7 +399,6 @@ Esta actualización sustituye cualquier estado anterior que indicara que la prue
 
 Las cinco áreas siguen ABIERTAS conforme al criterio formal vigente; esta consolidación no las cierra. PR #85 permanece OPEN / NOT MERGED e Issue #78 permanece OPEN. No se aprueba el contrato ni se autoriza merge por inferencia.
 
-
 ### Comprobación de referencias A/B sobre el HEAD final
 
 En `511c89d0df4210da67540a5675071de29c1fcea5` se contrastaron los nombres de pruebas citados en las filas IND-01–IND-08 y COR-01–COR-10 contra `scripts/validation/test_contract_0_2_1_extensions.py`:
