@@ -83,26 +83,21 @@ def migrate_package(
 
     output = copy.deepcopy(source)
     losses: list[str] = []
-    evidence_by_id = {item["evidence_id"]: item for item in output.get("evidence_items", [])}
-    if len(evidence_by_id) != len(output.get("evidence_items", [])):
-        raise MigrationRejected("duplicate evidence_id values prevent unambiguous subject-token linkage")
-
-    # A historical subject token can be preserved only when the evidence identifier
-    # already is a UUIDv4 and the old subject_ref resolves to that exact evidence item.
-    for index, evidence in enumerate(output.get("evidence_items", [])):
-        evidence["retention_subject_token"] = (
-            evidence["evidence_id"] if UUID4.fullmatch(evidence["evidence_id"]) else None
-        )
+    # Preserve subject identity only when every historical subject_ref already is
+    # a canonical UUIDv4. Never mint replacement IDs or infer a correspondence.
+    subject_values = []
+    for collection_name in ("retention_records", "audit_events", "retention_copy_records"):
+        for record_index, record in enumerate(output.get(collection_name, [])):
+            subject_values.append((f"{collection_name}[{record_index}].subject_ref", record["subject_ref"]))
+    subject_tokens = set()
+    for field_path, value in subject_values:
+        subject_tokens.add(require_uuid4(value, field_path))
+    output["audit_subject_tokens"] = sorted(subject_tokens)
 
     for index, record in enumerate(output.get("retention_records", [])):
         subject = record["subject_ref"]
         require_uuid4(record["retention_id"], f"retention_records[{index}].retention_id")
         require_uuid4(subject, f"retention_records[{index}].subject_ref")
-        if subject not in evidence_by_id or evidence_by_id[subject].get("retention_subject_token") != subject:
-            raise MigrationRejected(
-                f"retention_records[{index}].subject_ref: no exact UUIDv4 evidence identity exists; "
-                "creating a new token would require an unapproved correspondence store"
-            )
         record["subject_ref"] = subject
         if record.get("authorization_reference") is not None:
             require_uuid4(record["authorization_reference"], f"retention_records[{index}].authorization_reference")
@@ -113,11 +108,6 @@ def migrate_package(
     for index, event in enumerate(output.get("audit_events", [])):
         require_uuid4(event["audit_event_id"], f"audit_events[{index}].audit_event_id")
         require_uuid4(event["subject_ref"], f"audit_events[{index}].subject_ref")
-        if event["subject_ref"] not in evidence_by_id or evidence_by_id[event["subject_ref"]].get("retention_subject_token") != event["subject_ref"]:
-            raise MigrationRejected(
-                f"audit_events[{index}].subject_ref: no exact UUIDv4 evidence identity exists; "
-                "creating a new token would require an unapproved correspondence store"
-            )
         audit_ids.add(event["audit_event_id"])
         old_role = event["actor_role"]
         role_code = role_map.get(old_role)
@@ -150,8 +140,6 @@ def migrate_package(
     for index, record in enumerate(output.get("retention_copy_records", [])):
         for field in ("copy_id", "retention_id", "subject_ref", "transition_event_ref"):
             require_uuid4(record[field], f"retention_copy_records[{index}].{field}")
-        if record["subject_ref"] not in evidence_by_id or evidence_by_id[record["subject_ref"]].get("retention_subject_token") != record["subject_ref"]:
-            raise MigrationRejected(f"retention_copy_records[{index}].subject_ref does not resolve to an existing opaque evidence token")
         if record["transition_event_ref"] not in audit_ids:
             raise MigrationRejected(f"retention_copy_records[{index}].transition_event_ref is unresolved")
         for field in ("parent_copy_id", "backup_expiration_policy_ref", "verification_reference"):
