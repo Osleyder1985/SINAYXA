@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+from copy import deepcopy
 from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
@@ -34,6 +35,31 @@ def main() -> int:
             location = "$" + "".join(f"[{part!r}]" for part in error.absolute_path)
             print(f"FAIL {location}: {error.message}", file=sys.stderr)
         return 1
+
+    partial_valid = deepcopy(fixture)
+    partial_assessment = partial_valid["claim_assessments"][0]
+    partial_assessment["evidentiary_status"] = "PARCIALMENTE_CORROBORADA"
+    partial_assessment["human_review_status"] = "REVIEWED"
+    partial_assessment["reviewed_at"] = "2026-11-15T22:05:00Z"
+    partial_assessment["corroboration_basis"] = "NO_APLICA"
+    partial_assessment["supported_scope"] = "Existencia y atribución de la declaración."
+    partial_assessment["unsupported_scope"] = "Ejecución material del hecho."
+    if list(validator.iter_errors(partial_valid)):
+        raise ValueError("A partial corroboration with explicitly delimited scopes must satisfy the JSON Schema.")
+
+    partial_invalid = deepcopy(partial_valid)
+    partial_invalid["claim_assessments"][0]["supported_scope"] = None
+    partial_invalid["claim_assessments"][0]["unsupported_scope"] = None
+    partial_errors = list(validator.iter_errors(partial_invalid))
+    if not any(
+        error.validator == "$ref"
+        and tuple(error.absolute_path) in {
+            ("claim_assessments", 0, "supported_scope"),
+            ("claim_assessments", 0, "unsupported_scope"),
+        }
+        for error in partial_errors
+    ):
+        raise ValueError("The JSON Schema did not reject partial corroboration without both delimited scopes.")
 
     definitions = schema["$defs"]
     require_equal(
@@ -74,6 +100,7 @@ def main() -> int:
     print("Synthetic v0.2.0 package: valid")
     print("Issue #15 compatibility: E01-E18 and exact evidentiary-state vocabulary")
     print("Issue #16 compatibility: S01-S16 and exact source/factor/independence catalogues")
+    print("Partial corroboration scopes: positive and negative JSON Schema cases passed")
     print("Scope: structural and vocabulary compatibility only; no empirical truth or production authorization")
     return 0
 
