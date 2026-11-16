@@ -431,8 +431,9 @@ def validate_package(
                 for assessment in package["claim_assessments"]:
                     used_refs = set(assessment["supporting_evidence_refs"]) | set(assessment["contrary_evidence_refs"])
                     if subject_ref in used_refs:
-                        require(assessment["assessed_at"] <= first_request,
-                                "evidence cannot be used in a new claim assessment after DELETE_PENDING")
+                        require(assessment["assessed_at"] is not None
+                                and assessment["assessed_at"] <= first_request,
+                                "evidence cannot be used after DELETE_PENDING when assessment time is unknown or late")
         else:
             require(not record["content_retained"] and record["disposition"] == "REFERENCE_ONLY",
                     "a retention state involving content requires an explicit copy inventory")
