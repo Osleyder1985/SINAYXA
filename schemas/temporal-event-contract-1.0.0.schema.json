@@ -6,6 +6,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "events",
     "contract_version",
     "temporal_assertions",
     "temporal_conflicts",
@@ -45,6 +46,12 @@
       "type": "array",
       "items": {
         "$ref": "#/$defs/reproducibilityManifest"
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/event"
       }
     }
   },
@@ -127,11 +134,11 @@
         "normalized_end_utc",
         "source_ref",
         "evidence_ref",
-        "asserted_at",
-        "observed_at",
         "retrieved_at",
         "recorded_at",
-        "supersedes_assertion_id"
+        "supersedes_assertion_id",
+        "published_at",
+        "first_observed_at"
       ],
       "properties": {
         "temporal_assertion_id": {
@@ -194,12 +201,6 @@
         "evidence_ref": {
           "$ref": "#/$defs/nullableText"
         },
-        "asserted_at": {
-          "$ref": "#/$defs/nullableUtc"
-        },
-        "observed_at": {
-          "$ref": "#/$defs/nullableUtc"
-        },
         "retrieved_at": {
           "$ref": "#/$defs/nullableUtc"
         },
@@ -208,6 +209,12 @@
         },
         "supersedes_assertion_id": {
           "$ref": "#/$defs/nullableText"
+        },
+        "published_at": {
+          "$ref": "#/$defs/nullableUtc"
+        },
+        "first_observed_at": {
+          "$ref": "#/$defs/nullableUtc"
         }
       }
     },
@@ -546,6 +553,42 @@
           "type": "array",
           "items": {
             "$ref": "#/$defs/text"
+          }
+        },
+        "created_at": {
+          "$ref": "#/$defs/utc"
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "description",
+        "affected_asset_refs",
+        "source_refs",
+        "created_at"
+      ],
+      "properties": {
+        "event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "affected_asset_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "source_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
           }
         },
         "created_at": {
