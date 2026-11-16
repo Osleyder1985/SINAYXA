@@ -345,3 +345,17 @@ Los dos quality gates terminaron SUCCESS sobre el mismo SHA:
 - **MIG-06/08 — migrador real:** `test_021_real_020_to_021_migration_is_deterministic_without_duplicates` ejecuta el migrador 0.2.0→0.2.1 dos veces con el mismo input y plan, compara resultado y snapshots, verifica esquema/cardinalidades y rechaza reentrada. Se añadió aserción explícita de preservación de `methodology_version` en `evaluation_units`, `factor_assessments`, `independence_assessments` y `claim_assessments`, mientras cambia `contract_version`.
 
 **Límites residuales:** MIG está probado con fixtures y snapshots en memoria; no demuestra una migración productiva ni persistencia/inmutabilidad de snapshots en un proveedor externo. Aún se requiere una tabla de trazabilidad final requisito→regla→fixture→test→run para cada ID IND/COR/RET/ARC/MIG. RET-09 sigue siendo una detección parcial de metadatos reidentificadores, no anonimización garantizada. ARC-08 sigue sin demostrar inmutabilidad byte-a-byte del objeto externo. COR-04 conserva revisión humana de alcances y casos fronterizos. Las cinco áreas A–E permanecen ABIERTAS; no hay autorización de merge por este resultado.
+
+### Verificación COR-08 — evidencia contraria en corroboración parcial — HEAD `876e63b79939469bc34598857143f6a15d0ba260`
+
+Los dos quality gates terminaron SUCCESS para el HEAD de código indicado:
+
+- PowerShell quality gate: [run 43803799165](https://github.com/Osleyder1985/SINAYXA/actions/runs/43803799165) — job PowerShell 7.6.6 / Windows SUCCESS; PSScriptAnalyzer 1.24.0 y validaciones del contrato completadas.
+- Security and dependency quality gate: [run 43803799526](https://github.com/Osleyder1985/SINAYXA/actions/runs/43803799526) — Gitleaks, npm audit y OSV PR scan SUCCESS. OSV full quedó SKIPPED por diseño y no se contabiliza como PASS.
+- Suite correctiva del contrato 0.2.1: **123 tests PASS** (3.507 s); resultado `OK`.
+- COR-08: `test_021_partial_corroboration_validates_exact_contrary_evidence_scope`, `test_021_partial_corroboration_rejects_unlinked_contrary_evidence`, `test_021_partial_corroboration_rejects_evidence_in_both_roles`, `test_021_partial_corroboration_rejects_late_contrary_evidence`, `test_021_partial_corroboration_rejects_identical_scopes`, `test_021_partial_corroboration_requires_human_review_of_scope_boundaries` y `test_021_partial_corroboration_preserves_distinct_supported_and_unsupported_scopes` aparecen ejecutadas y PASS en el log.
+- El validador exige que las referencias de apoyo y contrarias sean disjuntas y comprueba las referencias contrarias contra el mismo alcance de claim/componente/versiones/unidad/corte, incluida su disponibilidad temporal.
+
+**Alcance y límites:** queda verificada la integridad referencial y temporal automatizada de las evidencias contrarias en el estado `PARCIALMENTE_CORROBORADA`. No se demuestra automáticamente que el texto de cada fragmento corresponda semánticamente al alcance declarado, que los fragmentos sean auténticos ni que las conclusiones sean verdaderas. Los límites semánticos y la revisión humana permanecen obligatorios. Esta evidencia no cierra el Área B ni la matriz.
+
+**Estado global:** las cinco áreas A–E permanecen ABIERTAS. PR #85 sigue OPEN / NOT MERGED; Issue #78 sigue abierto y la propuesta no está aprobada. La ejecución de CI no sustituye la decisión expresa del propietario.
