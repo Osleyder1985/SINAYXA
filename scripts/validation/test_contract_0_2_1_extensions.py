@@ -12,6 +12,7 @@ from contract_0_2_1_extensions import (
     ContractViolation,
     canonical_sha256,
     canonical_migration_payload_sha256,
+    validate_analytic_replication,
     validate_archive_attestation,
     validate_corroboration,
     validate_independence,
@@ -72,6 +73,33 @@ class Contract021ExtensionTests(unittest.TestCase):
     def test_independence_rejects_missing_source_path(self):
         with self.assertRaises(ContractViolation):
             validate_independence(self.units, self.paths[:1], self.cutoff)
+
+    def test_distinct_analysis_processes_over_common_dataset_are_representable(self):
+        analyses = [
+            {"process_id": "analysis-process-1", "dataset_origin_id": "dataset-common",
+             "claim_component_version_id": "cv1", "method_reference": "method-1",
+             "output_evidence_ref": "analysis-output-1", "available_at": "2026-01-01T00:00:00Z",
+             "assessment_cutoff": self.cutoff},
+            {"process_id": "analysis-process-2", "dataset_origin_id": "dataset-common",
+             "claim_component_version_id": "cv1", "method_reference": "method-2",
+             "output_evidence_ref": "analysis-output-2", "available_at": "2026-01-01T00:00:00Z",
+             "assessment_cutoff": self.cutoff},
+        ]
+        validate_analytic_replication(analyses, self.cutoff)
+
+    def test_analytic_replication_rejects_same_process_or_late_output(self):
+        analyses = [
+            {"process_id": "same-process", "dataset_origin_id": "dataset-common",
+             "claim_component_version_id": "cv1", "method_reference": "method-1",
+             "output_evidence_ref": "analysis-output-1", "available_at": "2026-01-01T00:00:00Z",
+             "assessment_cutoff": self.cutoff},
+            {"process_id": "same-process", "dataset_origin_id": "dataset-common",
+             "claim_component_version_id": "cv1", "method_reference": "method-2",
+             "output_evidence_ref": "analysis-output-2", "available_at": "2026-01-03T00:00:00Z",
+             "assessment_cutoff": self.cutoff},
+        ]
+        with self.assertRaises(ContractViolation):
+            validate_analytic_replication(analyses, self.cutoff)
 
     def test_secondary_corroboration_requires_reviewed_coverage(self):
         validate_corroboration(
