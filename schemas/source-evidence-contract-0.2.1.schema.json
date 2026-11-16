@@ -1192,7 +1192,7 @@
           }
         },
         "assessed_at": {
-          "$ref": "#/$defs/optionalUtc"
+          "$ref": "#/$defs/utc"
         },
         "methodology_version": {
           "$ref": "#/$defs/nonEmpty"
