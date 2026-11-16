@@ -161,14 +161,14 @@ contract_version y methodology_version son dimensiones independientes. Una migra
 
 ### Evidencia integrada en CI
 
-- HEAD verificado para esta ejecución: `b7faa0a0ad83217c1ea9d49ab6d5a39506ac7a3e` (PowerShell y Security/dependency quality gates SUCCESS sobre el mismo SHA).
-- PowerShell quality gate: [run 43794411000](https://github.com/Osleyder1985/SINAYXA/actions/runs/43794411000) — SUCCESS; PowerShell 7.6.6, 11 archivos parseados, 0 errores, PSScriptAnalyzer 1.24.0 con 0 findings.
-- Security and dependency quality gate: [run 43794411359](https://github.com/Osleyder1985/SINAYXA/actions/runs/43794411359) — SUCCESS; npm audit, Gitleaks y OSV PR SUCCESS; OSV full SKIPPED.
-- Suite semántica correctiva 0.2.1: 101 tests — PASS sobre el HEAD `b7faa0a0ad83217c1ea9d49ab6d5a39506ac7a3e`.
+- HEAD verificado para esta ejecución: `524a63a8422be0987c8e129ee59a3174c627f75c` (PowerShell y Security/dependency quality gates SUCCESS sobre el mismo SHA).
+- PowerShell quality gate: [run 43794890778](https://github.com/Osleyder1985/SINAYXA/actions/runs/43794890778) — SUCCESS; PowerShell 7.6.6, 11 archivos parseados, 0 errores, PSScriptAnalyzer 1.24.0 con 0 findings.
+- Security and dependency quality gate: [run 43794891103](https://github.com/Osleyder1985/SINAYXA/actions/runs/43794891103) — SUCCESS; npm audit, Gitleaks y OSV PR SUCCESS; OSV full SKIPPED.
+- Suite semántica correctiva 0.2.1: 102 tests — PASS sobre el HEAD `524a63a8422be0987c8e129ee59a3174c627f75c`.
 - JSON Schema Draft 2020-12: PASS.
 - Fixture 0.2.1 y validador semántico: PASS.
 - Auditoría npm, Gitleaks y OSV PR: SUCCESS. Los pasos SKIPPED no se contabilizan como PASS.
-- Artefacto de evidencia PowerShell: [powershell-validation-evidence-43794411000](https://github.com/Osleyder1985/SINAYXA/actions/runs/43794411000).
+- Artefacto de evidencia PowerShell: [powershell-validation-evidence-43794890778](https://github.com/Osleyder1985/SINAYXA/actions/runs/43794890778).
 
 ### Trazabilidad actual por área
 
@@ -225,7 +225,7 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | ARC-08 | `test_021_archived_evidence_cannot_be_rebound_to_another_source_version`; `test_021_archive_attestation_cannot_be_reused_for_another_evidence_item`; `test_021_archive_attestation_cannot_claim_another_source_version`; `test_021_archive_attestation_rejects_captured_content_hash_mismatch`; `test_021_archive_attestation_rejects_expected_digest_mismatch` | Atestación ligada a evidence_id, source_version_id y SHA-256 exactos; CI PASS en run #591 sobre HEAD `56759d2`. Falta prueba de inmutabilidad del archivo físico/objeto frente a alteración posterior |
 | MIG-01 | `test_021_migration_manifest_is_schema_valid_and_lossless` | Migración sintética válida cubierta |
 | MIG-02 | `test_021_real_020_to_021_migration_is_deterministic_without_duplicates`; `test_021_historical_assessed_at_null_is_preserved_for_claim_and_factor` | Representa `claim_assessments.assessed_at=null` sin inferir fecha; conserva los timestamps existentes de `factor_assessments`. La clave sigue siendo obligatoria. |
-| MIG-03/04 | `test_migration_rejects_historical_status_change`; `test_migration_rejects_unknown_independence_promoted_to_independent`; `test_migration_rejects_changed_historical_assessment_cutoff`; `test_migration_rejects_changed_historical_evidence_references` | Se rechaza expresamente promover DESCONOCIDA a INDEPENDIENTE durante migración; CI PASS en run #599 sobre HEAD `0b2f886` |
+| MIG-03/04 | `test_migration_rejects_historical_status_change`; `test_migration_rejects_unknown_independence_promoted_to_independent`; `test_migration_rejects_changed_historical_assessment_cutoff`; `test_migration_rejects_changed_historical_evidence_references`; `test_migration_rejects_mutation_across_every_historical_collection` | Rechaza promover DESCONOCIDA a INDEPENDIENTE y alterar cortes, referencias o valores representativos en 16 colecciones históricas, incluso recalculando el hash de salida; CI PASS en run 43794890778 sobre HEAD `524a63a`. La prueba usa un registro representativo por colección; no sustituye una comparación exhaustiva de todos los registros y campos |
 | MIG-05 | `test_migration_rejects_dropped_unknown_source_field` | Pérdida silenciosa de campo rechazada |
 | MIG-06 | `test_021_real_020_to_021_migration_is_deterministic_without_duplicates` | Ejecuta dos veces el migrador real con la misma entrada/plan, compara paquete y snapshots completos, verifica cardinalidades y rechaza reentrada sobre 0.2.1. |
 | MIG-07 | `test_migration_rejects_methodology_version_rewrite` | Reescritura metodológica rechazada |
@@ -254,7 +254,7 @@ Los commits `32d5fb8`, `0acb99c`, `7787b80` y `770de14` añaden controles para:
 - Relación `CITA_DE` representada como dependencia, nunca como origen independiente.
 - Cronología diferenciada entre publicación, primera detección y recuperación, admitiendo detección pre-release y rechazando recuperación anterior a detección.
 
-El último HEAD con ambos quality gates verificados es `b7faa0a0ad83217c1ea9d49ab6d5a39506ac7a3e` (101 tests PASS). Las áreas A–E siguen ABIERTAS; la cobertura añadida no equivale a cierre mientras existan escenarios, positivos, negativos, fronterizos o trazabilidad pendientes.
+El último HEAD con ambos quality gates verificados es `524a63a8422be0987c8e129ee59a3174c627f75c` (102 tests PASS). Las áreas A–E siguen ABIERTAS; la cobertura añadida no equivale a cierre mientras existan escenarios, positivos, negativos, fronterizos o trazabilidad pendientes.
 
 ### Controles adicionales de privacidad de auditoría — verificados en CI sobre `8dbb223`
 
