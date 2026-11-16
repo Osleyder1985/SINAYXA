@@ -294,6 +294,9 @@ def validate_package(
 
     _validate_independence_assessments(package)
     _validate_corroborated_claims(package)
+    for assessment in package["claim_assessments"]:
+        require(assessment["assessed_at"] >= assessment["assessment_cutoff"],
+                "claim assessment execution cannot predate its evidence cutoff")
 
     retention_by_id = _index(package["retention_records"], "retention_id", "retention_id")
     copy_ids = [item["copy_id"] for item in package["retention_copy_records"]]
@@ -321,6 +324,18 @@ def validate_package(
             scoped_copy_ids = {item["copy_id"] for item in copies}
             events = [event for event in all_copy_events if event["copy_id"] in scoped_copy_ids]
             validate_retention_scope(record["disposition"], copies, events)
+            deletion_requested_at = [
+                event["occurred_at"] for event in events
+                if event["action"] == "COPY_DELETION_REQUESTED"
+            ]
+            if deletion_requested_at:
+                first_request = min(deletion_requested_at)
+                subject_ref = record["subject_ref"]
+                for assessment in package["claim_assessments"]:
+                    used_refs = set(assessment["supporting_evidence_refs"]) | set(assessment["contrary_evidence_refs"])
+                    if subject_ref in used_refs:
+                        require(assessment["assessed_at"] <= first_request,
+                                "evidence cannot be used in a new claim assessment after DELETE_PENDING")
         else:
             require(not record["content_retained"] and record["disposition"] == "REFERENCE_ONLY",
                     "a retention state involving content requires an explicit copy inventory")
