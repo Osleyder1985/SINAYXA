@@ -615,6 +615,30 @@ class Contract021ExtensionTests(unittest.TestCase):
         }
         validate_package(target_package, base_schema, schema, snapshots)
 
+    def test_021_package_rejects_migration_with_incorrect_snapshot_digest(self):
+        root = Path(__file__).resolve().parents[2]
+        schema, target_package = self.load_contract_021_fixture()
+        base_schema = json.loads((root / "schemas" / "source-evidence-contract-0.2.0.schema.json").read_text(encoding="utf-8"))
+        source_snapshot = json.loads((root / "tests" / "fixtures" / "contracts" / "source-evidence-contract-v0.2.0.json").read_text(encoding="utf-8"))
+        target_snapshot = copy.deepcopy(target_package)
+        target_snapshot["migration_records"] = []
+        manifest = {
+            "migration_id": "migration-bad-digest", "source_contract_version": "0.2.0",
+            "target_contract_version": "0.2.1", "migrator_version": "1.0.0",
+            "executed_at": "2026-11-15T22:00:00Z", "input_sha256": "0" * 64,
+            "output_sha256": canonical_migration_payload_sha256(target_snapshot),
+            "rules_applied": ["preserve-history"], "result": "PASS", "loss_report": [],
+            "source_snapshot_ref": "fixture://source-evidence-contract-v0.2.0",
+            "target_snapshot_ref": "fixture://source-evidence-contract-v0.2.1"
+        }
+        target_package["migration_records"].append(manifest)
+        snapshots = {
+            manifest["source_snapshot_ref"]: source_snapshot,
+            manifest["target_snapshot_ref"]: target_snapshot,
+        }
+        with self.assertRaises(ContractViolation):
+            validate_package(target_package, base_schema, schema, snapshots)
+
     def test_021_successful_migration_cannot_report_data_loss(self):
         schema, package = self.load_contract_021_fixture()
         package["migration_records"].append({
