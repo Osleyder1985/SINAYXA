@@ -16,7 +16,7 @@ CLIENT_VERSION=NOT_DETECTED
 BACKUP_SHA256=NOT_CREATED
 BACKUP_SIZE=0
 mkdir -p "$ARTIFACT_DIR"
-for check in container dataset backup restore integrity corrupt_dump_rejection repeat_restore cleanup; do eval "RESULT_$check=NOT_RUN"; done
+for check in container dataset backup restore integrity corrupt_dump_rejection repeat_restore container_cleanup volume_cleanup cleanup; do eval "RESULT_$check=NOT_RUN"; done
 write_report() {
   local status="$1" end
   end="$(date +%s)"
@@ -40,6 +40,8 @@ write_report() {
     "integrity": "$RESULT_integrity",
     "corrupt_dump_rejection": "$RESULT_corrupt_dump_rejection",
     "repeat_restore": "$RESULT_repeat_restore",
+    "container_cleanup": "$RESULT_container_cleanup",
+    "volume_cleanup": "$RESULT_volume_cleanup",
     "cleanup": "$RESULT_cleanup"
   },
   "external_database_connections": false,
@@ -54,18 +56,26 @@ cleanup() {
   if [[ "$CONTAINER_CREATED" == true ]]; then docker rm -fv "$CONTAINER" >/dev/null 2>&1 || true; fi
   RESULT_cleanup=NOT_RUN
   if [[ "$CONTAINER_CREATED" == true ]]; then
-    RESULT_cleanup=PASS
     if ! container_names="$(docker ps -a --format '{{.Names}}')"; then
-      RESULT_cleanup=FAIL
+      RESULT_container_cleanup=FAIL
     elif printf '%s\n' "$container_names" | grep -Fxq "$CONTAINER"; then
-      RESULT_cleanup=FAIL
+      RESULT_container_cleanup=FAIL
+    else
+      RESULT_container_cleanup=PASS
     fi
     if [[ "$POSTGRES_VOLUME" != NOT_DETECTED ]]; then
       if ! volume_names="$(docker volume ls --format '{{.Name}}')"; then
-        RESULT_cleanup=FAIL
+        RESULT_volume_cleanup=FAIL
       elif printf '%s\n' "$volume_names" | grep -Fxq -- "$POSTGRES_VOLUME"; then
-        RESULT_cleanup=FAIL
+        RESULT_volume_cleanup=FAIL
+      else
+        RESULT_volume_cleanup=PASS
       fi
+    else
+      RESULT_volume_cleanup=FAIL
+    fi
+    if [[ "$RESULT_container_cleanup" == PASS && "$RESULT_volume_cleanup" == PASS ]]; then
+      RESULT_cleanup=PASS
     else
       RESULT_cleanup=FAIL
     fi
