@@ -298,6 +298,75 @@ def _validate_scoped_claim_evidence(
             _available_at(package, evidence_id, unit)
 
 
+def _validate_claim_assessment_chains(package: dict[str, Any]) -> None:
+    """Require append-only, chronological, non-branching assessment history per component version."""
+    assessments = package["claim_assessments"]
+    by_id = _index(assessments, "claim_assessment_id", "claim_assessment_id")
+    groups: dict[tuple[str, str, str, str], list[dict[str, Any]]] = {}
+    for assessment in assessments:
+        key = (
+            assessment["claim_id"],
+            assessment["claim_component_id"],
+            assessment["claim_version_id"],
+            assessment["claim_component_version_id"],
+        )
+        groups.setdefault(key, []).append(assessment)
+
+    for group in groups.values():
+        if len(group) == 1:
+            require(group[0]["supersedes_assessment_id"] is None,
+                    "the first assessment in a component history cannot supersede another assessment")
+            continue
+
+        successors: dict[str, list[str]] = {}
+        roots = []
+        for assessment in group:
+            assessment_id = assessment["claim_assessment_id"]
+            predecessor_id = assessment["supersedes_assessment_id"]
+            if predecessor_id is None:
+                roots.append(assessment_id)
+                continue
+            require(predecessor_id in by_id,
+                    "superseded claim assessment reference must resolve")
+            predecessor = by_id[predecessor_id]
+            require(predecessor_id != assessment_id,
+                    "claim assessment cannot supersede itself")
+            require(
+                all(predecessor[field] == assessment[field] for field in (
+                    "claim_id", "claim_component_id", "claim_version_id",
+                    "claim_component_version_id",
+                )),
+                "superseded assessment must belong to the exact same claim and component version",
+            )
+            require(predecessor["assessment_cutoff"] < assessment["assessment_cutoff"],
+                    "a superseding assessment must have a strictly later evidence cutoff")
+            previous_assessed_at = predecessor.get("assessed_at")
+            current_assessed_at = assessment.get("assessed_at")
+            if previous_assessed_at is not None and current_assessed_at is not None:
+                require(previous_assessed_at <= current_assessed_at,
+                        "assessment execution time cannot move backwards along the history chain")
+            successors.setdefault(predecessor_id, []).append(assessment_id)
+
+        require(len(roots) == 1,
+                "each claim/component version history must have exactly one root assessment")
+        require(all(len(items) == 1 for items in successors.values()),
+                "assessment history cannot fork: an assessment may have at most one direct successor")
+        root = by_id[roots[0]]
+        require(all(root["assessment_cutoff"] < item["assessment_cutoff"] for item in group if item["claim_assessment_id"] != roots[0]),
+                "the root assessment must be the earliest assessment in its component history")
+        require(len(successors) == len(group) - 1,
+                "every non-root assessment must link to its immediate predecessor")
+
+        visited = set()
+        current_id = roots[0]
+        while current_id in successors:
+            require(current_id not in visited, "assessment history contains a cycle")
+            visited.add(current_id)
+            current_id = successors[current_id][0]
+        require(len(visited) == len(group) - 1,
+                "assessment history contains disconnected or cyclic assessments")
+
+
 def _validate_claim_assessment_evidence(package: dict[str, Any]) -> None:
     for assessment in package["claim_assessments"]:
         status = assessment["evidentiary_status"]
@@ -523,6 +592,7 @@ def validate_package(
 
     _validate_analysis_processes(package)
     _validate_independence_assessments(package)
+    _validate_claim_assessment_chains(package)
     _validate_claim_assessment_evidence(package)
     _validate_corroborated_claims(package)
     _validate_audit_subject_references(package)
