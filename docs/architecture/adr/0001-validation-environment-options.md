@@ -263,6 +263,99 @@ Fuentes oficiales de referencia:
 - AIStor release metadata/API y artefactos: [documentación de artefactos](https://docs.min.io/aistor/operations/release-artifacts/) y [API oficial de releases](https://dl.min.io/api/releases/aistor/latest).
 - AIStor container deployment for development/testing: [despliegue en contenedor](https://docs.min.io/aistor/installation/container/).
 
+
+### 11.1 Manifiesto reproducible de versiones
+
+Cada ejecución debe producir un `version-manifest.json` asociado al commit, al identificador de ejecución y al baseline sintético. El manifiesto se genera **después** de resolver las versiones oficiales y **antes** de descargar o ejecutar imágenes. No se acepta un manifiesto completado a partir de etiquetas flotantes ni de versiones recordadas de una ejecución anterior.
+
+Campos mínimos por componente:
+
+| Campo | Requisito |
+| --- | --- |
+| `component` | Identificador estable: `postgresql-server`, `postgresql-client`, `docker-engine`, `docker-cli`, `docker-compose`, `aistor-server`, `aistor-client`, `operating-system`. |
+| `vendor` / `product` | Fabricante y producto oficial. |
+| `release` | Versión exacta GA y mantenida, no rango ni alias. |
+| `release_channel` | `GA`; cualquier otro valor bloquea la ejecución. |
+| `source_uri` | Página oficial de release o metadatos desde la que se resolvió la versión. |
+| `resolved_at_utc` | Fecha/hora UTC de resolución. |
+| `artifact` | Nombre de imagen/paquete y plataforma/arquitectura, cuando corresponda. |
+| `immutable_reference` | Digest OCI para imágenes; para paquetes, URL/versionado inmutable o identificador oficial equivalente. |
+| `checksum_algorithm` / `checksum` | Algoritmo y checksum publicado, si existe. No inventar checksum ni sustituir digest OCI. |
+| `sbom_uri` / `sbom_format` | SBOM y formato CycloneDX/SPDX si el fabricante los publica; si no, registrar `NOT_PUBLISHED`. |
+| `signature_verification` | Mecanismo oficial y resultado; usar `NOT_PUBLISHED` si no existe mecanismo publicado. |
+| `license_status` | Condiciones aplicables al uso de laboratorio, verificadas documentalmente. |
+| `compatibility_status` | Resultado de compatibilidad entre componentes y sistema operativo. |
+| `evidence_refs` | URLs oficiales y hashes de los documentos/artefactos preservados. |
+
+Estados permitidos del manifiesto:
+
+- `BLOCKED`: falta versión exacta, procedencia, digest/checksum requerido, compatibilidad o revisión de licencia.
+- `READY_FOR_OWNER_REVIEW`: los datos están completos, pero aún no existe autorización operacional para descargar/instalar/desplegar.
+- `AUTHORIZED_FOR_LAB`: solo después de autorización expresa y separada para la ejecución concreta.
+- `EXECUTED`: ejecución completada y vinculada a logs, baseline, commit y artefactos.
+
+Plantilla ilustrativa — no representa versiones ya resueltas ni autoriza ejecución:
+
+```json
+{
+  "manifest_version": "1.0.0",
+  "status": "BLOCKED",
+  "project": "SINAYXA",
+  "purpose": "isolated-synthetic-validation-lab",
+  "source_commit": null,
+  "baseline_id": null,
+  "resolved_at_utc": null,
+  "components": [
+    {
+      "component": "postgresql-server",
+      "vendor": "PostgreSQL Global Development Group",
+      "product": "PostgreSQL",
+      "release": null,
+      "release_channel": "GA",
+      "source_uri": null,
+      "resolved_at_utc": null,
+      "artifact": null,
+      "immutable_reference": null,
+      "checksum_algorithm": null,
+      "checksum": null,
+      "sbom_uri": null,
+      "sbom_format": "NOT_PUBLISHED",
+      "signature_verification": "NOT_VERIFIED",
+      "license_status": "NOT_ASSESSED",
+      "compatibility_status": "NOT_ASSESSED",
+      "evidence_refs": []
+    }
+  ],
+  "authorization": {
+    "status": "NOT_AUTHORIZED",
+    "approved_by": null,
+    "approved_at_utc": null,
+    "scope": null
+  },
+  "execution": {
+    "status": "NOT_STARTED",
+    "started_at_utc": null,
+    "completed_at_utc": null,
+    "evidence_refs": []
+  }
+}
+```
+
+La plantilla anterior muestra la estructura mínima de un componente; la ejecución real debe incluir una entrada independiente para cada componente utilizado. Los campos desconocidos permanecen `null` o en un estado explícito de no verificación. Está prohibido completar datos por inferencia.
+
+### 11.2 Puertas de control previas a la ejecución
+
+1. **Resolución:** consultar las páginas/API oficiales en la fecha de preparación; comprobar que cada release está publicado como GA y mantenido.
+2. **Fijación:** resolver digest OCI de cada imagen y referencias inmutables de paquetes. Un tag como `latest` solo sirve para descubrir el release, nunca para ejecutar.
+3. **Integridad:** verificar checksum/firma mediante el mecanismo que publique el fabricante y guardar resultado reproducible.
+4. **Licencia:** documentar si el uso local/sintético está permitido y si exige registro, licencia o activación. La falta de certeza mantiene `BLOCKED`.
+5. **Compatibilidad:** comprobar matriz de compatibilidad entre versiones, arquitectura, Docker Engine/CLI/Compose y Windows/WSL2 u otro host real.
+6. **Revisión:** generar el manifiesto completo en estado `READY_FOR_OWNER_REVIEW`; no descargar ni instalar automáticamente.
+7. **Autorización operacional:** pasar a `AUTHORIZED_FOR_LAB` únicamente con aprobación explícita del propietario para el alcance, equipo y coste de esa ejecución.
+8. **Ejecución y cierre:** registrar logs, hashes, estado de limpieza y artefactos; pasar a `EXECUTED` solo si las pruebas y limpieza concluyen con resultado verificable.
+
+Un manifiesto incompleto, una incompatibilidad, una licencia no aclarada o una fuente oficial no verificable bloquean la ejecución. La ausencia de SBOM o firma publicada debe registrarse como tal, no sustituirse por una afirmación de verificación.
+
 ### Reglas de reproducibilidad y seguridad
 
 1. Resolver versiones estables antes de ejecutar; no asumir que un número de versión conocido sigue siendo el último.
