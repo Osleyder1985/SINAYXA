@@ -263,7 +263,6 @@ Fuentes oficiales de referencia:
 - AIStor release metadata/API y artefactos: [documentación de artefactos](https://docs.min.io/aistor/operations/release-artifacts/) y [API oficial de releases](https://dl.min.io/api/releases/aistor/latest).
 - AIStor container deployment for development/testing: [despliegue en contenedor](https://docs.min.io/aistor/installation/container/).
 
-
 ### 11.1 Manifiesto reproducible de versiones
 
 Cada ejecución debe producir un `version-manifest.json` asociado al commit, al identificador de ejecución y al baseline sintético. El manifiesto se genera **después** de resolver las versiones oficiales y **antes** de descargar o ejecutar imágenes. No se acepta un manifiesto completado a partir de etiquetas flotantes ni de versiones recordadas de una ejecución anterior.
