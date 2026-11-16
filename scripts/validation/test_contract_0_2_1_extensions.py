@@ -340,7 +340,8 @@ class Contract021ExtensionTests(unittest.TestCase):
             "output_sha256": "b" * 64, "rules_applied": ["preserve-history"],
             "result": "PASS", "loss_report": ["unknown field discarded"]
         })
-        self.assert_schema_valid(schema, package)
+        errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(package))
+        self.assertTrue(errors, "PASS migration with a non-empty loss_report must be rejected by the schema")
 
     def test_021_deleted_scope_rejects_uninventoried_replica(self):
         schema, package = self.load_contract_021_fixture()
