@@ -111,6 +111,8 @@ Registrar una solicitud no demuestra que la eliminación terminó. El modelo deb
 
 INDEPENDENT_ARCHIVE identifica una base de observación externa, no garantiza automáticamente autenticidad, integridad ni disponibilidad. La fecha archivada solo respalda disponibilidad histórica cuando existen referencias trazables a la captura, al mecanismo archivístico y a la integridad del registro. La confiabilidad del archivo y la disponibilidad temporal son dimensiones separadas.
 
+**Límite de cierre ARC-08:** la identidad de `evidence_id`/`source_version_id` y la coincidencia SHA-256 acreditan el vínculo del contenido examinado en el momento de la comprobación; no acreditan inmutabilidad física futura del objeto archivado. Para afirmar preservación inmutable se exigirá evidencia externa, específica del objeto/versión, de un control de retención inmutable (WORM/Object Lock o mecanismo equivalente), junto con verificación independiente y registro temporal. Si esa evidencia no existe, el estado de inmutabilidad debe permanecer `UNKNOWN`/`NOT_VERIFIED`. No se selecciona proveedor ni se presume que un digest por sí solo sustituya ese control.
+
 | ID | Escenario | Resultado esperado |
 | --- | --- | --- |
 | ARC-01 | Captura identificable, timestamp, referencia verificable e integridad coincidente | Puede sustentar disponibilidad temporal, no autenticidad por sí sola |
