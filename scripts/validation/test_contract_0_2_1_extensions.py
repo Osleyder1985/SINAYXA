@@ -1118,5 +1118,205 @@ class Contract021ExtensionTests(unittest.TestCase):
 
 
 
+
+    def test_021_source_correction_is_a_new_version_and_preserves_prior_version(self):
+        schema, package = self.load_contract_021_fixture()
+        original = copy.deepcopy(package["source_versions"][0])
+        corrected = copy.deepcopy(original)
+        corrected.update({
+            "source_version_id": "version-a2",
+            "version_label": "v2-correction",
+            "version_sequence": 2,
+            "supersedes_source_version_id": original["source_version_id"],
+            "recorded_at": "2026-11-15T23:00:00Z",
+            "retrieved_at": "2026-11-15T22:30:00Z",
+            "first_detected_at": "2026-11-15T22:25:00Z",
+            "content_hash": None,
+            "hash_algorithm": None,
+        })
+        package["source_versions"].append(corrected)
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+        self.assertEqual(
+            next(item for item in package["source_versions"] if item["source_version_id"] == original["source_version_id"]),
+            original,
+        )
+
+    def test_021_source_version_chain_rejects_self_or_future_supersession(self):
+        schema, package = self.load_contract_021_fixture()
+        corrected = copy.deepcopy(package["source_versions"][0])
+        corrected.update({
+            "source_version_id": "version-a2",
+            "version_label": "v2-invalid",
+            "version_sequence": 2,
+            "supersedes_source_version_id": "version-a2",
+            "recorded_at": "2026-11-15T23:00:00Z",
+        })
+        package["source_versions"].append(corrected)
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_source_version_chain_rejects_forked_successors(self):
+        schema, package = self.load_contract_021_fixture()
+        for suffix in ("2", "3"):
+            corrected = copy.deepcopy(package["source_versions"][0])
+            corrected.update({
+                "source_version_id": f"version-a{suffix}",
+                "version_label": f"v{suffix}-branch",
+                "version_sequence": 2,
+                "supersedes_source_version_id": "version-a1",
+                "recorded_at": "2026-11-15T23:00:00Z",
+            })
+            package["source_versions"].append(corrected)
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_dependency_edge_must_connect_two_assessed_source_versions(self):
+        schema, package = self.load_contract_021_fixture()
+        external = copy.deepcopy(next(
+            node for node in package["provenance_nodes"] if node["node_id"] == "node-version-b"
+        ))
+        external.update({"node_id": "node-version-external", "entity_ref": "version-outside-assessment"})
+        package["provenance_nodes"].append(external)
+        package["provenance_edges"].append({
+            "edge_id": "external-dependency",
+            "dependent_node_id": "node-version-a",
+            "origin_node_id": "node-version-external",
+            "relation_type": "SINDICADA_DE",
+            "claim_component_id": "component-entity",
+            "evidence_refs": ["evidence-a"],
+            "recorded_at": "2026-11-15T22:00:00Z",
+            "valid_from": None,
+            "valid_to": None,
+            "claim_component_version_id": "component-entity-v1",
+        })
+        assessment = package["independence_assessments"][0]
+        assessment.update({
+            "status": "DEPENDIENTE",
+            "supporting_evidence_refs": ["evidence-a"],
+            "dependency_edge_refs": ["external-dependency"],
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_dependency_edge_cannot_connect_a_source_version_to_itself(self):
+        schema, package = self.load_contract_021_fixture()
+        package["provenance_edges"].append({
+            "edge_id": "self-dependency",
+            "dependent_node_id": "node-version-a",
+            "origin_node_id": "node-version-a",
+            "relation_type": "SINDICADA_DE",
+            "claim_component_id": "component-entity",
+            "evidence_refs": ["evidence-a"],
+            "recorded_at": "2026-11-15T22:00:00Z",
+            "valid_from": None,
+            "valid_to": None,
+            "claim_component_version_id": "component-entity-v1",
+        })
+        assessment = package["independence_assessments"][0]
+        assessment.update({
+            "status": "DEPENDIENTE",
+            "supporting_evidence_refs": ["evidence-a"],
+            "dependency_edge_refs": ["self-dependency"],
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_primary_hash_integrity_without_authenticity_cannot_corroborate(self):
+        primary = [{
+            "source_type": "PRIMARIA", "source_id": "s1", "source_version_id": "v1",
+            "authenticity_status": "UNKNOWN", "access_status": "PÚBLICO_LEGÍTIMO",
+            "unit_access_status": "PÚBLICO_LEGÍTIMO", "knowledge_basis": "REGISTRO_ORIGINAL",
+            "scope_note": "El hash coincide, pero no acredita autoría.",
+            "available_at": "2026-01-01T00:00:00Z",
+        }]
+        units = [{
+            "assessment_unit_id": "u1", "source_id": "s1", "source_version_id": "v1",
+            "claim_component_version_id": "cv1", "assessment_cutoff": self.cutoff,
+            "source_type": "PRIMARIA",
+        }]
+        with self.assertRaises(ContractViolation):
+            validate_corroboration("CORROBORADA", "EVIDENCIA_PRIMARIA_DIRECTA",
+                                   units, primary, set(), self.cutoff)
+
+    def test_primary_private_unauthorized_or_unknown_access_cannot_corroborate(self):
+        for access_status in ("PRIVADO_NO_AUTORIZADO", "DESCONOCIDO"):
+            primary = [{
+                "source_type": "PRIMARIA", "source_id": "s1", "source_version_id": "v1",
+                "authenticity_status": "AUTENTICADA", "access_status": access_status,
+                "unit_access_status": access_status, "knowledge_basis": "REGISTRO_ORIGINAL",
+                "scope_note": "Acceso no legitimado.",
+                "available_at": "2026-01-01T00:00:00Z",
+            }]
+            units = [{
+                "assessment_unit_id": "u1", "source_id": "s1", "source_version_id": "v1",
+                "claim_component_version_id": "cv1", "assessment_cutoff": self.cutoff,
+                "source_type": "PRIMARIA",
+            }]
+            with self.subTest(access_status=access_status):
+                with self.assertRaises(ContractViolation):
+                    validate_corroboration("CORROBORADA", "EVIDENCIA_PRIMARIA_DIRECTA",
+                                           units, primary, set(), self.cutoff)
+
+    def test_021_source_stated_timestamp_does_not_prove_historical_availability(self):
+        schema, package = self.load_contract_021_fixture()
+        package["evidence_availability"][0]["availability_basis"] = "SOURCE_STATED"
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_archived_evidence_cannot_be_rebound_to_another_source_version(self):
+        schema, package = self.load_contract_021_fixture()
+        package["evidence_items"][0]["source_version_id"] = "version-b1"
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_migration_rejects_changed_historical_assessment_cutoff(self):
+        source = {"contract_version": "0.2.0", "claims": [],
+                  "claim_components": [], "sources": [], "source_versions": [],
+                  "identity_assessments": [], "evaluation_units": [], "evidence_items": [],
+                  "evidence_availability": [], "claim_evidence_links": [], "provenance_nodes": [],
+                  "provenance_edges": [], "factor_assessments": [], "independence_assessments": [],
+                  "claim_assessments": [{"assessment_cutoff": "2026-01-01T00:00:00Z"}],
+                  "retention_records": [], "audit_events": []}
+        target = copy.deepcopy(source)
+        target["contract_version"] = "0.2.1"
+        target["claim_assessments"][0]["assessment_cutoff"] = "2026-01-02T00:00:00Z"
+        manifest = {"migration_id": "m-cutoff", "migrator_version": "1.0.0",
+                    "source_contract_version": "0.2.0", "target_contract_version": "0.2.1",
+                    "input_sha256": canonical_migration_payload_sha256(source),
+                    "output_sha256": canonical_migration_payload_sha256(target),
+                    "rules_applied": ["preserve-cutoff"], "result": "PASS"}
+        with self.assertRaises(ContractViolation):
+            validate_migration(source, target, manifest)
+
+    def test_migration_rejects_changed_historical_evidence_references(self):
+        source = {"contract_version": "0.2.0", "claims": [],
+                  "claim_components": [], "sources": [], "source_versions": [],
+                  "identity_assessments": [], "evaluation_units": [], "evidence_items": [],
+                  "evidence_availability": [], "claim_evidence_links": [], "provenance_nodes": [],
+                  "provenance_edges": [], "factor_assessments": [], "independence_assessments": [],
+                  "claim_assessments": [{"supporting_evidence_refs": ["evidence-original"]}],
+                  "retention_records": [], "audit_events": []}
+        target = copy.deepcopy(source)
+        target["contract_version"] = "0.2.1"
+        target["claim_assessments"][0]["supporting_evidence_refs"] = ["evidence-substituted"]
+        manifest = {"migration_id": "m-evidence-ref", "migrator_version": "1.0.0",
+                    "source_contract_version": "0.2.0", "target_contract_version": "0.2.1",
+                    "input_sha256": canonical_migration_payload_sha256(source),
+                    "output_sha256": canonical_migration_payload_sha256(target),
+                    "rules_applied": ["preserve-evidence-references"], "result": "PASS"}
+        with self.assertRaises(ContractViolation):
+            validate_migration(source, target, manifest)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
