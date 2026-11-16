@@ -10,6 +10,7 @@ REPORT="$ARTIFACT_DIR/postgresql-lab-report.json"
 START_EPOCH="$(date +%s)"
 STARTED_AT_UTC="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 CONTAINER_CREATED=false
+POSTGRES_VOLUME=NOT_DETECTED
 SERVER_VERSION=NOT_DETECTED
 CLIENT_VERSION=NOT_DETECTED
 BACKUP_SHA256=NOT_CREATED
@@ -49,13 +50,19 @@ EOF
 }
 cleanup() {
   local rc=$?
-  local container_names
+  local container_names volume_names
   if [[ "$CONTAINER_CREATED" == true ]]; then docker rm -fv "$CONTAINER" >/dev/null 2>&1 || true; fi
-  if container_names="$(docker ps -a --format '{{.Names}}')"; then
-    if printf '%s\n' "$container_names" | grep -Fxq "$CONTAINER"; then
+  RESULT_cleanup=PASS
+  if ! container_names="$(docker ps -a --format '{{.Names}}')"; then
+    RESULT_cleanup=FAIL
+  elif printf '%s\n' "$container_names" | grep -Fxq "$CONTAINER"; then
+    RESULT_cleanup=FAIL
+  fi
+  if [[ "$POSTGRES_VOLUME" != NOT_DETECTED ]]; then
+    if ! volume_names="$(docker volume ls --format '{{.Name}}')"; then
       RESULT_cleanup=FAIL
-    else
-      RESULT_cleanup=PASS
+    elif printf '%s\n' "$volume_names" | grep -Fxq -- "$POSTGRES_VOLUME"; then
+      RESULT_cleanup=FAIL
     fi
   else
     RESULT_cleanup=FAIL
@@ -74,6 +81,12 @@ command -v docker >/dev/null
 docker info >/dev/null
 docker run -d --network none --name "$CONTAINER" -e POSTGRES_PASSWORD="$PASSWORD" "$IMAGE" >/dev/null
 CONTAINER_CREATED=true
+POSTGRES_VOLUME="$(docker inspect --format '{{range .Mounts}}{{if eq .Destination "/var/lib/postgresql/data"}}{{.Name}}{{end}}{{end}}' "$CONTAINER")"
+if [[ -z "$POSTGRES_VOLUME" ]]; then
+  POSTGRES_VOLUME=NOT_DETECTED
+  echo "PostgreSQL data volume could not be identified." >&2
+  exit 1
+fi
 for attempt in $(seq 1 60); do
   docker exec "$CONTAINER" pg_isready -U postgres >/dev/null 2>&1 && break
   [[ "$attempt" -lt 60 ]] || { echo "PostgreSQL readiness timeout" >&2; exit 1; }
