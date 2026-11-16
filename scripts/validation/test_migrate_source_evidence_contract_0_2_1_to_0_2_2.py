@@ -94,7 +94,7 @@ class Contract022MigrationTests(unittest.TestCase):
             self._migrate(self._uuid_compatible_source(), mappings)
 
     def test_unmapped_reason_is_rejected(self):
-        mappings = copy.deepcopy(self.mappings)
+        mappings = self._mapping_for(self._uuid_compatible_source())
         mappings["reasons"] = {}
         with self.assertRaisesRegex(MigrationRejected, "reason"):
             self._migrate(self._uuid_compatible_source(), mappings)
@@ -105,10 +105,10 @@ class Contract022MigrationTests(unittest.TestCase):
         with self.assertRaisesRegex(MigrationRejected, "not permitted"):
             self._migrate(self._uuid_compatible_source(), mappings)
 
-    def test_non_string_mapping_values_are_rejected(self):
+    def test_non_object_mapping_entries_are_rejected(self):
         mappings = copy.deepcopy(self.mappings)
         mappings["actor_roles"]["SYNTHETIC_TEST"] = ["SYSTEM"]
-        with self.assertRaisesRegex(MigrationRejected, "string-to-string"):
+        with self.assertRaisesRegex(MigrationRejected, "mapping entry"):
             self._migrate(self._uuid_compatible_source(), mappings)
 
     def test_stale_mapping_entries_are_rejected(self):
