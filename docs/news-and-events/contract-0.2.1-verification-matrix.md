@@ -443,7 +443,6 @@ La trazabilidad individual de cada escenario debe leerse junto con los nombres d
 
 No se aprueba el contrato 0.2.1, no se fusiona PR #85, no se selecciona proveedor y no se habilitan persistencia productiva, captura, crawling, vigilancia ni automatización.
 
-
 ## Reconciliación de estado — aprobación del propietario y HEAD vigente (2026-11-16)
 
 Esta sección actualiza el estado de gobernanza del contrato sin alterar el historial de ejecuciones anteriores ni declarar cerradas las áreas A–E.
