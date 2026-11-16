@@ -65,6 +65,18 @@ def validate_package(package: dict[str, Any], schema: dict[str, Any], roles: dic
         _require(record["subject_ref"] in subject_token_set,
                  "retention subject_ref must resolve to a declared opaque audit subject token")
 
+    copy_records = package.get("retention_copy_records", [])
+    copy_ids = {item["copy_id"] for item in copy_records}
+    _require(len(copy_ids) == len(copy_records), "duplicate copy_id")
+
+    used_subject_refs = {
+        record["subject_ref"]
+        for collection in ("retention_records", "audit_events", "retention_copy_records")
+        for record in package.get(collection, [])
+    }
+    _require(used_subject_refs == subject_token_set,
+             "audit_subject_tokens must contain exactly the referenced subject tokens")
+
     audit_ids: set[str] = set()
     for event in package.get("audit_events", []):
         event_id = event["audit_event_id"]
@@ -85,9 +97,13 @@ def validate_package(package: dict[str, Any], schema: dict[str, Any], roles: dic
             _require(event["retention_id"] in retention_by_id, "audit retention_id is unresolved")
             _require(retention_by_id[event["retention_id"]]["subject_ref"] == event["subject_ref"],
                      "audit event and retention record subject references differ")
+        if event.get("copy_id") is not None:
+            _require(event["copy_id"] in copy_ids, "audit copy_id is unresolved")
 
-    copy_ids = {item["copy_id"] for item in package.get("retention_copy_records", [])}
-    _require(len(copy_ids) == len(package.get("retention_copy_records", [])), "duplicate copy_id")
+    for retention in package.get("retention_records", []):
+        _require(set(retention.get("copy_scope_ids", [])).issubset(copy_ids),
+                 "retention copy_scope_ids contains an unresolved copy")
+
     for copy in package.get("retention_copy_records", []):
         _require(copy["subject_ref"] in subject_token_set, "copy subject_ref does not resolve to a declared opaque subject token")
         _require(copy["retention_id"] in retention_by_id, "copy retention_id is unresolved")
