@@ -92,6 +92,15 @@ class Contract021ExtensionTests(unittest.TestCase):
                 primary, set(), self.cutoff
             )
 
+    def test_retained_copy_inventory_has_discovery_audit(self):
+        copies = [{"copy_id": "primary", "parent_copy_id": None, "state": "PRESENT",
+                   "previous_state": None, "transition_event_ref": "event-1"}]
+        events = [{"audit_event_id": "event-1", "copy_id": "primary",
+                   "from_copy_state": None, "to_copy_state": "PRESENT",
+                   "action": "COPY_DISCOVERED", "actor_role": "DATA_CUSTODIAN",
+                   "occurred_at": "2026-01-01T00:00:00Z", "reason": "Synthetic copy inventory"}]
+        validate_retention_scope("RETAIN", copies, events)
+
     def test_delete_pending_requires_outstanding_copy_inventory(self):
         copies = [{"copy_id": "primary", "parent_copy_id": None, "state": "DELETE_PENDING",
                    "previous_state": "PRESENT", "transition_event_ref": "event-1"}]
@@ -182,6 +191,23 @@ class Contract021ExtensionTests(unittest.TestCase):
                     "input_sha256": canonical_sha256(source), "output_sha256": canonical_sha256(target),
                     "rules_applied": ["preserve-history"], "result": "PASS"}
         validate_migration(source, target, manifest)
+
+    def test_migration_rejects_dropped_unknown_source_field(self):
+        source = {"contract_version": "0.2.0", "extension_metadata": {"opaque_value": "preserve"},
+                  "claims": [], "claim_components": [], "sources": [], "source_versions": [],
+                  "identity_assessments": [], "evaluation_units": [], "evidence_items": [],
+                  "evidence_availability": [], "claim_evidence_links": [], "provenance_nodes": [],
+                  "provenance_edges": [], "factor_assessments": [], "independence_assessments": [],
+                  "claim_assessments": [], "retention_records": [], "audit_events": []}
+        target = copy.deepcopy(source)
+        target["contract_version"] = "0.2.1"
+        target.pop("extension_metadata")
+        manifest = {"migration_id": "m3", "migrator_version": "1.0.0",
+                    "source_contract_version": "0.2.0", "target_contract_version": "0.2.1",
+                    "input_sha256": canonical_sha256(source), "output_sha256": canonical_sha256(target),
+                    "rules_applied": ["preserve-history"], "result": "PASS"}
+        with self.assertRaises(ContractViolation):
+            validate_migration(source, target, manifest)
 
     def test_migration_rejects_historical_status_change(self):
         source = {"contract_version": "0.2.0", "claims": [{"claim_id": "c1"}],
