@@ -17,16 +17,20 @@ class Contract021ExtensionTests(unittest.TestCase):
     def setUp(self):
         self.units = [
             {"assessment_unit_id": "u1", "source_id": "s1", "source_version_id": "v1",
-             "claim_component_version_id": "cv1", "source_type": "SECUNDARIA"},
+             "claim_component_version_id": "cv1", "source_type": "SECUNDARIA",
+             "assessment_cutoff": "2026-01-02T00:00:00Z"},
             {"assessment_unit_id": "u2", "source_id": "s2", "source_version_id": "v2",
-             "claim_component_version_id": "cv1", "source_type": "SECUNDARIA"},
+             "claim_component_version_id": "cv1", "source_type": "SECUNDARIA",
+             "assessment_cutoff": "2026-01-02T00:00:00Z"},
         ]
         self.paths = [
             {"source_version_id": "v1", "claim_component_version_id": "cv1",
-             "relation_type": "ORIGEN_DIRECTO", "origin_id": "origin-1",
+             "relation_type": "ORIGEN_DIRECTO", "origin_id": "origin-1", "source_id": "s1",
+             "evidence_source_version_id": "v1",
              "origin_terminal": True, "evidence_ref": "e1", "available_at": "2026-01-01T00:00:00Z"},
             {"source_version_id": "v2", "claim_component_version_id": "cv1",
-             "relation_type": "ORIGEN_DIRECTO", "origin_id": "origin-2",
+             "relation_type": "ORIGEN_DIRECTO", "origin_id": "origin-2", "source_id": "s2",
+             "evidence_source_version_id": "v2",
              "origin_terminal": True, "evidence_ref": "e2", "available_at": "2026-01-01T00:00:00Z"},
         ]
         self.cutoff = "2026-01-02T00:00:00Z"
