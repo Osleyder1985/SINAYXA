@@ -245,6 +245,7 @@ El PASS de 64 tests y ambos quality gates corresponde exclusivamente a `ba0e16b`
 ### Cobertura adicional añadida después del HEAD `0acb99c` — pendiente de CI
 
 Los commits `32d5fb8`, `0acb99c`, `7787b80` y `770de14` añaden controles para:
+
 - Evidencia de apoyo y evidencia contraria vinculadas al componente, versión, corte y unidad exactos.
 - Estado `PARCIALMENTE_CORROBORADA` con alcances sustentado y no sustentado distintos.
 - Estado `CONTRADICHA` con evidencia contraria trazable; se rechazan referencias cruzadas a otro componente.
