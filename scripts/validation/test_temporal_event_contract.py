@@ -69,6 +69,15 @@ class TemporalContractTests(unittest.TestCase):
     def test_assertion_rejects_unknown_event(self):
         self.assert_invalid(lambda p: p["temporal_assertions"][0].update(event_id="missing-event"), "unknown event reference")
 
+    def test_assertion_source_must_be_registered_on_event(self):
+        self.assert_invalid(lambda p: p["temporal_assertions"][0].update(source_ref="unregistered-source"), "not registered")
+
+    def test_assertion_recorded_before_retrieval_rejected(self):
+        self.assert_invalid(lambda p: p["temporal_assertions"][0].update(recorded_at="2026-11-15T10:01:00Z"), "retrieval cannot occur after")
+
+    def test_conflict_cannot_predate_assertions(self):
+        self.assert_invalid(lambda p: p["temporal_conflicts"][0].update(recorded_at="2026-11-15T10:00:00Z"), "cannot predate")
+
     def test_conflict_rejects_unknown_assertion(self):
         self.assert_invalid(lambda p: p["temporal_conflicts"][0]["assertion_refs"].append("missing"), "unknown temporal assertion")
 
@@ -107,8 +116,25 @@ class TemporalContractTests(unittest.TestCase):
     def test_assessment_rejects_late_known_assertion(self):
         self.assert_invalid(lambda p: p["temporal_assessments"][0].update(assessment_cutoff="2026-11-15T10:00:00Z"), "not known at assessment cutoff")
 
+    def test_assessment_rejects_assertion_from_another_event(self):
+        self.package["temporal_assessments"][0]["event_id"] = "event-2"
+        self.assert_invalid(lambda p: None, "belongs to another event")
+
+    def test_assessment_rejects_duplicate_assertion_reference(self):
+        self.assert_invalid(lambda p: p["temporal_assessments"][0]["assertion_refs"].append("ta-event-1-v1"), "duplicate assertion reference")
+
     def test_assessment_rejects_unknown_reference(self):
         self.assert_invalid(lambda p: p["temporal_assessments"][0]["assertion_refs"].append("missing"), "unknown assertion reference")
+
+    def test_decision_rejects_unknown_superseded_decision(self):
+        self.package["conflict_decisions"] = [{
+            "decision_id":"decision-1","conflict_id":"conflict-1","from_status":"OPEN","to_status":"UNDER_REVIEW",
+            "assertion_refs":["ta-event-1-v1"],"supporting_evidence_refs":[],"contrary_evidence_refs":[],
+            "scope":"review","rationale":"review","limitations":"pending","actor_ref":"actor-1",
+            "decided_at":"2026-11-16T12:00:00Z","assessment_cutoff":"2026-11-16T11:00:00Z",
+            "rules_version":"rules-1","supersedes_decision_id":"missing-decision"}]
+        self.package["temporal_conflicts"][0]["status"]="UNDER_REVIEW"
+        self.assert_invalid(lambda p: None, "superseded decision does not exist")
 
     def test_reproducible_manifest_rejects_missing_components(self):
         assessment = self.package["temporal_assessments"][0]
@@ -120,6 +146,17 @@ class TemporalContractTests(unittest.TestCase):
             "canonicalization":"RFC8785","reproducibility_status":"REPRODUCIBLE","missing_components":["evidence body"],
             "created_at":"2026-11-16T12:02:00Z"}]
         self.assert_invalid(lambda p: None, "cannot declare missing")
+
+    def test_manifest_rejects_assertion_set_mismatch(self):
+        assessment = self.package["temporal_assessments"][0]
+        self.package["reproducibility_manifests"] = [{
+            "manifest_id":"manifest-1","assessment_id":assessment["assessment_id"],"assessment_cutoff":assessment["assessment_cutoff"],
+            "contract_version":"1.0.0","schema_sha256":"a"*64,"assertion_versions":[{"assertion_id":"ta-event-1-v1","version":1}],
+            "excluded_assertions":[],"evidence_refs":["evidence-calendar-1"],"conflict_decision_refs":[],"rules_version":assessment["rules_version"],
+            "rules_sha256":"b"*64,"tzdb_version":"2026a","software_version":assessment["software_version"],"result_sha256":"c"*64,
+            "canonicalization":"RFC8785","reproducibility_status":"REPRODUCIBLE","missing_components":[],
+            "created_at":"2026-11-16T12:02:00Z"}]
+        self.assert_invalid(lambda p: None, "must match the assessment assertion set")
 
     def test_partial_manifest_requires_missing_components(self):
         assessment = self.package["temporal_assessments"][0]
