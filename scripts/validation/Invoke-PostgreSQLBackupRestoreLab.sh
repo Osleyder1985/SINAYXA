@@ -193,7 +193,7 @@ compare_db() {
  docker exec "$CONTAINER" pg_dump --schema-only --no-owner --no-acl -U postgres -d "$db" > "$WORK_DIR/$db-schema.sql"
  docker exec "$CONTAINER" pg_dump --data-only --column-inserts --no-owner --no-acl -U postgres -d "$db" > "$WORK_DIR/$db-data.sql"
  # PostgreSQL 18 adds per-dump random psql guard tokens; normalize only those non-schema lines.
- sed -i -e '/^\\\\restrict /d' -e '/^\\\\unrestrict /d' "$WORK_DIR/$db-schema.sql" "$WORK_DIR/$db-data.sql"
+ sed -i -e '/^\\restrict /d' -e '/^\\unrestrict /d' "$WORK_DIR/$db-schema.sql" "$WORK_DIR/$db-data.sql"
 }
 compare_db sinayxa_source
 compare_db sinayxa_restored
