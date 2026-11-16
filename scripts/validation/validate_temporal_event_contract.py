@@ -48,6 +48,27 @@ def require_unique(items: list[dict[str, Any]], key: str, label: str) -> dict[st
     return index
 
 
+def derive_temporal_state(assertions: list[dict[str, Any]], cutoff: datetime) -> str:
+    """Derive one conservative state across all assertion versions at a cutoff."""
+    states: set[str] = set()
+    for assertion in assertions:
+        if assertion["temporal_role"] == "UNKNOWN":
+            return "UNDETERMINED"
+        start = assertion["interval_start"]
+        end = assertion["interval_end"]
+        if start["value"] is None or end["value"] is None:
+            return "UNDETERMINED"
+        start_at = parse_utc(start["value"], f"{assertion['temporal_assertion_id']}.interval_start")
+        end_at = parse_utc(end["value"], f"{assertion['temporal_assertion_id']}.interval_end")
+        if cutoff < start_at or (cutoff == start_at and not start["inclusive"]):
+            states.add("FUTURE")
+        elif cutoff > end_at or (cutoff == end_at and not end["inclusive"]):
+            states.add("PAST")
+        else:
+            states.add("ONGOING")
+    return states.pop() if len(states) == 1 else "UNDETERMINED"
+
+
 def validate_semantics(package: dict[str, Any]) -> None:
     assertions = package["temporal_assertions"]
     conflicts = package["temporal_conflicts"]
@@ -240,6 +261,10 @@ def validate_semantics(package: dict[str, Any]) -> None:
                 raise ContractError(f"{aid}: conflict decision belongs to another event")
             if parse_utc(decision["decided_at"], f"{ref}.decided_at") > cutoff:
                 raise ContractError(f"{aid}: conflict decision was made after assessment cutoff")
+        selected_assertions = [assertion_index[ref] for ref in assessment["assertion_refs"]]
+        derived_state = derive_temporal_state(selected_assertions, cutoff)
+        if assessment["derived_temporal_state"] != derived_state:
+            raise ContractError(f"{aid}: derived temporal state must be {derived_state} at its assessment cutoff")
         if assessment["recorded_at"] < assessment["assessment_cutoff"]:
             raise ContractError(f"{aid}: assessment cannot be recorded before its cutoff")
 
