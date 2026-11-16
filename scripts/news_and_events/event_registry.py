@@ -106,15 +106,21 @@ def create_event(connection: psycopg.Connection, event: dict[str, Any]) -> None:
 
 
 def add_source_reference(
-    connection: psycopg.Connection, event_id: str, source_ref: str
+    connection: psycopg.Connection,
+    event_id: str,
+    source_ref: str,
+    recorded_at_utc: str | None = None,
 ) -> None:
     """Append a source identifier without altering the immutable event record."""
     if not source_ref or not source_ref.strip():
         raise EventRegistryError("source_ref must be non-empty")
     with connection.transaction():
         connection.execute(
-            "INSERT INTO sinayxa.event_sources (event_id, source_ref) VALUES (%s, %s)",
-            (event_id, source_ref),
+            """
+            INSERT INTO sinayxa.event_sources (event_id, source_ref, recorded_at)
+            VALUES (%s, %s, COALESCE(%s, transaction_timestamp()))
+            """,
+            (event_id, source_ref, _utc(recorded_at_utc) if recorded_at_utc else None),
         )
 
 
@@ -196,15 +202,24 @@ def get_event_as_of(
     """Return only assertion versions recorded no later than the requested cutoff."""
     cutoff = _utc(cutoff_utc)
     row = connection.execute(
-        "SELECT event_payload FROM sinayxa.events WHERE event_id = %s",
-        (event_id,),
+        """
+        SELECT event_payload
+        FROM sinayxa.events
+        WHERE event_id = %s AND inserted_at <= %s
+        """,
+        (event_id, cutoff),
     ).fetchone()
     if row is None:
         return None
     event = dict(row[0])
     sources = connection.execute(
-        "SELECT source_ref FROM sinayxa.event_sources WHERE event_id = %s ORDER BY source_ref",
-        (event_id,),
+        """
+        SELECT source_ref
+        FROM sinayxa.event_sources
+        WHERE event_id = %s AND recorded_at <= %s
+        ORDER BY source_ref
+        """,
+        (event_id, cutoff),
     ).fetchall()
     event["source_refs"] = [item[0] for item in sources]
     assertions = connection.execute(
