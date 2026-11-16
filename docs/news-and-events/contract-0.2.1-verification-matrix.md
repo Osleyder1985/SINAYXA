@@ -297,3 +297,23 @@ Verificación añadida sobre el HEAD `090bb4b3a646ec73526aed7f197981696eab9fa0`:
 - Security/dependency quality gate [run 43796982839](https://github.com/Osleyder1985/SINAYXA/actions/runs/43796982839): SUCCESS sobre el mismo SHA. OSV full: SKIPPED, no contabilizado como PASS.
 
 **Límite:** los fixtures prueban la semántica del contrato; no demuestran que un proveedor haya ejecutado la expiración ni que todas las copias físicas hayan sido eliminadas. RET-04 conserva brecha operativa y el Área C permanece ABIERTA. Este resultado no cierra ninguna de las cinco áreas.
+
+
+### Verificación consolidada posterior a RET-04 — HEAD `d257c8d79442f7e4cbad97298a944856561b0300`
+
+Los dos quality gates finalizaron SUCCESS sobre el mismo HEAD:
+
+- PowerShell quality gate: [run 43798315744](https://github.com/Osleyder1985/SINAYXA/actions/runs/43798315744) — 29 pasos SUCCESS; validación del esquema Draft 2020-12 y del contrato 0.2.1 PASS; suite correctiva **108 tests PASS**.
+- Security and dependency quality gate: [run 43798315979](https://github.com/Osleyder1985/SINAYXA/actions/runs/43798315979) — Dependency audit/npm, OSV PR y Gitleaks SUCCESS. OSV full quedó SKIPPED y no se contabiliza como PASS.
+- RET-04: las pruebas `test_021_backup_expiration_not_yet_reached_keeps_copy_present` y `test_021_backup_expiration_reached_without_verification_remains_pending` pasan. La expiración programada no demuestra borrado; la copia sigue pendiente hasta que exista verificación.
+- La corrección documental posterior al fallo MD012 fue verificada por ambos gates en este HEAD.
+
+**Brechas que permanecen expresamente abiertas:**
+
+- **Área A / IND-08:** los casos de dependencia exacta están implementados; su cobertura en este HEAD queda integrada en la suite de 108 pruebas. Falta la trazabilidad individual completa de IND-01–IND-08 con evidencia actual de CI por escenario.
+- **Área B / COR-04:** existe positivo para contradicción con evidencia contraria del mismo alcance y rechazo de enlace a otro componente. Falta ampliar negativos/fronterizos para mezcla de versiones, corte temporal distinto y referencias duplicadas/solapadas entre evidencia favorable y contraria, sin asumir que una misma pieza no pueda contener secciones con distinto alcance.
+- **Área C / RET-09:** se bloquean URL, digest, email, IPv4/IPv6 y referencias externas en los campos auditables probados. La regla actual sigue siendo una lista de detección y no una garantía de anonimización; no cubre toda posible información personal o reidentificadora. Debe decidirse si el contrato debe pasar a vocabularios controlados/allowlist para `actor_role` y códigos de motivo, evitando texto libre sensible.
+- **Área D / ARC-08:** la atestación se liga a `evidence_id`, `source_version_id` y SHA-256, y se rechaza digest distinto. La evidencia es de conformidad sintética; no acredita que el objeto archivístico externo sea inmutable ni que el proveedor conserve la misma representación byte a byte a lo largo del tiempo.
+- **Área E / MIG-03/04/08:** las pruebas existentes rechazan mutaciones históricas representativas y preservan la versión metodológica. Sigue pendiente la comparación exhaustiva de todos los registros/campos y una prueba aislada completa de MIG-08 sobre el migrador real.
+
+**Decisión:** el PASS del HEAD `d257c8d` confirma el conjunto de validaciones automatizadas, no la cobertura completa de las cinco áreas. A–E permanecen ABIERTAS; no implica aprobación metodológica ni autorización de merge.
