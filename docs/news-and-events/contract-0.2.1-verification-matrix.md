@@ -285,6 +285,7 @@ La prueba positiva `test_021_source_correction_creates_new_temporal_contradictio
 La prueba negativa `test_021_source_correction_unavailable_after_cutoff_cannot_contradict_prior_assessment` rechaza la rectificación cuando la evidencia no estaba disponible al corte de la nueva evaluación.
 
 CI sobre el mismo HEAD `19979f5eb846221d736bde27e1c2d56a75afb282`:
+
 - PowerShell quality gate [run #762](https://github.com/Osleyder1985/SINAYXA/actions/runs/43926602085): SUCCESS; 124 pruebas correctivas PASS; PowerShell 7.6.6; 0 errores de parser; PSScriptAnalyzer 1.24.0 con 0 findings.
 - Security/dependency quality gate [run #609](https://github.com/Osleyder1985/SINAYXA/actions/runs/43926602624): SUCCESS; Gitleaks, npm audit y OSV PR scan SUCCESS. OSV full quedó SKIPPED y no se contabiliza como PASS.
 - Artefacto PowerShell: `powershell-validation-evidence-43926602085`, SHA-256 `e38fe43bc4fb2a6494254e56839c0b5da9bad0e418315c9c3d0b3088c1b365b7`.
