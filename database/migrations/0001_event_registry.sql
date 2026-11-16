@@ -80,6 +80,11 @@ CREATE TRIGGER events_append_only
     BEFORE UPDATE OR DELETE ON sinayxa.events
     FOR EACH ROW EXECUTE FUNCTION sinayxa.reject_registry_mutation();
 
+DROP TRIGGER IF EXISTS event_sources_append_only ON sinayxa.event_sources;
+CREATE TRIGGER event_sources_append_only
+    BEFORE UPDATE OR DELETE ON sinayxa.event_sources
+    FOR EACH ROW EXECUTE FUNCTION sinayxa.reject_registry_mutation();
+
 DROP TRIGGER IF EXISTS temporal_assertions_append_only ON sinayxa.temporal_assertions;
 CREATE TRIGGER temporal_assertions_append_only
     BEFORE UPDATE OR DELETE ON sinayxa.temporal_assertions
