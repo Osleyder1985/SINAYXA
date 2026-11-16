@@ -14,6 +14,7 @@ from contract_0_2_1_extensions import (
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "schemas" / "source-evidence-contract-0.2.1.schema.json"
+BASE_SCHEMA_PATH = ROOT / "schemas" / "source-evidence-contract-0.2.0.schema.json"
 FIXTURE_PATH = ROOT / "tests" / "fixtures" / "contracts" / "source-evidence-contract-v0.2.1.json"
 
 
@@ -70,8 +71,27 @@ def validate_package(package: dict) -> None:
 
 def main() -> None:
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    base_schema = json.loads(BASE_SCHEMA_PATH.read_text(encoding="utf-8"))
     package = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
     Draft202012Validator.check_schema(schema)
+    vocabulary_paths = (
+        ("claimAssessment", "evidentiary_status"),
+        ("evaluationUnit", "source_type"),
+        ("evaluationUnit", "source_subtype"),
+        ("evaluationUnit", "knowledge_basis"),
+        ("evaluationUnit", "institutional_character"),
+        ("evaluationUnit", "dissemination"),
+        ("identityAssessment", "identity"),
+        ("independenceAssessment", "status"),
+        ("factorAssessment", "dimension"),
+        ("factorAssessment", "status"),
+        ("evidence", "information_nature"),
+    )
+    for definition, property_name in vocabulary_paths:
+        base_enum = base_schema["$defs"][definition]["properties"][property_name].get("enum")
+        current_enum = schema["$defs"][definition]["properties"][property_name].get("enum")
+        require(base_enum == current_enum,
+                f"0.2.1 changed the approved 0.2.0 vocabulary: {definition}.{property_name}")
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
     errors = sorted(validator.iter_errors(package), key=lambda error: list(error.path))
     if errors:
@@ -83,6 +103,7 @@ def main() -> None:
     print(f"ArchiveAttestations: {len(package['archive_attestations'])}")
     print(f"RetentionCopyRecords: {len(package['retention_copy_records'])}")
     print(f"MigrationRecords: {len(package['migration_records'])}")
+    print("Issue #15/#16 vocabulary: exact preservation of the 0.2.0 validated catalogues")
     print("Scope: synthetic schema and semantic extension conformance only")
 
 
