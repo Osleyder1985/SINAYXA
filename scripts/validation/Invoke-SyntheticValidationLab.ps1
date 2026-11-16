@@ -160,13 +160,31 @@ catch {
     $report.error = $_.Exception.Message
 }
 finally {
-    if (-not $KeepArtifacts -and (Test-Path -LiteralPath $labRoot -PathType Container)) {
-        $fullLabRoot = [System.IO.Path]::GetFullPath($labRoot)
-        $fullTempRoot = [System.IO.Path]::GetFullPath($tempRoot).TrimEnd([System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
-        if ($fullLabRoot.StartsWith($fullTempRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-            Remove-Item -LiteralPath $fullLabRoot -Recurse -Force -ErrorAction Stop
+    if ($KeepArtifacts) {
+        $report.checks.cleanup = 'NOT_RUN'
+    }
+    else {
+        try {
+            $fullLabRoot = [System.IO.Path]::GetFullPath($labRoot)
+            $fullTempRoot = [System.IO.Path]::GetFullPath($tempRoot).TrimEnd([System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+            if (-not $fullLabRoot.StartsWith($fullTempRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+                throw 'Safety boundary violation: cleanup target is outside the system temporary directory.'
+            }
+            if (Test-Path -LiteralPath $fullLabRoot -PathType Container) {
+                Remove-Item -LiteralPath $fullLabRoot -Recurse -Force -ErrorAction Stop
+            }
+            if (Test-Path -LiteralPath $fullLabRoot) {
+                throw 'Temporary laboratory directory still exists after cleanup.'
+            }
+            $report.checks.cleanup = 'PASS'
+        }
+        catch {
+            $report.checks.cleanup = 'FAIL'
+            $report.status = 'FAIL'
+            $report.cleanup_error = $_.Exception.Message
         }
     }
+    $report.artifacts_retained = [bool](Test-Path -LiteralPath $labRoot -PathType Container)
 }
 $report | ConvertTo-Json -Depth 10 -Compress | Write-Output
 if ($report.status -ne 'PASS') { exit 1 }
