@@ -21,7 +21,7 @@ from scripts.news_and_events.event_registry import (
 
 
 def iso(value: datetime) -> str:
-    return value.astimezone(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+    return value.astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
 
 
 @unittest.skipUnless(os.environ.get("SINAYXA_DATABASE_URL"), "PostgreSQL integration database is not configured")
