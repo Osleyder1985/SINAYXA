@@ -53,10 +53,12 @@ Se añade la colección archive_attestations. Cada registro contiene:
 - recorded_at: instante UTC de registro en SINAYXA.
 - integrity_result: MATCH, MISMATCH, NOT_CHECKED o UNAVAILABLE.
 - capture_record_verified: booleano que indica si el registro concreto de captura fue comprobado.
+- verification_method: ARCHIVE_API_RETRIEVAL, SIGNATURE_OR_DIGEST_CHECK, INDEPENDENT_RECORD_REVIEW u OTHER.
+- verified_at y verified_by_role: instante UTC y rol responsable de la verificación.
 - content_authenticity: UNKNOWN o NOT_ASSESSED.
 - content_truth: UNKNOWN o NOT_ASSESSED.
 
-Cada evidence_availability con availability_basis INDEPENDENT_ARCHIVE debe referenciar un archive_attestation_id. La captura debe estar acreditada, la integridad debe ser MATCH y captured_at no puede ser posterior a available_at; available_at no puede superar assessment_cutoff.
+Cada evidence_availability con availability_basis INDEPENDENT_ARCHIVE debe referenciar un archive_attestation_id. La captura debe estar acreditada, la integridad debe ser MATCH, la verificación debe registrar método, rol e instante, y captured_at no puede ser posterior a verified_at ni a available_at; available_at no puede superar assessment_cutoff.
 
 La atestación demuestra evidencia temporal sobre una captura archivística concreta, no autenticidad del autor, legitimidad del acceso original, integridad del contenido fuera de la copia examinada ni veracidad factual. Si falta cualquiera de los elementos exigidos, la disponibilidad histórica se conserva como UNKNOWN; no se sustituye por SOURCE_STATED.
 
