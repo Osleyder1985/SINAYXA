@@ -161,14 +161,14 @@ contract_version y methodology_version son dimensiones independientes. Una migra
 
 ### Evidencia integrada en CI
 
-- HEAD verificado para esta ejecución: `56759d25d9c6503112875ec19bfb5d1b8258c1db` (PowerShell y Security/dependency quality gates SUCCESS sobre el mismo SHA).
-- PowerShell quality gate: [run #591](https://github.com/Osleyder1985/SINAYXA/actions/runs/43792827091) — SUCCESS; PowerShell 7.6.6, 11 archivos parseados, 0 errores, PSScriptAnalyzer 1.24.0 con 0 findings.
-- Security and dependency quality gate: [run #520](https://github.com/Osleyder1985/SINAYXA/actions/runs/43792827490) — SUCCESS; npm audit, Gitleaks y OSV PR SUCCESS; OSV full SKIPPED.
-- Suite semántica correctiva 0.2.1: 95 tests — PASS sobre el HEAD `56759d25d9c6503112875ec19bfb5d1b8258c1db`.
+- HEAD verificado para esta ejecución: `8730437c532baee49d67dfe3188a4ee8df854117` (PowerShell y Security/dependency quality gates SUCCESS sobre el mismo SHA).
+- PowerShell quality gate: [run #598](https://github.com/Osleyder1985/SINAYXA/actions/runs/43793521842) — SUCCESS; PowerShell 7.6.6, 11 archivos parseados, 0 errores, PSScriptAnalyzer 1.24.0 con 0 findings.
+- Security and dependency quality gate: [run #527](https://github.com/Osleyder1985/SINAYXA/actions/runs/43793522239) — SUCCESS; npm audit, Gitleaks y OSV PR SUCCESS; OSV full SKIPPED.
+- Suite semántica correctiva 0.2.1: 98 tests — PASS sobre el HEAD `8730437c532baee49d67dfe3188a4ee8df854117`.
 - JSON Schema Draft 2020-12: PASS.
 - Fixture 0.2.1 y validador semántico: PASS.
 - Auditoría npm, Gitleaks y OSV PR: SUCCESS. Los pasos SKIPPED no se contabilizan como PASS.
-- Artefacto de evidencia PowerShell: [powershell-validation-evidence-43792827091](https://api.github.com/repos/Osleyder1985/SINAYXA/actions/artifacts/14192533494).
+- Artefacto de evidencia PowerShell: [powershell-validation-evidence-43793521842](https://api.github.com/repos/Osleyder1985/SINAYXA/actions/artifacts/14193034934).
 
 ### Trazabilidad actual por área
 
@@ -202,10 +202,10 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | COR-02 | `test_primary_authenticity_does_not_allow_unsupported_external_claim`; `test_021_package_rejects_primary_corroboration_overclaim` | Sobreafirmación rechazada |
 | COR-03 | `test_021_source_correction_is_a_new_version_and_preserves_prior_version`; `test_021_source_version_chain_rejects_self_or_future_supersession`; `test_021_source_version_chain_rejects_forked_successors` | Se añade rectificación como nueva versión y rechazo de autosupersession/bifurcación; CI PASS en run 43792511757 sobre HEAD `8dbb223`. Falta escenario explícito de rectificación contradictoria con evaluación temporal del contenido |
 | COR-04 | `test_021_contradicted_assessment_requires_exact_scoped_contrary_evidence`; `test_021_contradicted_assessment_rejects_cross_component_contrary_link` | La contradicción requiere evidencia contraria vinculada al mismo componente, versión y corte; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
-| COR-05 | `test_primary_statement_scope_passes_only_for_direct_act`; `test_primary_inference_without_direct_knowledge_cannot_corroborate` | Se rechaza inferencia no directa aunque la fuente sea primaria, auténtica y de acceso legítimo; CI pendiente |
+| COR-05 | `test_primary_statement_scope_passes_only_for_direct_act`; `test_primary_inference_without_direct_knowledge_cannot_corroborate` | Se rechaza inferencia no directa aunque la fuente sea primaria, auténtica y de acceso legítimo; CI PASS en run #598 sobre HEAD `8730437` |
 | COR-06 | `test_021_package_accepts_corroboration_from_reviewed_independent_sources` | Positivo cubierto |
 | COR-07 | `test_secondary_corroboration_rejects_incomplete_review`; `test_021_package_rejects_independent_corroboration_without_reviewed_independence` | Rechazo cubierto |
-| COR-08 | `test_021_partial_corroboration_preserves_distinct_supported_and_unsupported_scopes`; `test_021_partial_corroboration_rejects_identical_scopes`; `test_021_partial_corroboration_requires_human_review_of_scope_boundaries` | Requiere alcances distintos y revisión humana; el solapamiento semántico sigue sin inferirse automáticamente; CI pendiente |
+| COR-08 | `test_021_partial_corroboration_preserves_distinct_supported_and_unsupported_scopes`; `test_021_partial_corroboration_rejects_identical_scopes`; `test_021_partial_corroboration_requires_human_review_of_scope_boundaries` | Requiere alcances distintos y revisión humana; el solapamiento semántico sigue sin inferirse automáticamente; CI PASS en run #598 sobre HEAD `8730437` |
 | COR-09 | `test_primary_hash_integrity_without_authenticity_cannot_corroborate` | Rechaza corroboración primaria con autenticidad UNKNOWN aunque el hash coincida; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
 | COR-10 | `test_primary_private_unauthorized_or_unknown_access_cannot_corroborate`; `test_ambas_requires_independence_even_when_primary_evidence_exists` | Se añaden rechazos unitarios para acceso privado no autorizado y desconocido; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
 | RET-01 | `test_delete_pending_requires_outstanding_copy_inventory`; `test_021_package_rejects_new_assessment_after_delete_pending` | Pendiente y bloqueo analítico cubiertos |
@@ -225,7 +225,7 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | ARC-08 | `test_021_archived_evidence_cannot_be_rebound_to_another_source_version`; `test_021_archive_attestation_cannot_be_reused_for_another_evidence_item`; `test_021_archive_attestation_cannot_claim_another_source_version`; `test_021_archive_attestation_rejects_captured_content_hash_mismatch`; `test_021_archive_attestation_rejects_expected_digest_mismatch` | Atestación ligada a evidence_id, source_version_id y SHA-256 exactos; CI PASS en run #591 sobre HEAD `56759d2`. Falta prueba de inmutabilidad del archivo físico/objeto frente a alteración posterior |
 | MIG-01 | `test_021_migration_manifest_is_schema_valid_and_lossless` | Migración sintética válida cubierta |
 | MIG-02 | `test_021_real_020_to_021_migration_is_deterministic_without_duplicates`; `test_021_historical_assessed_at_null_is_preserved_for_claim_and_factor` | Representa `claim_assessments.assessed_at=null` sin inferir fecha; conserva los timestamps existentes de `factor_assessments`. La clave sigue siendo obligatoria. |
-| MIG-03/04 | `test_migration_rejects_historical_status_change`; `test_migration_rejects_unknown_independence_promoted_to_independent`; `test_migration_rejects_changed_historical_assessment_cutoff`; `test_migration_rejects_changed_historical_evidence_references` | Se rechaza expresamente promover DESCONOCIDA a INDEPENDIENTE durante migración; CI pendiente |
+| MIG-03/04 | `test_migration_rejects_historical_status_change`; `test_migration_rejects_unknown_independence_promoted_to_independent`; `test_migration_rejects_changed_historical_assessment_cutoff`; `test_migration_rejects_changed_historical_evidence_references` | Se rechaza expresamente promover DESCONOCIDA a INDEPENDIENTE durante migración; CI PASS en run #598 sobre HEAD `8730437` |
 | MIG-05 | `test_migration_rejects_dropped_unknown_source_field` | Pérdida silenciosa de campo rechazada |
 | MIG-06 | `test_021_real_020_to_021_migration_is_deterministic_without_duplicates` | Ejecuta dos veces el migrador real con la misma entrada/plan, compara paquete y snapshots completos, verifica cardinalidades y rechaza reentrada sobre 0.2.1. |
 | MIG-07 | `test_migration_rejects_methodology_version_rewrite` | Reescritura metodológica rechazada |
@@ -254,17 +254,17 @@ Los commits `32d5fb8`, `0acb99c`, `7787b80` y `770de14` añaden controles para:
 - Relación `CITA_DE` representada como dependencia, nunca como origen independiente.
 - Cronología diferenciada entre publicación, primera detección y recuperación, admitiendo detección pre-release y rechazando recuperación anterior a detección.
 
-El último HEAD con ambos quality gates verificados es `8dbb2235bef5a09cddd5bd9ddb2fe46ce50b1cd2` (95 tests PASS). Las áreas A–E siguen ABIERTAS; la cobertura añadida no equivale a cierre mientras existan escenarios, positivos, negativos, fronterizos o trazabilidad pendientes.
+El último HEAD con ambos quality gates verificados es `8730437c532baee49d67dfe3188a4ee8df854117` (98 tests PASS). Las áreas A–E siguen ABIERTAS; la cobertura añadida no equivale a cierre mientras existan escenarios, positivos, negativos, fronterizos o trazabilidad pendientes.
 
 ### Controles adicionales de privacidad de auditoría — verificados en CI sobre `8dbb223`
 
 Los commits `3dde82e` y `a28a851` añaden pruebas negativas para impedir que `reason` o `actor_role` incorporen URLs, hashes SHA-256, correos electrónicos o direcciones IPv4. La expresión regular fue corregida para usar límites de palabra y separadores literales reales. Las pruebas y ambos quality gates terminaron SUCCESS sobre `8dbb223`.
 
-### Extensión de atestación archivística — verificada en CI sobre `56759d2`
+### Extensión de atestación archivística — verificada en CI sobre `8730437`
 
 Se endureció ARC-01/04/08: cada `archive_attestation` ahora requiere `evidence_id`, `source_version_id`, `captured_content_hash` y `hash_algorithm=SHA-256`. El digest debe coincidir con `expected_digest` y `observed_digest` de la evidencia, con `integrity_check.result=MATCH` y `checked_at` posterior a la captura. Se rechaza reutilizar una atestación para otra pieza o versión. Esta regla acredita vinculación e integridad de la copia examinada, no autenticidad del autor ni verdad factual.
 
-### Brechas adicionales COR-05, COR-08 y MIG-03 — CI pendiente
+### Brechas adicionales COR-05, COR-08 y MIG-03 — verificadas en CI sobre `8730437`
 
 Los commits posteriores a `56759d2` añaden:
 
@@ -272,7 +272,7 @@ Los commits posteriores a `56759d2` añaden:
 - Revisión humana obligatoria para delimitar alcances en `PARCIALMENTE_CORROBORADA`; el contrato no pretende resolver por comparación de texto si dos alcances se solapan semánticamente.
 - Prueba específica de migración que conserva `DESCONOCIDA` y rechaza su promoción a `INDEPENDIENTE`.
 
-La suite y ambos quality gates deben ejecutarse sobre el nuevo HEAD antes de atribuir PASS a estos controles. Las cinco áreas permanecen ABIERTAS.
+La suite de 98 tests y ambos quality gates terminaron SUCCESS sobre el HEAD `8730437`. El solapamiento semántico entre alcances sigue sujeto a revisión humana; las cinco áreas permanecen ABIERTAS.
 
 ## 8. Fuera de alcance
 
