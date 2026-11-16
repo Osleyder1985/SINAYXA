@@ -215,7 +215,7 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | RET-06 | `test_021_deleted_scope_rejects_uninventoried_replica` | Inventario incompleto rechazado |
 | RET-07 | `test_021_package_rejects_new_assessment_after_delete_pending` | Rechazo cubierto |
 | RET-08 | `test_deleted_copy_cannot_be_restored_to_present` | Rechazo de transición terminal directa cubierto; restauración/reconciliación de backup sigue abierta |
-| RET-09 | `test_021_audit_subject_reference_must_resolve_to_internal_object` | Se rechazan URL, digest o referencia de sujeto no resoluble como identificador interno; no demuestra por sí solo ausencia de reidentificación ni minimización de texto libre |
+| RET-09 | `test_021_audit_subject_reference_must_resolve_to_internal_object`; `test_021_audit_events_reject_reidentifying_metadata`; `test_021_audit_actor_role_rejects_personal_contact_metadata` | Se rechazan referencias no internas y URL, digest, email o IP en reason/actor_role; no demuestra ausencia absoluta de reidentificación ni cubre todos los datos personales posibles; CI pendiente |
 | ARC-01 | `test_archive_capture_verified_for_cutoff_passes_without_authenticating_content`; `test_021_archive_attestation_is_required_and_does_not_authenticate_content` | Captura/integridad temporal cubiertas |
 | ARC-02/05 | `test_archive_timestamp_without_capture_proof_is_rejected`; `test_021_orphan_archive_attestation_is_rejected` | Falta de prueba de captura rechazada |
 | ARC-03 | `test_archive_capture_after_cutoff_is_rejected` | Rechazo cubierto |
@@ -255,6 +255,10 @@ Los commits `32d5fb8`, `0acb99c`, `7787b80` y `770de14` añaden controles para:
 - Cronología diferenciada entre publicación, primera detección y recuperación, admitiendo detección pre-release y rechazando recuperación anterior a detección.
 
 El último HEAD con ambos quality gates ya verificados es `0acb99c192a917ebc9e05b3db83e773ff3533da5` (81 tests PASS). Los commits posteriores `7787b80` y `770de14` todavía requieren ambos gates en su HEAD final. Las áreas A–E siguen ABIERTAS; la cobertura añadida no se considera aprobada hasta verificar ese nuevo HEAD.
+
+### Controles adicionales de privacidad de auditoría — CI pendiente
+
+Los commits `3dde82e` y `a28a851` añaden pruebas negativas para impedir que `reason` o `actor_role` incorporen URLs, hashes SHA-256, correos electrónicos o direcciones IPv4. La expresión regular fue corregida para usar límites de palabra y separadores literales reales; no se considera verificada hasta ejecutar el quality gate sobre el HEAD final.
 
 ## 8. Fuera de alcance
 
