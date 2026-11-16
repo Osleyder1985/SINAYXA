@@ -71,7 +71,7 @@ jobs:
         run: python -m compileall -q scripts/news_and_events
 
       - name: Verify the local CLI entry point
-        run: python scripts/news_and_events/register_event.py --help
+        run: python -m scripts.news_and_events.register_event --help
 
       - name: Run PostgreSQL event registry integration tests
         run: python -m unittest tests.news_and_events.test_event_registry -v
