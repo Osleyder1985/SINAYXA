@@ -184,7 +184,6 @@ contract_version y methodology_version son dimensiones independientes. Una migra
 
 La ejecución sobre `9694764` demuestra que el arnés integrado funciona y que los 56 tests pasan sobre ese mismo HEAD. **No demuestra todavía que cada escenario normativo de la matriz esté cubierto**. Las cinco áreas permanecen ABIERTAS hasta añadir los casos fronterizos y la trazabilidad individual que se enumeran arriba, ejecutar de nuevo ambos gates sobre un único HEAD y verificar la preservación histórica. No se infiere aprobación metodológica ni se autoriza merge.
 
-
 ### Trazabilidad individual de escenarios (estado verificable)
 
 La siguiente asignación vincula cada escenario de la matriz con pruebas de la suite correctiva. Una prueba negativa que rechaza un estado no demuestra por sí sola que el contrato represente correctamente el estado alternativo esperado; los huecos se mantienen explícitos.
