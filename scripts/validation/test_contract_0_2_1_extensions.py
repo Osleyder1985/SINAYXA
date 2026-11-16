@@ -366,31 +366,31 @@ class Contract021ExtensionTests(unittest.TestCase):
         validate_archive_attestation(availability, attestation, self.cutoff, self.archive_evidence())
 
     def test_archive_timestamp_without_capture_proof_is_rejected(self):
-        availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
+        availability = {"evidence_id": "evidence-a", "availability_basis": "INDEPENDENT_ARCHIVE",
                         "available_at": "2026-01-01T00:00:00Z"}
-        attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
+        attestation = {**self.archive_attestation_base(), "archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
                        "captured_at": "2026-01-01T00:00:00Z", "recorded_at": "2026-01-01T00:01:00Z", "integrity_result": "NOT_CHECKED",
                        "capture_record_verified": False, "content_authenticity": "UNKNOWN",
                        "content_truth": "UNKNOWN"}
         with self.assertRaises(ContractViolation):
-            validate_archive_attestation(availability, attestation, self.cutoff)
+            validate_archive_attestation(availability, attestation, self.cutoff, self.archive_evidence())
 
     def test_archive_capture_after_cutoff_is_rejected(self):
-        availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
+        availability = {"evidence_id": "evidence-a", "availability_basis": "INDEPENDENT_ARCHIVE",
                         "available_at": "2026-01-03T00:00:00Z"}
-        attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
+        attestation = {**self.archive_attestation_base(), "archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
                        "captured_at": "2026-01-03T00:00:00Z", "recorded_at": "2026-01-03T00:01:00Z", "integrity_result": "MATCH",
                        "capture_record_verified": True, "verification_method": "INDEPENDENT_RECORD_REVIEW",
                        "verified_at": "2026-01-03T00:01:00Z", "verified_by_role": "ARCHIVE_REVIEWER",
                        "content_authenticity": "UNKNOWN",
                        "content_truth": "UNKNOWN"}
         with self.assertRaises(ContractViolation):
-            validate_archive_attestation(availability, attestation, self.cutoff)
+            validate_archive_attestation(availability, attestation, self.cutoff, self.archive_evidence())
 
     def test_archive_import_cannot_predate_capture(self):
-        availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
+        availability = {"evidence_id": "evidence-a", "availability_basis": "INDEPENDENT_ARCHIVE",
                         "available_at": "2026-01-01T00:00:00Z"}
-        attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
+        attestation = {**self.archive_attestation_base(), "archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
                        "captured_at": "2026-01-01T00:00:00Z", "imported_at": "2025-12-31T23:59:00Z",
                        "recorded_at": "2026-01-01T00:01:00Z", "integrity_result": "MATCH",
                        "capture_record_verified": True, "verification_method": "INDEPENDENT_RECORD_REVIEW",
@@ -398,19 +398,19 @@ class Contract021ExtensionTests(unittest.TestCase):
                        "content_authenticity": "UNKNOWN",
                        "content_truth": "UNKNOWN"}
         with self.assertRaises(ContractViolation):
-            validate_archive_attestation(availability, attestation, self.cutoff)
+            validate_archive_attestation(availability, attestation, self.cutoff, self.archive_evidence())
 
     def test_archive_cannot_promote_authenticity(self):
-        availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
+        availability = {"evidence_id": "evidence-a", "availability_basis": "INDEPENDENT_ARCHIVE",
                         "available_at": "2026-01-01T00:00:00Z"}
-        attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
+        attestation = {**self.archive_attestation_base(), "archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
                        "captured_at": "2026-01-01T00:00:00Z", "recorded_at": "2026-01-01T00:01:00Z", "integrity_result": "MATCH",
                        "capture_record_verified": True, "verification_method": "INDEPENDENT_RECORD_REVIEW",
                        "verified_at": "2026-01-01T00:01:00Z", "verified_by_role": "ARCHIVE_REVIEWER",
                        "content_authenticity": "AUTENTICADA",
                        "content_truth": "UNKNOWN"}
         with self.assertRaises(ContractViolation):
-            validate_archive_attestation(availability, attestation, self.cutoff)
+            validate_archive_attestation(availability, attestation, self.cutoff, self.archive_evidence())
 
     def test_migration_preserves_historical_records_and_versions(self):
         source = {"contract_version": "0.2.0", "methodology_version": "16-approved",
