@@ -1067,6 +1067,20 @@ class Contract021ExtensionTests(unittest.TestCase):
             validate_package(package)
 
 
+    def test_021_historical_assessed_at_null_is_preserved_for_claim_and_factor(self):
+        schema, package = self.load_contract_021_fixture()
+        package["claim_assessments"][0]["assessed_at"] = None
+        package["factor_assessments"][0]["assessed_at"] = None
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_assessed_at_property_remains_required_when_unknown(self):
+        schema, package = self.load_contract_021_fixture()
+        del package["claim_assessments"][0]["assessed_at"]
+        errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(package))
+        self.assertTrue(any("assessed_at" in error.message for error in errors))
+
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
