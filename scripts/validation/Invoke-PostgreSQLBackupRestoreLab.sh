@@ -64,7 +64,6 @@ EOF
 }
 cleanup() {
   local rc=$?
-  set -x
   trap - EXIT
   set +e
   local container_names volume_names
@@ -214,18 +213,10 @@ if ! cmp -s "$WORK_DIR/sinayxa_source-data.sql" "$WORK_DIR/sinayxa_restored-data
  diff -u "$WORK_DIR/sinayxa_source-data.sql" "$WORK_DIR/sinayxa_restored-data.sql" >&2 || true
  exit 1
 fi
-read_database_metadata() {
- local db="$1"
- docker exec -i "$CONTAINER" psql -U postgres -d "$db" -At <<'SQL'
-SELECT
- (SELECT count(*) FROM research.assets)::text || ':' ||
- (SELECT count(*) FROM research.observations)::text || ':' ||
- current_setting('server_encoding') || ':' ||
- current_setting('TimeZone');
-SQL
-}
-SOURCE_META="$(read_database_metadata sinayxa_source)"
-RESTORE_META="$(read_database_metadata sinayxa_restored)"
+SOURCE_META=$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_source -Atc "SELECT (SELECT count(*) FROM research.assets)::text || ':' || (SELECT count(*) FROM research.observations)::text")
+RESTORE_META=$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_restored -Atc "SELECT (SELECT count(*) FROM research.assets)::text || ':' || (SELECT count(*) FROM research.observations)::text")
+SERVER_ENCODING=$(docker exec "$CONTAINER" psql -U postgres -Atc "SHOW server_encoding")
+SERVER_TIMEZONE=$(docker exec "$CONTAINER" psql -U postgres -Atc "SHOW TimeZone")
 if [[ "$SOURCE_META" != "$RESTORE_META" ]]; then
  echo "Restored PostgreSQL metadata differs: source=$SOURCE_META restored=$RESTORE_META" >&2
  exit 1
