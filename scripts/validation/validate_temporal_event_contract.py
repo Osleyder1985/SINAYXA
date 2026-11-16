@@ -55,6 +55,7 @@ def validate_semantics(package: dict[str, Any]) -> None:
     assessments = package["temporal_assessments"]
     manifests = package["reproducibility_manifests"]
 
+    event_index = require_unique(package["events"], "event_id", "events")
     assertion_index = require_unique(assertions, "temporal_assertion_id", "temporal_assertions")
     conflict_index = require_unique(conflicts, "conflict_id", "temporal_conflicts")
     decision_index = require_unique(decisions, "decision_id", "conflict_decisions")
@@ -64,6 +65,8 @@ def validate_semantics(package: dict[str, Any]) -> None:
     versions: dict[str, list[dict[str, Any]]] = {}
     for item in assertions:
         aid = item["temporal_assertion_id"]
+        if item["event_id"] not in event_index:
+            raise ContractError(f"{aid}: unknown event reference")
         start = item["interval_start"]
         end = item["interval_end"]
         start_value, end_value = start["value"], end["value"]
@@ -163,13 +166,17 @@ def validate_semantics(package: dict[str, Any]) -> None:
 
     for cid, items in decisions_by_conflict.items():
         items.sort(key=lambda item: parse_utc(item["decided_at"], f"{item['decision_id']}.decided_at"))
-        expected = conflict_index[cid]["status"]
+        expected = items[0]["from_status"]
         for item in items:
             if item["from_status"] != expected:
                 raise ContractError(f"{item['decision_id']}: decision history has a gap or conflicting state")
             expected = item["to_status"]
-        if expected != conflict_index[cid]["status"] and not items:
-            raise ContractError(f"{cid}: conflict state has no decision history")
+        if expected != conflict_index[cid]["status"]:
+            raise ContractError(f"{cid}: current conflict status does not match decision history")
+
+    for conflict in conflicts:
+        if conflict["status"] != "OPEN" and conflict["conflict_id"] not in decisions_by_conflict:
+            raise ContractError(f"{conflict['conflict_id']}: non-initial conflict status requires decision history")
 
     for assessment in assessments:
         aid = assessment["assessment_id"]
