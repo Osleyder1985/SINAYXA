@@ -183,6 +183,23 @@ def validate_migration(source: dict[str, Any], target: dict[str, Any], manifest:
              "migration identity and migrator version are required")
     _require(bool(manifest.get("rules_applied")), "migration rules must be declared")
     _require(manifest.get("result") == "PASS", "migration manifest must report PASS")
+    def preserves(previous: Any, migrated: Any, path: str) -> None:
+        if isinstance(previous, dict):
+            _require(isinstance(migrated, dict), f"migration changed object type at {path}")
+            for key, value in previous.items():
+                if path == "$" and key == "contract_version":
+                    continue
+                _require(key in migrated, f"migration dropped historical field: {path}.{key}")
+                preserves(value, migrated[key], f"{path}.{key}")
+        elif isinstance(previous, list):
+            _require(isinstance(migrated, list) and len(previous) == len(migrated),
+                     f"migration changed historical collection cardinality at {path}")
+            for index, value in enumerate(previous):
+                preserves(value, migrated[index], f"{path}[{index}]")
+        else:
+            _require(previous == migrated, f"migration changed historical value at {path}")
+
+    preserves(source, target, "$")
     for field in PROTECTED_HISTORY_FIELDS:
-        _require(source.get(field) == target.get(field),
-                 f"migration changed protected historical field: {field}")
+        _require(field in source and field in target,
+                 f"migration omitted required historical collection: {field}")
