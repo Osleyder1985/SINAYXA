@@ -6,7 +6,8 @@ Capturar y preservar la respuesta JSON de la API oficial de releases AIStor para
 
 ## Fuente
 
-- API oficial: `https://dl.min.io/api/releases/aistor/latest`.
+- API oficial Server: `https://dl.min.io/api/releases/aistor/latest`.
+- Índice oficial de release notes/SBOM de AIStor Client (`mc`): `https://dl.min.io/aistor/mc/release/notes/`.
 
 ## Ejecución
 
@@ -14,11 +15,11 @@ El workflow `aistor-release-metadata-preflight.yml` ejecuta `scripts/validation/
 
 El script:
 
-1. Recupera únicamente la respuesta JSON del endpoint oficial.
-2. Comprueba que la respuesta sea un objeto JSON.
-3. Preserva el contenido original como artefacto.
-4. Registra SHA-256, tamaño, claves de primer nivel, timestamp UTC, commit y workflow run.
-5. Marca el resultado como `CAPTURED` o `BLOCKED`; no clasifica por sí mismo ningún release como GA.
+1. Recupera la respuesta JSON oficial de AIStor Server y el índice oficial de release notes de AIStor Client.
+2. Comprueba que el JSON de Server sea válido y que el índice de Client contenga versiones de release.
+3. Preserva ambos contenidos originales como artefactos.
+4. Registra SHA-256, tamaño, versión, fecha de release, URLs de release notes/SBOM, timestamp UTC, commit y workflow run.
+5. Marca el resultado como `CAPTURED`, `PARTIAL` o `BLOCKED`; diferencia el latest estable del endpoint Server y el latest publicado en el índice Client.
 
 ## Controles explícitos
 
@@ -32,7 +33,7 @@ El script:
 
 ## Criterio de interpretación
 
-Una captura `CAPTURED` solo demuestra que la respuesta JSON oficial fue preservada íntegramente y con hash. No equivale a aprobar el release. La revisión posterior debe identificar Server y Client, comprobar el canal GA y contrastar la versión con release notes y mecanismos oficiales de integridad/licencia.
+Una captura `CAPTURED` demuestra que los metadatos oficiales de Server y Client fueron preservados íntegramente y con hash. La API Server documenta el endpoint `/latest` como la consulta del último release estable. Client publica releases por separado; su índice de release notes/SBOM permite identificar el último release publicado, que debe contrastarse con la documentación de actualización estable y la fecha del Server. La captura no resuelve el digest OCI ni aprueba condiciones de licencia.
 
 Si el endpoint no responde, el JSON es inválido o su estructura no permite distinguir releases, el resultado permanece `BLOCKED`. No se utiliza una versión antigua como sustituto implícito.
 
