@@ -233,10 +233,26 @@ def validate_retention_scope(
     else:
         raise ContractViolation("unsupported retention disposition for copy-scope validation")
 
-def validate_archive_attestation(availability: dict[str, Any], attestation: dict[str, Any], cutoff: str) -> None:
-    """Check archive capture provenance; never infer authenticity or truth."""
+def validate_archive_attestation(
+    availability: dict[str, Any], attestation: dict[str, Any], cutoff: str,
+    evidence: dict[str, Any],
+) -> None:
+    """Bind verified archive capture to one evidence item, source version, and SHA-256 digest."""
     _require(availability.get("availability_basis") == "INDEPENDENT_ARCHIVE",
              "archive attestation applies only to INDEPENDENT_ARCHIVE")
+    _require(attestation.get("evidence_id") == availability.get("evidence_id")
+             == evidence.get("evidence_id"),
+             "archive attestation must bind the exact evidence item in the availability record")
+    _require(attestation.get("source_version_id") == evidence.get("source_version_id"),
+             "archive attestation must bind the exact source version")
+    integrity = evidence.get("integrity_check", {})
+    _require(attestation.get("hash_algorithm") == "SHA-256"
+             and integrity.get("algorithm") == "SHA-256",
+             "archive content binding requires SHA-256 on both evidence and attestation")
+    _require(integrity.get("result") == "MATCH"
+             and bool(integrity.get("observed_digest"))
+             and attestation.get("captured_content_hash") == integrity.get("observed_digest"),
+             "archive captured content hash must match the verified evidence digest")
     _require(bool(attestation.get("archive_service")), "archive service must be identified")
     _require(bool(attestation.get("capture_record_reference")), "capture record reference is required")
     _require(bool(attestation.get("captured_at")), "capture timestamp is required")
