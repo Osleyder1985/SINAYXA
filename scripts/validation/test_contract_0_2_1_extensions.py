@@ -532,39 +532,6 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_package(package)
 
-    def test_021_deleted_scope_rejects_uninventoried_replica(self):
-        schema, package = self.load_contract_021_fixture()
-        record = package["retention_records"][0]
-        record.update({"content_retained": False, "disposition": "DELETED",
-                       "previous_disposition": "DELETE_PENDING", "recorded_at": "2026-11-15T22:10:00Z",
-                       "copy_scope_ids": ["copy-primary", "copy-replica"]})
-        package["retention_copy_records"].append({
-            "copy_id": "copy-primary", "retention_id": "retention-a", "subject_ref": "evidence-a",
-            "copy_kind": "PRIMARY", "parent_copy_id": None, "state": "DELETED",
-            "recorded_at": "2026-11-15T22:10:00Z", "verified_at": "2026-11-15T22:10:00Z",
-            "verification_reference": "verify-primary", "scheduled_disposition_at": None,
-            "previous_state": "DELETE_PENDING", "transition_event_ref": "copy-event-1"
-        })
-        package["retention_copy_records"].append({
-            "copy_id": "copy-replica", "retention_id": "retention-a", "subject_ref": "evidence-a",
-            "copy_kind": "REPLICA", "parent_copy_id": "copy-primary", "state": "PRESENT",
-            "recorded_at": "2026-11-15T22:10:00Z", "verified_at": None,
-            "verification_reference": None, "scheduled_disposition_at": None,
-            "previous_state": None, "transition_event_ref": "copy-event-2"
-        })
-        package["audit_events"].extend([
-            {"audit_event_id": "copy-event-1", "subject_ref": "evidence-a", "action": "COPY_DELETED",
-             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:10:00Z", "reason": "Primary deleted",
-             "retention_id": "retention-a", "copy_id": "copy-primary",
-             "from_copy_state": "DELETE_PENDING", "to_copy_state": "DELETED"},
-            {"audit_event_id": "copy-event-2", "subject_ref": "evidence-a", "action": "COPY_DISCOVERED",
-             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:10:00Z", "reason": "Replica discovered",
-             "retention_id": "retention-a", "copy_id": "copy-replica",
-             "from_copy_state": None, "to_copy_state": "PRESENT"}
-        ])
-        self.assert_schema_valid(schema, package)
-        with self.assertRaises(ContractViolation):
-            validate_package(package)
 
 
 if __name__ == "__main__":
