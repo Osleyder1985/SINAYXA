@@ -1163,6 +1163,62 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "accepts only contract_version 0.2.0"):
             migrate_package(migrated, source_schema, target_schema, **plan)
 
+    def test_migration_rejects_mutation_across_every_historical_collection(self):
+        root = Path(__file__).resolve().parents[2]
+        source_schema = json.loads(
+            (root / "schemas" / "source-evidence-contract-0.2.0.schema.json").read_text(encoding="utf-8")
+        )
+        target_schema = json.loads(
+            (root / "schemas" / "source-evidence-contract-0.2.1.schema.json").read_text(encoding="utf-8")
+        )
+        source = json.loads(
+            (root / "tests" / "fixtures" / "contracts" / "source-evidence-contract-v0.2.0.json").read_text(encoding="utf-8")
+        )
+        plan = {
+            "migration_id": "migration-preservation-matrix",
+            "executed_at": "2026-11-16T00:00:00Z",
+            "source_snapshot_ref": "memory://migration/preservation-source",
+            "target_snapshot_ref": "memory://migration/preservation-target",
+        }
+        migrated, _ = migrate_package(source, source_schema, target_schema, **plan)
+        protected_fields = (
+            ("claims", "claim_id"),
+            ("claim_components", "claim_component_version_id"),
+            ("sources", "created_at"),
+            ("source_versions", "source_version_id"),
+            ("identity_assessments", "assessment_cutoff"),
+            ("evaluation_units", "source_version_id"),
+            ("evidence_items", "source_version_id"),
+            ("evidence_availability", "available_at"),
+            ("claim_evidence_links", "evidence_id"),
+            ("provenance_nodes", "entity_ref"),
+            ("provenance_edges", "origin_node_id"),
+            ("factor_assessments", "status"),
+            ("independence_assessments", "status"),
+            ("claim_assessments", "assessment_cutoff"),
+            ("retention_records", "disposition"),
+            ("audit_events", "action"),
+        )
+        for collection, field in protected_fields:
+            with self.subTest(collection=collection, field=field):
+                target = copy.deepcopy(migrated)
+                value = target[collection][0][field]
+                if isinstance(value, bool):
+                    changed = not value
+                elif isinstance(value, str):
+                    changed = value + "-mutated"
+                elif isinstance(value, list):
+                    changed = value + ["mutated"]
+                elif value is None:
+                    changed = "mutated"
+                else:
+                    changed = value + 1
+                target[collection][0][field] = changed
+                manifest = copy.deepcopy(migrated["migration_records"][0])
+                manifest["output_sha256"] = canonical_migration_payload_sha256(target)
+                with self.assertRaises(ContractViolation):
+                    validate_migration(source, target, manifest)
+
     def test_021_historical_assessed_at_null_is_preserved_for_claim_and_factor(self):
         schema, package = self.load_contract_021_fixture()
         package["claim_assessments"][0]["assessed_at"] = None
