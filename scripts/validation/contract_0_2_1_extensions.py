@@ -104,6 +104,7 @@ def validate_corroboration(
             if item.get("source_type") == "PRIMARIA"
             and item.get("authenticity_status") == "AUTENTICADA"
             and item.get("access_status") in {"PÚBLICO_LEGÍTIMO", "PRIVADO_AUTORIZADO"}
+            and item.get("unit_access_status") in {"PÚBLICO_LEGÍTIMO", "PRIVADO_AUTORIZADO"}
             and item.get("knowledge_basis") in {"OBSERVACIÓN_DIRECTA", "REGISTRO_ORIGINAL"}
             and item.get("scope_note")
             and item.get("available_at", "") <= cutoff
