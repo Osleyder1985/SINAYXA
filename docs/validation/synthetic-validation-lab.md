@@ -12,19 +12,19 @@ Esta primera etapa del laboratorio se limita al sistema de archivos local. Utili
 Desde la raíz del repositorio:
 
 ```powershell
-pwsh -NoLogo -NoProfile -File .\\scripts\\validation\\Invoke-SyntheticValidationLab.ps1
+pwsh -NoLogo -NoProfile -File .\scripts\validation\Invoke-SyntheticValidationLab.ps1
 ```
 
 Para conservar el directorio temporal con las evidencias:
 
 ```powershell
-pwsh -NoLogo -NoProfile -File .\\scripts\\validation\\Invoke-SyntheticValidationLab.ps1 -KeepArtifacts
+pwsh -NoLogo -NoProfile -File .\scripts\validation\Invoke-SyntheticValidationLab.ps1 -KeepArtifacts
 ```
 
 Para reproducir el mismo contenido de los registros sintéticos:
 
 ```powershell
-pwsh -NoLogo -NoProfile -File .\\scripts\\validation\\Invoke-SyntheticValidationLab.ps1 -Seed 20261116
+pwsh -NoLogo -NoProfile -File .\scripts\validation\Invoke-SyntheticValidationLab.ps1 -Seed 20261116
 ```
 
 El comando emite un único informe JSON compacto y devuelve un código de salida distinto de cero si ocurre un fallo.
