@@ -132,6 +132,7 @@ def validate_semantics(package: dict[str, Any]) -> None:
         previous_version = 0
         for item in items:
             aid = item["temporal_assertion_id"]
+            current_recorded = parse_utc(item["recorded_at"], f"{aid}.recorded_at")
             if item["version"] != previous_version + 1:
                 raise ContractError(f"{event_id}: assertion versions must be contiguous from 1")
             previous = item["supersedes_assertion_id"]
@@ -141,7 +142,7 @@ def validate_semantics(package: dict[str, Any]) -> None:
                 raise ContractError(f"{aid}: each version must supersede the immediately previous version")
             if previous_version > 0:
                 previous_recorded = parse_utc(items[previous_version - 1]["recorded_at"], f"{aid}.previous_recorded_at")
-                if recorded < previous_recorded:
+                if current_recorded < previous_recorded:
                     raise ContractError(f"{aid}: assertion version recording time moves backwards")
             seen_ids.add(aid)
             previous_version += 1
@@ -191,6 +192,8 @@ def validate_semantics(package: dict[str, Any]) -> None:
                 raise ContractError(f"{did}: superseded decision belongs to another conflict")
             if parse_utc(previous_decision["decided_at"], f"{did}.superseded_decision_time") >= decided:
                 raise ContractError(f"{did}: superseded decision must precede the new decision")
+            if previous_decision["to_status"] != decision["from_status"]:
+                raise ContractError(f"{did}: superseded decision state must match the reopening from_status")
         decisions_by_conflict.setdefault(cid, []).append(decision)
 
     for cid, items in decisions_by_conflict.items():
@@ -214,6 +217,8 @@ def validate_semantics(package: dict[str, Any]) -> None:
 
     for assessment in assessments:
         aid = assessment["assessment_id"]
+        if assessment["event_id"] not in event_index:
+            raise ContractError(f"{aid}: unknown event reference")
         cutoff = parse_utc(assessment["assessment_cutoff"], f"{aid}.assessment_cutoff")
         if len(assessment["assertion_refs"]) != len(set(assessment["assertion_refs"])):
             raise ContractError(f"{aid}: duplicate assertion reference")
@@ -245,6 +250,8 @@ def validate_semantics(package: dict[str, Any]) -> None:
         assessment = assessment_index[manifest["assessment_id"]]
         if manifest["assessment_cutoff"] != assessment["assessment_cutoff"]:
             raise ContractError(f"{mid}: manifest cutoff differs from its assessment")
+        if parse_utc(manifest["created_at"], f"{mid}.created_at") < parse_utc(assessment["recorded_at"], f"{assessment['assessment_id']}.recorded_at"):
+            raise ContractError(f"{mid}: manifest cannot predate its assessment record")
         included = manifest["assertion_versions"]
         excluded = manifest["excluded_assertions"]
         included_ids = [item["assertion_id"] for item in included]
