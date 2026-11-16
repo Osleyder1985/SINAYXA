@@ -414,7 +414,6 @@ foreach ($assessment in $package.claim_assessments) {
         Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.supported_scope) -and -not [string]::IsNullOrWhiteSpace([string]$assessment.unsupported_scope)) 'Partial corroboration requires non-empty supported_scope and unsupported_scope.'
     }
     Test-Condition ($assessment.attribution_status -in @('ATRIBUIDA','NO_ATRIBUIDA','NO_DETERMINADA')) 'Unsupported attribution status.'
-    Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.rationale)) 'Claim assessment requires a non-empty rationale.'
     Test-Condition (-not [string]::IsNullOrWhiteSpace([string]$assessment.rationale)) 'Claim assessment rationale must be non-empty.'
     foreach ($reference in @($assessment.supporting_evidence_refs) + @($assessment.contrary_evidence_refs)) { Test-Condition (Test-HasRef $evidenceIds ([string]$reference)) 'Claim assessment references unknown evidence.' }
     foreach ($reference in @($assessment.independence_assessment_refs)) {
