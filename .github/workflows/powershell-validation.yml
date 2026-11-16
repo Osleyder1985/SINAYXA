@@ -44,6 +44,8 @@ on:
       - "tests/fixtures/contracts/source-evidence-contract-v0.2.2.json"
       - "scripts/validation/validate_source_evidence_contract_0_2_2.py"
       - "scripts/validation/test_source_evidence_contract_0_2_2.py"
+      - "scripts/validation/migrate_source_evidence_contract_0_2_1_to_0_2_2.py"
+      - "scripts/validation/test_migrate_source_evidence_contract_0_2_1_to_0_2_2.py"
       - "docs/news-and-events/contract-0.2.2-audit-minimization.md"
       - "requirements-contract-validation.txt"
       - "scripts/validation/test_source_evidence_contract.ps1"
@@ -281,6 +283,14 @@ jobs:
           $ErrorActionPreference = 'Stop'
           python 'scripts/validation/validate_source_evidence_contract_0_2_2.py'
           if ($LASTEXITCODE -ne 0) { throw 'The contract 0.2.2 schema or audit fixture validation failed.' }
+      - name: Run fail-closed contract 0.2.1 to 0.2.2 migration tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m unittest discover -s scripts/validation -p 'test_migrate_source_evidence_contract_0_2_1_to_0_2_2.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'The contract 0.2.1 to 0.2.2 migration tests failed.' }
+
 
 
       - name: Validate Issue #17 A01-A15 synthetic alert fixture
