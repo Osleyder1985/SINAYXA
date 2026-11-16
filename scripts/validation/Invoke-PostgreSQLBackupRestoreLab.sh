@@ -3,7 +3,6 @@ set -Eeuo pipefail
 IMAGE=postgres:16.3
 CONTAINER=sinayxa-issue-95-lab-$$
 PASSWORD=sinayxa-synthetic-only
-HOST_PORT="${SINAYXA_PG_PORT:-55432}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ARTIFACT_DIR="$ROOT_DIR/artifacts/postgresql-lab"
 WORK_DIR="$(mktemp -d)"
@@ -50,7 +49,7 @@ EOF
 }
 cleanup() {
   local rc=$?
-  if [[ "$CONTAINER_CREATED" == true ]]; then docker rm -f "$CONTAINER" >/dev/null 2>&1 || true; fi
+  if [[ "$CONTAINER_CREATED" == true ]]; then docker rm -fv "$CONTAINER" >/dev/null 2>&1 || true; fi
   if docker ps -a --format '{{.Names}}' | grep -Fxq "$CONTAINER"; then RESULT_cleanup=FAIL; else RESULT_cleanup=PASS; fi
   if [[ "$rc" -eq 0 && "$RESULT_cleanup" == PASS ]]; then write_report PASS; else write_report FAIL; [[ "$rc" -ne 0 ]] || rc=1; fi
   rm -rf "$WORK_DIR"
@@ -59,7 +58,7 @@ cleanup() {
 trap cleanup EXIT
 command -v docker >/dev/null
 docker info >/dev/null
-docker run -d --name "$CONTAINER" -p "127.0.0.1:$HOST_PORT:5432" -e POSTGRES_PASSWORD="$PASSWORD" "$IMAGE" >/dev/null
+docker run -d --network none --name "$CONTAINER" -e POSTGRES_PASSWORD="$PASSWORD" "$IMAGE" >/dev/null
 CONTAINER_CREATED=true
 for attempt in $(seq 1 60); do
   docker exec "$CONTAINER" pg_isready -U postgres >/dev/null 2>&1 && break
