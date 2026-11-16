@@ -1517,6 +1517,28 @@ class Contract021ExtensionTests(unittest.TestCase):
         self.assert_schema_valid(schema, package)
         validate_package(package)
 
+    def test_021_overlapping_partial_scopes_remain_partial_after_human_review(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = package["claim_assessments"][0]
+        assessment.update({
+            "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+            "supporting_evidence_refs": ["evidence-a"],
+            "supported_scope": "La fuente declaró una operación de 100 BTC en Binance.",
+            "unsupported_scope": "La ejecución efectiva de la operación de 100 BTC no está demostrada.",
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+            "rationale": (
+                "Los alcances comparten el objeto declarado, pero la emisión de la declaración "
+                "no acredita la ejecución efectiva. Se conserva el estado parcial tras revisión humana."
+            ),
+        })
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+        self.assertEqual(
+            package["claim_assessments"][0]["evidentiary_status"],
+            "PARCIALMENTE_CORROBORADA",
+        )
+
     def test_021_partial_corroboration_rejects_identical_scopes(self):
         schema, package = self.load_contract_021_fixture()
         assessment = package["claim_assessments"][0]
