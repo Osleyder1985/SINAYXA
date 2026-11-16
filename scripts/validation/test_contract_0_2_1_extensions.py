@@ -546,16 +546,25 @@ class Contract021ExtensionTests(unittest.TestCase):
             validate_package(package)
 
     def test_021_migration_manifest_is_schema_valid_and_lossless(self):
-        schema, package = self.load_contract_021_fixture()
-        package["migration_records"].append({
+        root = Path(__file__).resolve().parents[2]
+        schema, target_package = self.load_contract_021_fixture()
+        base_schema = json.loads((root / "schemas" / "source-evidence-contract-0.2.0.schema.json").read_text(encoding="utf-8"))
+        source_snapshot = json.loads((root / "tests" / "fixtures" / "contracts" / "source-evidence-contract-v0.2.0.json").read_text(encoding="utf-8"))
+        target_snapshot = copy.deepcopy(target_package)
+        target_snapshot["migration_records"] = []
+        manifest = {
             "migration_id": "migration-1", "source_contract_version": "0.2.0",
             "target_contract_version": "0.2.1", "migrator_version": "1.0.0",
-            "executed_at": "2026-11-15T22:00:00Z", "input_sha256": "a" * 64,
-            "output_sha256": "b" * 64, "rules_applied": ["preserve-history", "add-nullable-attestation-ref"],
-            "result": "PASS", "loss_report": []
-        })
-        self.assert_schema_valid(schema, package)
-        validate_package(package)
+            "executed_at": "2026-11-15T22:00:00Z",
+            "input_sha256": canonical_migration_payload_sha256(source_snapshot),
+            "output_sha256": canonical_migration_payload_sha256(target_snapshot),
+            "rules_applied": ["preserve-history", "add-nullable-attestation-ref"],
+            "result": "PASS", "loss_report": [],
+            "source_snapshot": source_snapshot, "target_snapshot": target_snapshot
+        }
+        target_package["migration_records"].append(manifest)
+        self.assert_schema_valid(schema, target_package)
+        validate_package(target_package, base_schema, schema)
 
     def test_021_successful_migration_cannot_report_data_loss(self):
         schema, package = self.load_contract_021_fixture()
@@ -568,6 +577,63 @@ class Contract021ExtensionTests(unittest.TestCase):
         })
         errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(package))
         self.assertTrue(errors, "PASS migration with a non-empty loss_report must be rejected by the schema")
+
+    def test_021_package_rejects_independent_status_without_integrated_origin_paths(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = package["independence_assessments"][0]
+        assessment.update({"status": "INDEPENDIENTE", "supporting_evidence_refs": ["evidence-a", "evidence-b"],
+                           "human_review_status": "REVIEWED", "reviewed_at": "2026-11-15T22:00:00Z"})
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_package_accepts_independent_distinct_terminal_origins(self):
+        schema, package = self.load_contract_021_fixture()
+        package["provenance_nodes"].extend([
+            {"node_id": "origin-a", "node_type": "DATASET", "entity_ref": "origin-record-a"},
+            {"node_id": "origin-b", "node_type": "DOCUMENT", "entity_ref": "origin-record-b"}
+        ])
+        package["provenance_edges"].extend([
+            {"edge_id": "path-a", "dependent_node_id": "node-version-a", "origin_node_id": "origin-a",
+             "relation_type": "ORIGEN_DIRECTO", "claim_component_id": "component-entity",
+             "evidence_refs": ["evidence-a"], "recorded_at": "2026-11-15T22:00:00Z",
+             "valid_from": None, "valid_to": None, "claim_component_version_id": "component-entity-v1"},
+            {"edge_id": "path-b", "dependent_node_id": "node-version-b", "origin_node_id": "origin-b",
+             "relation_type": "ORIGEN_DIRECTO", "claim_component_id": "component-entity",
+             "evidence_refs": ["evidence-b"], "recorded_at": "2026-11-15T22:00:00Z",
+             "valid_from": None, "valid_to": None, "claim_component_version_id": "component-entity-v1"}
+        ])
+        assessment = package["independence_assessments"][0]
+        assessment.update({"status": "INDEPENDIENTE", "supporting_evidence_refs": ["evidence-a", "evidence-b"],
+                           "independent_path_edge_refs": ["path-a", "path-b"],
+                           "human_review_status": "REVIEWED", "reviewed_at": "2026-11-15T22:00:00Z"})
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_package_rejects_primary_corroboration_overclaim(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = package["claim_assessments"][0]
+        assessment.update({"evidentiary_status": "CORROBORADA", "corroboration_basis": "EVIDENCIA_PRIMARIA_DIRECTA",
+                           "supporting_evidence_refs": ["evidence-a"], "human_review_status": "REVIEWED",
+                           "reviewed_at": "2026-11-15T22:00:00Z"})
+        unit = next(item for item in package["evaluation_units"] if item["assessment_unit_id"] == "unit-a-entity")
+        unit.update({"source_type": "PRIMARIA", "source_subtype": "REGISTRO_ORIGINAL",
+                     "knowledge_basis": "DOCUMENTO_DE_TERCEROS"})
+        package["evidence_items"][0]["authenticity_status"] = "AUTENTICADA"
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_package_accepts_primary_corroboration_only_for_directly_observed_act(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = package["claim_assessments"][0]
+        assessment.update({"evidentiary_status": "CORROBORADA", "corroboration_basis": "EVIDENCIA_PRIMARIA_DIRECTA",
+                           "supporting_evidence_refs": ["evidence-a"], "human_review_status": "REVIEWED",
+                           "reviewed_at": "2026-11-15T22:00:00Z"})
+        unit = next(item for item in package["evaluation_units"] if item["assessment_unit_id"] == "unit-a-entity")
+        unit.update({"source_type": "PRIMARIA", "source_subtype": "REGISTRO_ORIGINAL",
+                     "knowledge_basis": "OBSERVACIÓN_DIRECTA"})
+        package["evidence_items"][0]["authenticity_status"] = "AUTENTICADA"
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
 
     def test_021_orphan_copy_audit_event_is_rejected(self):
         schema, package = self.load_contract_021_fixture()
