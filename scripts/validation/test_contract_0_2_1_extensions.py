@@ -45,6 +45,35 @@ class Contract021ExtensionTests(unittest.TestCase):
         ]
         self.cutoff = "2026-01-02T00:00:00Z"
 
+    def archive_evidence(self):
+        return {
+            "evidence_id": "evidence-a",
+            "source_version_id": "version-a1",
+            "integrity_check": {
+                "algorithm": "SHA-256",
+                "observed_digest": "a" * 64,
+                "result": "MATCH",
+            },
+        }
+
+    def archive_attestation_base(self):
+        return {
+            "evidence_id": "evidence-a",
+            "source_version_id": "version-a1",
+            "captured_content_hash": "a" * 64,
+            "hash_algorithm": "SHA-256",
+        }
+
+    def set_archive_evidence_integrity(self, package):
+        item = next(item for item in package["evidence_items"] if item["evidence_id"] == "evidence-a")
+        item["integrity_check"] = {
+            "algorithm": "SHA-256",
+            "expected_digest": "a" * 64,
+            "observed_digest": "a" * 64,
+            "checked_at": "2026-11-15T20:03:00Z",
+            "result": "MATCH",
+        }
+
     def test_independent_distinct_observation_paths_pass(self):
         validate_independence(self.units, self.paths, self.cutoff)
 
@@ -326,15 +355,15 @@ class Contract021ExtensionTests(unittest.TestCase):
             validate_retention_scope("DELETE_PENDING", copies, [])
 
     def test_archive_capture_verified_for_cutoff_passes_without_authenticating_content(self):
-        availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
+        availability = {"evidence_id": "evidence-a", "availability_basis": "INDEPENDENT_ARCHIVE",
                         "available_at": "2026-01-01T00:00:00Z", "recorded_at": "2026-01-01T00:02:00Z"}
-        attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
+        attestation = {**self.archive_attestation_base(), "archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
                        "captured_at": "2026-01-01T00:00:00Z", "recorded_at": "2026-01-01T00:01:00Z", "integrity_result": "MATCH",
                        "capture_record_verified": True, "verification_method": "INDEPENDENT_RECORD_REVIEW",
                        "verified_at": "2026-01-01T00:01:00Z", "verified_by_role": "ARCHIVE_REVIEWER",
                        "content_authenticity": "UNKNOWN",
                        "content_truth": "UNKNOWN"}
-        validate_archive_attestation(availability, attestation, self.cutoff)
+        validate_archive_attestation(availability, attestation, self.cutoff, self.archive_evidence())
 
     def test_archive_timestamp_without_capture_proof_is_rejected(self):
         availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
