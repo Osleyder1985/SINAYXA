@@ -1144,6 +1144,7 @@ class Contract021ExtensionTests(unittest.TestCase):
         self.assertEqual(migrated, repeated)
         self.assertEqual(snapshots, repeated_snapshots)
         self.assertEqual(migrated["contract_version"], "0.2.1")
+        self.assertEqual(migrated["methodology_version"], source["methodology_version"])
         self.assertEqual(len(migrated["migration_records"]), 1)
         self.assertEqual(migrated["claim_assessments"][0]["assessed_at"], None)
         self.assertEqual(
