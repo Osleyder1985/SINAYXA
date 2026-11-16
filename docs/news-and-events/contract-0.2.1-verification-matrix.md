@@ -182,7 +182,7 @@ contract_version y methodology_version son dimensiones independientes. Una migra
 
 ### Decisión de cierre
 
-La ejecución sobre `9694764` demuestra que el arnés integrado funciona y que los 56 tests pasan sobre ese mismo HEAD. **No demuestra todavía que cada escenario normativo de la matriz esté cubierto**. Las cinco áreas permanecen ABIERTAS hasta añadir los casos fronterizos y la trazabilidad individual que se enumeran arriba, ejecutar de nuevo ambos gates sobre un único HEAD y verificar la preservación histórica. No se infiere aprobación metodológica ni se autoriza merge.
+La ejecución sobre `9694764` demuestra que el arnés integrado funciona y que los 56 tests pasaban sobre el HEAD `9694764`; la suite ampliada a 59 casos está pendiente de CI sobre el nuevo HEAD. **No demuestra todavía que cada escenario normativo de la matriz esté cubierto**. Las cinco áreas permanecen ABIERTAS hasta añadir los casos fronterizos restantes, ejecutar de nuevo ambos gates sobre un único HEAD y verificar la preservación histórica. No se infiere aprobación metodológica ni se autoriza merge.
 
 ### Trazabilidad individual de escenarios (estado verificable)
 
@@ -194,10 +194,10 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | IND-02 | `test_independence_rejects_shared_terminal_origin` | Rechazo de origen convergente; falta caso explícito de republicación/cita |
 | IND-03 | `test_independence_rejects_two_versions_of_same_source` | Rechazo cubierto |
 | IND-04 | `test_distinct_analysis_processes_over_common_dataset_are_representable`; `test_021_package_rejects_independence_from_analyses_over_common_dataset` | Separación de replicación y origen cubierta |
-| IND-05 | — | **Brecha:** representación positiva de DESCONOCIDA por procedencia incompleta |
+| IND-05 | `test_021_package_accepts_unknown_independence_without_asserted_paths` | Representación positiva de DESCONOCIDA cubierta para procedencia incompleta, sin afirmar independencia ni dependencia |
 | IND-06 | `test_independence_rejects_shared_terminal_origin` | Rechazo cubierto |
-| IND-07 | `test_independence_rejects_missing_source_path`; `test_021_package_rejects_independent_status_without_integrated_origin_paths` | Rechaza INDEPENDIENTE; falta demostrar que el resultado alternativo se conserva como DESCONOCIDA |
-| IND-08 | `test_021_package_accepts_evidenced_dependency_for_exact_component`; `test_021_package_rejects_dependency_edge_without_evidence` | Dependencia con alcance de componente; falta prueba de no propagación a otro componente |
+| IND-07 | `test_independence_rejects_missing_source_path`; `test_021_package_rejects_independent_status_without_integrated_origin_paths`; `test_021_package_accepts_unknown_independence_without_asserted_paths` | Rechaza INDEPENDIENTE y representa DESCONOCIDA sin vías afirmadas |
+| IND-08 | `test_021_package_accepts_evidenced_dependency_for_exact_component`; `test_021_package_rejects_dependency_edge_without_evidence`; `test_021_package_rejects_dependency_leaking_across_components` | Dependencia acotada al componente; rechazo de propagación a otro componente |
 | COR-01 | `test_primary_statement_scope_passes_only_for_direct_act`; `test_021_package_accepts_primary_corroboration_only_for_directly_observed_act` | Emisión/acto directo cubierto |
 | COR-02 | `test_primary_authenticity_does_not_allow_unsupported_external_claim`; `test_021_package_rejects_primary_corroboration_overclaim` | Sobreafirmación rechazada |
 | COR-03 | — | **Brecha:** rectificación posterior y conservación/versionado temporal |
