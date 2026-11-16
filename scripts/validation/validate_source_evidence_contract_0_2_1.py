@@ -473,7 +473,7 @@ def validate_package(
         if availability["availability_basis"] == "INDEPENDENT_ARCHIVE":
             ref = availability["archive_attestation_id"]
             require(ref in archive_by_id, "INDEPENDENT_ARCHIVE availability lacks a matching capture attestation")
-            validate_archive_attestation(availability, archive_by_id[ref], unit["assessment_cutoff"])
+            validate_archive_attestation(availability, archive_by_id[ref], unit["assessment_cutoff"], evidence_by_id[availability["evidence_id"]])
         else:
             require(availability["archive_attestation_id"] is None,
                     "non-archive availability cannot reference an archive attestation")
