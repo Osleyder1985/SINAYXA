@@ -29,7 +29,7 @@ Validar `pg_dump` y `pg_restore` con una instancia PostgreSQL efímera, aislada 
 
 El reporte JSON clasifica la ejecución como `LAB_SYNTHETIC` y cada comprobación como `PASS`, `FAIL` o `NOT_RUN`. Un fallo aborta el ensayo y produce un reporte `FAIL`.
 
-La comprobación `cleanup` solo puede ser `PASS` si la consulta al daemon Docker termina correctamente y confirma que el contenedor temporal ya no existe. Si Docker no responde o el contenedor permanece, el reporte global debe ser `FAIL`; la ausencia de respuesta nunca se interpreta como prueba de eliminación.
+La comprobación `cleanup` solo puede ser `PASS` si las consultas al daemon Docker terminan correctamente y confirman que tanto el contenedor temporal como el volumen anónimo de datos PostgreSQL ya no existen. El arnés identifica el volumen montado en `/var/lib/postgresql/data` antes de la limpieza y verifica su ausencia después de `docker rm -v`. Si Docker no responde, no puede identificarse el volumen o cualquiera de los dos recursos permanece, el reporte global debe ser `FAIL`; la ausencia de respuesta nunca se interpreta como prueba de eliminación.
 
 ## Límites de evidencia
 
