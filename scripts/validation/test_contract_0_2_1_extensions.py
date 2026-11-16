@@ -100,6 +100,9 @@ class Contract021ExtensionTests(unittest.TestCase):
         ]
         with self.assertRaises(ContractViolation):
             validate_analytic_replication(analyses, self.cutoff)
+        analyses[1]["process_id"] = "analysis-process-2"
+        with self.assertRaises(ContractViolation):
+            validate_analytic_replication(analyses, self.cutoff)
 
     def test_secondary_corroboration_requires_reviewed_coverage(self):
         validate_corroboration(
