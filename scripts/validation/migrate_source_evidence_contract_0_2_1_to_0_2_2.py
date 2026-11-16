@@ -113,6 +113,12 @@ def migrate_package(
             raise MigrationRejected(f"{label}: rationale must explain the evidenced correspondence")
         return target_code
 
+    if any(record.get("migration_id") == migration_id for record in source.get("migration_records", [])):
+        raise MigrationRejected("migration_id already exists in the historical package")
+    input_digest = sha256(canonical_bytes(source))
+    if source_snapshot_ref != f"sha256:{input_digest}":
+        raise MigrationRejected("source_snapshot_ref must equal the canonical SHA-256 reference of the source package")
+
     output = copy.deepcopy(source)
     losses: list[str] = []
     # Preserve subject identity only when every historical subject_ref already is
@@ -176,6 +182,9 @@ def migrate_package(
 
     output["contract_version"] = "0.2.2"
     core_digest = sha256(canonical_bytes(output))
+    expected_target_ref = f"sha256:{core_digest}"
+    if target_snapshot_ref and target_snapshot_ref != expected_target_ref:
+        raise MigrationRejected("target_snapshot_ref must equal the canonical SHA-256 reference of the migrated payload")
     migration_record = {
         "migration_id": migration_id,
         "source_contract_version": "0.2.1",
