@@ -1,44 +1,44 @@
-# Issue #93 — Synthetic validation lab
+# Issue #93 — Laboratorio de validación sintética
 
-This first laboratory stage is limited to the local filesystem. It uses generated synthetic records and a temporary directory. It does not connect to the network, start services, install packages, access credentials, or touch production data.
+Esta primera etapa del laboratorio se limita al sistema de archivos local. Utiliza registros sintéticos generados y un directorio temporal. No establece conexiones de red, no inicia servicios, no instala paquetes, no accede a credenciales ni modifica datos de producción.
 
-## Requirements
+## Requisitos
 
 - PowerShell 7.6.6.
-- No PowerShell modules or external dependencies.
+- No requiere módulos de PowerShell ni dependencias externas.
 
-## Run
+## Ejecución
 
-From the repository root:
-
-```powershell
-pwsh -NoLogo -NoProfile -File .\scripts\validation\Invoke-SyntheticValidationLab.ps1
-```
-
-To retain the temporary evidence directory:
+Desde la raíz del repositorio:
 
 ```powershell
-pwsh -NoLogo -NoProfile -File .\scripts\validation\Invoke-SyntheticValidationLab.ps1 -KeepArtifacts
+pwsh -NoLogo -NoProfile -File .\\scripts\\validation\\Invoke-SyntheticValidationLab.ps1
 ```
 
-To reproduce the same synthetic record contents:
+Para conservar el directorio temporal con las evidencias:
 
 ```powershell
-pwsh -NoLogo -NoProfile -File .\scripts\validation\Invoke-SyntheticValidationLab.ps1 -Seed 20261116
+pwsh -NoLogo -NoProfile -File .\\scripts\\validation\\Invoke-SyntheticValidationLab.ps1 -KeepArtifacts
 ```
 
-The command emits one compact JSON report and returns a non-zero exit code on failure.
+Para reproducir el mismo contenido de los registros sintéticos:
 
-## Checks
+```powershell
+pwsh -NoLogo -NoProfile -File .\\scripts\\validation\\Invoke-SyntheticValidationLab.ps1 -Seed 20261116
+```
 
-- Deterministic synthetic dataset generation.
-- SHA-256 and byte-size manifest.
-- Export and restore integrity.
-- Detection of an intentional payload mutation.
-- Deletion reconciliation across the dataset, export payload, and restored payload.
+El comando emite un único informe JSON compacto y devuelve un código de salida distinto de cero si ocurre un fallo.
 
-## Evidence and limitations
+## Comprobaciones
 
-A PASS proves only the filesystem workflow in the isolated temporary directory. It does not prove PostgreSQL backup/restore, physical WORM/Object Lock, secure media erasure, provider-side backup deletion, external snapshots, or production migration. Those require separate environment-specific validation.
+- Generación determinista del conjunto de datos sintéticos.
+- Manifiesto SHA-256 y tamaños en bytes.
+- Integridad de la exportación y de la restauración.
+- Detección de una modificación intencional del contenido.
+- Reconciliación de la eliminación en el conjunto de datos, la exportación y el contenido restaurado.
 
-By default the temporary directory is removed after the report is generated. Use -KeepArtifacts only when inspection of synthetic artifacts is needed.
+## Evidencia y limitaciones
+
+Un resultado PASS demuestra únicamente el flujo del sistema de archivos dentro del directorio temporal aislado. No demuestra las operaciones de copia de seguridad y restauración de PostgreSQL, WORM/Object Lock físico, borrado seguro de medios, eliminación de copias de seguridad en proveedores externos, snapshots externos ni migraciones de producción. Esas capacidades requieren validaciones independientes en entornos específicos.
+
+De forma predeterminada, el directorio temporal se elimina después de generar el informe. Utiliza -KeepArtifacts únicamente cuando sea necesario inspeccionar los artefactos sintéticos.
