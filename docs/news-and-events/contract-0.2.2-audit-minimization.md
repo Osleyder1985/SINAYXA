@@ -59,7 +59,7 @@ El migrador `scripts/validation/migrate_source_evidence_contract_0_2_1_to_0_2_2.
 ```json
 {
   "actor_roles": {
-    "SYNTHETIC_TEST": "SYNTHETIC_TEST"
+    "valor histórico exacto del rol": "SYSTEM"
   },
   "reasons": {
     "texto histórico exacto": "RECORD_CREATED"
@@ -67,7 +67,7 @@ El migrador `scripts/validation/migrate_source_evidence_contract_0_2_1_to_0_2_2.
 }
 ```
 
-Los ejemplos anteriores son ilustrativos: cada motivo debe corresponder exactamente a la acción histórica y a un código vigente. No se usa coincidencia aproximada, traducción, clasificación semántica ni fallback.
+Los ejemplos anteriores son ilustrativos. Las claves de ambos mapas deben coincidir exactamente con el conjunto de valores históricos distintos; no se admiten claves sobrantes ni ausentes. Cada rol y motivo debe corresponderse con evidencia histórica y con los códigos/acciones vigentes. No se usa coincidencia aproximada, traducción, clasificación semántica ni fallback. El ejemplo `SYSTEM` solo es correcto cuando la evidencia acredita que el actor histórico era un proceso del sistema; no se debe aplicar a un actor humano ni a un fixture por conveniencia.
 
 La ejecución requiere `--input`, `--mapping`, `--output`, `--manifest`, `--migration-id`, `--executed-at` y `--source-snapshot-ref`. El instante de ejecución y los metadatos de migración se suministran explícitamente para permitir repetición determinista. Los cuatro archivos deben usar rutas distintas y el destino no puede existir previamente. En caso de rechazo se escribe únicamente el manifiesto; el origen no se modifica y no se genera un paquete de destino.
 
