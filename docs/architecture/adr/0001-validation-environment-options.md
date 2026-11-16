@@ -278,4 +278,3 @@ Fuentes oficiales de referencia:
 ### Criterio de aceptación adicional
 
 El protocolo de #89 no puede comenzar hasta que el manifiesto de versiones esté completo, cada imagen esté fijada por digest y las verificaciones de procedencia disponibles estén registradas. Si no se puede acreditar que un componente es estable/mantenido o resolver su digest, el ensayo queda BLOCKED; no se sustituye silenciosamente por una versión antigua ni por un pre-release.
-
