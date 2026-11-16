@@ -389,12 +389,25 @@ Esta actualización sustituye cualquier estado anterior que indicara que la prue
 
 | Área | Resultado de la revisión | Limitación/brecha que permanece | Estado |
 | --- | --- | --- | --- |
-| A — Independencia | Reglas y escenarios IND-01–IND-08 tienen pruebas relacionadas; se representan orígenes terminales, citas, dataset común y DESCONOCIDA. | Falta una trazabilidad consolidada y estricta requisito→regla→fixture→test→run para cada IND-01–IND-08 en el HEAD actual. | ABIERTA |
-| B — Corroboración | COR-03, COR-04 y COR-08 tienen controles ejecutables; COR-04 duplicidad ya está en CI. COR-01–COR-10 tienen cobertura distribuida en la suite. | Solapamiento semántico de fragmentos/alcances y suficiencia sustantiva requieren revisión humana; la matriz no presenta todavía una tabla íntegra por cada COR-01–COR-10 ligada a una sola ejecución final. | ABIERTA |
+| A — Independencia | Reglas y escenarios IND-01–IND-08 tienen pruebas relacionadas; se representan orígenes terminales, citas, dataset común y DESCONOCIDA. | La tabla individual IND-01–IND-08 de esta matriz referencia pruebas existentes en la suite; las 8 filas se ejecutan conjuntamente en el CI final del HEAD 511c89d. La cobertura es sintética y no prueba que toda relación real de procedencia haya sido descubierta. | ABIERTA |
+| B — Corroboración | COR-03, COR-04 y COR-08 tienen controles ejecutables; COR-04 duplicidad ya está en CI. COR-01–COR-10 tienen cobertura distribuida en la suite. | La tabla individual COR-01–COR-10 referencia pruebas existentes en la suite y se ejecuta conjuntamente en el CI final del HEAD 511c89d. El solapamiento semántico de fragmentos/alcances y la suficiencia sustantiva requieren revisión humana; los tests validan estructura, referencias y reglas, no la verdad factual. | ABIERTA |
 | C — Retención/eliminación | Estados pendientes, inventario de copias, backups, expiración y restricciones de auditoría están modelados y probados sintéticamente. | No se demuestra borrado físico ni reconciliación real en proveedores; RET-09 es detección heurística, no anonimización exhaustiva. | ABIERTA |
 | D — Archivo/procedencia | Atestaciones enlazan evidencia, versión y SHA-256; se validan captura/corte e integridad del contenido examinado. | No se demuestra inmutabilidad física WORM/Object Lock ni preservación byte-a-byte futura en un proveedor externo. El estado debe permanecer UNKNOWN/NOT_VERIFIED sin evidencia externa. | ABIERTA |
 | E — Migración | Migrador real 0.2.0→0.2.1 determinista; snapshots, cardinalidades, referencias y valores históricos del fixture están probados, incluidas más de 700 mutaciones de hojas. | Evidencia de fixture/snapshots en memoria; no demuestra migración productiva ni preservación física externa. | ABIERTA |
 
-**Decisión técnica de esta revisión:** no hay un defecto de contrato lógico demostrado por el último CI que justifique abrir otra ronda de combinaciones de pruebas. Las brechas restantes se clasifican como (1) consolidación de trazabilidad documental en A/B y (2) validaciones operativas externas o límites deliberadamente no demostrables con fixtures sintéticos en C/D/E. No deben convertirse automáticamente en nuevas reglas o pruebas especulativas.
+**Decisión técnica de esta revisión:** no hay un defecto de contrato lógico demostrado por el último CI que justifique abrir otra ronda de combinaciones de pruebas. La comprobación adicional confirmó que los 48 nombres de prueba citados en las filas individuales A/B existen en la suite actual y que el CI final ejecutó los 124 tests sobre un mismo HEAD. Las brechas restantes se clasifican como (1) limitación de detección/minimización de metadatos reidentificadores en C y (2) verificaciones operativas externas de eliminación, preservación archivística y migración productiva en C/D/E. No deben convertirse automáticamente en nuevas reglas o pruebas sintéticas especulativas.
 
 Las cinco áreas siguen ABIERTAS conforme al criterio formal vigente; esta consolidación no las cierra. PR #85 permanece OPEN / NOT MERGED e Issue #78 permanece OPEN. No se aprueba el contrato ni se autoriza merge por inferencia.
+
+
+### Comprobación de referencias A/B sobre el HEAD final
+
+En `511c89d0df4210da67540a5675071de29c1fcea5` se contrastaron los nombres de pruebas citados en las filas IND-01–IND-08 y COR-01–COR-10 contra `scripts/validation/test_contract_0_2_1_extensions.py`:
+
+- Referencias de pruebas A/B encontradas en la matriz: 48 únicas.
+- Referencias inexistentes en el archivo de pruebas: 0.
+- Pruebas unitarias definidas en la suite: 124.
+- Ejecución de la suite completa en PowerShell quality gate [run 43807727324](https://github.com/Osleyder1985/SINAYXA/actions/runs/43807727324): 124 tests, OK.
+- Security/dependency quality gate [run 43807727745](https://github.com/Osleyder1985/SINAYXA/actions/runs/43807727745): SUCCESS.
+
+Esta comprobación resuelve la discrepancia documental que afirmaba que faltaba la tabla de trazabilidad A/B. No transforma los tests sintéticos en prueba de autenticidad, verdad sustantiva o descubrimiento exhaustivo de relaciones reales. La matriz mantiene A–E ABIERTAS hasta que la revisión formal confirme el cierre conforme a sus criterios y se resuelva la brecha RET-09.
