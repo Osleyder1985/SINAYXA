@@ -159,7 +159,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "source_ref": None,
             "evidence_ref": None,
             "retrieved_at": None,
-            "recorded_at": iso(now),
+            "recorded_at": iso(now + timedelta(minutes=1)),
             "supersedes_assertion_id": None,
             "published_at": None,
             "first_observed_at": None,
