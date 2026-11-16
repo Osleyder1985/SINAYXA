@@ -64,6 +64,8 @@ EOF
 }
 cleanup() {
   local rc=$?
+  trap - EXIT
+  set +e
   local container_names volume_names
   if [[ "$CONTAINER_CREATED" == true ]]; then docker rm -fv "$CONTAINER" >/dev/null 2>&1 || true; fi
   RESULT_cleanup=NOT_RUN
