@@ -195,7 +195,7 @@ class Contract021ExtensionTests(unittest.TestCase):
         availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
                         "available_at": "2026-01-01T00:00:00Z"}
         attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
-                       "captured_at": "2026-01-01T00:00:00Z", "integrity_result": "MATCH",
+                       "captured_at": "2026-01-01T00:00:00Z", "recorded_at": "2026-01-01T00:01:00Z", "integrity_result": "MATCH",
                        "capture_record_verified": True, "content_authenticity": "UNKNOWN",
                        "content_truth": "UNKNOWN"}
         validate_archive_attestation(availability, attestation, self.cutoff)
@@ -204,7 +204,7 @@ class Contract021ExtensionTests(unittest.TestCase):
         availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
                         "available_at": "2026-01-01T00:00:00Z"}
         attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
-                       "captured_at": "2026-01-01T00:00:00Z", "integrity_result": "NOT_CHECKED",
+                       "captured_at": "2026-01-01T00:00:00Z", "recorded_at": "2026-01-01T00:01:00Z", "integrity_result": "NOT_CHECKED",
                        "capture_record_verified": False, "content_authenticity": "UNKNOWN",
                        "content_truth": "UNKNOWN"}
         with self.assertRaises(ContractViolation):
@@ -214,7 +214,7 @@ class Contract021ExtensionTests(unittest.TestCase):
         availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
                         "available_at": "2026-01-03T00:00:00Z"}
         attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
-                       "captured_at": "2026-01-03T00:00:00Z", "integrity_result": "MATCH",
+                       "captured_at": "2026-01-03T00:00:00Z", "recorded_at": "2026-01-03T00:01:00Z", "integrity_result": "MATCH",
                        "capture_record_verified": True, "content_authenticity": "UNKNOWN",
                        "content_truth": "UNKNOWN"}
         with self.assertRaises(ContractViolation):
@@ -224,7 +224,7 @@ class Contract021ExtensionTests(unittest.TestCase):
         availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
                         "available_at": "2026-01-01T00:00:00Z"}
         attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
-                       "captured_at": "2026-01-01T00:00:00Z", "integrity_result": "MATCH",
+                       "captured_at": "2026-01-01T00:00:00Z", "recorded_at": "2026-01-01T00:01:00Z", "integrity_result": "MATCH",
                        "capture_record_verified": True, "content_authenticity": "AUTENTICADA",
                        "content_truth": "UNKNOWN"}
         with self.assertRaises(ContractViolation):
