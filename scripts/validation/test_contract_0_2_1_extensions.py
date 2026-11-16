@@ -1182,6 +1182,7 @@ class Contract021ExtensionTests(unittest.TestCase):
     def test_021_source_correction_is_a_new_version_and_preserves_prior_version(self):
         schema, package = self.load_contract_021_fixture()
         original = copy.deepcopy(package["source_versions"][0])
+        original_cutoff = package["claim_assessments"][0]["assessment_cutoff"]
         corrected = copy.deepcopy(original)
         corrected.update({
             "source_version_id": "version-a2",
@@ -1202,8 +1203,7 @@ class Contract021ExtensionTests(unittest.TestCase):
             original,
         )
         self.assertEqual(package["evaluation_units"][0]["source_version_id"], original["source_version_id"])
-        self.assertEqual(package["claim_assessments"][0]["assessment_cutoff"],
-                         "2026-01-02T00:00:00Z")
+        self.assertEqual(package["claim_assessments"][0]["assessment_cutoff"], original_cutoff)
 
     def test_021_source_version_chain_rejects_self_or_future_supersession(self):
         schema, package = self.load_contract_021_fixture()
