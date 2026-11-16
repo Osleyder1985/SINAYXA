@@ -161,14 +161,14 @@ contract_version y methodology_version son dimensiones independientes. Una migra
 
 ### Evidencia integrada en CI
 
-- HEAD verificado para esta ejecución: `8dbb2235bef5a09cddd5bd9ddb2fe46ce50b1cd2` (PowerShell y Security/dependency quality gates SUCCESS sobre el mismo SHA).
-- PowerShell quality gate: [run 43792511757](https://github.com/Osleyder1985/SINAYXA/actions/runs/43792511757) — SUCCESS; PowerShell 7.6.6, 11 archivos parseados, 0 errores, PSScriptAnalyzer 1.24.0 con 0 findings.
-- Security and dependency quality gate: [run 43792511971](https://github.com/Osleyder1985/SINAYXA/actions/runs/43792511971) — SUCCESS; npm audit, Gitleaks y OSV PR SUCCESS; OSV full SKIPPED.
-- Suite semántica correctiva 0.2.1: 95 tests — PASS sobre el HEAD `8dbb2235bef5a09cddd5bd9ddb2fe46ce50b1cd2`.
+- HEAD verificado para esta ejecución: `56759d25d9c6503112875ec19bfb5d1b8258c1db` (PowerShell y Security/dependency quality gates SUCCESS sobre el mismo SHA).
+- PowerShell quality gate: [run #591](https://github.com/Osleyder1985/SINAYXA/actions/runs/43792827091) — SUCCESS; PowerShell 7.6.6, 11 archivos parseados, 0 errores, PSScriptAnalyzer 1.24.0 con 0 findings.
+- Security and dependency quality gate: [run #520](https://github.com/Osleyder1985/SINAYXA/actions/runs/43792827490) — SUCCESS; npm audit, Gitleaks y OSV PR SUCCESS; OSV full SKIPPED.
+- Suite semántica correctiva 0.2.1: 95 tests — PASS sobre el HEAD `56759d25d9c6503112875ec19bfb5d1b8258c1db`.
 - JSON Schema Draft 2020-12: PASS.
 - Fixture 0.2.1 y validador semántico: PASS.
 - Auditoría npm, Gitleaks y OSV PR: SUCCESS. Los pasos SKIPPED no se contabilizan como PASS.
-- Artefacto de evidencia PowerShell: [powershell-validation-evidence-43792511757](https://github.com/Osleyder1985/SINAYXA/actions/runs/43792511757).
+- Artefacto de evidencia PowerShell: [powershell-validation-evidence-43792827091](https://api.github.com/repos/Osleyder1985/SINAYXA/actions/artifacts/14192533494).
 
 ### Trazabilidad actual por área
 
@@ -216,13 +216,13 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | RET-07 | `test_021_package_rejects_new_assessment_after_delete_pending` | Rechazo cubierto |
 | RET-08 | `test_deleted_copy_cannot_be_restored_to_present` | Rechazo de transición terminal directa cubierto; restauración/reconciliación de backup sigue abierta |
 | RET-09 | `test_021_audit_subject_reference_must_resolve_to_internal_object`; `test_021_audit_events_reject_reidentifying_metadata`; `test_021_audit_actor_role_rejects_personal_contact_metadata` | Se rechazan referencias no internas y URL, digest, email o IP en reason/actor_role; no demuestra ausencia absoluta de reidentificación ni cubre todos los datos personales posibles; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
-| ARC-01 | `test_archive_capture_verified_for_cutoff_passes_without_authenticating_content`; `test_021_archive_attestation_is_required_and_does_not_authenticate_content`; `test_021_archive_attestation_cannot_be_reused_for_another_evidence_item`; `test_021_archive_attestation_cannot_claim_another_source_version` | Atestación vinculada a una pieza y versión exactas; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
+| ARC-01 | `test_archive_capture_verified_for_cutoff_passes_without_authenticating_content`; `test_021_archive_attestation_is_required_and_does_not_authenticate_content`; `test_021_archive_attestation_cannot_be_reused_for_another_evidence_item`; `test_021_archive_attestation_cannot_claim_another_source_version` | Atestación vinculada a una pieza y versión exactas; CI PASS en run #591 sobre HEAD `56759d2` |
 | ARC-02/05 | `test_archive_timestamp_without_capture_proof_is_rejected`; `test_021_orphan_archive_attestation_is_rejected` | Falta de prueba de captura rechazada |
 | ARC-03 | `test_archive_capture_after_cutoff_is_rejected` | Rechazo cubierto |
-| ARC-04 | `test_021_archive_integrity_mismatch_is_not_verified_availability`; `test_021_archive_attestation_rejects_captured_content_hash_mismatch`; `test_021_archive_attestation_rejects_expected_digest_mismatch`; `test_021_archive_attestation_requires_verified_evidence_digest` | Mismatch del registro, expected/observed digest o verificación ausente rechaza disponibilidad; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
+| ARC-04 | `test_021_archive_integrity_mismatch_is_not_verified_availability`; `test_021_archive_attestation_rejects_captured_content_hash_mismatch`; `test_021_archive_attestation_rejects_expected_digest_mismatch`; `test_021_archive_attestation_requires_verified_evidence_digest` | Mismatch del registro, expected/observed digest o verificación ausente rechaza disponibilidad; CI PASS en run #591 sobre HEAD `56759d2` |
 | ARC-06 | `test_archive_import_cannot_predate_capture`; `test_021_pre_release_detection_is_distinct_from_publication_and_retrieval`; `test_021_source_version_rejects_retrieval_before_first_detection` | Se distinguen publicación, primera detección y recuperación; detección pre-release es representable y recuperación anterior a detección se rechaza; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
 | ARC-07 | `test_021_source_stated_timestamp_does_not_prove_historical_availability` | SOURCE_STATED con timestamp declarado no se acepta como disponibilidad verificada; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
-| ARC-08 | `test_021_archived_evidence_cannot_be_rebound_to_another_source_version`; `test_021_archive_attestation_cannot_be_reused_for_another_evidence_item`; `test_021_archive_attestation_cannot_claim_another_source_version`; `test_021_archive_attestation_rejects_captured_content_hash_mismatch`; `test_021_archive_attestation_rejects_expected_digest_mismatch` | Atestación ligada a evidence_id, source_version_id y SHA-256 exactos; CI PASS en run 43792511757 sobre HEAD `8dbb223`. Falta prueba de inmutabilidad del archivo físico/objeto frente a alteración posterior |
+| ARC-08 | `test_021_archived_evidence_cannot_be_rebound_to_another_source_version`; `test_021_archive_attestation_cannot_be_reused_for_another_evidence_item`; `test_021_archive_attestation_cannot_claim_another_source_version`; `test_021_archive_attestation_rejects_captured_content_hash_mismatch`; `test_021_archive_attestation_rejects_expected_digest_mismatch` | Atestación ligada a evidence_id, source_version_id y SHA-256 exactos; CI PASS en run #591 sobre HEAD `56759d2`. Falta prueba de inmutabilidad del archivo físico/objeto frente a alteración posterior |
 | MIG-01 | `test_021_migration_manifest_is_schema_valid_and_lossless` | Migración sintética válida cubierta |
 | MIG-02 | `test_021_real_020_to_021_migration_is_deterministic_without_duplicates`; `test_021_historical_assessed_at_null_is_preserved_for_claim_and_factor` | Representa `claim_assessments.assessed_at=null` sin inferir fecha; conserva los timestamps existentes de `factor_assessments`. La clave sigue siendo obligatoria. |
 | MIG-03/04 | `test_migration_rejects_historical_status_change`; `test_migration_rejects_changed_historical_assessment_cutoff`; `test_migration_rejects_changed_historical_evidence_references` | Se añaden rechazos explícitos para cambiar assessment_cutoff y sustituir referencias históricas de evidencia; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
@@ -260,7 +260,7 @@ El último HEAD con ambos quality gates verificados es `8dbb2235bef5a09cddd5bd9d
 
 Los commits `3dde82e` y `a28a851` añaden pruebas negativas para impedir que `reason` o `actor_role` incorporen URLs, hashes SHA-256, correos electrónicos o direcciones IPv4. La expresión regular fue corregida para usar límites de palabra y separadores literales reales. Las pruebas y ambos quality gates terminaron SUCCESS sobre `8dbb223`.
 
-### Extensión de atestación archivística — verificada en CI sobre `8dbb223`
+### Extensión de atestación archivística — verificada en CI sobre `56759d2`
 
 Se endureció ARC-01/04/08: cada `archive_attestation` ahora requiere `evidence_id`, `source_version_id`, `captured_content_hash` y `hash_algorithm=SHA-256`. El digest debe coincidir con `expected_digest` y `observed_digest` de la evidencia, con `integrity_check.result=MATCH` y `checked_at` posterior a la captura. Se rechaza reutilizar una atestación para otra pieza o versión. Esta regla acredita vinculación e integridad de la copia examinada, no autenticidad del autor ni verdad factual.
 
