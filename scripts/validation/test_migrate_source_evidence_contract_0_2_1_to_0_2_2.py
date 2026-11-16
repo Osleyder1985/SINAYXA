@@ -48,11 +48,13 @@ class Contract022MigrationTests(unittest.TestCase):
         for event in source.get("audit_events", []):
             roles[event["actor_role"]] = {
                 "target_code": "SYSTEM",
+                "event_refs": [item["audit_event_id"] for item in source["audit_events"] if item["actor_role"] == event["actor_role"]],
                 "evidence_refs": evidence_refs,
                 "rationale": "Correspondencia artificial limitada al fixture sintético; no reutilizable en datos reales.",
             }
             reasons[event["reason"]] = {
                 "target_code": action_codes[event["action"]],
+                "event_refs": [item["audit_event_id"] for item in source["audit_events"] if item["reason"] == event["reason"]],
                 "evidence_refs": evidence_refs,
                 "rationale": "Correspondencia artificial limitada al fixture sintético y a la acción declarada.",
             }
@@ -113,7 +115,7 @@ class Contract022MigrationTests(unittest.TestCase):
 
     def test_stale_mapping_entries_are_rejected(self):
         mappings = self._mapping_for(self._uuid_compatible_source())
-        mappings["actor_roles"]["OLD_UNUSED_ROLE"] = {"target_code": "SYSTEM", "evidence_refs": ["evidence-a"], "rationale": "stale"}
+        mappings["actor_roles"]["OLD_UNUSED_ROLE"] = {"target_code": "SYSTEM", "event_refs": [], "evidence_refs": ["evidence-a"], "rationale": "stale"}
         with self.assertRaisesRegex(MigrationRejected, "exactly match"):
             self._migrate(self._uuid_compatible_source(), mappings)
 
@@ -137,6 +139,13 @@ class Contract022MigrationTests(unittest.TestCase):
         mappings = self._mapping_for(source)
         mappings["actor_roles"]["SYNTHETIC_TEST"]["rationale"] = " "
         with self.assertRaisesRegex(MigrationRejected, "rationale"):
+            self._migrate(source, mappings)
+
+    def test_mapping_must_cover_exact_historical_event_ids(self):
+        source = self._uuid_compatible_source()
+        mappings = self._mapping_for(source)
+        mappings["actor_roles"]["SYNTHETIC_TEST"]["event_refs"] = []
+        with self.assertRaisesRegex(MigrationRejected, "event_refs"):
             self._migrate(source, mappings)
 
     def test_source_snapshot_reference_must_match_canonical_input_hash(self):
