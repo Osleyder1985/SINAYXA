@@ -2109,6 +2109,10 @@
       "additionalProperties": false,
       "required": [
         "archive_attestation_id",
+        "evidence_id",
+        "source_version_id",
+        "captured_content_hash",
+        "hash_algorithm",
         "archive_service",
         "capture_record_reference",
         "captured_at",
@@ -2125,6 +2129,19 @@
       "properties": {
         "archive_attestation_id": {
           "$ref": "#/$defs/id"
+        },
+        "evidence_id": {
+          "$ref": "#/$defs/id"
+        },
+        "source_version_id": {
+          "$ref": "#/$defs/id"
+        },
+        "captured_content_hash": {
+          "type": "string",
+          "pattern": "^[A-Fa-f0-9]{64}$"
+        },
+        "hash_algorithm": {
+          "const": "SHA-256"
         },
         "archive_service": {
           "$ref": "#/$defs/nonEmpty"
