@@ -90,6 +90,11 @@ def migrate_package(
         "target_snapshot_ref": target_snapshot_ref,
     }
     migrated["migration_records"] = [manifest]
+    final_errors = list(
+        Draft202012Validator(target_schema, format_checker=FormatChecker()).iter_errors(migrated)
+    )
+    if final_errors:
+        raise ValueError("migration manifest fails 0.2.1 schema: " + "; ".join(e.message for e in final_errors))
     snapshots = {
         source_snapshot_ref: source_snapshot,
         target_snapshot_ref: target_snapshot,
