@@ -14,13 +14,7 @@ class Contract022MigrationTests(unittest.TestCase):
         cls.source = json.loads(
             (ROOT / "tests/fixtures/contracts/source-evidence-contract-v0.2.1.json").read_text(encoding="utf-8")
         )
-        cls.mappings = {
-            "actor_roles": {"SYNTHETIC_TEST": "SYSTEM"},
-            "reasons": {
-                "Creación de fixture sintético de conformidad.": "RECORD_CREATED",
-                "Registro sintético de referencia sin conservar contenido.": "REFERENCE_ONLY_SELECTED",
-            },
-        }
+
 
     @staticmethod
     def _replace_exact(value, replacements):
@@ -42,10 +36,32 @@ class Contract022MigrationTests(unittest.TestCase):
         }
         return self._replace_exact(copy.deepcopy(self.source), replacements)
 
+    @staticmethod
+    def _mapping_for(source):
+        evidence_refs = [item["evidence_id"] for item in source.get("evidence_items", [])]
+        action_codes = {
+            "CREATED": "RECORD_CREATED",
+            "REFERENCE_ONLY": "REFERENCE_ONLY_SELECTED",
+        }
+        roles = {}
+        reasons = {}
+        for event in source.get("audit_events", []):
+            roles[event["actor_role"]] = {
+                "target_code": "SYSTEM",
+                "evidence_refs": evidence_refs,
+                "rationale": "Correspondencia artificial limitada al fixture sintético; no reutilizable en datos reales.",
+            }
+            reasons[event["reason"]] = {
+                "target_code": action_codes[event["action"]],
+                "evidence_refs": evidence_refs,
+                "rationale": "Correspondencia artificial limitada al fixture sintético y a la acción declarada.",
+            }
+        return {"actor_roles": roles, "reasons": reasons}
+
     def _migrate(self, source, mappings=None):
         return migrate_package(
             source,
-            copy.deepcopy(self.mappings if mappings is None else mappings),
+            copy.deepcopy(self._mapping_for(source) if mappings is None else mappings),
             migration_id="migration-0-2-1-to-0-2-2-test",
             executed_at="2026-11-16T12:00:00Z",
             source_snapshot_ref="sha256:source-fixture",
@@ -60,7 +76,7 @@ class Contract022MigrationTests(unittest.TestCase):
         migrated, manifest = self._migrate(self._uuid_compatible_source())
         self.assertEqual(migrated["contract_version"], "0.2.2")
         self.assertEqual(manifest["status"], "PASS")
-        self.assertEqual(migrated["audit_events"][0]["actor_role_code"], "SYNTHETIC_TEST")
+        self.assertEqual(migrated["audit_events"][0]["actor_role_code"], "SYSTEM")
         self.assertNotIn("actor_role", migrated["audit_events"][0])
         self.assertNotIn("reason", migrated["audit_events"][0])
         self.assertEqual(
@@ -72,7 +88,7 @@ class Contract022MigrationTests(unittest.TestCase):
         )
 
     def test_unmapped_role_is_rejected(self):
-        mappings = copy.deepcopy(self.mappings)
+        mappings = self._mapping_for(self._uuid_compatible_source())
         mappings["actor_roles"] = {}
         with self.assertRaisesRegex(MigrationRejected, "actor_role"):
             self._migrate(self._uuid_compatible_source(), mappings)
@@ -85,19 +101,19 @@ class Contract022MigrationTests(unittest.TestCase):
 
     def test_reason_action_mismatch_is_rejected(self):
         mappings = copy.deepcopy(self.mappings)
-        mappings["reasons"]["Registro sintético de referencia sin conservar contenido."] = "RECORD_CREATED"
+        mappings["reasons"]["Registro sintético de referencia sin conservar contenido."]["target_code"] = "RECORD_CREATED"
         with self.assertRaisesRegex(MigrationRejected, "not permitted"):
             self._migrate(self._uuid_compatible_source(), mappings)
 
     def test_non_string_mapping_values_are_rejected(self):
         mappings = copy.deepcopy(self.mappings)
-        mappings["actor_roles"]["SYNTHETIC_TEST"] = ["SYNTHETIC_TEST"]
+        mappings["actor_roles"]["SYNTHETIC_TEST"] = ["SYSTEM"]
         with self.assertRaisesRegex(MigrationRejected, "string-to-string"):
             self._migrate(self._uuid_compatible_source(), mappings)
 
     def test_stale_mapping_entries_are_rejected(self):
         mappings = copy.deepcopy(self.mappings)
-        mappings["actor_roles"]["OLD_UNUSED_ROLE"] = "SYSTEM"
+        mappings["actor_roles"]["OLD_UNUSED_ROLE"] = {"target_code": "SYSTEM", "evidence_refs": ["evidence-a"], "rationale": "stale"}
         with self.assertRaisesRegex(MigrationRejected, "exactly match"):
             self._migrate(self._uuid_compatible_source(), mappings)
 
@@ -107,7 +123,21 @@ class Contract022MigrationTests(unittest.TestCase):
 
     def test_source_root_must_be_an_object(self):
         with self.assertRaisesRegex(MigrationRejected, "source package root"):
-            self._migrate([], self.mappings)
+            self._migrate([], {})
+
+    def test_mapping_requires_resolvable_evidence_references(self):
+        source = self._uuid_compatible_source()
+        mappings = self._mapping_for(source)
+        mappings["actor_roles"]["SYNTHETIC_TEST"]["evidence_refs"] = ["missing-evidence"]
+        with self.assertRaisesRegex(MigrationRejected, "evidence_refs"):
+            self._migrate(source, mappings)
+
+    def test_mapping_requires_non_empty_rationale(self):
+        source = self._uuid_compatible_source()
+        mappings = self._mapping_for(source)
+        mappings["actor_roles"]["SYNTHETIC_TEST"]["rationale"] = " "
+        with self.assertRaisesRegex(MigrationRejected, "rationale"):
+            self._migrate(source, mappings)
 
     def test_migration_is_deterministic_for_identical_inputs_and_parameters(self):
         source = self._uuid_compatible_source()
