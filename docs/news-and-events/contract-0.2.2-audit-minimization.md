@@ -14,7 +14,7 @@ El contrato 0.2.2 reduce la exposición de los registros mínimos de auditoría 
 
 El evento de auditoría 0.2.2 usará:
 - `audit_event_id`: UUID versión 4.
-- `subject_ref`: token UUID versión 4 dedicado a correlacionar el sujeto dentro del ámbito de retención.
+- `subject_ref`: token UUID versión 4 dedicado a correlacionar el sujeto dentro del ámbito de retención; todos los tokens usados se declaran en el registro `audit_subject_tokens` del paquete.
 - `retention_id`, `copy_id` y referencias correlacionadas: UUID versión 4 cuando estén presentes.
 - `action`: catálogo cerrado de acciones ya definido por 0.2.1.
 - `actor_role_code`: código del catálogo de roles 1.0.0.
@@ -43,8 +43,8 @@ No se reutilizan códigos retirados ni se cambia su significado. Las adiciones i
 ## 5. Tratamiento de datos históricos y migración
 
 La migración 0.2.1 → 0.2.2 es fail-closed:
-- Los paquetes que ya contengan identificadores opacos compatibles y referencias coherentes pueden migrarse preservando IDs y relaciones.
-- Los paquetes con IDs semánticos o referencias que revelen IDs externos no pueden recibir UUID aleatorios automáticamente: eso destruiría la trazabilidad si no se conserva una correspondencia.
+- Los paquetes que ya contengan identificadores opacos compatibles y referencias coherentes pueden migrarse preservando IDs y relaciones. El migrador genera el registro `audit_subject_tokens` a partir de los `subject_ref` históricos existentes, únicamente cuando todos ya son UUIDv4.
+- Los paquetes con IDs semánticos o referencias que revelen IDs externos no pueden recibir UUID aleatorios automáticamente: eso destruiría la trazabilidad si no se conserva una correspondencia. Las conversiones de `actor_role` y `reason` requieren un archivo de mapeo explícito; el migrador no interpreta texto libre.
 - No se crea una tabla de correspondencias, servicio de tokenización ni almacén de secretos en esta decisión (la alternativa C no fue aprobada).
 - Si el paquete histórico no satisface la política de opacidad y no existe una transformación demostrablemente reversible y autorizada, la migración devuelve REJECTED con un informe de incompatibilidad. El original permanece íntegro bajo su versión de contrato.
 - No se inventan roles, motivos, tiempos, autorizaciones ni estados históricos. Un valor no mapeable no se convierte en un código positivo por inferencia.
@@ -77,6 +77,7 @@ El evento mínimo no contiene texto libre. Si un proceso necesita una explicaci�
 ## 9. Criterios para aceptar la implementación
 
 - JSON Schema 0.2.2 separado y válido Draft 2020-12.
+- Migrador 0.2.1 → 0.2.2 con parámetros explícitos, manifiesto SHA-256 y rechazo fail-closed.
 - Catálogos 1.0.0 versionados y validados.
 - Validador semántico para acciones/motivos y opacidad.
 - Migración determinista y fail-closed, con rechazo explícito de IDs históricos incompatibles.
