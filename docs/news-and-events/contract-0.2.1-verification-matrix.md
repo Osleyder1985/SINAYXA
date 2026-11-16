@@ -287,7 +287,6 @@ El escenario positivo crea una nueva `source_version`, con publicación, detecci
 - Afirmar eliminación física inmediata de backups cuando la política técnica no lo permite.
 - Cambiar #15/#16 sin decisión expresa y trazable.
 
-
 ### Actualización RET-04 — expiración de backups sin prueba de eliminación
 
 Verificación añadida sobre el HEAD `090bb4b3a646ec73526aed7f197981696eab9fa0`:
