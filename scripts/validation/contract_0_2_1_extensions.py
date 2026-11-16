@@ -94,6 +94,9 @@ def validate_corroboration(
     if non_primary:
         _require(basis in {"CORROBORACION_INDEPENDIENTE", "AMBAS"},
                  "non-primary support requires an independent-corroboration basis")
+    if basis == "AMBAS":
+        _require(bool(non_primary),
+                 "AMBAS requires both primary-direct evidence and at least one non-primary supporting source")
     if basis in {"CORROBORACION_INDEPENDIENTE", "AMBAS"}:
         _require(len(supporting_units) >= 2
                  and len({u["source_id"] for u in supporting_units}) >= 2,
@@ -114,8 +117,10 @@ def validate_corroboration(
                     and unit["source_version_id"] == item.get("source_version_id")
                     for unit in supporting_units)
         ]
-        _require(bool(eligible),
-                 "primary-direct basis requires authenticated, legitimate, direct evidence scoped to the component")
+        eligible_sources = {(item["source_id"], item["source_version_id"]) for item in eligible}
+        required_sources = {(unit["source_id"], unit["source_version_id"]) for unit in supporting_units}
+        _require(required_sources.issubset(eligible_sources),
+                 "every primary supporting unit must have authenticated, legitimate, direct evidence scoped to the component")
     elif basis == "CORROBORACION_INDEPENDIENTE":
         _require(bool(non_primary), "independent basis must actually use non-primary corroboration")
     else:
