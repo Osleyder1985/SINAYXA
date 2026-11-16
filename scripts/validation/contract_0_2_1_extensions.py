@@ -202,6 +202,13 @@ def validate_archive_attestation(availability: dict[str, Any], attestation: dict
              "archive capture and availability must not exceed the assessment cutoff")
     _require(attestation.get("capture_record_verified") is True,
              "the specific capture record must be verified")
+    _require(attestation.get("verification_method") in {
+                 "ARCHIVE_API_RETRIEVAL", "SIGNATURE_OR_DIGEST_CHECK",
+                 "INDEPENDENT_RECORD_REVIEW", "OTHER"
+             } and bool(attestation.get("verified_by_role")) and bool(attestation.get("verified_at")),
+             "capture verification requires method, role, and verification timestamp")
+    _require(attestation["captured_at"] <= attestation["verified_at"] <= attestation.get("recorded_at", ""),
+             "capture verification must follow capture and precede its record time")
     _require(attestation.get("recorded_at", "") >= attestation["captured_at"],
              "archive attestation cannot be recorded before the capture")
     if attestation.get("imported_at") is not None:
