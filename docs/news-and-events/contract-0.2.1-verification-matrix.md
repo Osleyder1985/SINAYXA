@@ -224,10 +224,10 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | ARC-07 | — | **Brecha:** SOURCE_STATED separado de disponibilidad demostrada |
 | ARC-08 | — | **Brecha:** versión archivada modificada y conservación inmutable |
 | MIG-01 | `test_021_migration_manifest_is_schema_valid_and_lossless` | Migración sintética válida cubierta |
-| MIG-02 | — | **Brecha:** campo obligatorio sin fuente y preservación explícita de UNKNOWN |
+| MIG-02 | `test_021_real_020_to_021_migration_is_deterministic_and_idempotent`; `test_021_historical_assessed_at_null_is_preserved_for_claim_and_factor` | Representa `claim_assessments.assessed_at=null` sin inferir fecha; conserva los timestamps existentes de `factor_assessments`. La clave sigue siendo obligatoria. |
 | MIG-03/04 | `test_migration_rejects_historical_status_change` | Cambio de estado histórico rechazado; corte/evidencia requieren trazabilidad individual |
 | MIG-05 | `test_migration_rejects_dropped_unknown_source_field` | Pérdida silenciosa de campo rechazada |
-| MIG-06 | — | **Brecha:** idempotencia real y ausencia de duplicados; el hash determinista no demuestra ejecución repetida |
+| MIG-06 | `test_021_real_020_to_021_migration_is_deterministic_and_idempotent` | Ejecuta dos veces el migrador real con la misma entrada/plan, compara paquete y snapshots completos, verifica cardinalidades y rechaza reentrada sobre 0.2.1. |
 | MIG-07 | `test_migration_rejects_methodology_version_rewrite` | Reescritura metodológica rechazada |
 | MIG-08 | `test_migration_preserves_historical_records_and_versions` | Preservación de versiones cubierta; cambio aislado de contract_version necesita caso específico |
 | MIG-09 | `test_021_package_rejects_unresolvable_migration_snapshot_reference` | Referencia no resoluble rechazada |
