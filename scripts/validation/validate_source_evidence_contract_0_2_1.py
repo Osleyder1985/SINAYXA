@@ -10,6 +10,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 from contract_0_2_1_extensions import (
     ContractViolation,
     canonical_migration_payload_sha256,
+    validate_analytic_replication,
     validate_archive_attestation,
     validate_corroboration,
     validate_independence,
@@ -52,6 +53,33 @@ def _available_at(package: dict[str, Any], evidence_id: str, unit: dict[str, Any
     return item["available_at"]
 
 
+def _validate_analysis_processes(package: dict[str, Any]) -> None:
+    nodes = _index(package["provenance_nodes"], "node_id", "provenance node_id")
+    evidence = _index(package["evidence_items"], "evidence_id", "evidence_id")
+    processes = package["analysis_processes"]
+    _index(processes, "process_id", "analysis process_id")
+    groups: dict[tuple[str, str, str], list[dict[str, Any]]] = {}
+    for process in processes:
+        dataset_node = next(
+            (node for node in nodes.values()
+             if node["node_type"] == "DATASET" and node["entity_ref"] == process["dataset_origin_id"]),
+            None,
+        )
+        require(dataset_node is not None, "analytic process references an unknown common dataset origin")
+        require(process["output_evidence_ref"] in evidence,
+                "analytic process references unknown output evidence")
+        output = evidence[process["output_evidence_ref"]]
+        require(output["recorded_at"] >= process["available_at"],
+                "analytic output evidence cannot be recorded before its declared availability")
+        require(process["available_at"] <= process["assessment_cutoff"],
+                "analytic output was not available at its declared assessment cutoff")
+        key = (process["dataset_origin_id"], process["claim_component_version_id"], process["assessment_cutoff"])
+        groups.setdefault(key, []).append(process)
+    for (_, _, cutoff), records in groups.items():
+        if len(records) >= 2:
+            validate_analytic_replication(records, cutoff)
+
+
 def _validate_independence_assessments(package: dict[str, Any]) -> None:
     units_by_id = _index(package["evaluation_units"], "assessment_unit_id", "assessment_unit_id")
     nodes_by_id = _index(package["provenance_nodes"], "node_id", "provenance node_id")
@@ -59,7 +87,6 @@ def _validate_independence_assessments(package: dict[str, Any]) -> None:
     evidence_by_id = _index(package["evidence_items"], "evidence_id", "evidence_id")
     source_versions = _index(package["source_versions"], "source_version_id", "source_version_id")
     all_edges = package["provenance_edges"]
-
     for assessment in package["independence_assessments"]:
         units = []
         for unit_id in assessment["assessment_unit_ids"]:
@@ -87,6 +114,16 @@ def _validate_independence_assessments(package: dict[str, Any]) -> None:
                 "independence assessment must cover the exact evaluation-unit set for its component and cutoff")
 
         if assessment["status"] == "INDEPENDIENTE":
+            process_origins: dict[str, set[str]] = {}
+            for unit in units:
+                for process in package["analysis_processes"]:
+                    output = evidence_by_id.get(process["output_evidence_ref"])
+                    if output is not None and output["source_version_id"] == unit["source_version_id"]:
+                        if (process["claim_component_version_id"] == assessment["claim_component_version_id"]
+                                and process["assessment_cutoff"] == assessment["assessment_cutoff"]):
+                            process_origins.setdefault(process["dataset_origin_id"], set()).add(unit["source_version_id"])
+            require(all(len(source_versions_for_dataset) < 2 for source_versions_for_dataset in process_origins.values()),
+                    "separate analyses over a common dataset cannot establish independent data origins")
             paths = []
             for edge_id in assessment["independent_path_edge_refs"]:
                 require(edge_id in edges_by_id, "independence assessment references an unknown path edge")
@@ -294,6 +331,7 @@ def validate_package(
     require(set(archive_by_id) == referenced_archive_ids,
             "archive attestation collection contains an orphan capture record")
 
+    _validate_analysis_processes(package)
     _validate_independence_assessments(package)
     _validate_corroborated_claims(package)
     for assessment in package["claim_assessments"]:
