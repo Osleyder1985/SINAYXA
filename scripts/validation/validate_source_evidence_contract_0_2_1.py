@@ -325,8 +325,11 @@ def _validate_claim_assessment_evidence(package: dict[str, Any]) -> None:
 def _contains_ipv6_address(value: str) -> bool:
     """Detect syntactically valid IPv6 literals without treating arbitrary tokens as addresses."""
     for match in re.finditer(r"(?<![0-9A-Fa-f:])[0-9A-Fa-f:]{2,39}(?![0-9A-Fa-f:])", value):
+        candidate = match.group(0)
+        if candidate.count(":") < 2:
+            continue
         try:
-            ipaddress.IPv6Address(match.group(0))
+            ipaddress.IPv6Address(candidate)
             return True
         except ipaddress.AddressValueError:
             continue
