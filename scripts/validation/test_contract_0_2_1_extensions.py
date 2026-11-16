@@ -11,6 +11,7 @@ from validate_source_evidence_contract_0_2_1 import validate_package
 from contract_0_2_1_extensions import (
     ContractViolation,
     canonical_sha256,
+    canonical_migration_payload_sha256,
     validate_archive_attestation,
     validate_corroboration,
     validate_independence,
@@ -242,7 +243,7 @@ class Contract021ExtensionTests(unittest.TestCase):
         target["contract_version"] = "0.2.1"
         manifest = {"migration_id": "m1", "migrator_version": "1.0.0",
                     "source_contract_version": "0.2.0", "target_contract_version": "0.2.1",
-                    "input_sha256": canonical_sha256(source), "output_sha256": canonical_sha256(target),
+                    "input_sha256": canonical_migration_payload_sha256(source), "output_sha256": canonical_migration_payload_sha256(target),
                     "rules_applied": ["preserve-history"], "result": "PASS"}
         validate_migration(source, target, manifest)
 
@@ -258,14 +259,14 @@ class Contract021ExtensionTests(unittest.TestCase):
         target.pop("extension_metadata")
         manifest = {"migration_id": "m3", "migrator_version": "1.0.0",
                     "source_contract_version": "0.2.0", "target_contract_version": "0.2.1",
-                    "input_sha256": canonical_sha256(source), "output_sha256": canonical_sha256(target),
+                    "input_sha256": canonical_migration_payload_sha256(source), "output_sha256": canonical_migration_payload_sha256(target),
                     "rules_applied": ["preserve-history"], "result": "PASS"}
         with self.assertRaises(ContractViolation):
             validate_migration(source, target, manifest)
 
     def test_migration_canonical_output_hash_is_deterministic(self):
         target = {"contract_version": "0.2.1", "claims": [{"claim_id": "c1"}]}
-        first = canonical_sha256(target)
+        first = canonical_migration_payload_sha256(target)
         second = canonical_sha256(copy.deepcopy(target))
         self.assertEqual(first, second)
 
@@ -282,7 +283,7 @@ class Contract021ExtensionTests(unittest.TestCase):
         target["claim_assessments"][0]["evidentiary_status"] = "CORROBORADA"
         manifest = {"migration_id": "m2", "migrator_version": "1.0.0",
                     "source_contract_version": "0.2.0", "target_contract_version": "0.2.1",
-                    "input_sha256": canonical_sha256(source), "output_sha256": canonical_sha256(target),
+                    "input_sha256": canonical_migration_payload_sha256(source), "output_sha256": canonical_migration_payload_sha256(target),
                     "rules_applied": ["preserve-history"], "result": "PASS"}
         with self.assertRaises(ContractViolation):
             validate_migration(source, target, manifest)
