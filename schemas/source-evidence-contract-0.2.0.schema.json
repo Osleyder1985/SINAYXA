@@ -1448,6 +1448,32 @@
           "if": {
             "properties": {
               "evidentiary_status": {
+                "const": "PARCIALMENTE_CORROBORADA"
+              }
+            },
+            "required": [
+              "evidentiary_status"
+            ]
+          },
+          "then": {
+            "required": [
+              "supported_scope",
+              "unsupported_scope"
+            ],
+            "properties": {
+              "supported_scope": {
+                "$ref": "#/$defs/nonEmpty"
+              },
+              "unsupported_scope": {
+                "$ref": "#/$defs/nonEmpty"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidentiary_status": {
                 "const": "CONTRADICHA"
               }
             },
