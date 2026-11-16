@@ -318,6 +318,19 @@ class Contract021ExtensionTests(unittest.TestCase):
         self.assert_schema_valid(schema, package)
         validate_package(package)
 
+    def test_021_orphan_archive_attestation_is_rejected(self):
+        schema, package = self.load_contract_021_fixture()
+        package["archive_attestations"].append({
+            "archive_attestation_id": "archive-orphan", "archive_service": "Synthetic Archive",
+            "capture_record_reference": "capture-orphan", "captured_at": "2026-11-15T20:04:00Z",
+            "imported_at": "2026-11-15T22:00:00Z", "recorded_at": "2026-11-15T22:00:00Z",
+            "integrity_result": "MATCH", "capture_record_verified": True,
+            "content_authenticity": "UNKNOWN", "content_truth": "UNKNOWN"
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
     def test_021_archive_integrity_mismatch_is_not_verified_availability(self):
         schema, package = self.load_contract_021_fixture()
         package["archive_attestations"].append({
