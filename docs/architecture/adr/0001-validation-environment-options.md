@@ -144,13 +144,40 @@ Los ensayos locales pueden demostrar que el procedimiento de prueba y las herram
 - Evidencia guardada: commit, versión de herramientas, configuración saneada, manifiesto, hashes, logs y resultado PASS/FAIL por prueba.
 - La prueba se clasifica como **LAB_SYNTHETIC**; la prueba de proveedor como **OPERATIONAL_EXTERNAL**. Nunca se mezclan.
 
-## 8. Evaluación provisional
+## 8. Matriz de decisión y datos aún no evaluados
+
+La comparación siguiente evita asignar puntuaciones o pesos sin datos del equipo, volumen, región, jurisdicción y periodo de retención. El estado NOT_ASSESSED significa que no existe evidencia suficiente en esta ADR; no equivale a cumplimiento ni a incumplimiento.
+
+| Criterio de #91 | Local/autogestionado | Administrado | Híbrido | Evidencia necesaria antes de decidir |
+| --- | --- | --- | --- | --- |
+| Evidencia técnica de exportación/restauración | DOCUMENTABLE; requiere ensayo local | NOT_ASSESSED para proveedor concreto | NOT_ASSESSED | Prueba repetible sobre versiones fijadas |
+| Eliminación de primario, réplicas y backups | PARCIAL; depende del control de todas las copias | NOT_ASSESSED | NOT_ASSESSED | Inventario real y prueba de reconciliación |
+| WORM por objeto/versión | NOT_ASSESSED para implementación concreta | NOT_ASSESSED para cuenta/región concreta | NOT_ASSESSED | Prueba de retención, permisos y rechazo de borrado |
+| Coste total | NOT_ASSESSED | NOT_ASSESSED | NOT_ASSESSED | Hardware/energía/operación o región, volumen, solicitudes, transferencia y retención |
+| Límites gratuitos y cargos al excederlos | NOT_ASSESSED | NOT_ASSESSED | NOT_ASSESSED | Tarifas y condiciones oficiales vigentes de cada candidato |
+| Disponibilidad desde el entorno de desarrollo | NOT_ASSESSED | NOT_ASSESSED | NOT_ASSESSED | Prueba de conectividad y compatibilidad desde el equipo objetivo |
+| Portabilidad y dependencia de proveedor | Mayor control; esfuerzo operativo propio | Depende de formatos/API y condiciones de salida | Riesgo mixto | Exportación completa y restauración fuera del candidato |
+| Jurisdicción y ubicación de datos | Depende de ubicación física y administración | Depende de región, contrato y subprocesadores | Depende de ambas capas | País/región, residencia, términos y obligaciones aplicables |
+| Reversibilidad | Alta para laboratorio desechable; no asumir para WORM | Puede ser limitada por retención/versionado | Depende de cada componente | Ensayo de rollback y condiciones de terminación |
+
+### Regla de decisión
+
+No se calculará una puntuación total mientras existan criterios críticos NOT_ASSESSED. Antes de seleccionar una alternativa, el propietario deberá fijar:
+- equipo y sistema operativo donde se ejecutará el laboratorio;
+- jurisdicción y residencia de datos exigidas;
+- volumen sintético, número de versiones y periodo de retención de ensayo;
+- presupuesto máximo y tolerancia a cargos;
+- nivel de evidencia requerido para cada prueba.
+
+La matriz es una comparación de estado de evidencia, no una selección tecnológica. Los valores DOCUMENTABLE o PARCIAL tampoco sustituyen la ejecución de la prueba correspondiente.
+
+## 9. Evaluación provisional
 
 No se selecciona una alternativa tecnológica en esta ADR. La decisión segura que puede prepararse sin costes ni servicios externos es especificar primero el protocolo reproducible del laboratorio local con datos sintéticos. La selección de implementación concreta (incluidos productos autogestionados) requiere comprobar licencias, versiones, controles y requisitos del equipo; la alternativa administrada requiere región, estimación de uso, términos de retención y aprobación de costes.
 
 **Recomendación para revisión del propietario:** autorizar únicamente la preparación del laboratorio local sintético, sin despliegue ni persistencia productiva. Mantener la selección de proveedor/servicio administrado y cualquier recurso facturable como decisiones posteriores separadas.
 
-## 9. Consecuencias
+## 10. Consecuencias
 
 - #91 seguirá abierto hasta que el propietario revise esta ADR y se resuelvan sus criterios de aceptación.
 - #89 seguirá abierto hasta obtener evidencia operacional externa suficiente.
