@@ -102,6 +102,17 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "published_at": iso(now + timedelta(seconds=45)),
             "first_observed_at": iso(now + timedelta(seconds=48)),
         }
+        premature = {
+            **second,
+            "temporal_assertion_id": f"{event_id}-v2-premature",
+            "retrieved_at": iso(now + timedelta(seconds=20)),
+            "recorded_at": iso(now + timedelta(seconds=30)),
+            "published_at": iso(now + timedelta(seconds=15)),
+            "first_observed_at": iso(now + timedelta(seconds=18)),
+        }
+        with self.assertRaises(EventRegistryError):
+            append_temporal_assertion(self.connection, premature)
+
         append_temporal_assertion(self.connection, second)
 
         historical = get_event_as_of(
