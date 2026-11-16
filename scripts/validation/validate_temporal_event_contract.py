@@ -123,8 +123,6 @@ def validate_semantics(package: dict[str, Any]) -> None:
                 raise ContractError(f"{aid}: first assertion version cannot supersede another assertion")
             if previous_version > 0 and previous != items[previous_version - 1]["temporal_assertion_id"]:
                 raise ContractError(f"{aid}: each version must supersede the immediately previous version")
-            if previous in seen_ids:
-                raise ContractError(f"{aid}: invalid repeated supersession reference")
             seen_ids.add(aid)
             previous_version += 1
 
