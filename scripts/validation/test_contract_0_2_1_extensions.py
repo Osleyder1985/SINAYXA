@@ -2257,5 +2257,142 @@ class Contract021ExtensionTests(unittest.TestCase):
         self.assert_schema_valid(schema, package)
         validate_package(package)
 
+
+    def test_021_source_correction_unavailable_after_cutoff_cannot_contradict_prior_assessment(self):
+        schema, package = self.load_contract_021_fixture()
+        old_cutoff = package["claim_assessments"][0]["assessment_cutoff"]
+        corrected_cutoff = "2026-11-16T00:00:00Z"
+
+        corrected_version = copy.deepcopy(package["source_versions"][0])
+        corrected_version.update({
+            "source_version_id": "version-a2",
+            "version_label": "v2-correction",
+            "version_sequence": 2,
+            "published_at": "2026-11-15T23:30:00Z",
+            "first_publicly_observed_at": "2026-11-15T23:30:00Z",
+            "first_detected_at": "2026-11-15T23:45:00Z",
+            "retrieved_at": "2026-11-15T23:50:00Z",
+            "supersedes_source_version_id": "version-a1",
+            "recorded_at": corrected_cutoff,
+            "original_timestamps": [],
+        })
+        package["source_versions"].append(corrected_version)
+        package["provenance_nodes"].append({
+            "node_id": "node-version-a2",
+            "node_type": "SOURCE_VERSION",
+            "entity_ref": "version-a2",
+        })
+
+        corrected_evidence = copy.deepcopy(package["evidence_items"][0])
+        corrected_evidence.update({
+            "evidence_id": "evidence-a2",
+            "source_version_id": "version-a2",
+            "authenticity_status": "AUTENTICADA",
+            "recorded_at": corrected_cutoff,
+        })
+        package["evidence_items"].append(corrected_evidence)
+
+        old_version_unit = copy.deepcopy(package["evaluation_units"][0])
+        old_version_unit.update({
+            "assessment_unit_id": "unit-a-original-v2",
+            "assessment_cutoff": corrected_cutoff,
+        })
+        corrected_unit = copy.deepcopy(package["evaluation_units"][0])
+        corrected_unit.update({
+            "assessment_unit_id": "unit-a-correction-v2",
+            "source_version_id": "version-a2",
+            "assessment_cutoff": corrected_cutoff,
+            "source_type": "PRIMARIA",
+            "source_subtype": "REGISTRO_ORIGINAL",
+            "knowledge_basis": "OBSERVACIÓN_DIRECTA",
+            "institutional_character": "OFICIAL",
+            "dissemination": "ORIGINAL",
+        })
+        package["evaluation_units"].extend([old_version_unit, corrected_unit])
+
+        for availability_id, evidence_id, unit_id, available_at, reference in (
+            ("availability-a-original-v2", "evidence-a", "unit-a-original-v2",
+             "2026-11-15T20:05:00Z", "synthetic-observation://evidence-a"),
+            ("availability-a-correction-v2", "evidence-a2", "unit-a-correction-v2",
+             "2026-11-16T00:01:00Z", "synthetic-observation://evidence-a2"),
+        ):
+            package["evidence_availability"].append({
+                "availability_id": availability_id,
+                "evidence_id": evidence_id,
+                "assessment_unit_id": unit_id,
+                "claim_id": "claim-btc-purchase",
+                "claim_component_id": "component-entity",
+                "claim_version_id": "claim-btc-purchase-v1",
+                "claim_component_version_id": "component-entity-v1",
+                "available_at": available_at,
+                "availability_basis": "SINAYXA_OBSERVATION",
+                "availability_reference": reference,
+                "recorded_at": corrected_cutoff,
+                "archive_attestation_id": None,
+            })
+
+        package["claim_evidence_links"].append({
+            "link_id": "link-a2-correction",
+            "claim_id": "claim-btc-purchase",
+            "claim_component_id": "component-entity",
+            "evidence_id": "evidence-a2",
+            "evidence_role": "CONTRARY",
+            "scope_note": "La versión corregida contradice la versión anterior.",
+            "limitations": ["La corrección solo se aplica desde su disponibilidad demostrada."],
+            "claim_version_id": "claim-btc-purchase-v1",
+            "claim_component_version_id": "component-entity-v1",
+        })
+
+        package["independence_assessments"].append({
+            "independence_assessment_id": "independence-entity-v2",
+            "claim_id": "claim-btc-purchase",
+            "claim_component_id": "component-entity",
+            "assessment_unit_ids": ["unit-a-original-v2", "unit-a-correction-v2"],
+            "status": "DESCONOCIDA",
+            "supporting_evidence_refs": [],
+            "dependency_edge_refs": [],
+            "rationale": "La independencia de la versión corregida no se infiere por su rectificación.",
+            "limitations": ["No se han reconstruido vías de origen independientes."],
+            "assessment_cutoff": corrected_cutoff,
+            "methodology_version": "16-approved",
+            "human_review_status": "PENDING",
+            "reviewed_at": None,
+            "claim_version_id": "claim-btc-purchase-v1",
+            "claim_component_version_id": "component-entity-v1",
+            "independent_path_edge_refs": [],
+        })
+
+        package["claim_assessments"].append({
+            "claim_assessment_id": "assessment-entity-v2",
+            "claim_id": "claim-btc-purchase",
+            "claim_component_id": "component-entity",
+            "evidentiary_status": "CONTRADICHA",
+            "attribution_status": "ATRIBUIDA",
+            "supporting_evidence_refs": ["evidence-a"],
+            "contrary_evidence_refs": ["evidence-a2"],
+            "alternatives": ["La versión anterior pudo reflejar una declaración inicial posteriormente corregida."],
+            "uncertainty": "La corrección no determina por sí sola la verdad factual fuera de su alcance.",
+            "limitations": ["No reescribir la evaluación anterior ni aplicar la corrección antes de su detección."],
+            "assessment_cutoff": corrected_cutoff,
+            "methodology_version": "15-approved",
+            "human_review_status": "REVIEWED",
+            "supersedes_assessment_id": "assessment-entity-v1",
+            "independence_assessment_refs": ["independence-entity-v2"],
+            "claim_version_id": "claim-btc-purchase-v1",
+            "claim_component_version_id": "component-entity-v1",
+            "reviewed_at": "2026-11-16T00:05:00Z",
+            "rationale": "La versión corregida contradice la versión anterior desde el nuevo corte temporal.",
+            "supported_scope": None,
+            "unsupported_scope": None,
+            "corroboration_basis": "NO_APLICA",
+            "assessed_at": "2026-11-16T00:06:00Z",
+        })
+
+        self.assertEqual(package["claim_assessments"][0]["assessment_cutoff"], old_cutoff)
+        self.assertEqual(package["evaluation_units"][0]["source_version_id"], "version-a1")
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
