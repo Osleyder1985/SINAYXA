@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 IMAGE_TAG="${POSTGRES_IMAGE_TAG:-postgres:18.7}"
+EXPECTED_VERSION=18.7
+IMAGE_PLATFORM=NOT_RESOLVED
 IMAGE=NOT_RESOLVED
 IMAGE_DIGEST=NOT_RESOLVED
 PGDATA_PATH=NOT_DETECTED
@@ -32,6 +34,8 @@ write_report() {
   "postgres_image": "$IMAGE",
   "postgres_image_tag": "$IMAGE_TAG",
   "postgres_image_digest": "$IMAGE_DIGEST",
+  "postgres_image_platform": "$IMAGE_PLATFORM",
+  "postgres_expected_version": "$EXPECTED_VERSION",
   "postgres_pgdata": "$PGDATA_PATH",
   "postgres_volume_destination": "$POSTGRES_VOLUME_DESTINATION",
   "postgres_server_version": "$SERVER_VERSION",
@@ -112,6 +116,7 @@ if [[ "$IMAGE_DIGEST" != *@sha256:* ]]; then
   exit 1
 fi
 IMAGE="$IMAGE_DIGEST"
+IMAGE_PLATFORM="$(docker image inspect --format '{{.Os}}/{{.Architecture}}' "$IMAGE_TAG")"
 docker run -d --network none --name "$CONTAINER" -e POSTGRES_PASSWORD="$PASSWORD" "$IMAGE" >/dev/null
 CONTAINER_CREATED=true
 for attempt in $(seq 1 60); do
@@ -143,6 +148,10 @@ fi
 RESULT_container=PASS
 SERVER_VERSION="$(docker exec "$CONTAINER" psql -U postgres -Atc 'SHOW server_version')"
 CLIENT_VERSION="$(docker exec "$CONTAINER" pg_dump --version | awk '{print $3}')"
+if [[ "$SERVER_VERSION" != "$EXPECTED_VERSION"* || "$CLIENT_VERSION" != "$EXPECTED_VERSION"* ]]; then
+  echo "Resolved PostgreSQL server/client version does not match $EXPECTED_VERSION." >&2
+  exit 1
+fi
 for db in sinayxa_source sinayxa_restored sinayxa_repeated; do docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -c "CREATE DATABASE $db"; done
 docker exec -i "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_source <<'SQL'
 CREATE SCHEMA research;
