@@ -68,6 +68,24 @@ class Contract022AuditTests(unittest.TestCase):
         with self.assertRaises(Contract022Violation):
             validate_package(package, self.schema, self.roles, self.reasons)
 
+    def test_synthetic_only_actor_role_is_rejected(self):
+        package = copy.deepcopy(self.fixture)
+        package["audit_events"][0]["actor_role_code"] = "SYNTHETIC_TEST"
+        with self.assertRaises(Contract022Violation):
+            validate_package(package, self.schema, self.roles, self.reasons)
+
+    def test_catalog_rejects_unknown_action(self):
+        reasons = copy.deepcopy(self.reasons)
+        reasons["reasons"][0]["allowed_actions"].append("UNRECOGNIZED_ACTION")
+        with self.assertRaises(Contract022Violation):
+            validate_catalogs(self.roles, reasons)
+
+    def test_catalog_rejects_malformed_entries(self):
+        roles = copy.deepcopy(self.roles)
+        roles["roles"][0]["uncontrolled_text"] = "must not be accepted"
+        with self.assertRaises(Contract022Violation):
+            validate_catalogs(roles, self.reasons)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
