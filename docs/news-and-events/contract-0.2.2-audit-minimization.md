@@ -13,6 +13,7 @@ El contrato 0.2.2 reduce la exposición de los registros mínimos de auditoría 
 ## 2. Campos del evento mínimo
 
 El evento de auditoría 0.2.2 usará:
+
 - `audit_event_id`: UUID versión 4.
 - `subject_ref`: token UUID versión 4 dedicado a correlacionar el sujeto dentro del ámbito de retención; todos los tokens usados se declaran en el registro `audit_subject_tokens` del paquete.
 - `retention_id`, `copy_id` y referencias correlacionadas: UUID versión 4 cuando estén presentes.
@@ -43,6 +44,7 @@ No se reutilizan códigos retirados ni se cambia su significado. Las adiciones i
 ## 5. Tratamiento de datos históricos y migración
 
 La migración 0.2.1 → 0.2.2 es fail-closed:
+
 - Los paquetes que ya contengan identificadores opacos compatibles y referencias coherentes pueden migrarse preservando IDs y relaciones. El migrador genera el registro `audit_subject_tokens` a partir de los `subject_ref` históricos existentes, únicamente cuando todos ya son UUIDv4.
 - Los paquetes con IDs semánticos o referencias que revelen IDs externos no pueden recibir UUID aleatorios automáticamente: eso destruiría la trazabilidad si no se conserva una correspondencia. Las conversiones de `actor_role` y `reason` requieren un archivo de mapeo explícito; el migrador no interpreta texto libre.
 - No se crea una tabla de correspondencias, servicio de tokenización ni almacén de secretos en esta decisión (la alternativa C no fue aprobada).
