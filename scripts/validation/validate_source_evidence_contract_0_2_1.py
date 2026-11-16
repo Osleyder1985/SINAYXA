@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import ipaddress
 import re
 from pathlib import Path
 from typing import Any
@@ -321,6 +322,17 @@ def _validate_claim_assessment_evidence(package: dict[str, Any]) -> None:
             _validate_scoped_claim_evidence(package, assessment, contrary, "CONTRARY")
 
 
+def _contains_ipv6_address(value: str) -> bool:
+    """Detect syntactically valid IPv6 literals without treating arbitrary tokens as addresses."""
+    for match in re.finditer(r"(?<![0-9A-Fa-f:])[0-9A-Fa-f:]{2,39}(?![0-9A-Fa-f:])", value):
+        try:
+            ipaddress.IPv6Address(match.group(0))
+            return True
+        except ipaddress.AddressValueError:
+            continue
+    return False
+
+
 def _validate_audit_subject_references(package: dict[str, Any]) -> None:
     reference_keys = {
         "package_id", "claim_id", "claim_version_id", "claim_component_id",
@@ -358,6 +370,8 @@ def _validate_audit_subject_references(package: dict[str, Any]) -> None:
                     f"audit {field} must not expose an email address")
             require(not re.search(r"(?<![0-9.])(?:[0-9]{1,3}\.){3}[0-9]{1,3}(?![0-9.])", value),
                     f"audit {field} must not expose an IP address")
+            require(not _contains_ipv6_address(value),
+                    f"audit {field} must not expose an IPv6 address")
 
 
 def _validate_corroborated_claims(package: dict[str, Any]) -> None:
