@@ -1,0 +1,121 @@
+{
+  "contract_version": "1.0.0",
+  "temporal_assertions": [
+    {
+      "temporal_assertion_id": "ta-event-1-v1",
+      "event_id": "event-1",
+      "version": 1,
+      "temporal_role": "SCHEDULED",
+      "precision": "DAY",
+      "interval_start": {
+        "value": "2026-12-10T00:00:00Z",
+        "inclusive": true
+      },
+      "interval_end": {
+        "value": "2026-12-10T23:59:59Z",
+        "inclusive": true
+      },
+      "approximation": false,
+      "original_value": "2026-12-10",
+      "original_timezone": "UTC",
+      "original_offset": "+00:00",
+      "normalized_start_utc": "2026-12-10T00:00:00Z",
+      "normalized_end_utc": "2026-12-10T23:59:59Z",
+      "source_ref": "source-calendar-1",
+      "evidence_ref": "evidence-calendar-1",
+      "asserted_at": "2026-11-15T10:00:00Z",
+      "observed_at": "2026-11-15T10:01:00Z",
+      "retrieved_at": "2026-11-15T10:02:00Z",
+      "recorded_at": "2026-11-15T10:03:00Z",
+      "supersedes_assertion_id": null
+    },
+    {
+      "temporal_assertion_id": "ta-event-1-v2",
+      "event_id": "event-1",
+      "version": 2,
+      "temporal_role": "ESTIMATED",
+      "precision": "RANGE",
+      "interval_start": {
+        "value": "2026-12-11T00:00:00Z",
+        "inclusive": true
+      },
+      "interval_end": {
+        "value": "2026-12-13T23:59:59Z",
+        "inclusive": true
+      },
+      "approximation": true,
+      "original_value": "11–13 December 2026, subject to confirmation",
+      "original_timezone": null,
+      "original_offset": null,
+      "normalized_start_utc": "2026-12-11T00:00:00Z",
+      "normalized_end_utc": "2026-12-13T23:59:59Z",
+      "source_ref": "source-calendar-2",
+      "evidence_ref": "evidence-calendar-2",
+      "asserted_at": "2026-11-16T10:00:00Z",
+      "observed_at": "2026-11-16T10:01:00Z",
+      "retrieved_at": "2026-11-16T10:02:00Z",
+      "recorded_at": "2026-11-16T10:03:00Z",
+      "supersedes_assertion_id": "ta-event-1-v1"
+    },
+    {
+      "temporal_assertion_id": "ta-event-2-v1",
+      "event_id": "event-2",
+      "version": 1,
+      "temporal_role": "UNKNOWN",
+      "precision": "UNKNOWN",
+      "interval_start": {
+        "value": null,
+        "inclusive": false
+      },
+      "interval_end": {
+        "value": null,
+        "inclusive": false
+      },
+      "approximation": false,
+      "original_value": null,
+      "original_timezone": null,
+      "original_offset": null,
+      "normalized_start_utc": null,
+      "normalized_end_utc": null,
+      "source_ref": null,
+      "evidence_ref": null,
+      "asserted_at": null,
+      "observed_at": null,
+      "retrieved_at": null,
+      "recorded_at": "2026-11-16T10:03:00Z",
+      "supersedes_assertion_id": null
+    }
+  ],
+  "temporal_conflicts": [
+    {
+      "conflict_id": "conflict-1",
+      "event_id": "event-1",
+      "assertion_refs": [
+        "ta-event-1-v1",
+        "ta-event-1-v2"
+      ],
+      "disputed_component": "DATE",
+      "classification": "SCHEDULE_CHANGE",
+      "status": "OPEN",
+      "recorded_at": "2026-11-16T10:04:00Z"
+    }
+  ],
+  "conflict_decisions": [],
+  "temporal_assessments": [
+    {
+      "assessment_id": "assessment-1",
+      "event_id": "event-1",
+      "assessment_cutoff": "2026-11-16T12:00:00Z",
+      "assertion_refs": [
+        "ta-event-1-v1",
+        "ta-event-1-v2"
+      ],
+      "conflict_decision_refs": [],
+      "derived_temporal_state": "FUTURE",
+      "rules_version": "temporal-rules-1.0.0",
+      "software_version": "sinayxa-validator-1.0.0",
+      "recorded_at": "2026-11-16T12:01:00Z"
+    }
+  ],
+  "reproducibility_manifests": []
+}
