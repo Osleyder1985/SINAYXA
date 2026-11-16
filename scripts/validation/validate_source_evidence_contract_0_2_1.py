@@ -54,13 +54,18 @@ def validate_package(package: dict) -> None:
                 "copy record subject differs from its retention subject")
         copies_by_retention[retention_id].append(copy_record)
 
+    all_copy_ids = {item["copy_id"] for item in package["retention_copy_records"]}
+    all_copy_events = [event for event in package["audit_events"] if event.get("copy_id") is not None]
+    require(all(event["copy_id"] in all_copy_ids for event in all_copy_events),
+            "copy audit event references an unknown copy")
     for retention_id, record in retention_by_id.items():
         copies = copies_by_retention[retention_id]
         declared = set(record["copy_scope_ids"])
         actual = {item["copy_id"] for item in copies}
         require(declared == actual, "retention copy_scope_ids must exactly match its copy inventory")
         if copies:
-            events = [event for event in package["audit_events"] if event.get("copy_id") is not None]
+            scoped_copy_ids = {item["copy_id"] for item in copies}
+            events = [event for event in all_copy_events if event["copy_id"] in scoped_copy_ids]
             validate_retention_scope(record["disposition"], copies, events)
         else:
             require(not record["content_retained"] and record["disposition"] == "REFERENCE_ONLY",
