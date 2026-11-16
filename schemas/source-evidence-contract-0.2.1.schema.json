@@ -27,7 +27,8 @@
     "audit_events",
     "archive_attestations",
     "retention_copy_records",
-    "migration_records"
+    "migration_records",
+    "analysis_processes"
   ],
   "properties": {
     "contract_version": {
@@ -151,6 +152,12 @@
       "type": "array",
       "items": {
         "$ref": "#/$defs/migrationRecord"
+      }
+    },
+    "analysis_processes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/analysisProcess"
       }
     }
   },
@@ -2386,6 +2393,58 @@
               "loss_report": {
                 "minItems": 1
               }
+            }
+          }
+        }
+      ]
+    },
+    "analysisProcess": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "process_id",
+        "dataset_origin_id",
+        "claim_component_version_id",
+        "method_reference",
+        "output_evidence_ref",
+        "available_at",
+        "assessment_cutoff",
+        "recorded_at"
+      ],
+      "properties": {
+        "process_id": {
+          "$ref": "#/$defs/id"
+        },
+        "dataset_origin_id": {
+          "$ref": "#/$defs/nonEmpty"
+        },
+        "claim_component_version_id": {
+          "$ref": "#/$defs/id"
+        },
+        "method_reference": {
+          "$ref": "#/$defs/nonEmpty"
+        },
+        "output_evidence_ref": {
+          "$ref": "#/$defs/id"
+        },
+        "available_at": {
+          "$ref": "#/$defs/utc"
+        },
+        "assessment_cutoff": {
+          "$ref": "#/$defs/utc"
+        },
+        "recorded_at": {
+          "$ref": "#/$defs/utc"
+        }
+      },
+      "allOf": [
+        {
+          "properties": {
+            "available_at": {
+              "$ref": "#/$defs/utc"
+            },
+            "assessment_cutoff": {
+              "$ref": "#/$defs/utc"
             }
           }
         }
