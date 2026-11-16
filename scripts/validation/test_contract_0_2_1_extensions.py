@@ -1833,6 +1833,8 @@ class Contract021ExtensionTests(unittest.TestCase):
             "Digest observado: " + "a" * 64,
             "Contacto: analyst@example.invalid",
             "Origen remoto: 192.0.2.45",
+            "Origen remoto IPv6: 2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+            "Origen remoto IPv6 comprimido: 2001:db8:85a3::8a2e:370:7334",
         )
         for value in forbidden_values:
             schema, package = self.load_contract_021_fixture()
