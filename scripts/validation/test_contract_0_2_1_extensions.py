@@ -1201,6 +1201,9 @@ class Contract021ExtensionTests(unittest.TestCase):
             next(item for item in package["source_versions"] if item["source_version_id"] == original["source_version_id"]),
             original,
         )
+        self.assertEqual(package["evaluation_units"][0]["source_version_id"], original["source_version_id"])
+        self.assertEqual(package["claim_assessments"][0]["assessment_cutoff"],
+                         "2026-01-02T00:00:00Z")
 
     def test_021_source_version_chain_rejects_self_or_future_supersession(self):
         schema, package = self.load_contract_021_fixture()
@@ -1843,6 +1846,76 @@ class Contract021ExtensionTests(unittest.TestCase):
         self.assert_schema_valid(schema, package)
         with self.assertRaises(ContractViolation):
             validate_package(package)
+
+
+    def test_primary_inference_without_direct_knowledge_cannot_corroborate(self):
+        primary = [{
+            "source_type": "PRIMARIA",
+            "source_id": "s1",
+            "source_version_id": "v1",
+            "authenticity_status": "AUTENTICADA",
+            "access_status": "PÚBLICO_LEGÍTIMO",
+            "unit_access_status": "PÚBLICO_LEGÍTIMO",
+            "knowledge_basis": "INFERENCIA",
+            "scope_note": "La fuente es auténtica, pero no registra directamente el hecho.",
+            "available_at": "2026-01-01T00:00:00Z",
+        }]
+        units = [{
+            "assessment_unit_id": "u1",
+            "source_id": "s1",
+            "source_version_id": "v1",
+            "claim_component_version_id": "cv1",
+            "assessment_cutoff": self.cutoff,
+            "source_type": "PRIMARIA",
+        }]
+        with self.assertRaises(ContractViolation):
+            validate_corroboration("CORROBORADA", "EVIDENCIA_PRIMARIA_DIRECTA",
+                                   units, primary, set(), self.cutoff)
+
+    def test_021_partial_corroboration_requires_human_review_of_scope_boundaries(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = package["claim_assessments"][0]
+        assessment.update({
+            "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+            "supporting_evidence_refs": ["evidence-a"],
+            "supported_scope": "La declaración fue emitida.",
+            "unsupported_scope": "La ejecución no está demostrada.",
+            "human_review_status": "PENDING",
+            "reviewed_at": None,
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_migration_rejects_unknown_independence_promoted_to_independent(self):
+        source = {
+            "contract_version": "0.2.0", "claims": [], "claim_components": [],
+            "sources": [], "source_versions": [], "identity_assessments": [],
+            "evaluation_units": [], "evidence_items": [], "evidence_availability": [],
+            "claim_evidence_links": [], "provenance_nodes": [], "provenance_edges": [],
+            "factor_assessments": [],
+            "independence_assessments": [{"independence_assessment_id": "ia-1", "status": "DESCONOCIDA"}],
+            "claim_assessments": [], "retention_records": [], "audit_events": [],
+        }
+        target = copy.deepcopy(source)
+        target["contract_version"] = "0.2.1"
+        manifest = {
+            "migration_id": "m-unknown-independence",
+            "migrator_version": "1.0.0",
+            "source_contract_version": "0.2.0",
+            "target_contract_version": "0.2.1",
+            "input_sha256": canonical_migration_payload_sha256(source),
+            "output_sha256": canonical_migration_payload_sha256(target),
+            "rules_applied": ["preserve-unknown-independence"],
+            "result": "PASS",
+        }
+        validate_migration(source, target, manifest)
+        promoted = copy.deepcopy(target)
+        promoted["independence_assessments"][0]["status"] = "INDEPENDIENTE"
+        promoted_manifest = copy.deepcopy(manifest)
+        promoted_manifest["output_sha256"] = canonical_migration_payload_sha256(promoted)
+        with self.assertRaises(ContractViolation):
+            validate_migration(source, promoted, promoted_manifest)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
