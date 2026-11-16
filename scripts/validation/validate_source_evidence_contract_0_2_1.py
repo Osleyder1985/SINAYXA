@@ -69,8 +69,24 @@ def _validate_analysis_processes(package: dict[str, Any]) -> None:
         require(process["output_evidence_ref"] in evidence,
                 "analytic process references unknown output evidence")
         output = evidence[process["output_evidence_ref"]]
-        require(output["recorded_at"] >= process["available_at"],
-                "analytic output evidence cannot be recorded before its declared availability")
+        require(output["source_version_id"] is not None,
+                "analytic output evidence must identify its source version")
+        matching_units = [
+            unit for unit in package["evaluation_units"]
+            if unit["source_version_id"] == output["source_version_id"]
+            and unit["claim_component_version_id"] == process["claim_component_version_id"]
+            and unit["assessment_cutoff"] == process["assessment_cutoff"]
+        ]
+        require(bool(matching_units), "analytic output has no exact evaluation unit for its component and cutoff")
+        observed_times = {
+            _available_at(package, process["output_evidence_ref"], unit)
+            for unit in matching_units
+        }
+        require(process["available_at"] in observed_times,
+                "analytic process availability must match a verified evidence-availability record")
+        require(output["recorded_at"] >= process["available_at"]
+                and process["recorded_at"] >= process["available_at"],
+                "analytic output evidence or process cannot be recorded before its declared availability")
         require(process["available_at"] <= process["assessment_cutoff"],
                 "analytic output was not available at its declared assessment cutoff")
         key = (process["dataset_origin_id"], process["claim_component_version_id"], process["assessment_cutoff"])
