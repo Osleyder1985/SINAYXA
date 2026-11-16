@@ -406,6 +406,19 @@ class Contract021ExtensionTests(unittest.TestCase):
         errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(package))
         self.assertTrue(errors, "PASS migration with a non-empty loss_report must be rejected by the schema")
 
+    def test_021_orphan_copy_audit_event_is_rejected(self):
+        schema, package = self.load_contract_021_fixture()
+        package["audit_events"].append({
+            "audit_event_id": "orphan-copy-event", "subject_ref": "evidence-a",
+            "action": "COPY_DISCOVERED", "actor_role": "DATA_CUSTODIAN",
+            "occurred_at": "2026-11-15T22:00:00Z", "reason": "Orphan synthetic event",
+            "retention_id": "retention-a", "copy_id": "missing-copy",
+            "from_copy_state": None, "to_copy_state": "PRESENT"
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
     def test_021_deleted_scope_rejects_uninventoried_replica(self):
         schema, package = self.load_contract_021_fixture()
         record = package["retention_records"][0]
