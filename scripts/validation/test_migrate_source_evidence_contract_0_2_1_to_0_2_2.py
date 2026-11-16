@@ -4,7 +4,7 @@ import json
 import unittest
 
 from migrate_source_evidence_contract_0_2_1_to_0_2_2 import (
-    ROOT, MigrationRejected, migrate_package,
+    ROOT, MigrationRejected, canonical_bytes, sha256, migrate_package,
 )
 
 
@@ -64,7 +64,7 @@ class Contract022MigrationTests(unittest.TestCase):
             copy.deepcopy(self._mapping_for(source) if mappings is None else mappings),
             migration_id="migration-0-2-1-to-0-2-2-test",
             executed_at="2026-11-16T12:00:00Z",
-            source_snapshot_ref="sha256:source-fixture",
+            source_snapshot_ref="sha256:" + sha256(canonical_bytes(source)),
             target_snapshot_ref="",
         )
 
@@ -138,6 +138,36 @@ class Contract022MigrationTests(unittest.TestCase):
         mappings["actor_roles"]["SYNTHETIC_TEST"]["rationale"] = " "
         with self.assertRaisesRegex(MigrationRejected, "rationale"):
             self._migrate(source, mappings)
+
+    def test_source_snapshot_reference_must_match_canonical_input_hash(self):
+        source = self._uuid_compatible_source()
+        with self.assertRaisesRegex(MigrationRejected, "source_snapshot_ref"):
+            migrate_package(
+                source, self._mapping_for(source),
+                migration_id="migration-0-2-1-to-0-2-2-test",
+                executed_at="2026-11-16T12:00:00Z",
+                source_snapshot_ref="sha256:incorrect",
+                target_snapshot_ref="",
+            )
+
+    def test_duplicate_migration_id_is_rejected(self):
+        source = self._uuid_compatible_source()
+        source["migration_records"].append({
+            "migration_id": "migration-0-2-1-to-0-2-2-test",
+            "source_contract_version": "0.2.0",
+            "target_contract_version": "0.2.1",
+            "migrator_version": "0.1.0",
+            "executed_at": "2026-11-15T12:00:00Z",
+            "input_sha256": "0" * 64,
+            "output_sha256": "1" * 64,
+            "rules_applied": ["HISTORICAL_TEST"],
+            "result": "PASS",
+            "loss_report": [],
+            "source_snapshot_ref": "sha256:" + "0" * 64,
+            "target_snapshot_ref": "sha256:" + "1" * 64,
+        })
+        with self.assertRaisesRegex(MigrationRejected, "migration_id already exists"):
+            self._migrate(source)
 
     def test_migration_is_deterministic_for_identical_inputs_and_parameters(self):
         source = self._uuid_compatible_source()
