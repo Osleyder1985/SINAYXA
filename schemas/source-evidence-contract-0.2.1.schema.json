@@ -1900,7 +1900,95 @@
         "copy_scope_ids": {
           "$ref": "#/$defs/refs"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "disposition": {
+                "enum": [
+                  "RETAIN",
+                  "RESTRICTED",
+                  "DELETE_PENDING"
+                ]
+              }
+            },
+            "required": [
+              "disposition"
+            ]
+          },
+          "then": {
+            "properties": {
+              "content_retained": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "disposition": {
+                "enum": [
+                  "REFERENCE_ONLY",
+                  "DELETED"
+                ]
+              }
+            },
+            "required": [
+              "disposition"
+            ]
+          },
+          "then": {
+            "properties": {
+              "content_retained": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "disposition": {
+                "const": "RETAIN"
+              }
+            },
+            "required": [
+              "disposition"
+            ]
+          },
+          "then": {
+            "properties": {
+              "legal_basis_status": {
+                "const": "VERIFIED"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "disposition": {
+                "const": "RESTRICTED"
+              }
+            },
+            "required": [
+              "disposition"
+            ]
+          },
+          "then": {
+            "properties": {
+              "legal_basis_status": {
+                "enum": [
+                  "VERIFIED",
+                  "PENDING_REVIEW"
+                ]
+              }
+            }
+          }
+        }
+      ]
     },
     "auditEvent": {
       "type": "object",
