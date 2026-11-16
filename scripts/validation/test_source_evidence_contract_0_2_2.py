@@ -62,6 +62,12 @@ class Contract022AuditTests(unittest.TestCase):
         with self.assertRaises(Contract022Violation):
             validate_catalogs(roles, self.reasons)
 
+    def test_unreferenced_subject_token_is_rejected(self):
+        package = copy.deepcopy(self.fixture)
+        package["audit_subject_tokens"].append("00000000-0000-4000-8000-000000000199")
+        with self.assertRaises(Contract022Violation):
+            validate_package(package, self.schema, self.roles, self.reasons)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
