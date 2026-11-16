@@ -2116,8 +2116,7 @@
             "DATA_CUSTODIAN",
             "PRIVACY_OFFICER",
             "SECURITY_OPERATOR",
-            "LEGAL_REVIEWER",
-            "SYNTHETIC_TEST"
+            "LEGAL_REVIEWER"
           ]
         },
         "reason_code": {
