@@ -157,7 +157,7 @@ class Contract021ExtensionTests(unittest.TestCase):
             {"assessment_unit_id": "u1", "source_id": "s1", "source_version_id": "v1",
              "claim_component_version_id": "cv1", "assessment_cutoff": self.cutoff, "source_type": "PRIMARIA"},
             {"assessment_unit_id": "u2", "source_id": "s2", "source_version_id": "v2",
-             "claim_component_version_id": "cv1", "assessment_cutoff": self.cutoff, "source_type": "PRIMARIA"},
+             "claim_component_version_id": "cv1", "assessment_cutoff": self.cutoff, "source_type": "SECUNDARIA"},
         ]
         with self.assertRaises(ContractViolation):
             validate_corroboration("CORROBORADA", "AMBAS", primary_units, primary, set(), self.cutoff)
