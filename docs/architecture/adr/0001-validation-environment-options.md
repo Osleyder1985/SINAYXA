@@ -178,7 +178,7 @@ Esta comparación reduce la indeterminación tecnológica sin seleccionar provee
 
 | Capa | Candidato local/autogestionado | Candidato administrado | Hechos verificables y límites |
 | --- | --- | --- | --- |
-| Base relacional | PostgreSQL 16.3 en contenedor aislado, coherente con el laboratorio #96 | Amazon RDS for PostgreSQL | PostgreSQL 16 documenta SQL dump, backup filesystem y archivado continuo/PITR como familias distintas; `pg_dump` cubre una base individual, no todos los objetos globales del clúster. RDS documenta backups automáticos y PITR dentro del periodo de retención configurado, de 0 a 35 días para una instancia. No equivale a WORM ni a reconciliación de eliminaciones. |
+| Base relacional | PostgreSQL 18.7 en contenedor aislado, versión del baseline sintético vigente de #96 | Amazon RDS for PostgreSQL | PostgreSQL 18 documenta SQL dump, backup filesystem y archivado continuo/PITR como familias distintas; `pg_dump` cubre una base individual, no todos los objetos globales del clúster. RDS documenta backups automáticos y PITR dentro del periodo de retención configurado, de 0 a 35 días para una instancia. No equivale a WORM ni a reconciliación de eliminaciones. |
 | Objetos/versiones/WORM | MinIO AIStor Free, despliegue single-node | Amazon S3 con Object Lock | Ambos documentan versionado y retención por versión. En ambos, un DELETE sin version ID puede crear un delete marker mientras la versión protegida permanece retenida. Por tanto, ocultar la versión actual no prueba borrado físico ni eliminación terminal. |
 | Modelo de operación | Autogestión del host, discos, copias, actualizaciones, permisos y reloj/NTP | Servicio administrado y controles IAM/políticas del proveedor | El local facilita experimentos aislados y control de configuración, pero no independencia física frente al administrador del host. El administrado aporta controles de servicio, pero exige comprobar región, permisos, contratos, logs, copias y comportamiento real. |
 | Licencia/límites publicados | MinIO AIStor Free: gratuito para despliegue single-node. La edición MinIO OSS AGPLv3 anterior está EOL y ya no recibe mantenimiento ni parches. Multi-node: Enterprise Lite sujeto a suscripción y límite publicado inferior a 400 TiB; precio exacto no publicado en la página consultada. | AWS S3/RDS: pago por uso; el coste depende de región y consumo. La elegibilidad Free Tier depende de fecha/plan de alta y límites aplicables; no debe suponerse gratuita para esta cuenta. | No se puede tratar MinIO OSS antiguo como una alternativa mantenida equivalente a AIStor Free. No se presupone que el proyecto tenga una suscripción MinIO ni créditos AWS. |
@@ -190,11 +190,11 @@ Esta comparación reduce la indeterminación tecnológica sin seleccionar provee
 1. **Amazon S3 Object Lock:** requiere versionado y protege una versión concreta, no todas las versiones futuras por defecto salvo que se configure una política adecuada. Un DELETE simple puede crear un delete marker; la versión bloqueada permanece. En GOVERNANCE existe bypass mediante permisos especiales; COMPLIANCE impide eliminar la versión protegida antes del vencimiento incluso para root. Habilitar Object Lock no puede revertirse deshabilitando el control o suspendiendo versionado. Por su irreversibilidad, queda excluido de cualquier ensayo real sin decisión expresa.
 2. **Amazon RDS for PostgreSQL:** la retención de backups automáticos documentada para una instancia es de 0 a 35 días; el PITR se limita a la ventana de backup. AWS factura, entre otros, horas de instancia, almacenamiento, I/O/IOPS cuando aplique, backups/snapshots y transferencia. Estos backups no se consideran por ello un repositorio WORM.
 3. **MinIO AIStor:** la edición gratuita publicada es single-node. La edición OSS previa aparece como no mantenida/EOL; no debe recomendarse para un despliegue nuevo que requiera parches de seguridad. AIStor documenta WORM y versionado, pero los delete markers no eliminan las versiones retenidas. Además, la documentación indica que la expiración de todas las versiones no está disponible en buckets con Object Lock; el diseño de eliminación y retención debe probarse por versión y no inferirse de compatibilidad S3.
-4. **PostgreSQL 16.3 local:** el laboratorio #96 demuestra backup/restore custom en un contenedor efímero, no PITR ni recuperación de clúster. La propia documentación distingue `pg_dump` de `pg_dumpall` y del archivado continuo; el protocolo de #89 debe declarar qué nivel de recuperación pretende probar.
+4. **PostgreSQL 18.7 local:** el baseline vigente del laboratorio #96 demuestra backup/restore custom en un contenedor efímero, no PITR ni recuperación de clúster. La propia documentación distingue `pg_dump` de `pg_dumpall` y del archivado continuo; el protocolo de #89 debe declarar qué nivel de recuperación pretende probar.
 
 #### Matriz de evaluación por candidato
 
-| Criterio | PostgreSQL 16.3 + MinIO AIStor Free single-node | Amazon RDS for PostgreSQL + Amazon S3 Object Lock |
+| Criterio | PostgreSQL 18.7 + MinIO AIStor Free single-node | Amazon RDS for PostgreSQL + Amazon S3 Object Lock |
 | --- | --- | --- |
 | Exportación/restauración relacional | DOCUMENTADO; laboratorio PostgreSQL #96 PASS para backup custom/restore | DOCUMENTADO por RDS; ejecución en cuenta/región SIN VERIFICAR |
 | WORM por versión | DOCUMENTADO por AIStor; instalación, versión/licencia y prueba adversarial SIN VERIFICAR | DOCUMENTADO por S3; cuenta/región/bucket y prueba adversarial SIN VERIFICAR |
@@ -208,7 +208,7 @@ Esta comparación reduce la indeterminación tecnológica sin seleccionar provee
 
 #### Conclusión comparativa no vinculante
 
-- Para **validar migraciones relacionales y procedimientos de backup/restore sin cargos externos**, el candidato local PostgreSQL 16.3 ya tiene evidencia sintética de ejecución mediante #96. Esto no lo convierte en arquitectura productiva recomendada.
+- Para **validar migraciones relacionales y procedimientos de backup/restore sin cargos externos**, el candidato local PostgreSQL 18.7 ya tiene evidencia sintética de ejecución mediante #96. Esto no lo convierte en arquitectura productiva recomendada.
 - Para **ensayar controles administrados de retención por versión**, Amazon S3 Object Lock es un candidato documentado, pero su irreversibilidad y conflicto potencial con supresión impiden habilitarlo sin diseño de retención aprobado y autorización explícita.
 - Para **WORM autogestionado**, MinIO AIStor es el candidato actual documentado; la antigua edición OSS ya no es una opción mantenida. AIStor Free está limitado a single-node, de modo que no acredita independencia física de copias ni alta disponibilidad.
 - El **híbrido** podría separar PostgreSQL local de S3 administrado, pero añade transferencia, credenciales, coste y dos planos de administración. No se justifica antes de conocer requisitos de residencia, volumen y presupuesto.
@@ -364,7 +364,7 @@ Un manifiesto incompleto, una incompatibilidad, una licencia no aclarada o una f
 5. Verificar firmas/checksums según el mecanismo oficial disponible. No inventar una verificación de firma si el proveedor solo publica checksum.
 6. Ejecutar comprobaciones de compatibilidad entre servidor, cliente, Docker Engine, Compose y sistema operativo; documentar incompatibilidades y vulnerabilidades conocidas.
 7. Actualizar la matriz de versiones si aparece una versión estable más reciente antes de comenzar el ensayo; una vez iniciado, mantener fijados los artefactos para que la ejecución sea reproducible.
-8. Registrar por separado la versión de PostgreSQL del laboratorio y la versión histórica 16.3 usada por PR #96. La prueba anterior sigue siendo evidencia válida para el artefacto ensayado, pero no acredita el comportamiento de PostgreSQL 18.7.
+8. Registrar por separado la ejecución histórica de PostgreSQL 16.3 y el baseline vigente PostgreSQL 18.7 de PR #96. La evidencia de cada versión solo acredita el artefacto y la configuración efectivamente ensayados; no transferir resultados entre versiones.
 9. No instalar ni descargar software automáticamente en el equipo del propietario; la selección y el manifiesto se preparan primero y el despliegue requiere la autorización operacional correspondiente.
 
 ### 11.3 Compatibilidad específica de la imagen oficial PostgreSQL 18+
@@ -374,7 +374,7 @@ La imagen oficial `postgres` cambió el directorio de datos y el volumen declara
 - PostgreSQL 17 y anteriores: `PGDATA=/var/lib/postgresql/data`; volumen de datos habitual `/var/lib/postgresql/data`.
 - PostgreSQL 18: `PGDATA=/var/lib/postgresql/18/docker`; volumen declarado `/var/lib/postgresql`.
 
-Por tanto, el arnés histórico #96 que identifica el volumen por destino `/var/lib/postgresql/data` y usa PostgreSQL 16.3 **no puede reutilizarse sin adaptación** con la imagen 18.7. La actualización debe detectar el destino real montado por la imagen y verificar su eliminación; no debe asumir una ruta fija común a ambas generaciones. La nueva versión también requiere volver a ejecutar el conjunto completo de comprobaciones y generar evidencia nueva: los resultados 16.3 no se transfieren a 18.7.
+Por tanto, el arnés original ensayado con PostgreSQL 16.3, que identificaba el volumen por destino `/var/lib/postgresql/data`, **no podía reutilizarse sin adaptación** con la imagen 18.7. La actualización de PR #96 detecta el `PGDATA` real y el volumen que lo contiene; su ejecución actual con PostgreSQL 18.7 dispone de evidencia independiente. No se transfieren a 18.7 los resultados de la ejecución histórica 16.3 ni viceversa.
 
 Fuentes oficiales:
 
