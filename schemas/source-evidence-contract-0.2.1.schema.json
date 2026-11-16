@@ -1192,7 +1192,7 @@
           }
         },
         "assessed_at": {
-          "$ref": "#/$defs/utc"
+          "$ref": "#/$defs/optionalUtc"
         },
         "methodology_version": {
           "$ref": "#/$defs/nonEmpty"
@@ -1522,7 +1522,7 @@
           ]
         },
         "assessed_at": {
-          "$ref": "#/$defs/utc"
+          "$ref": "#/$defs/optionalUtc"
         }
       },
       "allOf": [
