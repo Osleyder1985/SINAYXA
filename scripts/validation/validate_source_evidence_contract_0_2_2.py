@@ -84,6 +84,9 @@ def validate_package(package: dict[str, Any], schema: dict[str, Any], roles: dic
              "audit subject tokens must be canonical UUIDv4 values")
     subject_token_set = set(subject_tokens)
 
+    migration_ids = [item["migration_id"] for item in package.get("migration_records", [])]
+    _require(len(migration_ids) == len(set(migration_ids)), "duplicate migration_id")
+
     retention_by_id = {item["retention_id"]: item for item in package.get("retention_records", [])}
     _require(len(retention_by_id) == len(package.get("retention_records", [])), "duplicate retention_id")
     for record in package.get("retention_records", []):
