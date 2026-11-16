@@ -106,11 +106,8 @@ def create_event(connection: psycopg.Connection, event: dict[str, Any]) -> None:
 
 
 def add_source_reference(
-    connection: psycopg.Connection,
-    event_id: str,
-    source_ref: str,
-    recorded_at_utc: str | None = None,
-) -> None:
+    connection: psycopg.Connection, event_id: str, source_ref: str
+) -> datetime:
     """Append a source identifier without altering the immutable event record."""
     if not source_ref or not source_ref.strip():
         raise EventRegistryError("source_ref must be non-empty")
@@ -121,16 +118,17 @@ def add_source_reference(
         ).fetchone()
         if event_row is None:
             raise EventRegistryError(f"unknown event_id: {event_id}")
-        recorded_at = _utc(recorded_at_utc) if recorded_at_utc else None
-        if recorded_at is not None and recorded_at < event_row[0]:
-            raise EventRegistryError("source reference cannot be recorded before the event entered the registry")
-        connection.execute(
+        row = connection.execute(
             """
-            INSERT INTO sinayxa.event_sources (event_id, source_ref, recorded_at)
-            VALUES (%s, %s, COALESCE(%s, transaction_timestamp()))
+            INSERT INTO sinayxa.event_sources (event_id, source_ref)
+            VALUES (%s, %s)
+            RETURNING recorded_at
             """,
-            (event_id, source_ref, recorded_at),
-        )
+            (event_id, source_ref),
+        ).fetchone()
+        if row[0] < event_row[0]:
+            raise EventRegistryError("source reference cannot be recorded before the event entered the registry")
+        return row[0]
 
 
 def append_temporal_assertion(
