@@ -24,6 +24,7 @@
     "independence_assessments",
     "claim_assessments",
     "retention_records",
+    "audit_subject_tokens",
     "audit_events",
     "archive_attestations",
     "retention_copy_records",
@@ -158,6 +159,13 @@
       "type": "array",
       "items": {
         "$ref": "#/$defs/analysisProcess"
+      }
+    },
+    "audit_subject_tokens": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/opaqueId"
       }
     }
   },
@@ -771,16 +779,6 @@
         },
         "recorded_at": {
           "$ref": "#/$defs/utc"
-        },
-        "retention_subject_token": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/opaqueId"
-            },
-            {
-              "type": "null"
-            }
-          ]
         }
       }
     },
