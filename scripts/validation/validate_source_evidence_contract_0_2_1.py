@@ -57,13 +57,12 @@ def validate_package(package: dict) -> None:
         declared = set(record["copy_scope_ids"])
         actual = {item["copy_id"] for item in copies}
         require(declared == actual, "retention copy_scope_ids must exactly match its copy inventory")
-        if record["disposition"] in {"DELETE_PENDING", "DELETED"}:
+        if copies:
             events = [event for event in package["audit_events"] if event.get("copy_id") is not None]
             validate_retention_scope(record["disposition"], copies, events)
-        elif record["content_retained"]:
-            require(bool(copies), "retained content requires an explicit copy inventory")
-            require(all(item["state"] != "DELETED" for item in copies),
-                    "retained content cannot include a terminally deleted copy")
+        else:
+            require(not record["content_retained"] and record["disposition"] == "REFERENCE_ONLY",
+                    "a retention state involving content requires an explicit copy inventory")
 
     for record in package["migration_records"]:
         require(record["source_contract_version"] != record["target_contract_version"],
