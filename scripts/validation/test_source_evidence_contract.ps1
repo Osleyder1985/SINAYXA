@@ -49,6 +49,20 @@ try {
     ConvertTo-Json -InputObject $versionCopy -Depth 100 | Set-Content -LiteralPath $temp -Encoding utf8
     & $validator -FixturePath $temp | Out-Null
 
+    $identityHistory = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
+    $laterIdentity = $identityHistory.identity_assessments[0].Clone()
+    $laterIdentity['identity_assessment_id'] = 'identity-later-cutoff'
+    $laterIdentity['assessment_cutoff'] = '2026-11-15T22:10:00Z'
+    $laterIdentity['recorded_at'] = '2026-11-15T22:10:00Z'
+    $identityHistory.identity_assessments += $laterIdentity
+    $identityHistoryFile = Join-Path ([System.IO.Path]::GetTempPath()) ("sinayxa-contract-78-identity-history-" + [guid]::NewGuid().ToString('N') + '.json')
+    try {
+        ConvertTo-Json -InputObject $identityHistory -Depth 100 | Set-Content -LiteralPath $identityHistoryFile -Encoding utf8
+        $identityHistoryOutput = (& $validator -FixturePath $identityHistoryFile | Out-String)
+        if ($identityHistoryOutput -notlike '*Result*PASS*') { throw "A source identity reassessment at a distinct historical cutoff must validate: $identityHistoryOutput" }
+    }
+    finally { if (Test-Path -LiteralPath $identityHistoryFile) { Remove-Item -LiteralPath $identityHistoryFile -Force } }
+
     $pendingDeletion = ConvertFrom-Json -InputObject (ConvertTo-Json -InputObject $base -Depth 100 -Compress) -AsHashtable -Depth 100
     $pendingDeletion.retention_records[0].content_retained = $true
     $pendingDeletion.retention_records[0].legal_basis_status = 'NOT_ESTABLISHED'
@@ -435,8 +449,9 @@ try {
         PositiveRetentionSetCases=1
         PositivePrimaryCorroborationCases=1
         PositiveSecondaryCorroborationCases=1
+        PositiveIdentityHistoryCases=1
         NegativeMutations=$mutations.Count
-        TotalChecks=($mutations.Count + 12)
+        TotalChecks=($mutations.Count + 13)
         Scope='Deterministic synthetic contract-validator rejection tests.'
     } | Format-List
 }
