@@ -163,6 +163,7 @@ La comparación siguiente evita asignar puntuaciones o pesos sin datos del equip
 ### Regla de decisión
 
 No se calculará una puntuación total mientras existan criterios críticos NOT_ASSESSED. Antes de seleccionar una alternativa, el propietario deberá fijar:
+
 - equipo y sistema operativo donde se ejecutará el laboratorio;
 - jurisdicción y residencia de datos exigidas;
 - volumen sintético, número de versiones y periodo de retención de ensayo;
