@@ -1844,6 +1844,14 @@ class Contract021ExtensionTests(unittest.TestCase):
                 with self.assertRaises(ContractViolation):
                     validate_package(package)
 
+    def test_021_audit_reason_allows_ordinary_hexadecimal_words(self):
+        schema, package = self.load_contract_021_fixture()
+        package["audit_events"][0]["reason"] = (
+            "Evidence metadata changed after review; no network address was retained."
+        )
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
     def test_021_audit_actor_role_rejects_personal_contact_metadata(self):
         schema, package = self.load_contract_021_fixture()
         package["audit_events"][0]["actor_role"] = "operator@example.invalid"
