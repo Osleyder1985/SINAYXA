@@ -346,13 +346,13 @@ def _validate_audit_subject_references(package: dict[str, Any]) -> None:
         for field in ("reason", "actor_role"):
             value = event.get(field, "")
             require(isinstance(value, str), f"audit {field} must be text")
-            require(not re.search(r"(?i)(?:https?://|ftp://|www\\.)", value),
+            require(not re.search(r"(?i)(?:https?://|ftp://|www\.)", value),
                     f"audit {field} must not expose a URL")
-            require(not re.search(r"(?i)\\b[a-f0-9]{64}\\b", value),
+            require(not re.search(r"(?i)\b[a-f0-9]{64}\b", value),
                     f"audit {field} must not expose a content digest")
-            require(not re.search(r"(?i)\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b", value),
+            require(not re.search(r"(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", value),
                     f"audit {field} must not expose an email address")
-            require(not re.search(r"(?<![0-9.])(?:[0-9]{1,3}\\.){3}[0-9]{1,3}(?![0-9.])", value),
+            require(not re.search(r"(?<![0-9.])(?:[0-9]{1,3}\.){3}[0-9]{1,3}(?![0-9.])", value),
                     f"audit {field} must not expose an IP address")
 
 
