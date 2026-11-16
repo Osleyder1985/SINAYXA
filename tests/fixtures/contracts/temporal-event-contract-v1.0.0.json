@@ -23,11 +23,11 @@
       "normalized_end_utc": "2026-12-10T23:59:59Z",
       "source_ref": "source-calendar-1",
       "evidence_ref": "evidence-calendar-1",
-      "asserted_at": "2026-11-15T10:00:00Z",
-      "observed_at": "2026-11-15T10:01:00Z",
       "retrieved_at": "2026-11-15T10:02:00Z",
       "recorded_at": "2026-11-15T10:03:00Z",
-      "supersedes_assertion_id": null
+      "supersedes_assertion_id": null,
+      "published_at": "2026-11-15T10:00:00Z",
+      "first_observed_at": "2026-11-15T10:01:00Z"
     },
     {
       "temporal_assertion_id": "ta-event-1-v2",
@@ -51,11 +51,11 @@
       "normalized_end_utc": "2026-12-13T23:59:59Z",
       "source_ref": "source-calendar-2",
       "evidence_ref": "evidence-calendar-2",
-      "asserted_at": "2026-11-16T10:00:00Z",
-      "observed_at": "2026-11-16T10:01:00Z",
       "retrieved_at": "2026-11-16T10:02:00Z",
       "recorded_at": "2026-11-16T10:03:00Z",
-      "supersedes_assertion_id": "ta-event-1-v1"
+      "supersedes_assertion_id": "ta-event-1-v1",
+      "published_at": "2026-11-16T10:00:00Z",
+      "first_observed_at": "2026-11-16T10:01:00Z"
     },
     {
       "temporal_assertion_id": "ta-event-2-v1",
@@ -79,11 +79,11 @@
       "normalized_end_utc": null,
       "source_ref": null,
       "evidence_ref": null,
-      "asserted_at": null,
-      "observed_at": null,
       "retrieved_at": null,
       "recorded_at": "2026-11-16T10:03:00Z",
-      "supersedes_assertion_id": null
+      "supersedes_assertion_id": null,
+      "published_at": null,
+      "first_observed_at": null
     }
   ],
   "temporal_conflicts": [
@@ -117,5 +117,26 @@
       "recorded_at": "2026-11-16T12:01:00Z"
     }
   ],
-  "reproducibility_manifests": []
+  "reproducibility_manifests": [],
+  "events": [
+    {
+      "event_id": "event-1",
+      "description": "Synthetic scheduled public event used only to validate temporal contract behavior.",
+      "affected_asset_refs": [
+        "asset-btc"
+      ],
+      "source_refs": [
+        "source-calendar-1",
+        "source-calendar-2"
+      ],
+      "created_at": "2026-11-15T10:00:00Z"
+    },
+    {
+      "event_id": "event-2",
+      "description": "Synthetic event with unknown temporal details.",
+      "affected_asset_refs": [],
+      "source_refs": [],
+      "created_at": "2026-11-16T10:00:00Z"
+    }
+  ]
 }
