@@ -241,6 +241,7 @@ class Contract021ExtensionTests(unittest.TestCase):
                   "audit_events": []}
         target = copy.deepcopy(source)
         target["contract_version"] = "0.2.1"
+        target["migration_records"] = [{"migration_id": "embedded-manifest"}]
         manifest = {"migration_id": "m1", "migrator_version": "1.0.0",
                     "source_contract_version": "0.2.0", "target_contract_version": "0.2.1",
                     "input_sha256": canonical_migration_payload_sha256(source), "output_sha256": canonical_migration_payload_sha256(target),
