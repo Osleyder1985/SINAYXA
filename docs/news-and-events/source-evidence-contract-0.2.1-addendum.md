@@ -91,7 +91,7 @@ Se añade la colección migration_records. Cada migración contiene:
 - source_contract_version y target_contract_version.
 - migrator_version.
 - executed_at: instante UTC.
-- input_sha256 y output_sha256: hashes de los paquetes canónicos de entrada y salida.
+- input_sha256 y output_sha256: hashes del payload canónico de entrada y salida, excluyendo la colección migration_records. La exclusión evita una referencia circular cuando el manifiesto de migración se incluye en el propio paquete; todos los demás campos y colecciones forman parte del digest.
 - rules_applied: lista no vacía de identificadores de reglas de migración.
 - result: PASS o REJECTED.
 - loss_report: lista de pérdidas o incompatibilidades; debe estar vacía para PASS.
