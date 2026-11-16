@@ -125,8 +125,23 @@ if [[ -z "$PGDATA_PATH" ]]; then
   echo "PostgreSQL PGDATA could not be resolved from the running container." >&2
   exit 1
 fi
-MOUNT_INFO="$(docker inspect --format '{{range .Mounts}}{{printf "%s\\t%s\\t%s\\n" .Type .Name .Destination}}{{end}}' "$CONTAINER")"
-while IFS="$(docker exec "$CONTAINER" psql -U postgres -Atc 'SHOW server_version')"
+MOUNT_INFO="$(docker inspect --format '{{range .Mounts}}{{printf "%s\t%s\t%s\n" .Type .Name .Destination}}{{end}}' "$CONTAINER")"
+while IFS=$'\t' read -r mount_type mount_name mount_destination; do
+  [[ -n "$mount_destination" ]] || continue
+  if [[ "$mount_type" == volume && ( "$PGDATA_PATH" == "$mount_destination" || "$PGDATA_PATH" == "$mount_destination/"* ) ]]; then
+    POSTGRES_VOLUME="$mount_name"
+    POSTGRES_VOLUME_DESTINATION="$mount_destination"
+    break
+  fi
+done <<< "$MOUNT_INFO"
+if [[ "$POSTGRES_VOLUME" == NOT_DETECTED || -z "$POSTGRES_VOLUME" ]]; then
+  POSTGRES_VOLUME=NOT_DETECTED
+  POSTGRES_VOLUME_DESTINATION=NOT_DETECTED
+  echo "PostgreSQL data volume covering PGDATA could not be identified." >&2
+  exit 1
+fi
+RESULT_container=PASS
+SERVER_VERSION="$(docker exec "$CONTAINER" psql -U postgres -Atc 'SHOW server_version')"
 CLIENT_VERSION="$(docker exec "$CONTAINER" pg_dump --version | awk '{print $3}')"
 for db in sinayxa_source sinayxa_restored sinayxa_repeated; do docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -c "CREATE DATABASE $db"; done
 docker exec -i "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_source <<'SQL'
