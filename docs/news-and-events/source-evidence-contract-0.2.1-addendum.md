@@ -46,6 +46,8 @@ Cuando participe cualquier fuente no primaria en el conjunto de apoyo, CORROBORA
 Se añade la colección archive_attestations. Cada registro contiene:
 
 - archive_attestation_id: identificador opaco.
+- evidence_id y source_version_id: vínculo obligatorio con la pieza y versión exactas preservadas.
+- captured_content_hash y hash_algorithm: SHA-256 del contenido capturado; debe coincidir con evidence_items.integrity_check.observed_digest.
 - archive_service: nombre o identificador del servicio archivístico.
 - capture_record_reference: referencia verificable al registro de captura concreto.
 - captured_at: instante UTC de la captura acreditada.
@@ -58,7 +60,7 @@ Se añade la colección archive_attestations. Cada registro contiene:
 - content_authenticity: UNKNOWN o NOT_ASSESSED.
 - content_truth: UNKNOWN o NOT_ASSESSED.
 
-Cada evidence_availability con availability_basis INDEPENDENT_ARCHIVE debe referenciar un archive_attestation_id. La captura debe estar acreditada, la integridad debe ser MATCH, la verificación debe registrar método, rol e instante, y captured_at no puede ser posterior a verified_at ni a available_at; available_at no puede superar assessment_cutoff.
+Cada evidence_availability con availability_basis INDEPENDENT_ARCHIVE debe referenciar un archive_attestation_id. La atestación debe identificar el mismo evidence_id y source_version_id de la disponibilidad, y su captured_content_hash SHA-256 debe coincidir con el observed_digest de una integrity_check con algorithm SHA-256 y result MATCH. La captura debe estar acreditada, la integridad del registro debe ser MATCH, la verificación debe registrar método, rol e instante, y captured_at no puede ser posterior a verified_at ni a available_at; available_at no puede superar assessment_cutoff. Una misma atestación no puede reutilizarse para otra pieza o versión.
 
 La atestación demuestra evidencia temporal sobre una captura archivística concreta, no autenticidad del autor, legitimidad del acceso original, integridad del contenido fuera de la copia examinada ni veracidad factual. Si falta cualquiera de los elementos exigidos, la disponibilidad histórica se conserva como UNKNOWN; no se sustituye por SOURCE_STATED.
 
