@@ -73,6 +73,7 @@ El migrador `scripts/validation/migrate_source_evidence_contract_0_2_1_to_0_2_2.
   "actor_roles": {
     "valor histórico exacto del rol": {
       "target_code": "SYSTEM",
+      "event_refs": ["audit-event-id-existente"],
       "evidence_refs": ["evidence-id-existente"],
       "rationale": "Correspondencia respaldada por la evidencia citada."
     }
@@ -80,6 +81,7 @@ El migrador `scripts/validation/migrate_source_evidence_contract_0_2_1_to_0_2_2.
   "reasons": {
     "texto histórico exacto": {
       "target_code": "RECORD_CREATED",
+      "event_refs": ["audit-event-id-existente"],
       "evidence_refs": ["evidence-id-existente"],
       "rationale": "El registro fuente acredita la acción CREATED."
     }
@@ -87,7 +89,7 @@ El migrador `scripts/validation/migrate_source_evidence_contract_0_2_1_to_0_2_2.
 }
 ```
 
-Los ejemplos anteriores son ilustrativos. Las claves de ambos mapas deben coincidir exactamente con el conjunto de valores históricos distintos; no se admiten claves sobrantes ni ausentes. Cada entrada debe incluir un código destino, referencias a uno o más `evidence_id` existentes en el paquete de origen y una justificación no vacía. El migrador valida la resolución de las referencias, pero no autentica por sí mismo la veracidad ni suficiencia semántica de la evidencia; esa correspondencia sigue requiriendo revisión humana. Cada rol y motivo debe corresponderse con evidencia histórica y con los códigos/acciones vigentes. No se usa coincidencia aproximada, traducción, clasificación semántica ni fallback. El ejemplo `SYSTEM` solo es correcto cuando la evidencia acredita que el actor histórico era un proceso del sistema; no se debe aplicar a un actor humano ni a un fixture por conveniencia. La prueba automatizada usa una correspondencia artificial desde `SYNTHETIC_TEST` hacia `SYSTEM` únicamente dentro del fixture sintético para probar el mecanismo; no es una regla reutilizable ni una correspondencia autorizada para datos reales.
+Los ejemplos anteriores son ilustrativos. Las claves de ambos mapas deben coincidir exactamente con el conjunto de valores históricos distintos; no se admiten claves sobrantes ni ausentes. Cada entrada debe incluir un código destino, la lista exacta de `audit_event_id` históricos que usan el valor, referencias a uno o más `evidence_id` existentes en el paquete de origen y una justificación no vacía. El migrador valida la resolución de las referencias, pero no autentica por sí mismo la veracidad ni suficiencia semántica de la evidencia; esa correspondencia sigue requiriendo revisión humana. Cada rol y motivo debe corresponderse con evidencia histórica y con los códigos/acciones vigentes. No se usa coincidencia aproximada, traducción, clasificación semántica ni fallback. El ejemplo `SYSTEM` solo es correcto cuando la evidencia acredita que el actor histórico era un proceso del sistema; no se debe aplicar a un actor humano ni a un fixture por conveniencia. La prueba automatizada usa una correspondencia artificial desde `SYNTHETIC_TEST` hacia `SYSTEM` únicamente dentro del fixture sintético para probar el mecanismo; no es una regla reutilizable ni una correspondencia autorizada para datos reales.
 
 La ejecución requiere `--input`, `--mapping`, `--output`, `--manifest`, `--migration-id`, `--executed-at` y `--source-snapshot-ref`. El instante de ejecución y los metadatos de migración se suministran explícitamente para permitir repetición determinista. `source_snapshot_ref` debe ser exactamente `sha256:` más el hash del JSON canónico del paquete de origen; `target_snapshot_ref`, si se proporciona, debe coincidir con el hash del payload transformado. Son referencias content-addressed verificables, no una afirmación de que exista almacenamiento externo duradero. Los cuatro archivos deben usar rutas distintas y el destino no puede existir previamente. En caso de rechazo se escribe únicamente el manifiesto; el origen no se modifica y no se genera un paquete de destino.
 
