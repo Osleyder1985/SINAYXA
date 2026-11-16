@@ -149,6 +149,10 @@ def validate_retention_scope(
     elif disposition in {"RETAIN", "RESTRICTED"}:
         _require(bool(copies) and all(copy["state"] == "PRESENT" for copy in copies),
                  "RETAIN/RESTRICTED requires a complete inventory of present copies")
+    elif disposition == "REFERENCE_ONLY":
+        _require(all(copy["state"] == "DELETED" and copy.get("verified_at")
+                     and copy.get("verification_reference") for copy in copies),
+                 "REFERENCE_ONLY with copy history requires every retained copy to be verified as deleted")
     else:
         raise ContractViolation("unsupported retention disposition for copy-scope validation")
 
