@@ -501,6 +501,35 @@ class Contract021ExtensionTests(unittest.TestCase):
         self.assert_schema_valid(schema, package)
         validate_package(package)
 
+    def test_021_package_rejects_new_assessment_after_delete_pending(self):
+        schema, package = self.load_contract_021_fixture()
+        record = package["retention_records"][0]
+        record.update({"content_retained": True, "legal_basis_status": "NOT_ESTABLISHED",
+                       "disposition": "DELETE_PENDING", "previous_disposition": "RETAIN",
+                       "expires_at": "2026-11-15T23:00:00Z", "recorded_at": "2026-11-15T22:01:00Z",
+                       "review_at": "2026-11-15T22:01:00Z", "copy_scope_ids": ["copy-primary"]})
+        package["retention_copy_records"].append({
+            "copy_id": "copy-primary", "retention_id": "retention-a", "subject_ref": "evidence-a",
+            "copy_kind": "PRIMARY", "parent_copy_id": None, "state": "DELETE_PENDING",
+            "recorded_at": "2026-11-15T22:01:00Z", "verified_at": None,
+            "verification_reference": None, "scheduled_disposition_at": "2026-11-16T00:00:00Z",
+            "previous_state": "PRESENT", "transition_event_ref": "copy-event-2"
+        })
+        package["audit_events"].extend([
+            {"audit_event_id": "copy-event-1", "subject_ref": "evidence-a", "action": "COPY_DISCOVERED",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:00:00Z",
+             "reason": "Primary copy discovered", "retention_id": "retention-a", "copy_id": "copy-primary",
+             "from_copy_state": None, "to_copy_state": "PRESENT"},
+            {"audit_event_id": "copy-event-2", "subject_ref": "evidence-a", "action": "COPY_DELETION_REQUESTED",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:01:00Z",
+             "reason": "Synthetic deletion request", "retention_id": "retention-a", "copy_id": "copy-primary",
+             "from_copy_state": "PRESENT", "to_copy_state": "DELETE_PENDING"}
+        ])
+        package["claim_assessments"][0]["assessed_at"] = "2026-11-15T22:02:00Z"
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
     def test_021_deleted_scope_rejects_uninventoried_replica(self):
         schema, package = self.load_contract_021_fixture()
         record = package["retention_records"][0]
