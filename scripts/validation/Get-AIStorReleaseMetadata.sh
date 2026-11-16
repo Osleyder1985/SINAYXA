@@ -23,6 +23,15 @@ CLIENT_INDEX_BYTES=0
 CLIENT_RELEASE_NOTES_URL=NOT_RESOLVED
 CLIENT_SBOM_CYCLONEDX_URL=NOT_RESOLVED
 CLIENT_SBOM_SPDX_URL=NOT_RESOLVED
+SERVER_IMAGE_REF=NOT_RESOLVED
+SERVER_OCI_DIGEST=NOT_RESOLVED
+SERVER_OCI_INSPECT_SHA256=NOT_CAPTURED
+SERVER_WINDOWS_CHECKSUM_URL=NOT_RESOLVED
+SERVER_WINDOWS_EXPECTED_SHA256=NOT_CAPTURED
+SERVER_WINDOWS_CHECKSUM_FILE_SHA256=NOT_CAPTURED
+CLIENT_WINDOWS_CHECKSUM_URL=NOT_RESOLVED
+CLIENT_WINDOWS_EXPECTED_SHA256=NOT_CAPTURED
+CLIENT_WINDOWS_CHECKSUM_FILE_SHA256=NOT_CAPTURED
 SERVER_RELEASE_NOTES_URL=NOT_RESOLVED
 SERVER_SBOM_CYCLONEDX_URL=NOT_RESOLVED
 SERVER_SBOM_SPDX_URL=NOT_RESOLVED
@@ -62,6 +71,15 @@ write_report() {
   "client_release_notes_uri": "$CLIENT_RELEASE_NOTES_URL",
   "client_sbom_cyclonedx_uri": "$CLIENT_SBOM_CYCLONEDX_URL",
   "client_sbom_spdx_uri": "$CLIENT_SBOM_SPDX_URL",
+  "server_image_ref": "$SERVER_IMAGE_REF",
+  "server_oci_digest": "$SERVER_OCI_DIGEST",
+  "server_oci_inspect_sha256": "$SERVER_OCI_INSPECT_SHA256",
+  "server_windows_checksum_url": "$SERVER_WINDOWS_CHECKSUM_URL",
+  "server_windows_expected_sha256": "$SERVER_WINDOWS_EXPECTED_SHA256",
+  "server_windows_checksum_file_sha256": "$SERVER_WINDOWS_CHECKSUM_FILE_SHA256",
+  "client_windows_checksum_url": "$CLIENT_WINDOWS_CHECKSUM_URL",
+  "client_windows_expected_sha256": "$CLIENT_WINDOWS_EXPECTED_SHA256",
+  "client_windows_checksum_file_sha256": "$CLIENT_WINDOWS_CHECKSUM_FILE_SHA256",
   "release_classification": "SERVER_LATEST_STABLE_API_CLIENT_LATEST_PUBLISHED_INDEX",
   "binary_download_performed": false,
   "image_pull_performed": false,
@@ -133,6 +151,32 @@ CLIENT_INDEX_BYTES="$(wc -c < "$CLIENT_INDEX_FILE" | tr -d ' ')"
 CLIENT_RELEASE_NOTES_URL="$CLIENT_SOURCE_URL"release-notes-"$CLIENT_VERSION".md
 CLIENT_SBOM_CYCLONEDX_URL="$CLIENT_SOURCE_URL"sbom-"$CLIENT_VERSION".cyclonedx.json
 CLIENT_SBOM_SPDX_URL="$CLIENT_SOURCE_URL"sbom-"$CLIENT_VERSION".spdx.json
+
+SERVER_IMAGE_REF="quay.io/minio/aistor/minio:$SERVER_VERSION"
+OCI_INSPECT_FILE="$ARTIFACT_DIR/aistor-server-oci-manifest-inspect.txt"
+if command -v docker >/dev/null 2>&1 && docker buildx version >/dev/null 2>&1; then
+  if docker buildx imagetools inspect "$SERVER_IMAGE_REF" > "$OCI_INSPECT_FILE" 2>/dev/null; then
+    OCI_HASH_LINE="$(sha256sum "$OCI_INSPECT_FILE")"
+    read -r SERVER_OCI_INSPECT_SHA256 _ <<< "$OCI_HASH_LINE"
+    SERVER_OCI_DIGEST="$(awk '/^Digest:/ {print $2; exit}' "$OCI_INSPECT_FILE" || true)"
+  fi
+fi
+
+SERVER_WINDOWS_CHECKSUM_URL="https://dl.min.io/aistor/minio/release/windows-amd64/minio.exe.$SERVER_VERSION.sha256sum"
+CLIENT_WINDOWS_CHECKSUM_URL="https://dl.min.io/aistor/mc/release/windows-amd64/mc.exe.$CLIENT_VERSION.sha256sum"
+SERVER_CHECKSUM_FILE="$ARTIFACT_DIR/aistor-server-windows-amd64.sha256sum"
+CLIENT_CHECKSUM_FILE="$ARTIFACT_DIR/aistor-client-windows-amd64.sha256sum"
+
+if curl --fail --silent --show-error --location --max-time 30 --output "$SERVER_CHECKSUM_FILE" "$SERVER_WINDOWS_CHECKSUM_URL"; then
+  read -r SERVER_WINDOWS_EXPECTED_SHA256 _ < "$SERVER_CHECKSUM_FILE"
+  SERVER_CHECKSUM_HASH_LINE="$(sha256sum "$SERVER_CHECKSUM_FILE")"
+  read -r SERVER_WINDOWS_CHECKSUM_FILE_SHA256 _ <<< "$SERVER_CHECKSUM_HASH_LINE"
+fi
+if curl --fail --silent --show-error --location --max-time 30 --output "$CLIENT_CHECKSUM_FILE" "$CLIENT_WINDOWS_CHECKSUM_URL"; then
+  read -r CLIENT_WINDOWS_EXPECTED_SHA256 _ < "$CLIENT_CHECKSUM_FILE"
+  CLIENT_CHECKSUM_HASH_LINE="$(sha256sum "$CLIENT_CHECKSUM_FILE")"
+  read -r CLIENT_WINDOWS_CHECKSUM_FILE_SHA256 _ <<< "$CLIENT_CHECKSUM_HASH_LINE"
+fi
 
 RETRIEVED_AT_UTC="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 STATUS=CAPTURED
