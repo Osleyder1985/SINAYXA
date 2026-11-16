@@ -1322,5 +1322,144 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_migration(source, target, manifest)
 
+
+    def test_021_partial_corroboration_preserves_distinct_supported_and_unsupported_scopes(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = package["claim_assessments"][0]
+        assessment.update({
+            "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+            "supporting_evidence_refs": ["evidence-a"],
+            "supported_scope": "La declaración fue emitida por la fuente.",
+            "unsupported_scope": "La ejecución del hecho subyacente no está demostrada.",
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_partial_corroboration_rejects_identical_scopes(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = package["claim_assessments"][0]
+        assessment.update({
+            "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+            "supporting_evidence_refs": ["evidence-a"],
+            "supported_scope": "La declaración fue emitida.",
+            "unsupported_scope": "La declaración fue emitida.",
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_contradicted_assessment_requires_exact_scoped_contrary_evidence(self):
+        schema, package = self.load_contract_021_fixture()
+        package["evidence_items"][1]["authenticity_status"] = "AUTENTICADA"
+        unit = next(item for item in package["evaluation_units"]
+                    if item["assessment_unit_id"] == "unit-b-entity")
+        unit.update({
+            "source_type": "PRIMARIA",
+            "source_subtype": "REGISTRO_ORIGINAL",
+            "knowledge_basis": "OBSERVACIÓN_DIRECTA",
+        })
+        package["claim_evidence_links"][1].update({
+            "evidence_role": "CONTRARY",
+            "scope_note": "El registro primario contradice el alcance evaluado.",
+            "limitations": ["Caso sintético; revisión humana requerida."],
+        })
+        assessment = package["claim_assessments"][0]
+        assessment.update({
+            "evidentiary_status": "CONTRADICHA",
+            "supporting_evidence_refs": ["evidence-a"],
+            "contrary_evidence_refs": ["evidence-b"],
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_contradicted_assessment_rejects_cross_component_contrary_link(self):
+        schema, package = self.load_contract_021_fixture()
+        package["claim_evidence_links"][1].update({
+            "claim_component_id": "component-amount",
+            "claim_component_version_id": "component-amount-v1",
+            "evidence_role": "CONTRARY",
+        })
+        assessment = package["claim_assessments"][0]
+        assessment.update({
+            "evidentiary_status": "CONTRADICHA",
+            "supporting_evidence_refs": ["evidence-a"],
+            "contrary_evidence_refs": ["evidence-b"],
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_audit_subject_reference_must_resolve_to_internal_object(self):
+        for subject_ref in (
+            "person-private-identity",
+            "a" * 64,
+            "https://external.invalid/private-record",
+        ):
+            schema, package = self.load_contract_021_fixture()
+            package["audit_events"][0]["subject_ref"] = subject_ref
+            with self.subTest(subject_ref=subject_ref):
+                with self.assertRaises(ContractViolation):
+                    validate_package(package)
+
+    def test_retention_deleted_scope_rejects_restored_backup_copy(self):
+        copies = [
+            {
+                "copy_id": "copy-primary",
+                "retention_id": "retention-a",
+                "subject_ref": "evidence-a",
+                "parent_copy_id": None,
+                "state": "DELETED",
+                "recorded_at": "2026-11-15T22:03:00Z",
+                "verified_at": "2026-11-15T22:03:00Z",
+                "verification_reference": "verify-primary",
+                "previous_state": "DELETE_PENDING",
+                "transition_event_ref": "primary-deleted",
+            },
+            {
+                "copy_id": "backup-restored",
+                "retention_id": "retention-a",
+                "subject_ref": "evidence-a",
+                "parent_copy_id": "copy-primary",
+                "state": "PRESENT",
+                "recorded_at": "2026-11-15T22:04:00Z",
+                "verified_at": None,
+                "verification_reference": None,
+                "previous_state": None,
+                "transition_event_ref": "backup-restored-event",
+            },
+        ]
+        events = [
+            {"audit_event_id": "primary-discovered", "copy_id": "copy-primary",
+             "retention_id": "retention-a", "subject_ref": "evidence-a",
+             "from_copy_state": None, "to_copy_state": "PRESENT",
+             "action": "COPY_DISCOVERED", "reason": "Primary copy discovered",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:00:00Z"},
+            {"audit_event_id": "primary-pending", "copy_id": "copy-primary",
+             "retention_id": "retention-a", "subject_ref": "evidence-a",
+             "from_copy_state": "PRESENT", "to_copy_state": "DELETE_PENDING",
+             "action": "COPY_DELETION_REQUESTED", "reason": "Deletion requested",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:01:00Z"},
+            {"audit_event_id": "primary-deleted", "copy_id": "copy-primary",
+             "retention_id": "retention-a", "subject_ref": "evidence-a",
+             "from_copy_state": "DELETE_PENDING", "to_copy_state": "DELETED",
+             "action": "COPY_DELETED", "reason": "Deletion verified",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:03:00Z"},
+            {"audit_event_id": "backup-restored-event", "copy_id": "backup-restored",
+             "retention_id": "retention-a", "subject_ref": "evidence-a",
+             "from_copy_state": None, "to_copy_state": "PRESENT",
+             "action": "COPY_DISCOVERED", "reason": "Backup restoration detected",
+             "actor_role": "DATA_CUSTODIAN", "occurred_at": "2026-11-15T22:04:00Z"},
+        ]
+        with self.assertRaises(ContractViolation):
+            validate_retention_scope("DELETED", copies, events)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
