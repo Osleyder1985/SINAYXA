@@ -25,6 +25,8 @@ CLIENT_SBOM_CYCLONEDX_URL=NOT_RESOLVED
 CLIENT_SBOM_SPDX_URL=NOT_RESOLVED
 SERVER_IMAGE_REF=NOT_RESOLVED
 SERVER_OCI_DIGEST=NOT_RESOLVED
+SERVER_OCI_DIGEST_LINUX_AMD64=NOT_RESOLVED
+SERVER_OCI_DIGEST_LINUX_ARM64=NOT_RESOLVED
 SERVER_OCI_INSPECT_SHA256=NOT_CAPTURED
 SERVER_WINDOWS_CHECKSUM_URL=NOT_RESOLVED
 SERVER_WINDOWS_EXPECTED_SHA256=NOT_CAPTURED
@@ -73,6 +75,8 @@ write_report() {
   "client_sbom_spdx_uri": "$CLIENT_SBOM_SPDX_URL",
   "server_image_ref": "$SERVER_IMAGE_REF",
   "server_oci_digest": "$SERVER_OCI_DIGEST",
+  "server_oci_digest_linux_amd64": "$SERVER_OCI_DIGEST_LINUX_AMD64",
+  "server_oci_digest_linux_arm64": "$SERVER_OCI_DIGEST_LINUX_ARM64",
   "server_oci_inspect_sha256": "$SERVER_OCI_INSPECT_SHA256",
   "server_windows_checksum_url": "$SERVER_WINDOWS_CHECKSUM_URL",
   "server_windows_expected_sha256": "$SERVER_WINDOWS_EXPECTED_SHA256",
@@ -159,6 +163,8 @@ if command -v docker >/dev/null 2>&1 && docker buildx version >/dev/null 2>&1; t
     OCI_HASH_LINE="$(sha256sum "$OCI_INSPECT_FILE")"
     read -r SERVER_OCI_INSPECT_SHA256 _ <<< "$OCI_HASH_LINE"
     SERVER_OCI_DIGEST="$(awk '/^Digest:/ {print $2; exit}' "$OCI_INSPECT_FILE" || true)"
+    SERVER_OCI_DIGEST_LINUX_AMD64="$(awk '/^  Name:/ {manifest=$2} /^  Platform:[[:space:]]+linux\\/amd64/ {sub(/^.*@/, \"\", manifest); print manifest; exit}' \"$OCI_INSPECT_FILE\" || true)"
+    SERVER_OCI_DIGEST_LINUX_ARM64="$(awk '/^  Name:/ {manifest=$2} /^  Platform:[[:space:]]+linux\\/arm64/ {sub(/^.*@/, \"\", manifest); print manifest; exit}' \"$OCI_INSPECT_FILE\" || true)"
   fi
 fi
 
