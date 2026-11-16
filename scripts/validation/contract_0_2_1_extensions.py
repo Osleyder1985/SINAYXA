@@ -177,6 +177,11 @@ def validate_archive_attestation(availability: dict[str, Any], attestation: dict
              "archive capture and availability must not exceed the assessment cutoff")
     _require(attestation.get("capture_record_verified") is True,
              "the specific capture record must be verified")
+    _require(attestation.get("recorded_at", "") >= attestation["captured_at"],
+             "archive attestation cannot be recorded before the capture")
+    if attestation.get("imported_at") is not None:
+        _require(attestation["captured_at"] <= attestation["imported_at"] <= attestation["recorded_at"],
+                 "archive import time must follow capture and not exceed its record time")
     _require(attestation.get("content_authenticity") in {"UNKNOWN", "NOT_ASSESSED"},
              "archive attestation cannot promote content authenticity")
     _require(attestation.get("content_truth") in {"UNKNOWN", "NOT_ASSESSED"},
