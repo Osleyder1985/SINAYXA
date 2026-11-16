@@ -1547,6 +1547,59 @@ class Contract021ExtensionTests(unittest.TestCase):
             "PARCIALMENTE_CORROBORADA",
         )
 
+    def test_021_partial_corroboration_validates_exact_contrary_evidence_scope(self):
+        schema, package = self.load_contract_021_fixture()
+        package["evidence_items"][1]["authenticity_status"] = "AUTENTICADA"
+        package["claim_evidence_links"][1].update({
+            "evidence_role": "CONTRARY",
+            "scope_note": "El registro contradice el alcance que se declara no demostrado.",
+            "limitations": ["Caso sintético; revisión humana requerida."],
+        })
+        assessment = package["claim_assessments"][0]
+        assessment.update({
+            "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+            "supporting_evidence_refs": ["evidence-a"],
+            "contrary_evidence_refs": ["evidence-b"],
+            "supported_scope": "La declaración fue emitida.",
+            "unsupported_scope": "La ejecución no está demostrada y existe un registro contrario.",
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_partial_corroboration_rejects_unlinked_contrary_evidence(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = package["claim_assessments"][0]
+        assessment.update({
+            "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+            "supporting_evidence_refs": ["evidence-a"],
+            "contrary_evidence_refs": ["evidence-b"],
+            "supported_scope": "La declaración fue emitida.",
+            "unsupported_scope": "La ejecución no está demostrada.",
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_partial_corroboration_rejects_evidence_in_both_roles(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = package["claim_assessments"][0]
+        assessment.update({
+            "evidentiary_status": "PARCIALMENTE_CORROBORADA",
+            "supporting_evidence_refs": ["evidence-a"],
+            "contrary_evidence_refs": ["evidence-a"],
+            "supported_scope": "La declaración fue emitida.",
+            "unsupported_scope": "La ejecución no está demostrada.",
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
     def test_021_partial_corroboration_rejects_identical_scopes(self):
         schema, package = self.load_contract_021_fixture()
         assessment = package["claim_assessments"][0]
