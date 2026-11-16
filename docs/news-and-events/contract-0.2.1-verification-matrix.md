@@ -161,14 +161,14 @@ contract_version y methodology_version son dimensiones independientes. Una migra
 
 ### Evidencia integrada en CI
 
-- HEAD verificado para esta ejecución: `f631a26a2fb93f04fc01952f8b5516cc24d5abf8`.
-- PowerShell quality gate: [run 43786770888](https://github.com/Osleyder1985/SINAYXA/actions/runs/43786770888) — SUCCESS.
-- Security and dependency quality gate: [run 43786771440](https://github.com/Osleyder1985/SINAYXA/actions/runs/43786771440) — SUCCESS.
-- Pruebas semánticas 0.2.1: 56 tests — PASS (incluye tres pruebas fronterizas añadidas en `f631a26`).
+- HEAD verificado para esta ejecución: `96947640dfdea07994a6a3e56800eea6f102a7fe`.
+- PowerShell quality gate: [run 43787120227](https://github.com/Osleyder1985/SINAYXA/actions/runs/43787120227) — SUCCESS.
+- Security and dependency quality gate: [run 43787120479](https://github.com/Osleyder1985/SINAYXA/actions/runs/43787120479) — SUCCESS.
+- Suite semántica 0.2.1: 56 tests — PASS (incluye las tres pruebas fronterizas añadidas en `f631a26`).
 - JSON Schema Draft 2020-12: PASS.
 - Fixture 0.2.1 y validador semántico: PASS.
 - Auditoría npm, Gitleaks y OSV PR: SUCCESS. Los pasos SKIPPED no se contabilizan como PASS.
-- Artefacto de evidencia PowerShell: [powershell-validation-evidence-43786770888](https://github.com/Osleyder1985/SINAYXA/actions/runs/43786770888).
+- Artefacto de evidencia PowerShell: [powershell-validation-evidence-43787120227](https://github.com/Osleyder1985/SINAYXA/actions/runs/43787120227).
 
 ### Trazabilidad actual por área
 
@@ -182,7 +182,56 @@ contract_version y methodology_version son dimensiones independientes. Una migra
 
 ### Decisión de cierre
 
-La ejecución sobre `f631a26` demuestra que el arnés integrado funciona y que los 56 tests pasan sobre ese mismo HEAD. **No demuestra todavía que cada escenario normativo de la matriz esté cubierto**. Las cinco áreas permanecen ABIERTAS hasta añadir los casos fronterizos y la trazabilidad individual que se enumeran arriba, ejecutar de nuevo ambos gates sobre un único HEAD y verificar la preservación histórica. No se infiere aprobación metodológica ni se autoriza merge.
+La ejecución sobre `9694764` demuestra que el arnés integrado funciona y que los 56 tests pasan sobre ese mismo HEAD. **No demuestra todavía que cada escenario normativo de la matriz esté cubierto**. Las cinco áreas permanecen ABIERTAS hasta añadir los casos fronterizos y la trazabilidad individual que se enumeran arriba, ejecutar de nuevo ambos gates sobre un único HEAD y verificar la preservación histórica. No se infiere aprobación metodológica ni se autoriza merge.
+
+
+### Trazabilidad individual de escenarios (estado verificable)
+
+La siguiente asignación vincula cada escenario de la matriz con pruebas de la suite correctiva. Una prueba negativa que rechaza un estado no demuestra por sí sola que el contrato represente correctamente el estado alternativo esperado; los huecos se mantienen explícitos.
+
+| Escenario | Prueba directamente relacionada | Resultado de cobertura |
+| --- | --- | --- |
+| IND-01 | `test_independent_distinct_observation_paths_pass`; `test_021_package_accepts_independent_distinct_terminal_origins` | Positivo cubierto |
+| IND-02 | `test_independence_rejects_shared_terminal_origin` | Rechazo de origen convergente; falta caso explícito de republicación/cita |
+| IND-03 | `test_independence_rejects_two_versions_of_same_source` | Rechazo cubierto |
+| IND-04 | `test_distinct_analysis_processes_over_common_dataset_are_representable`; `test_021_package_rejects_independence_from_analyses_over_common_dataset` | Separación de replicación y origen cubierta |
+| IND-05 | — | **Brecha:** representación positiva de DESCONOCIDA por procedencia incompleta |
+| IND-06 | `test_independence_rejects_shared_terminal_origin` | Rechazo cubierto |
+| IND-07 | `test_independence_rejects_missing_source_path`; `test_021_package_rejects_independent_status_without_integrated_origin_paths` | Rechaza INDEPENDIENTE; falta demostrar que el resultado alternativo se conserva como DESCONOCIDA |
+| IND-08 | `test_021_package_accepts_evidenced_dependency_for_exact_component`; `test_021_package_rejects_dependency_edge_without_evidence` | Dependencia con alcance de componente; falta prueba de no propagación a otro componente |
+| COR-01 | `test_primary_statement_scope_passes_only_for_direct_act`; `test_021_package_accepts_primary_corroboration_only_for_directly_observed_act` | Emisión/acto directo cubierto |
+| COR-02 | `test_primary_authenticity_does_not_allow_unsupported_external_claim`; `test_021_package_rejects_primary_corroboration_overclaim` | Sobreafirmación rechazada |
+| COR-03 | — | **Brecha:** rectificación posterior y conservación/versionado temporal |
+| COR-04 | — | **Brecha:** contradicción interna material |
+| COR-05 | `test_primary_statement_scope_passes_only_for_direct_act` | Alcance directo cubierto; falta mutación específica de base de conocimiento no directa |
+| COR-06 | `test_021_package_accepts_corroboration_from_reviewed_independent_sources` | Positivo cubierto |
+| COR-07 | `test_secondary_corroboration_rejects_incomplete_review`; `test_021_package_rejects_independent_corroboration_without_reviewed_independence` | Rechazo cubierto |
+| COR-08 | — | **Brecha:** estado parcial con alcance sustentado y no sustentado delimitados |
+| COR-09 | — | **Brecha:** hash/integridad coincidente sin autenticidad ni atribución |
+| COR-10 | `test_ambas_requires_independence_even_when_primary_evidence_exists` | No cubre por sí sola acceso ilegítimo; **brecha** de acceso privado no autorizado/no determinado |
+| RET-01 | `test_delete_pending_requires_outstanding_copy_inventory`; `test_021_package_rejects_new_assessment_after_delete_pending` | Pendiente y bloqueo analítico cubiertos |
+| RET-02/03 | `test_deleted_requires_every_copy_and_derivative_verified`; `test_021_deleted_scope_rejects_uninventoried_replica` | Copias/derivados incompletos rechazados |
+| RET-04 | `test_deleted_rejects_unverified_backup` | Backup no verificado rechazado; falta política de expiración documentada y reconciliación de restauración |
+| RET-05 | `test_021_package_accepts_deletion_after_every_copy_and_replica_is_verified` | Positivo cubierto |
+| RET-06 | `test_021_deleted_scope_rejects_uninventoried_replica` | Inventario incompleto rechazado |
+| RET-07 | `test_021_package_rejects_new_assessment_after_delete_pending` | Rechazo cubierto |
+| RET-08 | `test_deleted_copy_cannot_be_restored_to_present` | Rechazo de transición terminal directa cubierto; restauración/reconciliación de backup sigue abierta |
+| RET-09 | — | **Brecha:** minimización y riesgo de reidentificación en referencias/eventos |
+| ARC-01 | `test_archive_capture_verified_for_cutoff_passes_without_authenticating_content`; `test_021_archive_attestation_is_required_and_does_not_authenticate_content` | Captura/integridad temporal cubiertas |
+| ARC-02/05 | `test_archive_timestamp_without_capture_proof_is_rejected`; `test_021_orphan_archive_attestation_is_rejected` | Falta de prueba de captura rechazada |
+| ARC-03 | `test_archive_capture_after_cutoff_is_rejected` | Rechazo cubierto |
+| ARC-04 | `test_021_archive_integrity_mismatch_is_not_verified_availability` | Mismatch no se considera disponibilidad verificada |
+| ARC-06 | `test_archive_import_cannot_predate_capture` | Orden temporal de importación cubierto; primera observación/recuperación no está diferenciada |
+| ARC-07 | — | **Brecha:** SOURCE_STATED separado de disponibilidad demostrada |
+| ARC-08 | — | **Brecha:** versión archivada modificada y conservación inmutable |
+| MIG-01 | `test_021_migration_manifest_is_schema_valid_and_lossless` | Migración sintética válida cubierta |
+| MIG-02 | — | **Brecha:** campo obligatorio sin fuente y preservación explícita de UNKNOWN |
+| MIG-03/04 | `test_migration_rejects_historical_status_change` | Cambio de estado histórico rechazado; corte/evidencia requieren trazabilidad individual |
+| MIG-05 | `test_migration_rejects_dropped_unknown_source_field` | Pérdida silenciosa de campo rechazada |
+| MIG-06 | — | **Brecha:** idempotencia real y ausencia de duplicados; el hash determinista no demuestra ejecución repetida |
+| MIG-07 | `test_migration_rejects_methodology_version_rewrite` | Reescritura metodológica rechazada |
+| MIG-08 | `test_migration_preserves_historical_records_and_versions` | Preservación de versiones cubierta; cambio aislado de contract_version necesita caso específico |
+| MIG-09 | `test_021_package_rejects_unresolvable_migration_snapshot_reference` | Referencia no resoluble rechazada |
 
 ## 8. Fuera de alcance
 
