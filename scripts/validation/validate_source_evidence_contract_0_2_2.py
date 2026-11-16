@@ -30,12 +30,37 @@ def _require(condition: bool, message: str) -> None:
 
 
 def validate_catalogs(roles: dict[str, Any], reasons: dict[str, Any]) -> None:
+    _require(isinstance(roles, dict) and isinstance(reasons, dict), "catalog roots must be JSON objects")
+    _require(roles.get("catalog_id") == "sinayxa.audit.actor_roles", "unexpected actor-role catalog identifier")
+    _require(reasons.get("catalog_id") == "sinayxa.audit.reason_codes", "unexpected reason-code catalog identifier")
     _require(roles.get("catalog_version") == "1.0.0", "unsupported actor-role catalog version")
     _require(reasons.get("catalog_version") == "1.0.0", "unsupported reason-code catalog version")
-    role_codes = [item["code"] for item in roles.get("roles", [])]
-    reason_codes = [item["code"] for item in reasons.get("reasons", [])]
-    _require(bool(role_codes) and len(role_codes) == len(set(role_codes)), "actor-role codes must be non-empty and unique")
-    _require(bool(reason_codes) and len(reason_codes) == len(set(reason_codes)), "reason codes must be non-empty and unique")
+    role_items = roles.get("roles")
+    reason_items = reasons.get("reasons")
+    _require(isinstance(role_items, list) and bool(role_items), "actor-role catalog must contain a non-empty roles array")
+    _require(isinstance(reason_items, list) and bool(reason_items), "reason catalog must contain a non-empty reasons array")
+    _require(all(isinstance(item, dict) and set(item) == {"code", "description"} for item in role_items),
+             "each actor-role entry must contain exactly code and description")
+    _require(all(isinstance(item, dict) and set(item) == {"code", "description", "allowed_actions"} for item in reason_items),
+             "each reason entry must contain exactly code, description and allowed_actions")
+    role_codes = [item["code"] for item in role_items]
+    reason_codes = [item["code"] for item in reason_items]
+    _require(all(isinstance(code, str) for code in role_codes + reason_codes), "catalog codes must be strings")
+    _require(len(role_codes) == len(set(role_codes)), "actor-role codes must be unique")
+    _require(len(reason_codes) == len(set(reason_codes)), "reason codes must be unique")
+    _require(all(isinstance(item["description"], str) and item["description"].strip() for item in role_items + reason_items),
+             "catalog descriptions must be non-empty strings")
+    allowed_actions = {
+        "CREATED", "UPDATED", "SUPERSEDED", "RETENTION_SET", "REFERENCE_ONLY",
+        "RESTRICTED", "RETENTION_REVIEWED", "DELETION_REQUESTED", "DELETED",
+        "ACCESS_DENIED", "COPY_DISCOVERED", "COPY_DELETION_REQUESTED", "COPY_DELETED",
+    }
+    for item in reason_items:
+        actions = item["allowed_actions"]
+        _require(isinstance(actions, list) and bool(actions), "each reason must allow at least one action")
+        _require(all(isinstance(action, str) and action in allowed_actions for action in actions),
+                 "reason catalog contains an unknown action")
+        _require(len(actions) == len(set(actions)), "reason allowed_actions must be unique")
     _require(all(re.fullmatch(r"[A-Z][A-Z0-9_]{1,63}", code) for code in role_codes + reason_codes),
              "catalog codes must use stable uppercase identifiers")
 
