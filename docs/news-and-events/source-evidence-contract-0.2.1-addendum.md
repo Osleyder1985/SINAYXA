@@ -77,7 +77,7 @@ Se añade la colección retention_copy_records. Cada copia o derivado se identif
 - verification_reference: referencia mínima a la evidencia de verificación, solo cuando state=DELETED.
 - scheduled_disposition_at: fecha prevista cuando una política de ciclo de vida/backup lo requiera; no equivale a eliminación verificada.
 
-Las referencias forman un grafo acíclico de copias y derivados. Una transición de estado debe tener exactamente un evento de auditoría correlacionado, identificando copy_id, estado anterior, nuevo estado, actor por rol, instante y motivo.
+Las referencias forman un grafo acíclico de copias y derivados. Una transición de estado debe tener exactamente un evento de auditoría correlacionado, identificando copy_id, estado anterior, nuevo estado, actor por rol, instante y motivo. La transición de disposition del retention_record también requiere un evento correlacionado con retention_id, subject_ref, from_disposition, to_disposition y acción coherente. DELETED es terminal y solo puede seguir a DELETE_PENDING.
 
 DELETE_PENDING bloquea el uso analítico nuevo de esa copia desde el instante de transición. Cada claim_assessment registra assessed_at, distinto de assessment_cutoff. El validador rechaza una evaluación creada después de la primera solicitud de eliminación cuando usa la evidencia afectada; el corte histórico no se confunde con la hora de ejecución de la evaluación. DELETED requiere que todas las copias dentro del alcance declarado estén DELETED y tengan verified_at y verification_reference. Una copia o backup pendiente, un derivado no inventariado o una verificación ausente impide declarar la eliminación completa del alcance.
 
