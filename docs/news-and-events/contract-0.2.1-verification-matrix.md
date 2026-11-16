@@ -286,3 +286,15 @@ El escenario positivo crea una nueva `source_version`, con publicación, detecci
 - Plazos legales universales sin análisis jurisdiccional y contractual.
 - Afirmar eliminación física inmediata de backups cuando la política técnica no lo permite.
 - Cambiar #15/#16 sin decisión expresa y trazable.
+
+
+### Actualización RET-04 — expiración de backups sin prueba de eliminación
+
+Verificación añadida sobre el HEAD `090bb4b3a646ec73526aed7f197981696eab9fa0`:
+
+- `test_021_backup_expiration_not_yet_reached_keeps_copy_present`: una copia de backup cuya expiración programada aún no se alcanzó permanece `PRESENT`.
+- `test_021_backup_expiration_reached_without_verification_remains_pending`: una expiración ya alcanzada, sin evidencia verificable de eliminación, permanece pendiente y no puede elevarse a `DELETED`.
+- Las dos pruebas se ejecutaron dentro de la suite correctiva: **108 tests PASS** en el PowerShell quality gate [run 43796982311](https://github.com/Osleyder1985/SINAYXA/actions/runs/43796982311).
+- Security/dependency quality gate [run 43796982839](https://github.com/Osleyder1985/SINAYXA/actions/runs/43796982839): SUCCESS sobre el mismo SHA. OSV full: SKIPPED, no contabilizado como PASS.
+
+**Límite:** los fixtures prueban la semántica del contrato; no demuestran que un proveedor haya ejecutado la expiración ni que todas las copias físicas hayan sido eliminadas. RET-04 conserva brecha operativa y el Área C permanece ABIERTA. Este resultado no cierra ninguna de las cinco áreas.
