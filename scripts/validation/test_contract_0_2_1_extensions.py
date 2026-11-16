@@ -124,6 +124,17 @@ class Contract021ExtensionTests(unittest.TestCase):
                    "occurred_at": "2026-01-01T00:00:00Z", "reason": "Synthetic copy inventory"}]
         validate_retention_scope("RETAIN", copies, events)
 
+    def test_reference_only_retains_no_content_after_verified_copy_deletion(self):
+        copies = [{"copy_id": "primary", "retention_id": "retention-a", "subject_ref": "evidence-a",
+                   "parent_copy_id": None, "state": "DELETED", "previous_state": "DELETE_PENDING",
+                   "transition_event_ref": "event-1", "recorded_at": "2026-01-01T01:00:00Z",
+                   "verified_at": "2026-01-01T01:00:00Z", "verification_reference": "verify-1"}]
+        events = [{"audit_event_id": "event-1", "copy_id": "primary", "retention_id": "retention-a",
+                   "subject_ref": "evidence-a", "from_copy_state": "DELETE_PENDING",
+                   "to_copy_state": "DELETED", "action": "COPY_DELETED", "actor_role": "DATA_CUSTODIAN",
+                   "occurred_at": "2026-01-01T01:00:00Z", "reason": "Verified deletion"}]
+        validate_retention_scope("REFERENCE_ONLY", copies, events)
+
     def test_delete_pending_requires_outstanding_copy_inventory(self):
         copies = [{"copy_id": "primary", "retention_id": "retention-a", "subject_ref": "evidence-a", "parent_copy_id": None, "state": "DELETE_PENDING",
                    "previous_state": "PRESENT", "transition_event_ref": "event-1", "recorded_at": "2026-01-01T00:00:00Z"}]
