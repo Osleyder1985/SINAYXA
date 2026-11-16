@@ -221,6 +221,17 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_archive_attestation(availability, attestation, self.cutoff)
 
+    def test_archive_import_cannot_predate_capture(self):
+        availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
+                        "available_at": "2026-01-01T00:00:00Z"}
+        attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
+                       "captured_at": "2026-01-01T00:00:00Z", "imported_at": "2025-12-31T23:59:00Z",
+                       "recorded_at": "2026-01-01T00:01:00Z", "integrity_result": "MATCH",
+                       "capture_record_verified": True, "content_authenticity": "UNKNOWN",
+                       "content_truth": "UNKNOWN"}
+        with self.assertRaises(ContractViolation):
+            validate_archive_attestation(availability, attestation, self.cutoff)
+
     def test_archive_cannot_promote_authenticity(self):
         availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
                         "available_at": "2026-01-01T00:00:00Z"}
