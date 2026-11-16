@@ -80,6 +80,19 @@ class Contract021ExtensionTests(unittest.TestCase):
             primary, set(), self.cutoff
         )
 
+    def test_ambas_requires_independence_even_when_primary_evidence_exists(self):
+        primary = [{"source_type": "PRIMARIA", "authenticity_status": "AUTENTICADA",
+                    "access_status": "PÚBLICO_LEGÍTIMO", "knowledge_basis": "REGISTRO_ORIGINAL",
+                    "scope_note": "La institución emitió el documento.",
+                    "available_at": "2026-01-01T00:00:00Z"}]
+        primary_units = [
+            {"assessment_unit_id": "u1", "source_id": "s1", "source_type": "PRIMARIA"},
+            {"assessment_unit_id": "u2", "source_id": "s2", "source_type": "PRIMARIA"},
+        ]
+        with self.assertRaises(ContractViolation):
+            validate_corroboration("CORROBORADA", "AMBAS", primary_units, primary, set(), self.cutoff)
+        validate_corroboration("CORROBORADA", "AMBAS", primary_units, primary, {"u1", "u2"}, self.cutoff)
+
     def test_primary_authenticity_does_not_allow_unsupported_external_claim(self):
         primary = [{"source_type": "PRIMARIA", "authenticity_status": "AUTENTICADA",
                     "access_status": "PÚBLICO_LEGÍTIMO", "knowledge_basis": "DOCUMENTO_DE_TERCEROS",
