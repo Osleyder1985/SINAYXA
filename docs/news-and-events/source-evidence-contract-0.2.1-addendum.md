@@ -97,8 +97,9 @@ Se añade la colección migration_records. Cada migración contiene:
 - rules_applied: lista no vacía de identificadores de reglas de migración.
 - result: PASS o REJECTED.
 - loss_report: lista de pérdidas o incompatibilidades; debe estar vacía para PASS.
+- source_snapshot y target_snapshot: snapshots inmutables de los paquetes de origen y destino, validados respectivamente con sus JSON Schema versionados. Se excluye migration_records del digest canónico para evitar autorreferencia; el snapshot destino no puede contener manifiestos anidados.
 
-La migración debe validar el paquete de origen con el esquema de su versión y el destino con el esquema objetivo. No puede modificar ni eliminar identificadores, referencias, estados probatorios, atribución, autenticidad, acceso, factores, independencia, cortes temporales, versiones, evidencias, alternativas, incertidumbre, límites, decisiones de retención ni eventos históricos.
+La migración debe validar el source_snapshot con el esquema de su versión y el target_snapshot con el esquema objetivo. El validador integral debe resolver ambos snapshots, comprobar sus hashes canónicos, verificar la preservación recursiva de todos los campos históricos y ejecutar la validación semántica del destino. Una referencia sin contenido resoluble y verificable no basta para declarar PASS. No puede modificar ni eliminar identificadores, referencias, estados probatorios, atribución, autenticidad, acceso, factores, independencia, cortes temporales, versiones, evidencias, alternativas, incertidumbre, límites, decisiones de retención ni eventos históricos.
 
 No puede completar datos desconocidos mediante inferencias ni convertir DESCONOCIDA en un estado positivo. Los campos que la versión destino no pueda representar deben bloquear la migración o conservarse mediante una regla de compatibilidad explícita y verificable; nunca pueden descartarse silenciosamente.
 
