@@ -118,8 +118,12 @@ def validate_corroboration(
                     for unit in supporting_units)
         ]
         eligible_sources = {(item["source_id"], item["source_version_id"]) for item in eligible}
-        required_sources = {(unit["source_id"], unit["source_version_id"]) for unit in supporting_units}
-        _require(required_sources.issubset(eligible_sources),
+        primary_supporting_sources = {
+            (unit["source_id"], unit["source_version_id"])
+            for unit in supporting_units
+            if unit["source_type"] == "PRIMARIA"
+        }
+        _require(primary_supporting_sources.issubset(eligible_sources),
                  "every primary supporting unit must have authenticated, legitimate, direct evidence scoped to the component")
     elif basis == "CORROBORACION_INDEPENDIENTE":
         _require(bool(non_primary), "independent basis must actually use non-primary corroboration")
