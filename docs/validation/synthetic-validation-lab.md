@@ -36,9 +36,10 @@ El comando emite un único informe JSON compacto y devuelve un código de salida
 - Integridad de la exportación y de la restauración.
 - Detección de una modificación intencional del contenido.
 - Reconciliación de la eliminación en el conjunto de datos, la exportación y el contenido restaurado.
+- Verificación posterior de que el directorio temporal desapareció; un fallo de limpieza convierte el resultado global en FAIL.
 
 ## Evidencia y limitaciones
 
 Un resultado PASS demuestra únicamente el flujo del sistema de archivos dentro del directorio temporal aislado. No demuestra las operaciones de copia de seguridad y restauración de PostgreSQL, WORM/Object Lock físico, borrado seguro de medios, eliminación de copias de seguridad en proveedores externos, snapshots externos ni migraciones de producción. Esas capacidades requieren validaciones independientes en entornos específicos.
 
-De forma predeterminada, el directorio temporal se elimina después de generar el informe. Utiliza -KeepArtifacts únicamente cuando sea necesario inspeccionar los artefactos sintéticos.
+De forma predeterminada, el directorio temporal se elimina y el informe registra `checks.cleanup=PASS` solo si se confirma su ausencia. Si la limpieza falla, el resultado global es FAIL y se conserva el error de limpieza en el informe. Con `-KeepArtifacts`, la limpieza queda como `NOT_RUN` y los artefactos se conservan intencionalmente.
