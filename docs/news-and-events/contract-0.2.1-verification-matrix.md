@@ -267,6 +267,7 @@ Se endureció ARC-01/04/08: cada `archive_attestation` ahora requiere `evidence_
 ### Brechas adicionales COR-05, COR-08 y MIG-03 — CI pendiente
 
 Los commits posteriores a `56759d2` añaden:
+
 - Rechazo de corroboración primaria basada en inferencia, aunque la fuente sea auténtica y el acceso legítimo; solo el conocimiento directo/registro original puede sustentar `EVIDENCIA_PRIMARIA_DIRECTA`.
 - Revisión humana obligatoria para delimitar alcances en `PARCIALMENTE_CORROBORADA`; el contrato no pretende resolver por comparación de texto si dos alcances se solapan semánticamente.
 - Prueba específica de migración que conserva `DESCONOCIDA` y rechaza su promoción a `INDEPENDIENTE`.
