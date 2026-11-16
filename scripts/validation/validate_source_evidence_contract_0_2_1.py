@@ -46,6 +46,12 @@ def validate_package(package: dict) -> None:
 
     retention_by_id = {r["retention_id"]: r for r in package["retention_records"]}
     require(len(retention_by_id) == len(package["retention_records"]), "duplicate retention_id")
+    copy_ids = [item["copy_id"] for item in package["retention_copy_records"]]
+    require(len(copy_ids) == len(set(copy_ids)), "duplicate copy_id across retention scopes")
+    event_ids = [event["audit_event_id"] for event in package["audit_events"]]
+    require(len(event_ids) == len(set(event_ids)), "duplicate audit_event_id")
+    migration_ids = [item["migration_id"] for item in package["migration_records"]]
+    require(len(migration_ids) == len(set(migration_ids)), "duplicate migration_id")
     copies_by_retention = {key: [] for key in retention_by_id}
     for copy_record in package["retention_copy_records"]:
         retention_id = copy_record["retention_id"]
