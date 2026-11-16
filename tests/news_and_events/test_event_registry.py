@@ -70,16 +70,13 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "published_at": iso(now - timedelta(minutes=4)),
             "first_observed_at": iso(now - timedelta(minutes=3, seconds=30)),
         }
-        first["recorded_at"] = iso(now + timedelta(seconds=10))
+        first["recorded_at"] = iso(datetime.now(timezone.utc))
         append_temporal_assertion(self.connection, first)
-        add_source_reference(
-            self.connection,
-            event_id,
-            "source-calendar-b",
-            recorded_at_utc=iso(now + timedelta(seconds=40)),
+        source_b_recorded_at = add_source_reference(
+            self.connection, event_id, "source-calendar-b"
         )
 
-        second_recorded = now + timedelta(seconds=60)
+        second_recorded = source_b_recorded_at + timedelta(microseconds=4)
         second = {
             **first,
             "temporal_assertion_id": f"{event_id}-v2",
@@ -96,19 +93,19 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "normalized_end_utc": iso(now + timedelta(days=7, hours=23, minutes=59, seconds=59)),
             "source_ref": "source-calendar-b",
             "evidence_ref": "evidence-calendar-b",
-            "retrieved_at": iso(now + timedelta(seconds=50)),
+            "retrieved_at": iso(source_b_recorded_at + timedelta(microseconds=3)),
             "recorded_at": iso(second_recorded),
             "supersedes_assertion_id": first["temporal_assertion_id"],
-            "published_at": iso(now + timedelta(seconds=45)),
-            "first_observed_at": iso(now + timedelta(seconds=48)),
+            "published_at": iso(source_b_recorded_at + timedelta(microseconds=1)),
+            "first_observed_at": iso(source_b_recorded_at + timedelta(microseconds=2)),
         }
         premature = {
             **second,
             "temporal_assertion_id": f"{event_id}-v2-premature",
-            "retrieved_at": iso(now + timedelta(seconds=20)),
-            "recorded_at": iso(now + timedelta(seconds=30)),
-            "published_at": iso(now + timedelta(seconds=15)),
-            "first_observed_at": iso(now + timedelta(seconds=18)),
+            "retrieved_at": iso(source_b_recorded_at - timedelta(microseconds=2)),
+            "recorded_at": iso(source_b_recorded_at - timedelta(microseconds=1)),
+            "published_at": iso(source_b_recorded_at - timedelta(microseconds=4)),
+            "first_observed_at": iso(source_b_recorded_at - timedelta(microseconds=3)),
         }
         with self.assertRaises(EventRegistryError):
             append_temporal_assertion(self.connection, premature)
@@ -116,10 +113,10 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         append_temporal_assertion(self.connection, second)
 
         historical = get_event_as_of(
-            self.connection, event_id, iso(now + timedelta(seconds=20))
+            self.connection, event_id, iso(source_b_recorded_at - timedelta(microseconds=1))
         )
         current = get_event_as_of(
-            self.connection, event_id, iso(now + timedelta(minutes=2))
+            self.connection, event_id, iso(second_recorded + timedelta(seconds=1))
         )
         self.assertIsNotNone(historical)
         self.assertEqual([1], [item["version"] for item in historical["temporal_assertions"]])
