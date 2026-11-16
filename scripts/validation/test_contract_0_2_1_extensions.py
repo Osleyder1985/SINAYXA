@@ -19,6 +19,7 @@ from contract_0_2_1_extensions import (
     validate_independence,
     validate_migration,
     validate_retention_scope,
+    validate_backup_expiration_policy,
 )
 
 
@@ -547,6 +548,7 @@ class Contract021ExtensionTests(unittest.TestCase):
             "copy_kind": "PRIMARY", "parent_copy_id": None, "state": "DELETE_PENDING",
             "recorded_at": "2026-11-15T22:01:00Z", "verified_at": None,
             "verification_reference": None, "scheduled_disposition_at": "2026-11-16T00:00:00Z",
+            "backup_expiration_policy_ref": None,
             "previous_state": "PRESENT", "transition_event_ref": "copy-event-2"
         })
         package["audit_events"].append({
@@ -583,6 +585,7 @@ class Contract021ExtensionTests(unittest.TestCase):
             "copy_kind": "PRIMARY", "parent_copy_id": None, "state": "DELETE_PENDING",
             "recorded_at": "2026-11-15T22:01:00Z", "verified_at": None,
             "verification_reference": None, "scheduled_disposition_at": "2026-11-16T00:00:00Z",
+            "backup_expiration_policy_ref": None,
             "previous_state": "PRESENT", "transition_event_ref": "copy-event-2"
         })
         package["audit_events"].append({
@@ -619,11 +622,13 @@ class Contract021ExtensionTests(unittest.TestCase):
              "copy_kind": "PRIMARY", "parent_copy_id": None, "state": "DELETED",
              "recorded_at": "2026-11-15T22:09:00Z", "verified_at": "2026-11-15T22:09:00Z",
              "verification_reference": "verify-primary", "scheduled_disposition_at": None,
+             "backup_expiration_policy_ref": None,
              "previous_state": "DELETE_PENDING", "transition_event_ref": "primary-event-3"},
             {"copy_id": "copy-replica", "retention_id": "retention-a", "subject_ref": "evidence-a",
              "copy_kind": "REPLICA", "parent_copy_id": "copy-primary", "state": "DELETED",
              "recorded_at": "2026-11-15T22:12:00Z", "verified_at": "2026-11-15T22:12:00Z",
              "verification_reference": "verify-replica", "scheduled_disposition_at": None,
+             "backup_expiration_policy_ref": None,
              "previous_state": "DELETE_PENDING", "transition_event_ref": "replica-event-3"}
         ])
         package["audit_events"].extend([
@@ -672,6 +677,7 @@ class Contract021ExtensionTests(unittest.TestCase):
                 "copy_kind": "PRIMARY", "parent_copy_id": None, "state": "DELETED",
                 "recorded_at": "2026-11-15T22:10:00Z", "verified_at": "2026-11-15T22:09:00Z",
                 "verification_reference": "verify-primary", "scheduled_disposition_at": None,
+             "backup_expiration_policy_ref": None,
                 "previous_state": "DELETE_PENDING", "transition_event_ref": "copy-event-3"
             },
             {
@@ -679,6 +685,7 @@ class Contract021ExtensionTests(unittest.TestCase):
                 "copy_kind": "REPLICA", "parent_copy_id": "copy-primary", "state": "PRESENT",
                 "recorded_at": "2026-11-15T22:10:00Z", "verified_at": None,
                 "verification_reference": None, "scheduled_disposition_at": None,
+             "backup_expiration_policy_ref": None,
                 "previous_state": None, "transition_event_ref": "copy-event-4"
             }
         ])
