@@ -62,6 +62,12 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_independence(self.units, paths, self.cutoff)
 
+    def test_separate_analysis_over_common_data_is_not_origin_independence(self):
+        paths = copy.deepcopy(self.paths)
+        paths[1]["relation_type"] = "ANÁLISIS_SEPARADO_SOBRE_DATOS_COMUNES"
+        with self.assertRaises(ContractViolation):
+            validate_independence(self.units, paths, self.cutoff)
+
     def test_independence_rejects_missing_source_path(self):
         with self.assertRaises(ContractViolation):
             validate_independence(self.units, self.paths[:1], self.cutoff)
@@ -200,6 +206,16 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_archive_attestation(availability, attestation, self.cutoff)
 
+    def test_archive_capture_after_cutoff_is_rejected(self):
+        availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
+                        "available_at": "2026-01-03T00:00:00Z"}
+        attestation = {"archive_service": "Synthetic Archive", "capture_record_reference": "capture-1",
+                       "captured_at": "2026-01-03T00:00:00Z", "integrity_result": "MATCH",
+                       "capture_record_verified": True, "content_authenticity": "UNKNOWN",
+                       "content_truth": "UNKNOWN"}
+        with self.assertRaises(ContractViolation):
+            validate_archive_attestation(availability, attestation, self.cutoff)
+
     def test_archive_cannot_promote_authenticity(self):
         availability = {"availability_basis": "INDEPENDENT_ARCHIVE",
                         "available_at": "2026-01-01T00:00:00Z"}
@@ -242,6 +258,12 @@ class Contract021ExtensionTests(unittest.TestCase):
                     "rules_applied": ["preserve-history"], "result": "PASS"}
         with self.assertRaises(ContractViolation):
             validate_migration(source, target, manifest)
+
+    def test_migration_canonical_output_hash_is_deterministic(self):
+        target = {"contract_version": "0.2.1", "claims": [{"claim_id": "c1"}]}
+        first = canonical_sha256(target)
+        second = canonical_sha256(copy.deepcopy(target))
+        self.assertEqual(first, second)
 
     def test_migration_rejects_historical_status_change(self):
         source = {"contract_version": "0.2.0", "claims": [{"claim_id": "c1"}],
