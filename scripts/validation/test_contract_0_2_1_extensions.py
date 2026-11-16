@@ -289,6 +289,33 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_retention_scope("DELETED", copies, events)
 
+    def test_deleted_copy_cannot_be_restored_to_present(self):
+        copies = [{
+            "copy_id": "primary", "retention_id": "retention-a", "subject_ref": "evidence-a",
+            "parent_copy_id": None, "state": "PRESENT", "previous_state": "DELETED",
+            "transition_event_ref": "restore-event", "recorded_at": "2026-01-01T00:04:00Z"
+        }]
+        events = [
+            {"audit_event_id": "event-1", "copy_id": "primary", "retention_id": "retention-a",
+             "subject_ref": "evidence-a", "from_copy_state": None, "to_copy_state": "PRESENT",
+             "action": "COPY_DISCOVERED", "actor_role": "DATA_CUSTODIAN",
+             "occurred_at": "2026-01-01T00:01:00Z", "reason": "Discovered"},
+            {"audit_event_id": "event-2", "copy_id": "primary", "retention_id": "retention-a",
+             "subject_ref": "evidence-a", "from_copy_state": "PRESENT", "to_copy_state": "DELETE_PENDING",
+             "action": "COPY_DELETION_REQUESTED", "actor_role": "DATA_CUSTODIAN",
+             "occurred_at": "2026-01-01T00:02:00Z", "reason": "Requested"},
+            {"audit_event_id": "event-3", "copy_id": "primary", "retention_id": "retention-a",
+             "subject_ref": "evidence-a", "from_copy_state": "DELETE_PENDING", "to_copy_state": "DELETED",
+             "action": "COPY_DELETED", "actor_role": "DATA_CUSTODIAN",
+             "occurred_at": "2026-01-01T00:03:00Z", "reason": "Verified"},
+            {"audit_event_id": "restore-event", "copy_id": "primary", "retention_id": "retention-a",
+             "subject_ref": "evidence-a", "from_copy_state": "DELETED", "to_copy_state": "PRESENT",
+             "action": "COPY_DISCOVERED", "actor_role": "DATA_CUSTODIAN",
+             "occurred_at": "2026-01-01T00:04:00Z", "reason": "Attempted restore"}
+        ]
+        with self.assertRaises(ContractViolation):
+            validate_retention_scope("RETAIN", copies, events)
+
     def test_retention_rejects_missing_copy_transition(self):
         copies = [{"copy_id": "primary", "retention_id": "retention-a", "subject_ref": "evidence-a",
                    "parent_copy_id": None, "state": "DELETE_PENDING", "previous_state": "PRESENT",
@@ -385,6 +412,24 @@ class Contract021ExtensionTests(unittest.TestCase):
                     "source_contract_version": "0.2.0", "target_contract_version": "0.2.1",
                     "input_sha256": canonical_migration_payload_sha256(source), "output_sha256": canonical_migration_payload_sha256(target),
                     "rules_applied": ["preserve-history"], "result": "PASS"}
+        with self.assertRaises(ContractViolation):
+            validate_migration(source, target, manifest)
+
+    def test_migration_rejects_methodology_version_rewrite(self):
+        source = {"contract_version": "0.2.0", "methodology_version": "16-approved",
+                  "claims": [], "claim_components": [], "sources": [], "source_versions": [],
+                  "identity_assessments": [], "evaluation_units": [], "evidence_items": [],
+                  "evidence_availability": [], "claim_evidence_links": [], "provenance_nodes": [],
+                  "provenance_edges": [], "factor_assessments": [], "independence_assessments": [],
+                  "claim_assessments": [], "retention_records": [], "audit_events": []}
+        target = copy.deepcopy(source)
+        target["contract_version"] = "0.2.1"
+        target["methodology_version"] = "17-unapproved"
+        manifest = {"migration_id": "m-methodology", "migrator_version": "1.0.0",
+                    "source_contract_version": "0.2.0", "target_contract_version": "0.2.1",
+                    "input_sha256": canonical_migration_payload_sha256(source),
+                    "output_sha256": canonical_migration_payload_sha256(target),
+                    "rules_applied": ["preserve-methodology"], "result": "PASS"}
         with self.assertRaises(ContractViolation):
             validate_migration(source, target, manifest)
 
@@ -691,6 +736,30 @@ class Contract021ExtensionTests(unittest.TestCase):
             manifest["target_snapshot_ref"]: target_snapshot,
         }
         validate_package(target_package, base_schema, schema, snapshots)
+
+    def test_021_package_rejects_unresolvable_migration_snapshot_reference(self):
+        root = Path(__file__).resolve().parents[2]
+        schema, target_package = self.load_contract_021_fixture()
+        base_schema = json.loads((root / "schemas" / "source-evidence-contract-0.2.0.schema.json").read_text(encoding="utf-8"))
+        source_snapshot = json.loads((root / "tests" / "fixtures" / "contracts" / "source-evidence-contract-v0.2.0.json").read_text(encoding="utf-8"))
+        target_snapshot = copy.deepcopy(target_package)
+        target_snapshot["migration_records"] = []
+        manifest = {
+            "migration_id": "migration-unresolved-ref", "source_contract_version": "0.2.0",
+            "target_contract_version": "0.2.1", "migrator_version": "1.0.0",
+            "executed_at": "2026-11-15T22:00:00Z",
+            "input_sha256": canonical_migration_payload_sha256(source_snapshot),
+            "output_sha256": canonical_migration_payload_sha256(target_snapshot),
+            "rules_applied": ["preserve-history"], "result": "PASS", "loss_report": [],
+            "source_snapshot_ref": "fixture://missing-source-snapshot",
+            "target_snapshot_ref": "fixture://source-evidence-contract-v0.2.1"
+        }
+        target_package["migration_records"].append(manifest)
+        snapshots = {
+            "fixture://source-evidence-contract-v0.2.1": target_snapshot,
+        }
+        with self.assertRaises(ContractViolation):
+            validate_package(target_package, base_schema, schema, snapshots)
 
     def test_021_package_rejects_migration_with_incorrect_snapshot_digest(self):
         root = Path(__file__).resolve().parents[2]
