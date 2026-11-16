@@ -381,7 +381,6 @@ Fuentes oficiales:
 - [Docker Hub — Official PostgreSQL image, PGDATA and VOLUME change](https://hub.docker.com/_/postgres).
 - [Docker Library — PostgreSQL 18 Dockerfile](https://github.com/docker-library/postgres/blob/master/18/bookworm/Dockerfile).
 
-
 ### 11.4 Baseline sintético verificado en CI — 2026-11-16
 
 La PR #96 ejecutó el laboratorio aislado con versiones explícitas y referencias inmutables:
@@ -397,6 +396,7 @@ La PR #96 ejecutó el laboratorio aislado con versiones explícitas y referencia
 | Host CI | Linux, kernel `7.0.0-1019-azure`, x86_64 |
 
 Evidencia:
+
 - Workflow [#43937271457](https://github.com/Osleyder1985/SINAYXA/actions/runs/43937271457): SUCCESS.
 - Workflow security/dependency [#43937271570](https://github.com/Osleyder1985/SINAYXA/actions/runs/43937271570): SUCCESS; OSV full SKIPPED y no contabilizado como PASS.
 - Reporte `postgresql-synthetic-lab-43937271457`: `status=PASS`; 10/10 controles PASS; backup custom 5.980 bytes; SHA-256 `24641c95d98fadc60e5b2d79eb429c1c0df786a1b79347c70131f3627ba8b16c`.
