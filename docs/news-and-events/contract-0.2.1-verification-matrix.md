@@ -366,4 +366,36 @@ En el HEAD actual de trabajo `066b4c566ec8daa1f25191a7a60e7f91759bf6a4` se incor
 
 La prueba `test_021_contradiction_rejects_duplicate_component_evidence_links` construye una contradicción con evidencia favorable y contraria distintas, duplica por separado el vínculo favorable y el contrario usando identificadores de vínculo diferentes, y espera rechazo semántico en ambos casos.
 
-**Estado de verificación:** implementación y prueba incorporadas; no hay todavía una ejecución CI asociada a estos commits. Por tanto, no se contabilizan como PASS. La siguiente puerta es ejecutar el quality gate sobre el HEAD de código actual y confirmar que ambos casos duplicados son rechazados mientras siguen pasando los casos válidos de fragmentos distintos dentro de una misma versión. COR-04 y Área B permanecen ABIERTAS.
+**Estado de verificación — actualizado sobre HEAD `1d29fed7a8e1e4194dd4be5113ad9f1fecde6313`:** la regla y la prueba superaron CI. `test_021_contradiction_rejects_duplicate_component_evidence_links` rechaza la duplicación del vínculo favorable y del vínculo contrario. La suite correctiva contiene 124 pruebas y el workflow completó todas las validaciones de contrato sin fallos. La limitación semántica de fragmentos y alcances continúa requiriendo revisión humana; COR-04 y el Área B permanecen ABIERTAS.
+
+
+### Consolidación de verificación — HEAD `1d29fed7a8e1e4194dd4be5113ad9f1fecde6313` (2026-11-16)
+
+Esta actualización sustituye cualquier estado anterior que indicara que la prueba de vínculos duplicados de COR-04 estaba pendiente de CI. No elimina los límites ni convierte un PASS global en cierre de áreas.
+
+**Evidencia CI sobre el mismo SHA de código:**
+
+- PowerShell quality gate: [run 43804999600](https://github.com/Osleyder1985/SINAYXA/actions/runs/43804999600) — SUCCESS.
+- Security and dependency quality gate: [run 43804999887](https://github.com/Osleyder1985/SINAYXA/actions/runs/43804999887) — SUCCESS.
+- Suite `test_contract_0_2_1_extensions.py`: 124 pruebas incluidas en el HEAD; el paso de ejecución terminó SUCCESS.
+- JSON Schema Draft 2020-12, fixture y validador semántico 0.2.1: PASS.
+- PowerShell 7.6.6; 11 archivos PowerShell inventariados y parseados; PSScriptAnalyzer 1.24.0: cero hallazgos.
+- Dependency audit/npm, OSV PR scan y Gitleaks: SUCCESS.
+- OSV full: SKIPPED por diseño en evento PR; no se contabiliza como PASS.
+- Artefacto de evidencia PowerShell: [powershell-validation-evidence-43804999600](https://github.com/Osleyder1985/SINAYXA/actions/runs/43804999600/artifacts/14198590157).
+
+**Corrección COR-04 confirmada:** el validador exige exactamente un vínculo por `evidence_id`, rol y alcance evaluado. La prueba duplica por separado el vínculo de apoyo y el contrario con un `link_id` distinto y confirma que ambas mutaciones se rechazan. Los casos válidos de evidencia diferenciada permanecen en la misma suite.
+
+**Estado de las cinco áreas después de esta ejecución:**
+
+| Área | Resultado de la revisión | Limitación/brecha que permanece | Estado |
+| --- | --- | --- | --- |
+| A — Independencia | Reglas y escenarios IND-01–IND-08 tienen pruebas relacionadas; se representan orígenes terminales, citas, dataset común y DESCONOCIDA. | Falta una trazabilidad consolidada y estricta requisito→regla→fixture→test→run para cada IND-01–IND-08 en el HEAD actual. | ABIERTA |
+| B — Corroboración | COR-03, COR-04 y COR-08 tienen controles ejecutables; COR-04 duplicidad ya está en CI. COR-01–COR-10 tienen cobertura distribuida en la suite. | Solapamiento semántico de fragmentos/alcances y suficiencia sustantiva requieren revisión humana; la matriz no presenta todavía una tabla íntegra por cada COR-01–COR-10 ligada a una sola ejecución final. | ABIERTA |
+| C — Retención/eliminación | Estados pendientes, inventario de copias, backups, expiración y restricciones de auditoría están modelados y probados sintéticamente. | No se demuestra borrado físico ni reconciliación real en proveedores; RET-09 es detección heurística, no anonimización exhaustiva. | ABIERTA |
+| D — Archivo/procedencia | Atestaciones enlazan evidencia, versión y SHA-256; se validan captura/corte e integridad del contenido examinado. | No se demuestra inmutabilidad física WORM/Object Lock ni preservación byte-a-byte futura en un proveedor externo. El estado debe permanecer UNKNOWN/NOT_VERIFIED sin evidencia externa. | ABIERTA |
+| E — Migración | Migrador real 0.2.0→0.2.1 determinista; snapshots, cardinalidades, referencias y valores históricos del fixture están probados, incluidas más de 700 mutaciones de hojas. | Evidencia de fixture/snapshots en memoria; no demuestra migración productiva ni preservación física externa. | ABIERTA |
+
+**Decisión técnica de esta revisión:** no hay un defecto de contrato lógico demostrado por el último CI que justifique abrir otra ronda de combinaciones de pruebas. Las brechas restantes se clasifican como (1) consolidación de trazabilidad documental en A/B y (2) validaciones operativas externas o límites deliberadamente no demostrables con fixtures sintéticos en C/D/E. No deben convertirse automáticamente en nuevas reglas o pruebas especulativas.
+
+Las cinco áreas siguen ABIERTAS conforme al criterio formal vigente; esta consolidación no las cierra. PR #85 permanece OPEN / NOT MERGED e Issue #78 permanece OPEN. No se aprueba el contrato ni se autoriza merge por inferencia.
