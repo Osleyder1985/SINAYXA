@@ -51,7 +51,9 @@ class Contract021ExtensionTests(unittest.TestCase):
             "source_version_id": "version-a1",
             "integrity_check": {
                 "algorithm": "SHA-256",
+                "expected_digest": "a" * 64,
                 "observed_digest": "a" * 64,
+                "checked_at": "2026-01-01T00:00:30Z",
                 "result": "MATCH",
             },
         }
@@ -70,7 +72,7 @@ class Contract021ExtensionTests(unittest.TestCase):
             "algorithm": "SHA-256",
             "expected_digest": "a" * 64,
             "observed_digest": "a" * 64,
-            "checked_at": "2026-11-15T20:03:00Z",
+            "checked_at": "2026-11-15T20:05:00Z",
             "result": "MATCH",
         }
 
@@ -384,8 +386,10 @@ class Contract021ExtensionTests(unittest.TestCase):
                        "verified_at": "2026-01-03T00:01:00Z", "verified_by_role": "ARCHIVE_REVIEWER",
                        "content_authenticity": "UNKNOWN",
                        "content_truth": "UNKNOWN"}
+        evidence = self.archive_evidence()
+        evidence["integrity_check"]["checked_at"] = "2026-01-03T00:00:30Z"
         with self.assertRaises(ContractViolation):
-            validate_archive_attestation(availability, attestation, self.cutoff, self.archive_evidence())
+            validate_archive_attestation(availability, attestation, self.cutoff, evidence)
 
     def test_archive_import_cannot_predate_capture(self):
         availability = {"evidence_id": "evidence-a", "availability_basis": "INDEPENDENT_ARCHIVE",
@@ -1803,6 +1807,38 @@ class Contract021ExtensionTests(unittest.TestCase):
         package["evidence_availability"][0].update({
             "availability_basis": "INDEPENDENT_ARCHIVE",
             "archive_attestation_id": "archive-unverified-evidence",
+        })
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+
+    def test_021_archive_attestation_rejects_expected_digest_mismatch(self):
+        schema, package = self.load_contract_021_fixture()
+        self.set_archive_evidence_integrity(package)
+        package["evidence_items"][0]["integrity_check"]["expected_digest"] = "b" * 64
+        package["archive_attestations"].append({
+            "archive_attestation_id": "archive-expected-digest-mismatch",
+            "evidence_id": "evidence-a",
+            "source_version_id": "version-a1",
+            "captured_content_hash": "a" * 64,
+            "hash_algorithm": "SHA-256",
+            "archive_service": "Synthetic Archive",
+            "capture_record_reference": "capture-expected-digest-mismatch",
+            "captured_at": "2026-11-15T20:04:00Z",
+            "imported_at": "2026-11-15T22:00:00Z",
+            "recorded_at": "2026-11-15T22:00:00Z",
+            "integrity_result": "MATCH",
+            "capture_record_verified": True,
+            "verification_method": "INDEPENDENT_RECORD_REVIEW",
+            "verified_at": "2026-11-15T21:59:00Z",
+            "verified_by_role": "ARCHIVE_REVIEWER",
+            "content_authenticity": "UNKNOWN",
+            "content_truth": "UNKNOWN",
+        })
+        package["evidence_availability"][0].update({
+            "availability_basis": "INDEPENDENT_ARCHIVE",
+            "archive_attestation_id": "archive-expected-digest-mismatch",
         })
         self.assert_schema_valid(schema, package)
         with self.assertRaises(ContractViolation):
