@@ -109,12 +109,13 @@ Una migración con pérdida, referencias rotas, cambios semánticos históricos 
 
 ### 6.1. Preservación de tiempos de evaluación históricos desconocidos
 
-assessed_at es un dato temporal distinto de assessment_cutoff y recorded_at. En paquetes 0.2.0 no existe un campo de origen equivalente para las evaluaciones históricas. Por tanto, el migrador no puede derivarlo de created_at, recorded_at, assessment_cutoff ni de executed_at.
+assessed_at es un dato temporal distinto de assessment_cutoff y recorded_at. En paquetes 0.2.0, claim_assessments no contiene un campo equivalente; factor_assessments sí dispone de assessed_at y su valor debe preservarse. Por tanto, el migrador no puede derivarlo de created_at, recorded_at, assessment_cutoff ni de executed_at.
 
-En 0.2.1, assessed_at permanece como propiedad obligatoria en claim_assessments y factor_assessments, pero admite null:
+En 0.2.1, assessed_at permanece como propiedad obligatoria en ambas colecciones. En claim_assessments admite null para representar el dato no disponible en el origen; en factor_assessments conserva la semántica y el valor de 0.2.0:
 
 - un timestamp UTC no nulo representa el instante de ejecución conocido y debe respetar las reglas temporales aplicables;
-- null representa que el instante histórico de evaluación no está disponible en la fuente;
+- en claim_assessments, null representa que el instante histórico de evaluación no está disponible en la fuente;
+- factor_assessments mantiene su timestamp UTC histórico y no se transforma en null;
 - omitir la propiedad es inválido;
 - el instante de migración se registra exclusivamente en migration_records.executed_at.
 
