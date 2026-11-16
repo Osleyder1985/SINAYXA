@@ -67,6 +67,12 @@ def migrate_package(
     source_snapshot_ref: str,
     target_snapshot_ref: str,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
+    if not isinstance(source, dict):
+        raise MigrationRejected("source package root must be a JSON object")
+    if not isinstance(mappings, dict):
+        raise MigrationRejected("mapping file root must be a JSON object")
+    if set(mappings) != {"actor_roles", "reasons"}:
+        raise MigrationRejected("mapping file must contain exactly actor_roles and reasons objects")
     if source.get("contract_version") != "0.2.1":
         raise MigrationRejected("only contract_version 0.2.1 is supported; 0.2.0 must use its own reviewed migration path")
     validate_schema(source, SOURCE_SCHEMA, "source 0.2.1")
@@ -84,6 +90,12 @@ def migrate_package(
         raise MigrationRejected("actor_roles mapping must contain only string-to-string entries")
     if not all(isinstance(key, str) and isinstance(value, str) for key, value in reason_map.items()):
         raise MigrationRejected("reasons mapping must contain only string-to-string entries")
+    historical_roles = {event["actor_role"] for event in source.get("audit_events", [])}
+    historical_reasons = {event["reason"] for event in source.get("audit_events", [])}
+    if set(role_map) != historical_roles:
+        raise MigrationRejected("actor_roles mapping keys must exactly match the historical actor_role values")
+    if set(reason_map) != historical_reasons:
+        raise MigrationRejected("reasons mapping keys must exactly match the historical reason values")
 
     output = copy.deepcopy(source)
     losses: list[str] = []
@@ -219,6 +231,8 @@ def main() -> int:
         parser.error("input, mapping, output and manifest must be four distinct paths")
     if args.output.exists():
         parser.error("output already exists; choose a new target path so a previous result cannot be mistaken for this run")
+    if args.manifest.exists():
+        parser.error("manifest already exists; choose a new path so prior evidence cannot be overwritten")
     try:
         source = load_json(args.input)
         mappings = load_json(args.mapping)
