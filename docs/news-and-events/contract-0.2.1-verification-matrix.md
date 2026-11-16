@@ -360,7 +360,6 @@ Los dos quality gates terminaron SUCCESS para el HEAD de código indicado:
 
 **Estado global:** las cinco áreas A–E permanecen ABIERTAS. PR #85 sigue OPEN / NOT MERGED; Issue #78 sigue abierto y la propuesta no está aprobada. La ejecución de CI no sustituye la decisión expresa del propietario.
 
-
 ### Extensión COR-04 — unicidad de vínculos por evidencia y alcance (pendiente de CI)
 
 En el HEAD actual de trabajo `066b4c566ec8daa1f25191a7a60e7f91759bf6a4` se incorporó una regla adicional en `_validate_scoped_claim_evidence`: cada evidencia referenciada debe tener exactamente un vínculo para el rol y el alcance evaluados. La igualdad de conjuntos por sí sola no bastaba, porque podía aceptar dos filas de vínculo para el mismo `evidence_id`.
