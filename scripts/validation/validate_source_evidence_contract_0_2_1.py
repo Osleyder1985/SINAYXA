@@ -17,6 +17,7 @@ from contract_0_2_1_extensions import (
     validate_independence,
     validate_migration,
     validate_retention_scope,
+    validate_backup_expiration_policy,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -537,6 +538,7 @@ def validate_package(
     require(len(event_ids) == len(set(event_ids)), "duplicate audit_event_id")
     copies_by_retention = {key: [] for key in retention_by_id}
     for copy_record in package["retention_copy_records"]:
+        validate_backup_expiration_policy(copy_record)
         retention_id = copy_record["retention_id"]
         require(retention_id in retention_by_id, "copy record references unknown retention_id")
         require(copy_record["subject_ref"] == retention_by_id[retention_id]["subject_ref"],
