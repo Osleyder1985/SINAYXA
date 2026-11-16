@@ -1538,5 +1538,28 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_package(package)
 
+
+    def test_021_audit_events_reject_reidentifying_metadata(self):
+        forbidden_values = (
+            "Se consultó https://private.example.invalid/source/123",
+            "Digest observado: " + "a" * 64,
+            "Contacto: analyst@example.invalid",
+            "Origen remoto: 192.0.2.45",
+        )
+        for value in forbidden_values:
+            schema, package = self.load_contract_021_fixture()
+            package["audit_events"][0]["reason"] = value
+            with self.subTest(value=value):
+                self.assert_schema_valid(schema, package)
+                with self.assertRaises(ContractViolation):
+                    validate_package(package)
+
+    def test_021_audit_actor_role_rejects_personal_contact_metadata(self):
+        schema, package = self.load_contract_021_fixture()
+        package["audit_events"][0]["actor_role"] = "operator@example.invalid"
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
