@@ -15,7 +15,7 @@ class Contract022MigrationTests(unittest.TestCase):
             (ROOT / "tests/fixtures/contracts/source-evidence-contract-v0.2.1.json").read_text(encoding="utf-8")
         )
         cls.mappings = {
-            "actor_roles": {"SYNTHETIC_TEST": "SYNTHETIC_TEST"},
+            "actor_roles": {"SYNTHETIC_TEST": "SYSTEM"},
             "reasons": {
                 "Creación de fixture sintético de conformidad.": "RECORD_CREATED",
                 "Registro sintético de referencia sin conservar contenido.": "REFERENCE_ONLY_SELECTED",
