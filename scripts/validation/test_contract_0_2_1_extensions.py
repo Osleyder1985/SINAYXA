@@ -6,7 +6,7 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
 
-from validate_source_evidence_contract_0_2_1 import validate_package
+from validate_source_evidence_contract_0_2_1 import _available_at, validate_package
 from migrate_source_evidence_contract_0_2_0_to_0_2_1 import migrate_package
 
 from contract_0_2_1_extensions import (
@@ -1268,10 +1268,14 @@ class Contract021ExtensionTests(unittest.TestCase):
 
     def test_021_source_stated_timestamp_does_not_prove_historical_availability(self):
         schema, package = self.load_contract_021_fixture()
-        package["evidence_availability"][0]["availability_basis"] = "SOURCE_STATED"
+        availability = package["evidence_availability"][0]
+        availability["availability_basis"] = "SOURCE_STATED"
+        availability["available_at"] = None
         self.assert_schema_valid(schema, package)
+        unit = next(item for item in package["evaluation_units"]
+                    if item["assessment_unit_id"] == availability["assessment_unit_id"])
         with self.assertRaises(ContractViolation):
-            validate_package(package)
+            _available_at(package, availability["evidence_id"], unit)
 
     def test_021_archived_evidence_cannot_be_rebound_to_another_source_version(self):
         schema, package = self.load_contract_021_fixture()
