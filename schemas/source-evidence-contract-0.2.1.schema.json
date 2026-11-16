@@ -1406,7 +1406,8 @@
         "claim_component_version_id",
         "reviewed_at",
         "rationale",
-        "corroboration_basis"
+        "corroboration_basis",
+        "assessed_at"
       ],
       "properties": {
         "claim_assessment_id": {
@@ -1512,6 +1513,9 @@
             "AMBAS",
             "NO_APLICA"
           ]
+        },
+        "assessed_at": {
+          "$ref": "#/$defs/utc"
         }
       },
       "allOf": [
