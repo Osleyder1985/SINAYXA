@@ -52,11 +52,32 @@ La migración 0.2.1 → 0.2.2 es fail-closed:
 
 La migración no reescribe `methodology_version`, cortes temporales ni evaluaciones históricas.
 
-## 6. Explicaciones excepcionales
+## 6.1. Migración ejecutable
+
+El migrador `scripts/validation/migrate_source_evidence_contract_0_2_1_to_0_2_2.py` requiere un archivo de mapeo explícito con esta forma:
+
+```json
+{
+  "actor_roles": {
+    "SYNTHETIC_TEST": "SYNTHETIC_TEST"
+  },
+  "reasons": {
+    "texto histórico exacto": "RECORD_CREATED"
+  }
+}
+```
+
+Los ejemplos anteriores son ilustrativos: cada motivo debe corresponder exactamente a la acción histórica y a un código vigente. No se usa coincidencia aproximada, traducción, clasificación semántica ni fallback.
+
+La ejecución requiere `--input`, `--mapping`, `--output`, `--manifest`, `--migration-id`, `--executed-at` y `--source-snapshot-ref`. El instante de ejecución y los metadatos de migración se suministran explícitamente para permitir repetición determinista. Los cuatro archivos deben usar rutas distintas y el destino no puede existir previamente. En caso de rechazo se escribe únicamente el manifiesto; el origen no se modifica y no se genera un paquete de destino.
+
+Los SHA-256 del manifiesto usan JSON canónico UTF-8 con claves ordenadas y separadores compactos. `output_sha256` dentro del registro de migración cubre el paquete transformado antes de añadir ese registro (para evitar autorreferencia); `output_file_sha256` del manifiesto cubre el paquete final completo.
+
+## 7. Explicaciones excepcionales
 
 El evento mínimo no contiene texto libre. Si un proceso necesita una explicación humana, debe residir fuera del evento mínimo, bajo un control de acceso y una política de retención separados, con minimización y revisión de privacidad. Esta especificación no define ni autoriza ese repositorio separado.
 
-## 7. Reglas de validación
+## 8. Reglas de validación
 
 1. Rechazar propiedades no declaradas y campos libres heredados.
 2. Validar UUIDv4, unicidad local y consistencia referencial de todos los identificadores dentro del perímetro.
@@ -66,7 +87,7 @@ El evento mínimo no contiene texto libre. Si un proceso necesita una explicaci�
 6. Rechazar IDs duplicados, referencias rotas, códigos retirados/no reconocidos y migraciones con pérdidas no autorizadas.
 7. Preservar sin cambios los esquemas y fixtures históricos 0.2.0/0.2.1.
 
-## 8. Riesgos residuales
+## 9. Riesgos residuales
 
 - UUIDv4 válido no demuestra por sí solo generación criptográficamente segura.
 - Los tokens pueden permitir correlación entre registros que compartan el mismo valor.
@@ -74,7 +95,7 @@ El evento mínimo no contiene texto libre. Si un proceso necesita una explicaci�
 - Los catálogos controlados reducen el canal de texto libre, pero no garantizan anonimización.
 - Las pruebas sintéticas no demuestran eliminación física, inmutabilidad WORM ni reconciliación de backups externos.
 
-## 9. Criterios para aceptar la implementación
+## 10. Criterios para aceptar la implementación
 
 - JSON Schema 0.2.2 separado y válido Draft 2020-12.
 - Migrador 0.2.1 → 0.2.2 con parámetros explícitos, manifiesto SHA-256 y rechazo fail-closed.
