@@ -25,8 +25,17 @@ def validate_independence(units: list[dict[str, Any]], paths: list[dict[str, Any
     source_ids = {unit["source_id"] for unit in units}
     _require(len(source_ids) >= 2, "multiple versions of one source are not independent")
     versions = {unit["source_version_id"] for unit in units}
+    _require(all(unit.get("assessment_cutoff") == cutoff for unit in units),
+             "all evaluated units must share the exact independence cutoff")
     _require(len(paths) == len(units), "every evaluated source version needs exactly one direct path")
     path_versions = [path["source_version_id"] for path in paths]
+    unit_by_version = {unit["source_version_id"]: unit for unit in units}
+    for path in paths:
+        unit = unit_by_version.get(path["source_version_id"])
+        _require(unit is not None and path.get("source_id") == unit["source_id"],
+                 "provenance path must map to the exact evaluated source identity")
+        _require(path.get("evidence_source_version_id") == path["source_version_id"],
+                 "path evidence must originate from the exact evaluated source version")
     _require(set(path_versions) == versions and len(path_versions) == len(set(path_versions)),
              "paths must cover every evaluated source version exactly once")
     component_versions = {unit["claim_component_version_id"] for unit in units}
