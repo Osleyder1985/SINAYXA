@@ -59,7 +59,7 @@ try {
     try {
         ConvertTo-Json -InputObject $identityHistory -Depth 100 | Set-Content -LiteralPath $identityHistoryFile -Encoding utf8
         $identityHistoryOutput = (& $validator -FixturePath $identityHistoryFile | Out-String)
-        if ($identityHistoryOutput -notlike '*Result*PASS*') { throw "A source identity reassessment at a distinct historical cutoff must validate: $identityHistoryOutput" }
+        if ($identityHistoryOutput -notmatch '(?m)^Result\s*:\s*PASS\s*$') { throw 'A source identity may be reassessed at a distinct historical cutoff without being treated as a duplicate.' }
     }
     finally { if (Test-Path -LiteralPath $identityHistoryFile) { Remove-Item -LiteralPath $identityHistoryFile -Force } }
 
