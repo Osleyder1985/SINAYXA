@@ -139,18 +139,35 @@ def append_temporal_assertion(
     """Append the next temporal assertion version; prior versions are never replaced."""
     with connection.transaction():
         event_row = connection.execute(
-            "SELECT event_payload FROM sinayxa.events WHERE event_id = %s",
+            "SELECT event_payload, inserted_at FROM sinayxa.events WHERE event_id = %s",
             (assertion["event_id"],),
         ).fetchone()
         if event_row is None:
             raise EventRegistryError(f"unknown event_id: {assertion['event_id']}")
 
         event = dict(event_row[0])
+        assertion_recorded_at = _utc(assertion["recorded_at"])
+        if assertion_recorded_at < event_row[1]:
+            raise EventRegistryError("temporal assertion cannot be recorded before the event entered the registry")
         source_rows = connection.execute(
-            "SELECT source_ref FROM sinayxa.event_sources WHERE event_id = %s ORDER BY source_ref",
+            """
+            SELECT source_ref, recorded_at
+            FROM sinayxa.event_sources
+            WHERE event_id = %s
+            ORDER BY source_ref
+            """,
             (assertion["event_id"],),
         ).fetchall()
         event["source_refs"] = [row[0] for row in source_rows]
+        if assertion["source_ref"] is not None:
+            source_recorded_at = next(
+                (row[1] for row in source_rows if row[0] == assertion["source_ref"]),
+                None,
+            )
+            if source_recorded_at is None:
+                raise EventRegistryError("assertion source_ref is not registered on the event")
+            if source_recorded_at > assertion_recorded_at:
+                raise EventRegistryError("assertion cannot reference a source registered after its recorded_at")
 
         previous_rows = connection.execute(
             """
