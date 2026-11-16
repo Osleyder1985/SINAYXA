@@ -1637,6 +1637,36 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_package(package)
 
+    def test_021_contradiction_rejects_duplicate_component_evidence_links(self):
+        for duplicate_index in (0, 1):
+            schema, package = self.load_contract_021_fixture()
+            package["evidence_items"][1]["authenticity_status"] = "AUTENTICADA"
+            unit = next(item for item in package["evaluation_units"]
+                        if item["assessment_unit_id"] == "unit-b-entity")
+            unit.update({
+                "source_type": "PRIMARIA",
+                "source_subtype": "REGISTRO_ORIGINAL",
+                "knowledge_basis": "OBSERVACIÓN_DIRECTA",
+            })
+            package["claim_evidence_links"][1].update({
+                "evidence_role": "CONTRARY",
+                "scope_note": "Fragmento contrario diferenciado.",
+                "limitations": ["Caso sintético; revisión humana requerida."],
+            })
+            assessment = package["claim_assessments"][0]
+            assessment.update({
+                "evidentiary_status": "CONTRADICHA",
+                "supporting_evidence_refs": ["evidence-a"],
+                "contrary_evidence_refs": ["evidence-b"],
+                "human_review_status": "REVIEWED",
+                "reviewed_at": "2026-11-15T22:00:00Z",
+            })
+            package["claim_evidence_links"].append(copy.deepcopy(package["claim_evidence_links"][duplicate_index]))
+            with self.subTest(duplicate_role=package["claim_evidence_links"][duplicate_index]["evidence_role"]):
+                self.assert_schema_valid(schema, package)
+                with self.assertRaises(ContractViolation):
+                    validate_package(package)
+
     def test_021_contradicted_assessment_requires_exact_scoped_contrary_evidence(self):
         schema, package = self.load_contract_021_fixture()
         package["evidence_items"][1]["authenticity_status"] = "AUTENTICADA"
