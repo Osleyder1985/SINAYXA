@@ -161,14 +161,14 @@ contract_version y methodology_version son dimensiones independientes. Una migra
 
 ### Evidencia integrada en CI
 
-- HEAD verificado para esta ejecución: `0b2f8863641436ff24d9653666d3c298e3b7a78e` (PowerShell y Security/dependency quality gates SUCCESS sobre el mismo SHA).
-- PowerShell quality gate: [run #599](https://github.com/Osleyder1985/SINAYXA/actions/runs/43793708363) — SUCCESS; PowerShell 7.6.6, 11 archivos parseados, 0 errores, PSScriptAnalyzer 1.24.0 con 0 findings.
-- Security and dependency quality gate: [run #528](https://github.com/Osleyder1985/SINAYXA/actions/runs/43793708592) — SUCCESS; npm audit, Gitleaks y OSV PR SUCCESS; OSV full SKIPPED.
-- Suite semántica correctiva 0.2.1: 98 tests — PASS sobre el HEAD `0b2f8863641436ff24d9653666d3c298e3b7a78e`.
+- HEAD verificado para esta ejecución: `37c120039f600cee3d0e4394050c49fcf0f69b78` (PowerShell y Security/dependency quality gates SUCCESS sobre el mismo SHA).
+- PowerShell quality gate: [run 43794092783](https://github.com/Osleyder1985/SINAYXA/actions/runs/43794092783) — SUCCESS; PowerShell 7.6.6, 11 archivos parseados, 0 errores, PSScriptAnalyzer 1.24.0 con 0 findings.
+- Security and dependency quality gate: [run 43794093088](https://github.com/Osleyder1985/SINAYXA/actions/runs/43794093088) — SUCCESS; npm audit, Gitleaks y OSV PR SUCCESS; OSV full SKIPPED.
+- Suite semántica correctiva 0.2.1: 100 tests — PASS sobre el HEAD `37c120039f600cee3d0e4394050c49fcf0f69b78`.
 - JSON Schema Draft 2020-12: PASS.
 - Fixture 0.2.1 y validador semántico: PASS.
 - Auditoría npm, Gitleaks y OSV PR: SUCCESS. Los pasos SKIPPED no se contabilizan como PASS.
-- Artefacto de evidencia PowerShell: [powershell-validation-evidence-43793708363](https://api.github.com/repos/Osleyder1985/SINAYXA/actions/artifacts/14193616322).
+- Artefacto de evidencia PowerShell: [powershell-validation-evidence-43794092783](https://github.com/Osleyder1985/SINAYXA/actions/runs/43794092783).
 
 ### Trazabilidad actual por área
 
@@ -214,7 +214,7 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | RET-05 | `test_021_package_accepts_deletion_after_every_copy_and_replica_is_verified` | Positivo cubierto |
 | RET-06 | `test_021_deleted_scope_rejects_uninventoried_replica` | Inventario incompleto rechazado |
 | RET-07 | `test_021_package_rejects_new_assessment_after_delete_pending` | Rechazo cubierto |
-| RET-08 | `test_deleted_copy_cannot_be_restored_to_present` | Rechazo de transición terminal directa cubierto; restauración/reconciliación de backup sigue abierta |
+| RET-08 | `test_deleted_copy_cannot_be_restored_to_present`; `test_retention_deleted_scope_rejects_restored_backup_copy`; `test_restored_backup_starts_new_delete_pending_cycle_before_exposure`; `test_restored_backup_rejects_assessment_after_reconciliation_pending` | Rechaza reabrir el mismo ciclo terminal; una copia restaurada inicia nuevo ciclo DELETE_PENDING y las evaluaciones posteriores se rechazan. Cobertura sintética; reconciliación efectiva con proveedor y control de exposición siguen sin demostración |
 | RET-09 | `test_021_audit_subject_reference_must_resolve_to_internal_object`; `test_021_audit_events_reject_reidentifying_metadata`; `test_021_audit_actor_role_rejects_personal_contact_metadata` | Se rechazan referencias no internas y URL, digest, email o IP en reason/actor_role; no demuestra ausencia absoluta de reidentificación ni cubre todos los datos personales posibles; CI PASS en run 43792511757 sobre HEAD `8dbb223` |
 | ARC-01 | `test_archive_capture_verified_for_cutoff_passes_without_authenticating_content`; `test_021_archive_attestation_is_required_and_does_not_authenticate_content`; `test_021_archive_attestation_cannot_be_reused_for_another_evidence_item`; `test_021_archive_attestation_cannot_claim_another_source_version` | Atestación vinculada a una pieza y versión exactas; CI PASS en run #591 sobre HEAD `56759d2` |
 | ARC-02/05 | `test_archive_timestamp_without_capture_proof_is_rejected`; `test_021_orphan_archive_attestation_is_rejected` | Falta de prueba de captura rechazada |
@@ -254,7 +254,7 @@ Los commits `32d5fb8`, `0acb99c`, `7787b80` y `770de14` añaden controles para:
 - Relación `CITA_DE` representada como dependencia, nunca como origen independiente.
 - Cronología diferenciada entre publicación, primera detección y recuperación, admitiendo detección pre-release y rechazando recuperación anterior a detección.
 
-El último HEAD con ambos quality gates verificados es `0b2f8863641436ff24d9653666d3c298e3b7a78e` (98 tests PASS). Las áreas A–E siguen ABIERTAS; la cobertura añadida no equivale a cierre mientras existan escenarios, positivos, negativos, fronterizos o trazabilidad pendientes.
+El último HEAD con ambos quality gates verificados es `37c120039f600cee3d0e4394050c49fcf0f69b78` (100 tests PASS). Las áreas A–E siguen ABIERTAS; la cobertura añadida no equivale a cierre mientras existan escenarios, positivos, negativos, fronterizos o trazabilidad pendientes.
 
 ### Controles adicionales de privacidad de auditoría — verificados en CI sobre `8dbb223`
 
