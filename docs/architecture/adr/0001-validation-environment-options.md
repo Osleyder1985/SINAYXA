@@ -256,11 +256,12 @@ El laboratorio utilizará exclusivamente versiones **estables de disponibilidad 
 | Docker Engine | **29.9.3** (2026-11-03) como versión estable documentada más reciente en esta revisión | Confirmar actualización estable más reciente antes del ensayo y registrar versión de Engine, CLI, Compose y plataforma. |
 
 Fuentes oficiales de referencia:
-- PostgreSQL: https://www.postgresql.org/about/newsarchive/pgsql/ y https://www.postgresql.org/
-- Docker Engine: https://docs.docker.com/engine/release-notes/29/
-- AIStor latest stable image: https://docs.min.io/aistor/installation/container/install/
-- AIStor release metadata/API y artefactos: https://docs.min.io/aistor/operations/release-artifacts/ y https://dl.min.io/api/releases/aistor/latest
-- AIStor container deployment for development/testing: https://docs.min.io/aistor/installation/container/
+
+- PostgreSQL: [archivo de noticias](https://www.postgresql.org/about/newsarchive/pgsql/) y [sitio oficial](https://www.postgresql.org/).
+- Docker Engine: [notas de versión 29](https://docs.docker.com/engine/release-notes/29/).
+- AIStor latest stable image: [instalación en contenedor](https://docs.min.io/aistor/installation/container/install/).
+- AIStor release metadata/API y artefactos: [documentación de artefactos](https://docs.min.io/aistor/operations/release-artifacts/) y [API oficial de releases](https://dl.min.io/api/releases/aistor/latest).
+- AIStor container deployment for development/testing: [despliegue en contenedor](https://docs.min.io/aistor/installation/container/).
 
 ### Reglas de reproducibilidad y seguridad
 
