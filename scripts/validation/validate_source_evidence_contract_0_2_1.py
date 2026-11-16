@@ -359,8 +359,11 @@ def validate_package(
     _validate_independence_assessments(package)
     _validate_corroborated_claims(package)
     for assessment in package["claim_assessments"]:
-        require(assessment["assessed_at"] >= assessment["assessment_cutoff"],
-                "claim assessment execution cannot predate its evidence cutoff")
+        # Historical migrated records may have no recoverable execution time.
+        # Preserve null; never substitute migration time or assessment cutoff.
+        if assessment["assessed_at"] is not None:
+            require(assessment["assessed_at"] >= assessment["assessment_cutoff"],
+                    "claim assessment execution cannot predate its evidence cutoff")
 
     retention_by_id = _index(package["retention_records"], "retention_id", "retention_id")
     disposition_actions = {
