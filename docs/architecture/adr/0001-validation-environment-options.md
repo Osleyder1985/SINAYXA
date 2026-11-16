@@ -216,6 +216,7 @@ Esta comparación reduce la indeterminación tecnológica sin seleccionar provee
 No se asignan pesos ni puntuaciones: los criterios críticos de coste, jurisdicción, disponibilidad en el entorno objetivo y recuperación operacional siguen NOT_ASSESSED. No se recomienda desplegar ni crear cuenta/recursos a partir de esta comparación.
 
 Fuentes oficiales actualizadas:
+
 - [PostgreSQL 16 — Backup and Restore](https://www.postgresql.org/docs/16/backup.html)
 - [PostgreSQL 16 — pg_dump](https://www.postgresql.org/docs/16/app-pgdump.html)
 - [AWS — S3 Object Lock](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html)
