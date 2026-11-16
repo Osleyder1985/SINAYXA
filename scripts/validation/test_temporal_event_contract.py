@@ -66,6 +66,9 @@ class TemporalContractTests(unittest.TestCase):
     def test_duplicate_assertion_id_rejected(self):
         self.assert_invalid(lambda p: p["temporal_assertions"][1].update(temporal_assertion_id="ta-event-1-v1"), "duplicate")
 
+    def test_assertion_rejects_unknown_event(self):
+        self.assert_invalid(lambda p: p["temporal_assertions"][0].update(event_id="missing-event"), "unknown event reference")
+
     def test_conflict_rejects_unknown_assertion(self):
         self.assert_invalid(lambda p: p["temporal_conflicts"][0]["assertion_refs"].append("missing"), "unknown temporal assertion")
 
