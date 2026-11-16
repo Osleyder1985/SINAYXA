@@ -89,6 +89,12 @@ class Contract022MigrationTests(unittest.TestCase):
         with self.assertRaisesRegex(MigrationRejected, "not permitted"):
             self._migrate(self._uuid_compatible_source(), mappings)
 
+    def test_non_string_mapping_values_are_rejected(self):
+        mappings = copy.deepcopy(self.mappings)
+        mappings["actor_roles"]["SYNTHETIC_TEST"] = ["SYNTHETIC_TEST"]
+        with self.assertRaisesRegex(MigrationRejected, "string-to-string"):
+            self._migrate(self._uuid_compatible_source(), mappings)
+
     def test_migration_is_deterministic_for_identical_inputs_and_parameters(self):
         source = self._uuid_compatible_source()
         first, first_manifest = self._migrate(source)
