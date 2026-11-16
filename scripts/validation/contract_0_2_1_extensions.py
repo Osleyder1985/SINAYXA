@@ -61,8 +61,10 @@ def validate_corroboration(
     if non_primary:
         _require(basis in {"CORROBORACION_INDEPENDIENTE", "AMBAS"},
                  "non-primary support requires an independent-corroboration basis")
-        _require(len({u["source_id"] for u in supporting_units}) >= 2,
-                 "independent corroboration requires distinct source identities")
+    if basis in {"CORROBORACION_INDEPENDIENTE", "AMBAS"}:
+        _require(len(supporting_units) >= 2
+                 and len({u["source_id"] for u in supporting_units}) >= 2,
+                 "independent corroboration requires at least two distinct source identities")
         _require(all(u["assessment_unit_id"] in reviewed_independent_unit_ids for u in supporting_units),
                  "every supporting unit must be covered by reviewed independence")
     if basis in {"EVIDENCIA_PRIMARIA_DIRECTA", "AMBAS"}:
