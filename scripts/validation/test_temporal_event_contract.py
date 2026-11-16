@@ -127,6 +127,15 @@ class TemporalContractTests(unittest.TestCase):
         self.package["temporal_assessments"][0]["event_id"] = "missing-event"
         self.assert_invalid(lambda p: None, "unknown event reference")
 
+    def test_assessment_rejects_incorrect_derived_state(self):
+        self.package["temporal_assessments"][0]["derived_temporal_state"] = "PAST"
+        self.assert_invalid(lambda p: None, "derived temporal state must be FUTURE")
+
+    def test_assessment_unknown_assertion_forces_undetermined_state(self):
+        self.package["temporal_assessments"][0]["assertion_refs"] = ["ta-event-2-v1"]
+        self.package["temporal_assessments"][0]["derived_temporal_state"] = "FUTURE"
+        self.assert_invalid(lambda p: None, "derived temporal state must be UNDETERMINED")
+
     def test_assessment_rejects_unknown_reference(self):
         self.assert_invalid(lambda p: p["temporal_assessments"][0]["assertion_refs"].append("missing"), "unknown assertion reference")
 
