@@ -33,17 +33,20 @@ La separación lógica no obliga a elegir ahora dos productos concretos. Sí per
 ### A. Laboratorio local/autogestionado
 
 **Composición candidata (no seleccionada):**
+
 - PostgreSQL local para registros estructurados.
 - Servicio de objetos S3-compatible autogestionado para objetos de prueba, si la implementación concreta demuestra versionado y Object Lock.
 - Volúmenes y backups separados para simular primario, réplica, exportación y backup.
 
 **Qué permite probar:**
+
 - Migraciones repetibles y comparación de invariantes.
 - Exportación/restauración de PostgreSQL mediante herramientas nativas.
 - Flujos de eliminación de filas, objetos y copias bajo control del laboratorio.
 - Pruebas de API de retención y versionado con objetos sintéticos.
 
 **Qué NO demuestra por sí solo:**
+
 - Que un operador con control del host no pueda alterar almacenamiento subyacente.
 - Independencia física entre primario y backup si comparten host/disco.
 - WORM resistente al administrador del proveedor o al operador de infraestructura.
@@ -54,17 +57,20 @@ La separación lógica no obliga a elegir ahora dos productos concretos. Sí per
 ### B. Servicios administrados
 
 **Composición candidata (no seleccionada):**
+
 - PostgreSQL administrado, con exportación lógica verificable.
 - Almacenamiento de objetos administrado con versionado y retención WORM por versión (por ejemplo, S3 Object Lock como referencia de capacidad).
 - Exportación de evidencias de configuración, permisos, versión de objeto y fechas de retención.
 
 **Qué permite probar:**
+
 - Controles de retención del servicio y permisos específicos.
 - Consultas de metadatos de retención por versión de objeto.
 - Separación de responsabilidades entre aplicación y plano de almacenamiento, en la medida documentada por el proveedor.
 - Pruebas de exportación y restauración contra un servicio real, cuando exista autorización.
 
 **Qué NO demuestra por sí solo:**
+
 - Que se hayan cubierto todas las copias, cachés, exportaciones y backups.
 - Que un delete lógico equivalga a eliminación física inmediata.
 - Que un objeto bloqueado pueda borrarse antes de expirar la retención.
