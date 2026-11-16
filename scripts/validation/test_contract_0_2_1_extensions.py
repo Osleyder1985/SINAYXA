@@ -1568,5 +1568,66 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_package(package)
 
+
+    def test_backup_copy_requires_policy_reference_and_scheduled_expiration(self):
+        valid_backup = {
+            "copy_kind": "BACKUP",
+            "backup_expiration_policy_ref": "backup-policy-2026-01",
+            "scheduled_disposition_at": "2026-12-01T00:00:00Z",
+            "state": "PRESENT",
+            "verified_at": None,
+            "verification_reference": None,
+        }
+        validate_backup_expiration_policy(valid_backup)
+        for field, value in (
+            ("backup_expiration_policy_ref", None),
+            ("scheduled_disposition_at", None),
+        ):
+            invalid = copy.deepcopy(valid_backup)
+            invalid[field] = value
+            with self.subTest(field=field):
+                with self.assertRaises(ContractViolation):
+                    validate_backup_expiration_policy(invalid)
+
+    def test_backup_expiration_schedule_does_not_prove_deletion(self):
+        backup = {
+            "copy_id": "backup-copy",
+            "retention_id": "retention-a",
+            "subject_ref": "evidence-a",
+            "copy_kind": "BACKUP",
+            "parent_copy_id": None,
+            "state": "PRESENT",
+            "recorded_at": "2026-11-16T02:00:00Z",
+            "verified_at": None,
+            "verification_reference": None,
+            "scheduled_disposition_at": "2026-11-15T00:00:00Z",
+            "backup_expiration_policy_ref": "backup-policy-2026-01",
+            "previous_state": None,
+            "transition_event_ref": "backup-discovered",
+        }
+        validate_backup_expiration_policy(backup)
+        event = {
+            "audit_event_id": "backup-discovered",
+            "copy_id": "backup-copy",
+            "retention_id": "retention-a",
+            "subject_ref": "evidence-a",
+            "from_copy_state": None,
+            "to_copy_state": "PRESENT",
+            "action": "COPY_DISCOVERED",
+            "reason": "Backup copy discovered after scheduled expiry",
+            "actor_role": "DATA_CUSTODIAN",
+            "occurred_at": "2026-11-16T02:00:00Z",
+        }
+        with self.assertRaises(ContractViolation):
+            validate_retention_scope("DELETED", [backup], [event])
+
+    def test_non_backup_copy_rejects_backup_expiration_policy_reference(self):
+        with self.assertRaises(ContractViolation):
+            validate_backup_expiration_policy({
+                "copy_kind": "PRIMARY",
+                "backup_expiration_policy_ref": "backup-policy-2026-01",
+                "scheduled_disposition_at": None,
+            })
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
