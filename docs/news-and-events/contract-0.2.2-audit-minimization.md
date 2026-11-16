@@ -26,9 +26,9 @@ Se prohíben `actor_role`, `reason`, propiedades adicionales y cualquier explica
 
 ## 3. Perímetro de identificadores opacos
 
-La forma sintáctica será UUIDv4 canónico en minúsculas, con bits de versión y variante RFC correspondientes. La generación debe usar un generador criptográficamente seguro; queda prohibido derivar el UUID de nombres, emails, direcciones, IDs externos, hashes de contenido o secuencias predecibles.
+La forma sintáctica será UUIDv4 canónico en minúsculas, con bits de versión y variante RFC correspondientes. La generación debe usar un generador criptográficamente seguro; queda prohibido derivar el UUID de nombres, emails, direcciones, IDs externos, hashes de contenido o secuencias predecibles. La implementación de referencia es `scripts/validation/opaque_identifier.py`, que obtiene 16 bytes mediante `secrets.token_bytes` y establece los bits de versión/variante UUIDv4. La suite CI verifica formato, bits, longitud de la fuente aleatoria y unicidad de una muestra de 10 000 valores.
 
-El validador puede comprobar formato y unicidad dentro del paquete, pero no puede demostrar matemáticamente que un valor se generó con entropía suficiente. La garantía de generación depende del generador controlado y de su evidencia operativa. La documentación no describirá el patrón UUID como prueba de anonimización.
+El validador puede comprobar formato y unicidad dentro del paquete, pero no puede demostrar matemáticamente que un valor se generó con entropía suficiente. El generador de referencia debe utilizarse en la futura capa emisora de eventos; la validación de un UUID recibido externamente no acredita que esa capa lo haya generado ni que la procedencia esté registrada. La garantía de generación depende del generador controlado y de su evidencia operativa. La documentación no describirá el patrón UUID como prueba de anonimización.
 
 El token de sujeto se utiliza para correlación interna entre los registros de retención, copias y auditoría. No debe codificar ni derivarse de la identidad externa. Los IDs de dominio preexistentes no se convertirán silenciosamente en tokens.
 
