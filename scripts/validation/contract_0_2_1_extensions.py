@@ -54,6 +54,23 @@ def validate_independence(units: list[dict[str, Any]], paths: list[dict[str, Any
              "origin must be terminal; unresolved shared intermediaries are insufficient")
 
 
+def validate_analytic_replication(analyses: list[dict[str, Any]], cutoff: str) -> None:
+    """Represent distinct analytical processes over common data without asserting source independence."""
+    _require(len(analyses) >= 2, "analytic replication requires at least two analysis records")
+    process_ids = {item["process_id"] for item in analyses}
+    _require(len(process_ids) >= 2, "replication requires distinct analytical processes")
+    dataset_ids = {item["dataset_origin_id"] for item in analyses}
+    _require(len(dataset_ids) == 1, "this replication scenario must identify the common dataset origin")
+    component_versions = {item["claim_component_version_id"] for item in analyses}
+    _require(len(component_versions) == 1, "replication records must target the same component version")
+    _require(all(item.get("method_reference") and item.get("output_evidence_ref") for item in analyses),
+             "each analytical process requires method and output evidence references")
+    _require(all(item.get("available_at", "") <= cutoff for item in analyses),
+             "analytical output evidence must be available at the assessment cutoff")
+    _require(all(item.get("assessment_cutoff") == cutoff for item in analyses),
+             "replication records must share the exact assessment cutoff")
+
+
 def validate_corroboration(
     status: str,
     basis: str,
