@@ -298,7 +298,6 @@ Verificación añadida sobre el HEAD `090bb4b3a646ec73526aed7f197981696eab9fa0`:
 
 **Límite:** los fixtures prueban la semántica del contrato; no demuestran que un proveedor haya ejecutado la expiración ni que todas las copias físicas hayan sido eliminadas. RET-04 conserva brecha operativa y el Área C permanece ABIERTA. Este resultado no cierra ninguna de las cinco áreas.
 
-
 ### Verificación consolidada posterior a RET-04 — HEAD `d257c8d79442f7e4cbad97298a944856561b0300`
 
 Los dos quality gates finalizaron SUCCESS sobre el mismo HEAD:
