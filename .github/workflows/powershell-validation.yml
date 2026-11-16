@@ -29,6 +29,7 @@ on:
       - "tests/fixtures/contracts/source-evidence-contract-v0.2.0.json"
       - "scripts/validation/validate_source_evidence_contract_schema.py"
       - "scripts/validation/contract_0_2_1_extensions.py"
+      - "scripts/validation/migrate_source_evidence_contract_0_2_0_to_0_2_1.py"
       - "scripts/validation/test_contract_0_2_1_extensions.py"
       - "schemas/source-evidence-contract-0.2.1.schema.json"
       - "tests/fixtures/contracts/source-evidence-contract-v0.2.1.json"
