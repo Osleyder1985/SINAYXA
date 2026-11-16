@@ -343,7 +343,7 @@ def _contains_long_numeric_identifier(value: str) -> bool:
 
     This is a conservative heuristic, not a complete PII detector or anonymizer.
     """
-    return re.search(r"(?<![A-Za-z0-9])(?:\\+?\\d[\\s().-]*){7,15}(?!\\d)", value) is not None
+    return re.search(r"(?<![A-Za-z0-9])(?:\+?\d[\s().-]*){7,15}(?!\d)", value) is not None
 
 
 def _validate_audit_subject_references(package: dict[str, Any]) -> None:
