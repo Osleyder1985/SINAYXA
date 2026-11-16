@@ -59,6 +59,8 @@ def validate_analytic_replication(analyses: list[dict[str, Any]], cutoff: str) -
     _require(len(analyses) >= 2, "analytic replication requires at least two analysis records")
     process_ids = {item["process_id"] for item in analyses}
     _require(len(process_ids) >= 2, "replication requires distinct analytical processes")
+    output_refs = {item["output_evidence_ref"] for item in analyses}
+    _require(len(output_refs) >= 2, "replication requires distinct output evidence for each process")
     dataset_ids = {item["dataset_origin_id"] for item in analyses}
     _require(len(dataset_ids) == 1, "this replication scenario must identify the common dataset origin")
     component_versions = {item["claim_component_version_id"] for item in analyses}
