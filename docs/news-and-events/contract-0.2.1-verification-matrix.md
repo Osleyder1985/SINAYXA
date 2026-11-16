@@ -170,9 +170,9 @@ contract_version y methodology_version son dimensiones independientes. Una migra
 - HEAD de código verificado para COR-08: `876e63b79939469bc34598857143f6a15d0ba260`.
 - PowerShell quality gate: [run 43803799165](https://github.com/Osleyder1985/SINAYXA/actions/runs/43803799165) — SUCCESS; PowerShell 7.6.6, PSScriptAnalyzer 1.24.0 con 0 findings, JSON Schema Draft 2020-12 válido y suite semántica correctiva: 123 tests, OK.
 - Security and dependency quality gate: [run 43803799526](https://github.com/Osleyder1985/SINAYXA/actions/runs/43803799526) — SUCCESS; Gitleaks, npm audit y OSV PR scan SUCCESS. OSV full quedó SKIPPED y no se contabiliza como PASS.
-- Corrección del import del módulo de pruebas registrada en el mismo HEAD verificado; la ejecución anterior había fallado antes de importar el módulo por secuencias `\\n` literales.
+- La corrección del import del módulo de pruebas se incorporó antes de la ampliación COR-08; la ejecución fallida anterior no se contabiliza como PASS.
 - Pruebas COR-03 de cadena de reevaluaciones incluidas en la suite correctiva:  raíz única; cadena cronológica; predecessor desconocido; corte no posterior; referencia cruzada de componente; bifurcación; retroceso de `assessed_at`.
-- Artefacto de evidencia PowerShell: [run 43803427711](https://github.com/Osleyder1985/SINAYXA/actions/runs/43803427711).
+- Artefacto de evidencia PowerShell correspondiente a COR-08: [run 43803799165](https://github.com/Osleyder1985/SINAYXA/actions/runs/43803799165).
 
 ### Trazabilidad actual por área
 
