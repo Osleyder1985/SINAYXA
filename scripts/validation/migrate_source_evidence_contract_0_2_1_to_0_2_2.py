@@ -80,6 +80,10 @@ def migrate_package(
     reason_map = mappings.get("reasons", {})
     if not isinstance(role_map, dict) or not isinstance(reason_map, dict):
         raise MigrationRejected("mapping file must contain actor_roles and reasons objects")
+    if not all(isinstance(key, str) and isinstance(value, str) for key, value in role_map.items()):
+        raise MigrationRejected("actor_roles mapping must contain only string-to-string entries")
+    if not all(isinstance(key, str) and isinstance(value, str) for key, value in reason_map.items()):
+        raise MigrationRejected("reasons mapping must contain only string-to-string entries")
 
     output = copy.deepcopy(source)
     losses: list[str] = []
@@ -205,6 +209,16 @@ def main() -> int:
     parser.add_argument("--source-snapshot-ref", required=True)
     parser.add_argument("--target-snapshot-ref", default="")
     args = parser.parse_args()
+    resolved_paths = {
+        "input": args.input.resolve(),
+        "mapping": args.mapping.resolve(),
+        "output": args.output.resolve(),
+        "manifest": args.manifest.resolve(),
+    }
+    if len(set(resolved_paths.values())) != len(resolved_paths):
+        parser.error("input, mapping, output and manifest must be four distinct paths")
+    if args.output.exists():
+        parser.error("output already exists; choose a new target path so a previous result cannot be mistaken for this run")
     try:
         source = load_json(args.input)
         mappings = load_json(args.mapping)
