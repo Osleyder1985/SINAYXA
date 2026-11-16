@@ -2018,7 +2018,10 @@
         "integrity_result",
         "capture_record_verified",
         "content_authenticity",
-        "content_truth"
+        "content_truth",
+        "verification_method",
+        "verified_at",
+        "verified_by_role"
       ],
       "properties": {
         "archive_attestation_id": {
@@ -2061,8 +2064,87 @@
             "UNKNOWN",
             "NOT_ASSESSED"
           ]
+        },
+        "verification_method": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "ARCHIVE_API_RETRIEVAL",
+            "SIGNATURE_OR_DIGEST_CHECK",
+            "INDEPENDENT_RECORD_REVIEW",
+            "OTHER",
+            null
+          ]
+        },
+        "verified_at": {
+          "$ref": "#/$defs/optionalUtc"
+        },
+        "verified_by_role": {
+          "type": [
+            "string",
+            "null"
+          ]
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "capture_record_verified": {
+                "const": true
+              }
+            },
+            "required": [
+              "capture_record_verified"
+            ]
+          },
+          "then": {
+            "properties": {
+              "verification_method": {
+                "enum": [
+                  "ARCHIVE_API_RETRIEVAL",
+                  "SIGNATURE_OR_DIGEST_CHECK",
+                  "INDEPENDENT_RECORD_REVIEW",
+                  "OTHER"
+                ]
+              },
+              "verified_at": {
+                "$ref": "#/$defs/utc"
+              },
+              "verified_by_role": {
+                "$ref": "#/$defs/nonEmpty"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "capture_record_verified": {
+                "const": false
+              }
+            },
+            "required": [
+              "capture_record_verified"
+            ]
+          },
+          "then": {
+            "properties": {
+              "verification_method": {
+                "type": "null"
+              },
+              "verified_at": {
+                "type": "null"
+              },
+              "verified_by_role": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
     },
     "retentionCopyRecord": {
       "type": "object",
