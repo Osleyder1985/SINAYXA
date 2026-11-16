@@ -186,8 +186,9 @@ SQL
 RESULT_dataset=PASS
 docker exec "$CONTAINER" pg_dump -Fc --no-owner --no-acl -U postgres -d sinayxa_source > "$WORK_DIR/backup.dump"
 test -s "$WORK_DIR/backup.dump"
-BACKUP_SHA256="$(sha256sum "$WORK_DIR/backup.dump" | awk '{print $1}')"
-BACKUP_SIZE="$(stat -c '%s' "$WORK_DIR/backup.dump")"
+BACKUP_HASH_LINE=$(sha256sum "$WORK_DIR/backup.dump")
+BACKUP_SHA256=${BACKUP_HASH_LINE%% *}
+BACKUP_SIZE=$(stat --format=%s "$WORK_DIR/backup.dump")
 RESULT_backup=PASS
 docker exec -i "$CONTAINER" pg_restore --exit-on-error --no-owner --no-acl -U postgres -d sinayxa_restored < "$WORK_DIR/backup.dump"
 RESULT_restore=PASS
