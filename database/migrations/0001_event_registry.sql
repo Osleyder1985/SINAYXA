@@ -27,6 +27,9 @@ CREATE TABLE IF NOT EXISTS sinayxa.event_sources (
     PRIMARY KEY (event_id, source_ref)
 );
 
+ALTER TABLE sinayxa.event_sources
+    ADD COLUMN IF NOT EXISTS recorded_at timestamptz NOT NULL DEFAULT transaction_timestamp();
+
 CREATE TABLE IF NOT EXISTS sinayxa.temporal_assertions (
     temporal_assertion_id varchar(128) PRIMARY KEY,
     event_id varchar(128) NOT NULL,
