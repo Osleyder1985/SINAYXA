@@ -2052,8 +2052,8 @@ class Contract021ExtensionTests(unittest.TestCase):
             "source_type": "PRIMARIA",
             "source_subtype": "REGISTRO_ORIGINAL",
             "knowledge_basis": "OBSERVACIÓN_DIRECTA",
-            "institutional_character": "INSTITUCIONAL",
-            "dissemination": "PUBLICACIÓN_OFICIAL",
+            "institutional_character": "OFICIAL",
+            "dissemination": "ORIGINAL",
         })
         package["evaluation_units"].extend([old_version_unit, corrected_unit])
 
