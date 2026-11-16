@@ -107,6 +107,18 @@ contract_version y methodology_version son independientes. Cambiar la versión d
 
 Una migración con pérdida, referencias rotas, cambios semánticos históricos o hashes inconsistentes debe resultar REJECTED.
 
+### 6.1. Preservación de tiempos de evaluación históricos desconocidos
+
+assessed_at es un dato temporal distinto de assessment_cutoff y recorded_at. En paquetes 0.2.0 no existe un campo de origen equivalente para las evaluaciones históricas. Por tanto, el migrador no puede derivarlo de created_at, recorded_at, assessment_cutoff ni de executed_at.
+
+En 0.2.1, assessed_at permanece como propiedad obligatoria en claim_assessments y factor_assessments, pero admite null:
+- un timestamp UTC no nulo representa el instante de ejecución conocido y debe respetar las reglas temporales aplicables;
+- null representa que el instante histórico de evaluación no está disponible en la fuente;
+- omitir la propiedad es inválido;
+- el instante de migración se registra exclusivamente en migration_records.executed_at.
+
+Esta regla conserva la distinción entre desconocimiento y ausencia accidental del campo. No modifica assessment_cutoff, recorded_at ni la metodología histórica.
+
 ## 7. Criterios de conformidad 0.2.1
 
 - JSON Schema Draft 2020-12 define las colecciones y catálogos cerrados nuevos.
