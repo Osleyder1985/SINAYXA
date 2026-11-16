@@ -2340,7 +2340,9 @@ class Contract021ExtensionTests(unittest.TestCase):
             "source_version_id": "version-a2",
             "version_label": "v2-correction",
             "version_sequence": 2,
-            "published_at": "2026-11-15T23:30:00Z",
+            # The source-stated publication date predates the old cutoff, but
+            # the corrected version was first publicly observed and detected later.
+            "published_at": "2026-11-15T21:30:00Z",
             "first_publicly_observed_at": "2026-11-15T23:30:00Z",
             "first_detected_at": "2026-11-15T23:45:00Z",
             "retrieved_at": "2026-11-15T23:50:00Z",
@@ -2462,6 +2464,12 @@ class Contract021ExtensionTests(unittest.TestCase):
 
         self.assertEqual(package["claim_assessments"][0]["assessment_cutoff"], old_cutoff)
         self.assertEqual(package["evaluation_units"][0]["source_version_id"], "version-a1")
+        # A backdated publication timestamp is not proof that the correction
+        # was observable by the original assessment cutoff.
+        self.assertLess(corrected_version["published_at"], old_cutoff)
+        self.assertGreater(corrected_version["first_publicly_observed_at"], old_cutoff)
+        self.assertGreater(corrected_version["first_detected_at"], old_cutoff)
+        self.assertLessEqual(corrected_version["first_detected_at"], corrected_version["retrieved_at"])
         self.assert_schema_valid(schema, package)
         validate_package(package)
 
