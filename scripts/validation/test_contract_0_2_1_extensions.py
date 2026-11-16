@@ -319,6 +319,29 @@ class Contract021ExtensionTests(unittest.TestCase):
         self.assert_schema_valid(schema, package)
         validate_package(package)
 
+    def test_021_migration_manifest_is_schema_valid_and_lossless(self):
+        schema, package = self.load_contract_021_fixture()
+        package["migration_records"].append({
+            "migration_id": "migration-1", "source_contract_version": "0.2.0",
+            "target_contract_version": "0.2.1", "migrator_version": "1.0.0",
+            "executed_at": "2026-11-15T22:00:00Z", "input_sha256": "a" * 64,
+            "output_sha256": "b" * 64, "rules_applied": ["preserve-history", "add-nullable-attestation-ref"],
+            "result": "PASS", "loss_report": []
+        })
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_successful_migration_cannot_report_data_loss(self):
+        schema, package = self.load_contract_021_fixture()
+        package["migration_records"].append({
+            "migration_id": "migration-2", "source_contract_version": "0.2.0",
+            "target_contract_version": "0.2.1", "migrator_version": "1.0.0",
+            "executed_at": "2026-11-15T22:00:00Z", "input_sha256": "a" * 64,
+            "output_sha256": "b" * 64, "rules_applied": ["preserve-history"],
+            "result": "PASS", "loss_report": ["unknown field discarded"]
+        })
+        self.assert_schema_valid(schema, package)
+
     def test_021_deleted_scope_rejects_uninventoried_replica(self):
         schema, package = self.load_contract_021_fixture()
         record = package["retention_records"][0]
