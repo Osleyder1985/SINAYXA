@@ -31,6 +31,11 @@ on:
       - "scripts/validation/test_alert_fixture.ps1"
       - ".github/workflows/powershell-validation.yml"
       - ".github/workflows/security-quality.yml"
+      - "schemas/temporal-event-contract-1.0.0.schema.json"
+      - "tests/fixtures/contracts/temporal-event-contract-v1.0.0.json"
+      - "scripts/validation/validate_temporal_event_contract.py"
+      - "scripts/validation/test_temporal_event_contract.py"
+      - "requirements-temporal-contract-validation.txt"
   workflow_dispatch:
     inputs:
       target_ref:
@@ -207,6 +212,37 @@ jobs:
           $ErrorActionPreference = 'Stop'
           & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_alert_fixture.ps1'
           if ($LASTEXITCODE -ne 0) { throw 'The Issue #17 alert fixture test harness failed.' }
+
+      - name: Set up Python 3.12 for Issue #2 temporal contract
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: source/requirements-temporal-contract-validation.txt
+
+      - name: Install pinned Issue #2 temporal contract dependencies
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m pip install --requirement requirements-temporal-contract-validation.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Temporal contract dependency installation failed.' }
+
+      - name: Validate Issue #2 temporal contract schema and fixture
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python scripts/validation/validate_temporal_event_contract.py
+          if ($LASTEXITCODE -ne 0) { throw 'Issue #2 temporal contract validation failed.' }
+
+      - name: Run Issue #2 temporal contract positive and negative tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m unittest scripts.validation.test_temporal_event_contract -v
+          if ($LASTEXITCODE -ne 0) { throw 'Issue #2 temporal contract tests failed.' }
 
       - name: Record source and fixture provenance
         shell: pwsh
