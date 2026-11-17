@@ -270,6 +270,21 @@ def _load_event_contract_state(
     )
 
 
+def _apply_latest_conflict_statuses(
+    conflicts: list[dict[str, Any]], decisions: list[dict[str, Any]]
+) -> None:
+    """Project each conflict's current state from its immutable decision history."""
+    decisions_by_conflict: dict[str, list[dict[str, Any]]] = {}
+    for decision in decisions:
+        decisions_by_conflict.setdefault(decision["conflict_id"], []).append(decision)
+    for conflict in conflicts:
+        history = decisions_by_conflict.get(conflict["conflict_id"], [])
+        if history:
+            latest = max(history, key=lambda item: _utc(item["decided_at"]))
+            conflict["status"] = latest["to_status"]
+
+
+
 def create_temporal_conflict(
     connection: psycopg.Connection, conflict: dict[str, Any]
 ) -> dict[str, Any]:
@@ -286,6 +301,7 @@ def create_temporal_conflict(
         recorded_at = connection.execute("SELECT clock_timestamp()").fetchone()[0]
         candidate["recorded_at"] = recorded_at.isoformat(timespec="microseconds").replace("+00:00", "Z")
         event, assertions, conflicts, decisions = _load_event_contract_state(connection, event_id)
+        _apply_latest_conflict_statuses(conflicts, decisions)
         _validate_package([event], assertions, conflicts + [candidate], decisions)
         connection.execute(
             """
@@ -333,15 +349,10 @@ def append_conflict_decision(
         if conflict_row is None:
             raise EventRegistryError(f"unknown conflict_id: {decision['conflict_id']}")
         event, assertions, conflicts, decisions = _load_event_contract_state(connection, event_id)
+        _apply_latest_conflict_statuses(conflicts, decisions)
         current_conflict = next(
             item for item in conflicts if item["conflict_id"] == decision["conflict_id"]
         )
-        prior_decisions = [
-            item for item in decisions if item["conflict_id"] == decision["conflict_id"]
-        ]
-        if prior_decisions:
-            latest = max(prior_decisions, key=lambda item: _utc(item["decided_at"]))
-            current_conflict["status"] = latest["to_status"]
         current_conflict["status"] = decision["to_status"]
         _validate_package([event], assertions, conflicts, decisions + [decision])
         connection.execute(
