@@ -858,6 +858,21 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                     "authorization_ref": "unrelated-authorization",
                 },
             )
+        with self.assertRaises(EventRegistryError):
+            register_evidence_artifact(
+                self.connection,
+                f"evidence-license-mismatch-{uuid4().hex}",
+                b"mismatched license",
+                {
+                    "source_ref": source_ref,
+                    "evidence_type": "EXTRACT",
+                    "media_type": "text/plain",
+                    "extraction_method": "manual",
+                    "extraction_version": "1.0.0",
+                    "license_ref": "DIFFERENT-LICENSE",
+                    "usage_status": "SYNTHETIC",
+                },
+            )
 
         mutations = (
             (
