@@ -750,7 +750,7 @@ def create_reproducibility_manifest(
                 """
                 SELECT source_ref, source_uri, title, publisher, media_type,
                        content_sha256, content_length, content_bytes, published_at,
-                       license_ref, usage_status, authorization_ref, captured_at, metadata
+                       license_ref, usage_status, authorization_ref, captured_at, inserted_at, metadata
                 FROM sinayxa.source_artifacts
                 WHERE source_ref = %s AND inserted_at <= %s
                 """,
@@ -776,7 +776,8 @@ def create_reproducibility_manifest(
                     "usage_status": row[10],
                     "authorization_ref": row[11],
                     "captured_at": row[12].isoformat(timespec="microseconds").replace("+00:00", "Z"),
-                    "metadata": dict(row[13]),
+                    "inserted_at": row[13].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+                    "metadata": dict(row[14]),
                 }
             )
 
@@ -787,7 +788,7 @@ def create_reproducibility_manifest(
                 SELECT evidence_ref, source_ref, evidence_type, media_type,
                        content_sha256, content_length, content_bytes,
                        extraction_method, extraction_version, location_hint,
-                       license_ref, usage_status, authorization_ref, captured_at, metadata
+                       license_ref, usage_status, authorization_ref, captured_at, inserted_at, metadata
                 FROM sinayxa.evidence_artifacts
                 WHERE evidence_ref = %s AND inserted_at <= %s
                 """,
@@ -814,7 +815,8 @@ def create_reproducibility_manifest(
                     "usage_status": row[11],
                     "authorization_ref": row[12],
                     "captured_at": row[13].isoformat(timespec="microseconds").replace("+00:00", "Z"),
-                    "metadata": dict(row[14]),
+                    "inserted_at": row[14].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+                    "metadata": dict(row[15]),
                 }
             )
 
