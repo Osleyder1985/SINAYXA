@@ -36,6 +36,10 @@ on:
       - "scripts/validation/validate_temporal_event_contract.py"
       - "scripts/validation/test_temporal_event_contract.py"
       - "requirements-temporal-contract-validation.txt"
+      - "database/migrations/**"
+      - "scripts/news_and_events/**"
+      - "tests/news_and_events/**"
+      - "docs/news-and-events/event-registry.md"
   workflow_dispatch:
     inputs:
       target_ref:
