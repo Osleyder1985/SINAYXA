@@ -8,9 +8,12 @@ from typing import Any
 
 from scripts.news_and_events.event_registry import (
     add_source_reference,
+    append_conflict_decision,
     append_temporal_assertion,
     connect,
     create_event,
+    create_temporal_conflict,
+    get_conflict_history,
     get_event_as_of,
     get_event_history,
     initialize_database,
@@ -46,6 +49,16 @@ def main() -> int:
     history = commands.add_parser("history", help="show all temporal assertion versions")
     history.add_argument("--event-id", required=True)
 
+    conflict = commands.add_parser("create-conflict", help="register a conflict between temporal assertions")
+    conflict.add_argument("--input", required=True, help="path to conflict JSON")
+
+    decision = commands.add_parser("append-decision", help="append a decision to a temporal conflict")
+    decision.add_argument("--input", required=True, help="path to conflict decision JSON")
+
+    conflict_history = commands.add_parser("conflict-history", help="show a conflict and its decisions")
+    conflict_history.add_argument("--conflict-id", required=True)
+    conflict_history.add_argument("--cutoff-utc", help="optional registry-knowledge cutoff in UTC")
+
     args = parser.parse_args()
     with connect() as connection:
         if args.command == "init":
@@ -65,6 +78,15 @@ def main() -> int:
             print(json.dumps(result, ensure_ascii=False, indent=2))
         elif args.command == "history":
             print(json.dumps(get_event_history(connection, args.event_id), ensure_ascii=False, indent=2))
+        elif args.command == "create-conflict":
+            result = create_temporal_conflict(connection, read_json(args.input))
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        elif args.command == "append-decision":
+            append_conflict_decision(connection, read_json(args.input))
+            print("Conflict decision appended.")
+        elif args.command == "conflict-history":
+            result = get_conflict_history(connection, args.conflict_id, args.cutoff_utc)
+            print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
 
