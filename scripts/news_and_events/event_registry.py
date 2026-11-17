@@ -832,6 +832,275 @@ def get_reproducibility_manifest(
 
 
 
+def _artifact_metadata(value: Any, label: str) -> dict[str, Any]:
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise EventRegistryError(f"{label} metadata must be a JSON object")
+    return value
+
+
+def _artifact_bytes(value: bytes | bytearray | memoryview) -> bytes:
+    if not isinstance(value, (bytes, bytearray, memoryview)):
+        raise EventRegistryError("artifact content must be supplied as raw bytes")
+    return bytes(value)
+
+
+def _validate_usage_authorization(
+    usage_status: str, authorization_ref: str | None
+) -> None:
+    if usage_status not in {"SYNTHETIC", "AUTHORIZED"}:
+        raise EventRegistryError("artifact usage_status must be SYNTHETIC or AUTHORIZED")
+    if usage_status == "AUTHORIZED" and (
+        not isinstance(authorization_ref, str) or not authorization_ref.strip()
+    ):
+        raise EventRegistryError("AUTHORIZED artifacts require authorization_ref")
+
+
+def register_source_artifact(
+    connection: psycopg.Connection,
+    source_ref: str,
+    content: bytes | bytearray | memoryview,
+    metadata: dict[str, Any],
+) -> dict[str, Any]:
+    """Store exact source bytes and provenance; no network retrieval is performed."""
+    payload = _artifact_bytes(content)
+    details = _artifact_metadata(metadata.get("metadata"), "source")
+    media_type = metadata.get("media_type")
+    license_ref = metadata.get("license_ref")
+    usage_status = metadata.get("usage_status")
+    authorization_ref = metadata.get("authorization_ref")
+    if not isinstance(source_ref, str) or not source_ref.strip():
+        raise EventRegistryError("source_ref must be non-empty")
+    if not isinstance(media_type, str) or not media_type.strip():
+        raise EventRegistryError("source media_type must be non-empty")
+    if not isinstance(license_ref, str) or not license_ref.strip():
+        raise EventRegistryError("source license_ref must be non-empty")
+    _validate_usage_authorization(usage_status, authorization_ref)
+    published_at = _utc(metadata["published_at"]) if metadata.get("published_at") else None
+    digest = hashlib.sha256(payload).hexdigest()
+    with connection.transaction():
+        captured_at = connection.execute("SELECT clock_timestamp()").fetchone()[0]
+        connection.execute(
+            """
+            INSERT INTO sinayxa.source_artifacts (
+                source_ref, source_uri, title, publisher, media_type, content_sha256,
+                content_length, content_bytes, published_at, license_ref, usage_status,
+                authorization_ref, captured_at, recorded_at, metadata
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                source_ref,
+                metadata.get("source_uri"),
+                metadata.get("title"),
+                metadata.get("publisher"),
+                media_type,
+                digest,
+                len(payload),
+                psycopg.Binary(payload),
+                published_at,
+                license_ref,
+                usage_status,
+                authorization_ref,
+                captured_at,
+                captured_at,
+                Jsonb(details),
+            ),
+        )
+        return {
+            "source_ref": source_ref,
+            "source_uri": metadata.get("source_uri"),
+            "title": metadata.get("title"),
+            "publisher": metadata.get("publisher"),
+            "media_type": media_type,
+            "content_sha256": digest,
+            "content_length": len(payload),
+            "published_at": published_at.isoformat(timespec="microseconds").replace("+00:00", "Z") if published_at else None,
+            "license_ref": license_ref,
+            "usage_status": usage_status,
+            "authorization_ref": authorization_ref,
+            "captured_at": captured_at.isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "metadata": details,
+        }
+
+
+def register_evidence_artifact(
+    connection: psycopg.Connection,
+    evidence_ref: str,
+    content: bytes | bytearray | memoryview,
+    metadata: dict[str, Any],
+) -> dict[str, Any]:
+    """Store exact evidence bytes and extraction provenance; no source is fetched."""
+    payload = _artifact_bytes(content)
+    details = _artifact_metadata(metadata.get("metadata"), "evidence")
+    source_ref = metadata.get("source_ref")
+    evidence_type = metadata.get("evidence_type")
+    media_type = metadata.get("media_type")
+    extraction_method = metadata.get("extraction_method")
+    extraction_version = metadata.get("extraction_version")
+    license_ref = metadata.get("license_ref")
+    usage_status = metadata.get("usage_status")
+    authorization_ref = metadata.get("authorization_ref")
+    if not isinstance(evidence_ref, str) or not evidence_ref.strip():
+        raise EventRegistryError("evidence_ref must be non-empty")
+    for field_name, value in (
+        ("evidence_type", evidence_type),
+        ("media_type", media_type),
+        ("extraction_method", extraction_method),
+        ("extraction_version", extraction_version),
+        ("license_ref", license_ref),
+    ):
+        if not isinstance(value, str) or not value.strip():
+            raise EventRegistryError(f"evidence {field_name} must be non-empty")
+    _validate_usage_authorization(usage_status, authorization_ref)
+    digest = hashlib.sha256(payload).hexdigest()
+    with connection.transaction():
+        if source_ref is not None:
+            source = connection.execute(
+                """
+                SELECT usage_status, authorization_ref
+                FROM sinayxa.source_artifacts
+                WHERE source_ref = %s
+                """,
+                (source_ref,),
+            ).fetchone()
+            if source is None:
+                raise EventRegistryError("evidence source_ref has no registered source artifact")
+            if source[0] != usage_status or (
+                usage_status == "AUTHORIZED" and source[1] != authorization_ref
+            ):
+                raise EventRegistryError("evidence authorization must not exceed or diverge from its source artifact")
+        captured_at = connection.execute("SELECT clock_timestamp()").fetchone()[0]
+        connection.execute(
+            """
+            INSERT INTO sinayxa.evidence_artifacts (
+                evidence_ref, source_ref, evidence_type, media_type, content_sha256,
+                content_length, content_bytes, extraction_method, extraction_version,
+                location_hint, license_ref, usage_status, authorization_ref,
+                captured_at, recorded_at, metadata
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                evidence_ref,
+                source_ref,
+                evidence_type,
+                media_type,
+                digest,
+                len(payload),
+                psycopg.Binary(payload),
+                extraction_method,
+                extraction_version,
+                metadata.get("location_hint"),
+                license_ref,
+                usage_status,
+                authorization_ref,
+                captured_at,
+                captured_at,
+                Jsonb(details),
+            ),
+        )
+        return {
+            "evidence_ref": evidence_ref,
+            "source_ref": source_ref,
+            "evidence_type": evidence_type,
+            "media_type": media_type,
+            "content_sha256": digest,
+            "content_length": len(payload),
+            "extraction_method": extraction_method,
+            "extraction_version": extraction_version,
+            "location_hint": metadata.get("location_hint"),
+            "license_ref": license_ref,
+            "usage_status": usage_status,
+            "authorization_ref": authorization_ref,
+            "captured_at": captured_at.isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "metadata": details,
+        }
+
+
+def get_source_artifact(
+    connection: psycopg.Connection, source_ref: str
+) -> dict[str, Any] | None:
+    """Retrieve and hash-verify the exact bytes of a registered source artifact."""
+    with connection.transaction():
+        row = connection.execute(
+            """
+            SELECT source_uri, title, publisher, media_type, content_sha256,
+                   content_length, content_bytes, published_at, license_ref,
+                   usage_status, authorization_ref, captured_at, recorded_at, inserted_at,
+                   metadata
+            FROM sinayxa.source_artifacts
+            WHERE source_ref = %s
+            """,
+            (source_ref,),
+        ).fetchone()
+        if row is None:
+            return None
+        content = bytes(row[6])
+        if len(content) != row[5] or hashlib.sha256(content).hexdigest() != row[4]:
+            raise EventRegistryError(f"source artifact integrity check failed: {source_ref}")
+        return {
+            "source_ref": source_ref,
+            "source_uri": row[0],
+            "title": row[1],
+            "publisher": row[2],
+            "media_type": row[3],
+            "content_sha256": row[4],
+            "content_length": row[5],
+            "content_bytes": content,
+            "published_at": row[7].isoformat(timespec="microseconds").replace("+00:00", "Z") if row[7] else None,
+            "license_ref": row[8],
+            "usage_status": row[9],
+            "authorization_ref": row[10],
+            "captured_at": row[11].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "recorded_at": row[12].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "inserted_at": row[13].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "metadata": dict(row[14]),
+        }
+
+
+def get_evidence_artifact(
+    connection: psycopg.Connection, evidence_ref: str
+) -> dict[str, Any] | None:
+    """Retrieve and hash-verify the exact bytes of a registered evidence artifact."""
+    with connection.transaction():
+        row = connection.execute(
+            """
+            SELECT source_ref, evidence_type, media_type, content_sha256,
+                   content_length, content_bytes, extraction_method, extraction_version,
+                   location_hint, license_ref, usage_status, authorization_ref,
+                   captured_at, recorded_at, inserted_at, metadata
+            FROM sinayxa.evidence_artifacts
+            WHERE evidence_ref = %s
+            """,
+            (evidence_ref,),
+        ).fetchone()
+        if row is None:
+            return None
+        content = bytes(row[5])
+        if len(content) != row[4] or hashlib.sha256(content).hexdigest() != row[3]:
+            raise EventRegistryError(f"evidence artifact integrity check failed: {evidence_ref}")
+        return {
+            "evidence_ref": evidence_ref,
+            "source_ref": row[0],
+            "evidence_type": row[1],
+            "media_type": row[2],
+            "content_sha256": row[3],
+            "content_length": row[4],
+            "content_bytes": content,
+            "extraction_method": row[6],
+            "extraction_version": row[7],
+            "location_hint": row[8],
+            "license_ref": row[9],
+            "usage_status": row[10],
+            "authorization_ref": row[11],
+            "captured_at": row[12].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "recorded_at": row[13].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "inserted_at": row[14].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "metadata": dict(row[15]),
+        }
+
+
+
 def get_event_as_of(
     connection: psycopg.Connection, event_id: str, cutoff_utc: str
 ) -> dict[str, Any] | None:
