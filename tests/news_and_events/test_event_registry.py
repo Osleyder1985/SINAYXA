@@ -102,7 +102,8 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "source_ref": "source-calendar-b",
             "evidence_ref": "evidence-calendar-b",
             "retrieved_at": iso(source_b_recorded_at + timedelta(microseconds=3)),
-            # Deliberately backdated client input must not control registry knowledge time.\n            "recorded_at": iso(source_b_recorded_at - timedelta(microseconds=1)),
+            # Deliberately backdated client input must not control registry knowledge time.
+            "recorded_at": iso(source_b_recorded_at - timedelta(microseconds=1)),
             "supersedes_assertion_id": first["temporal_assertion_id"],
             "published_at": iso(source_b_recorded_at + timedelta(microseconds=1)),
             "first_observed_at": iso(source_b_recorded_at + timedelta(microseconds=2)),
