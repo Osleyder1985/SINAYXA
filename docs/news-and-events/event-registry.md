@@ -17,7 +17,7 @@
 - Derivar estados temporales bajo demanda y generar manifiestos SHA-256 con canonicalización RFC 8785.
 - Impedir UPDATE/DELETE en las siete tablas de registro; impedir TRUNCATE en las tres tablas base.
 
-La consulta histórica utiliza recorded_at, no la fecha del acontecimiento. Por tanto, una revisión posterior no aparece en consultas cuyo corte precede a su registro.
+Las consultas históricas utilizan `inserted_at`, asignado por PostgreSQL al incorporar cada fila, y no la fecha del acontecimiento ni el `recorded_at` declarado en el payload. Así, una validación lenta no puede hacer aparecer una afirmación antes de que la fila exista realmente en el registro.
 
 ## 2. Preparación local (PowerShell)
 
@@ -108,7 +108,7 @@ Información conocida en un instante concreto:
 python -m scripts.news_and_events.register_event show-as-of --event-id event-protocol-release-001 --cutoff-utc 2026-11-16T12:03:30Z
 ```
 
-El corte debe expresarse en UTC con sufijo Z. Una afirmación cuyo recorded_at sea posterior al corte queda excluida.
+El corte debe expresarse en UTC con sufijo Z. Una afirmación cuya inserción real (`inserted_at`) sea posterior al corte queda excluida.
 
 ## 6. Registrar conflictos y decisiones
 
@@ -247,8 +247,8 @@ El manifiesto calcula SHA-256 de la versión exacta del esquema, del módulo de 
 
 ## 9. Validación automatizada
 
-El workflow `.github/workflows/event-registry-validation.yml` ejecuta el validador, las regresiones del contrato y las pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite cubre registro, versionado, consultas históricas, conflictos, decisiones, transiciones inválidas, concurrencia, idempotencia de las dos migraciones y protección append-only.
+El workflow `.github/workflows/event-registry-validation.yml` ejecuta el validador, las regresiones del contrato y las pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite cubre registro, versionado, consultas históricas, conflictos, decisiones, transiciones inválidas, concurrencia, idempotencia de las tres migraciones y protección append-only.
 
-La escritura de afirmaciones bloquea la fila del acontecimiento con `SELECT ... FOR UPDATE`, serializando la asignación de versiones entre conexiones concurrentes para el mismo evento. La restricción única `(event_id, version)` sigue siendo una defensa adicional. La suite verifica dos escritores independientes, idempotencia de migración y rechazo de `UPDATE`/`DELETE` en las tres tablas.
+La escritura de afirmaciones bloquea la fila del acontecimiento con `SELECT ... FOR UPDATE`, serializando la asignación de versiones entre conexiones concurrentes para el mismo evento. La restricción única `(event_id, version)` sigue siendo una defensa adicional. La suite verifica dos escritores independientes, idempotencia de migración y rechazo de `UPDATE`/`DELETE` en las siete tablas.
 
 La ejecución satisfactoria de CI demuestra el comportamiento del laboratorio sintético; no demuestra disponibilidad operativa local ni veracidad de acontecimientos reales.
