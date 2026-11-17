@@ -1,0 +1,44 @@
+name: PostgreSQL synthetic backup and restore lab
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/validation/Invoke-PostgreSQLBackupRestoreLab.sh"
+      - "docs/validation/postgresql-backup-restore-lab.md"
+      - ".github/workflows/postgresql-validation-lab.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: postgresql-synthetic-lab-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  postgresql-lab:
+    name: PostgreSQL 18.7 / Docker 29.10.0 / ephemeral
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up pinned Docker Engine 29.10.0
+        uses: docker/setup-docker-action@3f1ab1ab0e29231562e4db4ca600c1a49653bac6 # v5
+        with:
+          version: v29.10.0
+          set-host: true
+      - name: Run isolated synthetic backup and restore laboratory
+        shell: bash
+        run: bash scripts/validation/Invoke-PostgreSQLBackupRestoreLab.sh
+      - name: Upload laboratory report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: postgresql-synthetic-lab-${{ github.run_id }}
+          path: artifacts/postgresql-lab/postgresql-lab-report.json
+          if-no-files-found: warn
+          retention-days: 14
