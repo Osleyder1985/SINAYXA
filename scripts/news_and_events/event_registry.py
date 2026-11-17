@@ -392,57 +392,58 @@ def get_conflict_history(
 ) -> dict[str, Any] | None:
     """Return the conflict and decisions known by registry insertion time at a cutoff."""
     cutoff = _utc(cutoff_utc) if cutoff_utc is not None else None
-    if cutoff is None:
-        row = connection.execute(
-            "SELECT conflict_payload, inserted_at FROM sinayxa.temporal_conflicts WHERE conflict_id = %s",
-            (conflict_id,),
-        ).fetchone()
-    else:
-        row = connection.execute(
-            """
-            SELECT conflict_payload, inserted_at
-            FROM sinayxa.temporal_conflicts
-            WHERE conflict_id = %s AND inserted_at <= %s
-            """,
-            (conflict_id, cutoff),
-        ).fetchone()
-    if row is None:
-        return None
-    conflict = dict(row[0])
-    if cutoff is None:
-        decisions = connection.execute(
-            """
-            SELECT decision_payload, inserted_at
-            FROM sinayxa.conflict_decisions
-            WHERE conflict_id = %s
-            ORDER BY decided_at
-            """,
-            (conflict_id,),
-        ).fetchall()
-    else:
-        decisions = connection.execute(
-            """
-            SELECT decision_payload, inserted_at
-            FROM sinayxa.conflict_decisions
-            WHERE conflict_id = %s AND inserted_at <= %s
-            ORDER BY decided_at
-            """,
-            (conflict_id, cutoff),
-        ).fetchall()
-    decision_history = [
-        {
-            "decision": dict(item[0]),
-            "recorded_in_registry_at": item[1].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+    with connection.transaction():
+        if cutoff is None:
+            row = connection.execute(
+                "SELECT conflict_payload, inserted_at FROM sinayxa.temporal_conflicts WHERE conflict_id = %s",
+                (conflict_id,),
+            ).fetchone()
+        else:
+            row = connection.execute(
+                """
+                SELECT conflict_payload, inserted_at
+                FROM sinayxa.temporal_conflicts
+                WHERE conflict_id = %s AND inserted_at <= %s
+                """,
+                (conflict_id, cutoff),
+            ).fetchone()
+        if row is None:
+            return None
+        conflict = dict(row[0])
+        if cutoff is None:
+            decisions = connection.execute(
+                """
+                SELECT decision_payload, inserted_at
+                FROM sinayxa.conflict_decisions
+                WHERE conflict_id = %s
+                ORDER BY decided_at
+                """,
+                (conflict_id,),
+            ).fetchall()
+        else:
+            decisions = connection.execute(
+                """
+                SELECT decision_payload, inserted_at
+                FROM sinayxa.conflict_decisions
+                WHERE conflict_id = %s AND inserted_at <= %s
+                ORDER BY decided_at
+                """,
+                (conflict_id, cutoff),
+            ).fetchall()
+        decision_history = [
+            {
+                "decision": dict(item[0]),
+                "recorded_in_registry_at": item[1].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            }
+            for item in decisions
+        ]
+        if decision_history:
+            conflict["status"] = decision_history[-1]["decision"]["to_status"]
+        return {
+            "conflict": conflict,
+            "decisions": decision_history,
+            "as_of_utc": cutoff_utc,
         }
-        for item in decisions
-    ]
-    if decision_history:
-        conflict["status"] = decision_history[-1]["decision"]["to_status"]
-    return {
-        "conflict": conflict,
-        "decisions": decision_history,
-        "as_of_utc": cutoff_utc,
-    }
 
 
 def get_event_as_of(
