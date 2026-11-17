@@ -107,15 +107,89 @@ python -m scripts.news_and_events.register_event show-as-of --event-id event-pro
 
 El corte debe expresarse en UTC con sufijo Z. Una afirmación cuyo recorded_at sea posterior al corte queda excluida.
 
-## 6. Límites conocidos de esta primera entrega
+
+## 6. Registrar conflictos y decisiones
+
+Un conflicto enlaza al menos dos afirmaciones temporales del mismo acontecimiento. El registro inicial siempre se crea en estado `OPEN`; el estado posterior se reconstruye a partir del historial inmutable de decisiones.
+
+Crear `conflict.json`:
+
+```json
+{
+  "conflict_id": "conflict-event-001",
+  "event_id": "event-protocol-release-001",
+  "assertion_refs": [
+    "event-protocol-release-001-v1",
+    "event-protocol-release-001-v2"
+  ],
+  "disputed_component": "DATE",
+  "classification": "DIRECT_CONTRADICTION",
+  "status": "OPEN"
+}
+```
+
+El campo `recorded_at` lo asigna PostgreSQL. Registrar:
+
+```powershell
+python -m scripts.news_and_events.register_event create-conflict --input .\conflict.json
+```
+
+Una decisión debe identificar la transición, las afirmaciones consideradas, la evidencia favorable y contraria, el alcance, la justificación, las limitaciones, el actor, la versión de reglas y el corte de evaluación. Ejemplo de transición a revisión:
+
+```json
+{
+  "decision_id": "conflict-event-001-decision-1",
+  "conflict_id": "conflict-event-001",
+  "from_status": "OPEN",
+  "to_status": "UNDER_REVIEW",
+  "assertion_refs": [
+    "event-protocol-release-001-v1",
+    "event-protocol-release-001-v2"
+  ],
+  "supporting_evidence_refs": [],
+  "contrary_evidence_refs": [],
+  "scope": "Revisión de la discrepancia temporal",
+  "rationale": "Las dos afirmaciones requieren revisión.",
+  "limitations": "No se establece todavía una conclusión factual.",
+  "actor_ref": "operator-id",
+  "decided_at": "2026-11-17T12:00:00Z",
+  "assessment_cutoff": "2026-11-17T11:59:00Z",
+  "rules_version": "temporal-review-1.0.0",
+  "supersedes_decision_id": null
+}
+```
+
+Anexar la decisión:
+
+```powershell
+python -m scripts.news_and_events.register_event append-decision --input .\decision.json
+```
+
+Para pasar a `RESOLVED`, el contrato exige evidencia de apoyo, justificación, alcance y limitaciones explícitos. Reabrir un conflicto previamente resuelto exige referenciar la decisión que se sustituye. Una transición inválida o una secuencia con estados incompatibles se rechaza sin alterar el historial.
+
+Consultar el historial:
+
+```powershell
+python -m scripts.news_and_events.register_event conflict-history --conflict-id conflict-event-001
+```
+
+Consultar qué decisiones ya estaban incorporadas al registro en un corte UTC:
+
+```powershell
+python -m scripts.news_and_events.register_event conflict-history --conflict-id conflict-event-001 --cutoff-utc 2026-11-17T12:30:00Z
+```
+
+La hora `decided_at` representa la hora declarada de la decisión; PostgreSQL conserva además `inserted_at`, que representa cuándo se incorporó realmente al registro. Las consultas históricas filtran por `inserted_at`, evitando mostrar decisiones que todavía no estaban registradas en el corte consultado. El estado actual se deriva de las decisiones visibles y no se reescribe en el registro inicial del conflicto.
+
+## 7. Límites conocidos de esta primera entrega
 
 - No existe aún interfaz gráfica, API HTTP ni integración con proveedores de noticias.
 - La consulta devuelve el historial temporal conocido; no calcula por sí sola un dictamen de credibilidad, intensidad, impacto o causalidad.
-- El modelo de conflictos, decisiones, evaluaciones y manifiestos está definido en el contrato, pero sus operaciones de escritura no forman parte de esta primera vertical.
+- Las evaluaciones temporales y los manifiestos de reproducibilidad siguen definidos en el contrato, pero sus operaciones de escritura no forman parte de esta entrega.
 - Los triggers protegen contra UPDATE/DELETE ordinarios dentro de la base de datos. No equivalen a WORM externo, Object Lock ni resistencia frente a un administrador privilegiado o pérdida del host.
 - No se ha validado todavía instalación local en Windows del propietario ni operación con datos reales.
 
-## 7. Validación automatizada
+## 8. Validación automatizada
 
 La escritura de una nueva afirmación bloquea la fila del acontecimiento (`SELECT ... FOR UPDATE`) durante la lectura del historial y la inserción. Esto serializa la asignación de versiones por acontecimiento cuando existen varios escritores concurrentes; la restricción única de `(event_id, version)` permanece como defensa adicional.
 
