@@ -12,7 +12,7 @@
 - Anexar afirmaciones temporales versionadas (ACTUAL, SCHEDULED, ESTIMATED, UNKNOWN).
 - Validar cada paquete con JSON Schema Draft 2020-12 y las invariantes semánticas del contrato 1.0.0.
 - Consultar qué versiones estaban registradas a un corte UTC y recuperar el historial completo.
-- Impedir mediante triggers SQL la modificación o eliminación de acontecimientos, referencias de fuentes y afirmaciones temporales.
+- Impedir mediante triggers SQL la modificación, eliminación y truncado (TRUNCATE) de acontecimientos, referencias de fuentes y afirmaciones temporales.
 
 La consulta histórica utiliza recorded_at, no la fecha del acontecimiento. Por tanto, una revisión posterior no aparece en consultas cuyo corte precede a su registro.
 
