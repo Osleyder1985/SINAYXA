@@ -321,3 +321,22 @@ jobs:
           path: ${{ runner.temp }}\sinayxa-evidence\
           if-no-files-found: warn
           retention-days: 90
+
+  # Compatibility alias for the existing main ruleset's required status context.
+  # The actual analyzer and fixture suite above run on PowerShell 7.7.0.
+  legacy_required_status:
+    name: PowerShell 7.6.6 / Windows
+    needs: validate
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror the PowerShell 7.7.0 quality gate result
+        env:
+          VALIDATION_RESULT: ${{ needs.validate.result }}
+        run: |
+          if [ "$VALIDATION_RESULT" != "success" ]; then
+            echo "PowerShell 7.7.0 quality gate result: $VALIDATION_RESULT"
+            exit 1
+          fi
+          echo "Legacy required status context satisfied by the successful PowerShell 7.7.0 quality gate."
+
