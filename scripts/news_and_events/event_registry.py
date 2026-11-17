@@ -760,6 +760,7 @@ def create_reproducibility_manifest(
             "missing_components": [
                 "source_content_not_persisted",
                 "evidence_content_not_persisted",
+                "software_build_revision_not_verified",
                 "runtime_environment_snapshot_not_embedded",
             ],
             "created_at": created_at_text,
