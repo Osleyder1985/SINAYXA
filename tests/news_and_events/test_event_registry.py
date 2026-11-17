@@ -633,6 +633,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             self.connection, assessment["assessment_id"]
         )
         self.assertEqual(assessment, stored_assessment["assessment"])
+        add_source_reference(self.connection, event_id, "source-added-after-assessment-cutoff")
 
         later_assertion = {
             **assertion,
