@@ -205,11 +205,17 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         }
         append_temporal_assertion(self.connection, assertion)
 
-        for table in ("event_sources", "temporal_assertions", "events"):
+        truncate_statements = {
+            "event_sources": "TRUNCATE TABLE sinayxa.event_sources",
+            "temporal_assertions": "TRUNCATE TABLE sinayxa.temporal_assertions",
+            # CASCADE ensures the events trigger, rather than only the FK guard, rejects it.
+            "events": "TRUNCATE TABLE sinayxa.events CASCADE",
+        }
+        for table, statement in truncate_statements.items():
             with self.subTest(table=table):
-                with self.assertRaises(psycopg.Error):
+                with self.assertRaisesRegex(psycopg.Error, "append-only"):
                     with self.connection.transaction():
-                        self.connection.execute(f"TRUNCATE TABLE sinayxa.{table}")
+                        self.connection.execute(statement)
 
         current = get_event_as_of(
             self.connection, event_id, iso(datetime.now(timezone.utc))
