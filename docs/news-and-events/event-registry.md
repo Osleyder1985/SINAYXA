@@ -119,4 +119,4 @@ El corte debe expresarse en UTC con sufijo Z. Una afirmación cuyo recorded_at s
 
 El workflow .github/workflows/event-registry-validation.yml ejecuta el validador y regresiones del contrato y pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite incluye registro, nueva versión, consulta histórica, rechazo de secuencia discontinua y rechazo de modificaciones del registro.
 
-La ejecución satisfactoria de CI demuestra el comportamiento del laboratorio sintético; no demuestra disponibilidad operativa local ni veracidad de acontecimientos reales.
+La escritura de afirmaciones bloquea la fila del acontecimiento con `SELECT ... FOR UPDATE`, serializando la asignación de versiones entre conexiones concurrentes para el mismo evento. La restricción única `(event_id, version)` sigue siendo una defensa adicional. La suite verifica dos escritores independientes, idempotencia de migración y rechazo de `UPDATE`/`DELETE` en las tres tablas.\n\nLa ejecución satisfactoria de CI demuestra el comportamiento del laboratorio sintético; no demuestra disponibilidad operativa local ni veracidad de acontecimientos reales.
