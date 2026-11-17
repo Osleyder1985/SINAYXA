@@ -53,7 +53,6 @@ Security/dependency gate: [run #43937072696](https://github.com/Osleyder1985/SIN
 
 Esta evidencia sustituye la versión 16.3 como prueba de referencia para la ejecución actual del laboratorio, pero no demuestra ejecución en el equipo local del propietario ni cierra las brechas externas de #89.
 
-
 ## Reconciliación de disposiciones posteriores al backup — Issue #113
 
 El arnés amplía el ensayo con un caso sintético separado del backup:
@@ -63,11 +62,13 @@ El arnés amplía el ensayo con un caso sintético separado del backup:
 3. La restauración permanece inaccesible para el rol consumidor: se revoca `CONNECT` a `PUBLIC` y no se concede al consumidor antes de validar el ledger.
 4. Con el ledger válido y la referencia resoluble, se eliminan el activo y sus observaciones relacionadas; repetir la operación conserva el mismo estado final.
 5. Solo después se concede acceso al consumidor. Este observa dos activos y no puede consultar el activo dispuesto.
-6. Tres restauraciones adicionales permanecen bloqueadas cuando falta el ledger, cuando su formato es inválido o cuando la referencia no existe.
+6. Una única función `reconcile_and_open` se usa en los cuatro escenarios. Comprueba existencia del ledger, formato estricto, resolución de referencia y postcondiciones; solo concede `CONNECT` y permisos de lectura después de reconciliar correctamente.
+7. La misma función rechaza un ledger ausente, uno malformado y una referencia desconocida. Cada rechazo se verifica mediante un intento de conexión del consumidor, que debe continuar denegado.
+8. La misma función procesa por segunda vez el ledger válido y comprueba que el estado resultante no cambia.
 
-El reporte versión 1.2.0 registra por separado `restore_gate_before_reconciliation`, `restore_reconciliation`, `missing_ledger_fail_closed`, `invalid_ledger_fail_closed` y `unknown_reference_fail_closed`.
+El reporte versión 1.3.0 registra por separado `restore_gate_before_reconciliation`, `restore_reconciliation`, `missing_ledger_fail_closed`, `invalid_ledger_fail_closed`, `unknown_reference_fail_closed` y `reconciliation_gate_function`.
 
-**Interpretación:** esto prueba la secuencia de control de acceso y reconciliación en una instancia PostgreSQL efímera con ledger sintético. No demuestra que un ledger externo sea duradero, independiente, autenticado o resistente a alteraciones; tampoco elimina el backup original ni sus copias. No es evidencia de borrado físico ni cierra #89 o el Área C de #88.
+**Interpretación:** esto prueba la secuencia de control de acceso y reconciliación mediante una única función del arnés en una instancia PostgreSQL efímera con ledger sintético. No es una implementación de producción ni prueba persistencia o autenticidad del ledger. No demuestra que un ledger externo sea duradero, independiente, autenticado o resistente a alteraciones; tampoco elimina el backup original ni sus copias. No es evidencia de borrado físico ni cierra #89 o el Área C de #88.
 
 ## Límites de evidencia
 
