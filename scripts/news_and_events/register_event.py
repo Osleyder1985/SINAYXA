@@ -136,22 +136,34 @@ def main() -> int:
             result = get_reproducibility_manifest(connection, args.manifest_id)
             print(json.dumps(result, ensure_ascii=False, indent=2))
         elif args.command == "register-source-artifact":
-            result = register_source_artifact(connection, read_json(args.input)["source_ref"], Path(args.file).read_bytes(), read_json(args.input))
+            metadata = read_json(args.input)
+            result = register_source_artifact(
+                connection, metadata["source_ref"], Path(args.file).read_bytes(), metadata
+            )
             print(json.dumps(result, ensure_ascii=False, indent=2))
         elif args.command == "register-evidence-artifact":
-            result = register_evidence_artifact(connection, read_json(args.input)["evidence_ref"], Path(args.file).read_bytes(), read_json(args.input))
+            metadata = read_json(args.input)
+            result = register_evidence_artifact(
+                connection, metadata["evidence_ref"], Path(args.file).read_bytes(), metadata
+            )
             print(json.dumps(result, ensure_ascii=False, indent=2))
         elif args.command == "export-source-artifact":
             result = get_source_artifact(connection, args.source_ref)
             if result is None:
                 raise ValueError(f"unknown source_ref: {args.source_ref}")
-            Path(args.output).write_bytes(result.pop("content_bytes"))
+            output_path = Path(args.output)
+            if output_path.exists():
+                raise FileExistsError(f"refusing to overwrite existing file: {output_path}")
+            output_path.write_bytes(result.pop("content_bytes"))
             print(json.dumps(result, ensure_ascii=False, indent=2))
         elif args.command == "export-evidence-artifact":
             result = get_evidence_artifact(connection, args.evidence_ref)
             if result is None:
                 raise ValueError(f"unknown evidence_ref: {args.evidence_ref}")
-            Path(args.output).write_bytes(result.pop("content_bytes"))
+            output_path = Path(args.output)
+            if output_path.exists():
+                raise FileExistsError(f"refusing to overwrite existing file: {output_path}")
+            output_path.write_bytes(result.pop("content_bytes"))
             print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
