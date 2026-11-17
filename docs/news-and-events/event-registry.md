@@ -1,6 +1,6 @@
 # Registro operativo de acontecimientos — Issue #2
 
-**Estado:** primera implementación en PR #101 (DRAFT), apilada sobre el contrato temporal 1.0.0 de PR #90.  
+**Estado:** registro inicial en PR #101, endurecimiento en PR #102 y operaciones de conflictos/decisiones en PR #103 (todas DRAFT y apiladas; ninguna fusionada).  
 **Persistencia:** PostgreSQL local 18.7.  
 **Uso autorizado:** entrada explícita del operador y datos sintéticos de validación.  
 **Fuera de alcance:** captura automática, crawling, vigilancia, scraping, fuentes reales y servicios externos.
@@ -12,7 +12,9 @@
 - Anexar afirmaciones temporales versionadas (ACTUAL, SCHEDULED, ESTIMATED, UNKNOWN).
 - Validar cada paquete con JSON Schema Draft 2020-12 y las invariantes semánticas del contrato 1.0.0.
 - Consultar qué versiones estaban registradas a un corte UTC y recuperar el historial completo.
-- Impedir mediante triggers SQL la modificación o eliminación de acontecimientos, referencias de fuentes y afirmaciones temporales.
+- Registrar conflictos entre afirmaciones del mismo acontecimiento y anexar decisiones humanas con evidencia favorable/contraria, alcance, justificación y limitaciones.
+- Reconstruir el estado del conflicto desde su historial append-only y consultar decisiones conocidas en un corte de inserción UTC.
+- Impedir mediante triggers SQL la modificación o eliminación de acontecimientos, fuentes, afirmaciones, conflictos y decisiones.
 
 La consulta histórica utiliza recorded_at, no la fecha del acontecimiento. Por tanto, una revisión posterior no aparece en consultas cuyo corte precede a su registro.
 
@@ -192,8 +194,8 @@ La hora `decided_at` representa la hora declarada de la decisión; PostgreSQL co
 
 La escritura de una nueva afirmación bloquea la fila del acontecimiento (`SELECT ... FOR UPDATE`) durante la lectura del historial y la inserción. Esto serializa la asignación de versiones por acontecimiento cuando existen varios escritores concurrentes; la restricción única de `(event_id, version)` permanece como defensa adicional.
 
-La suite de integración comprueba `UPDATE` y `DELETE` en las tres tablas append-only (`events`, `event_sources` y `temporal_assertions`), la re-ejecución de la migración y dos escritores concurrentes que intentan anexar la misma versión. Se espera que solo una escritura sea aceptada.
+La suite de integración comprueba `UPDATE` y `DELETE` en las cinco tablas append-only (`events`, `event_sources`, `temporal_assertions`, `temporal_conflicts` y `conflict_decisions`), la re-ejecución de ambas migraciones, dos escritores concurrentes que intentan anexar la misma versión, el ciclo de decisiones, transiciones inválidas y cortes históricos.
 
-El workflow .github/workflows/event-registry-validation.yml ejecuta el validador y regresiones del contrato y pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite incluye registro, nueva versión, consulta histórica, rechazo de secuencia discontinua y rechazo de modificaciones del registro.
+El workflow `.github/workflows/event-registry-validation.yml` ejecuta el validador y regresiones del contrato y pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite cubre registro, versionado, consultas históricas, conflictos, decisiones, rechazo de secuencias/transiciones inválidas, concurrencia, idempotencia de migraciones y protección append-only de las cinco tablas.
 
 La ejecución satisfactoria de CI demuestra el comportamiento del laboratorio sintético; no demuestra disponibilidad operativa local ni veracidad de acontecimientos reales.
