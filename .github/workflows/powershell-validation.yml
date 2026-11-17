@@ -11,6 +11,7 @@ on:
     paths:
       - "**.ps1"
       - "**.psm1"
+      - "**.md"
       - "tests/fixtures/methodology/intensity-horizons/**"
       - "tests/fixtures/methodology/evidence-standard/**"
       - "scripts/validation/validate_evidence_standard_fixture.ps1"
