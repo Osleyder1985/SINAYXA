@@ -3,15 +3,19 @@ from __future__ import annotations
 
 import hashlib
 import os
+import sys
+import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 from pathlib import Path
+from unittest.mock import patch
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 import psycopg
 
+from scripts.news_and_events.register_event import main as registry_cli_main
 from scripts.news_and_events.event_registry import (
     EventRegistryError,
     add_source_reference,
@@ -907,6 +911,27 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             evidence_bytes,
             get_evidence_artifact(self.connection, evidence_ref)["content_bytes"],
         )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            source_export = Path(temporary_directory) / "source.bin"
+            evidence_export = Path(temporary_directory) / "evidence.bin"
+            with patch(
+                "sys.argv",
+                ["register_event", "export-source-artifact", "--source-ref", source_ref, "--output", str(source_export)],
+            ):
+                self.assertEqual(0, registry_cli_main())
+            with patch(
+                "sys.argv",
+                ["register_event", "export-evidence-artifact", "--evidence-ref", evidence_ref, "--output", str(evidence_export)],
+            ):
+                self.assertEqual(0, registry_cli_main())
+            self.assertEqual(source_bytes, source_export.read_bytes())
+            self.assertEqual(evidence_bytes, evidence_export.read_bytes())
+            with patch(
+                "sys.argv",
+                ["register_event", "export-source-artifact", "--source-ref", source_ref, "--output", str(source_export)],
+            ):
+                with self.assertRaises(FileExistsError):
+                    registry_cli_main()
 
         authorized_source_ref = f"source-authorized-{uuid4().hex}"
         authorized_evidence_ref = f"evidence-authorized-{uuid4().hex}"
