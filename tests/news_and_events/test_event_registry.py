@@ -632,6 +632,29 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(assessment, stored_assessment["assessment"])
 
+        later_assertion = {
+            **assertion,
+            "temporal_assertion_id": f"{event_id}-assertion-v2",
+            "version": 2,
+            "supersedes_assertion_id": assertion["temporal_assertion_id"],
+        }
+        append_temporal_assertion(self.connection, later_assertion)
+        with self.assertRaises(EventRegistryError):
+            create_reproducibility_manifest(
+                self.connection,
+                {
+                    "manifest_id": f"{event_id}-manifest-future-exclusion",
+                    "assessment_id": assessment["assessment_id"],
+                    "excluded_assertions": [
+                        {
+                            "assertion_id": later_assertion["temporal_assertion_id"],
+                            "version": 2,
+                            "reason": "Not known at the assessment cutoff",
+                        }
+                    ],
+                },
+            )
+
         manifest = create_reproducibility_manifest(
             self.connection,
             {
@@ -659,6 +682,15 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             self.connection, manifest["manifest_id"]
         )
         self.assertEqual(manifest, stored_manifest["manifest"])
+        repeated_manifest = create_reproducibility_manifest(
+            self.connection,
+            {
+                "manifest_id": f"{event_id}-manifest-2",
+                "assessment_id": assessment["assessment_id"],
+                "excluded_assertions": [],
+            },
+        )
+        self.assertEqual(manifest["result_sha256"], repeated_manifest["result_sha256"])
 
         mutations = (
             (
