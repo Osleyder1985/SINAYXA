@@ -209,7 +209,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             """
             SELECT count(*)
             FROM sinayxa.schema_migrations
-            WHERE migration_id IN ('issue-2-event-registry-0001', 'issue-2-temporal-conflicts-0002', 'issue-2-temporal-assessments-manifests-0003', 'issue-2-source-evidence-artifacts-0004')
+            WHERE migration_id IN ('issue-2-event-registry-0001', 'issue-2-temporal-conflicts-0002', 'issue-2-temporal-assessments-manifests-0003', 'issue-2-source-evidence-artifacts-0004', 'issue-2-append-only-truncate-guard-0005')
             """
         ).fetchone()[0]
         trigger_count = self.connection.execute(
@@ -218,20 +218,29 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             FROM pg_trigger
             WHERE tgname IN (
                 'events_append_only',
+                'events_no_truncate',
                 'event_sources_append_only',
+                'event_sources_no_truncate',
                 'temporal_assertions_append_only',
+                'temporal_assertions_no_truncate',
                 'temporal_conflicts_append_only',
+                'temporal_conflicts_no_truncate',
                 'conflict_decisions_append_only',
+                'conflict_decisions_no_truncate',
                 'temporal_assessments_append_only',
+                'temporal_assessments_no_truncate',
                 'reproducibility_manifests_append_only',
+                'reproducibility_manifests_no_truncate',
                 'source_artifacts_append_only',
-                'evidence_artifacts_append_only'
+                'source_artifacts_no_truncate',
+                'evidence_artifacts_append_only',
+                'evidence_artifacts_no_truncate'
             )
               AND NOT tgisinternal
             """
         ).fetchone()[0]
-        self.assertEqual(4, migration_count)
-        self.assertEqual(9, trigger_count)
+        self.assertEqual(5, migration_count)
+        self.assertEqual(18, trigger_count)
         defaults = self.connection.execute(
             """
             SELECT relation.relname, attribute.attname, pg_get_expr(definition.adbin, definition.adrelid)
@@ -785,6 +794,21 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             with self.assertRaises(psycopg.Error):
                 with self.connection.transaction():
                     self.connection.execute(statement, parameters)
+
+        for table in (
+            "events",
+            "event_sources",
+            "temporal_assertions",
+            "temporal_conflicts",
+            "conflict_decisions",
+            "temporal_assessments",
+            "reproducibility_manifests",
+            "source_artifacts",
+            "evidence_artifacts",
+        ):
+            with self.assertRaises(psycopg.Error):
+                with self.connection.transaction():
+                    self.connection.execute(f"TRUNCATE TABLE sinayxa.{table} CASCADE")
 
 
 
