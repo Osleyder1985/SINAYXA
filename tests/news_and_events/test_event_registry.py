@@ -301,6 +301,8 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                 "created_at": iso(now - timedelta(minutes=1)),
             },
         )
+        # Publish the fixture before independent writer connections begin.
+        self.connection.commit()
         barrier = Barrier(2)
         recorded_at = iso(now + timedelta(minutes=1))
 
