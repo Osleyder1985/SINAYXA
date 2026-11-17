@@ -31,7 +31,7 @@ $env:SINAYXA_DATABASE_URL = "postgresql://USUARIO:CONTRASENA@localhost:5432/sina
 python -m scripts.news_and_events.register_event init
 ```
 
-La inicialización aplica en orden las migraciones SQL numeradas (`0001`, `0002`, `0003`, etc.). La migración `0002_temporal_conflicts.sql` añade conflictos/decisiones; `0003_temporal_assessments_manifests.sql` añade evaluaciones/manifiestos; `0004_source_evidence_artifacts.sql` añade almacenamiento local de fuentes/evidencias. Las migraciones son idempotentes. La base de datos y sus credenciales permanecen bajo control local del operador.
+La inicialización aplica en orden las migraciones SQL numeradas (`0001`, `0002`, `0003`, etc.). La migración `0002_temporal_conflicts.sql` añade conflictos/decisiones; `0003_temporal_assessments_manifests.sql` añade evaluaciones/manifiestos; `0004_source_evidence_artifacts.sql` añade almacenamiento local de fuentes/evidencias; `0005_append_only_truncate_guard.sql` bloquea TRUNCATE en las nueve tablas append-only. Las migraciones son idempotentes. La base de datos y sus credenciales permanecen bajo control local del operador.
 
 ## 3. Registrar un acontecimiento
 
