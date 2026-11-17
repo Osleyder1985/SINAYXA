@@ -77,7 +77,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         first_recorded_at = datetime.fromisoformat(
             first_history[0]["recorded_at"].replace("Z", "+00:00")
         )
-        self.assertGreaterEqual(first_recorded_at, datetime.now(timezone.utc) - timedelta(seconds=10))
+        self.assertGreater(first_recorded_at, datetime.fromisoformat(first["recorded_at"].replace("Z", "+00:00")))
 
         source_b_recorded_at = add_source_reference(
             self.connection, event_id, "source-calendar-b"
