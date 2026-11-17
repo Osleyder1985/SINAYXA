@@ -913,6 +913,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         self.assertEqual(source_bytes, stored_source["content_bytes"])
         self.assertEqual(stored_source["captured_at"], stored_source["recorded_at"])
         self.assertEqual(stored_source["recorded_at"], stored_source["inserted_at"])
+        self.connection.commit()
         with tempfile.TemporaryDirectory() as directory:
             export_path = Path(directory) / "source-export.bin"
             with patch(
@@ -963,6 +964,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         self.assertEqual(evidence_bytes, stored_evidence["content_bytes"])
         self.assertEqual(stored_evidence["captured_at"], stored_evidence["recorded_at"])
         self.assertEqual(stored_evidence["recorded_at"], stored_evidence["inserted_at"])
+        self.connection.commit()
         with tempfile.TemporaryDirectory() as temporary_directory:
             source_export = Path(temporary_directory) / "source.bin"
             evidence_export = Path(temporary_directory) / "evidence.bin"
