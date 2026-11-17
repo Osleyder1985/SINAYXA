@@ -137,7 +137,7 @@ def append_temporal_assertion(
     """Append the next temporal assertion version; prior versions are never replaced."""
     with connection.transaction():
         event_row = connection.execute(
-            "SELECT event_payload, inserted_at FROM sinayxa.events WHERE event_id = %s",
+            "SELECT event_payload, inserted_at FROM sinayxa.events WHERE event_id = %s FOR UPDATE",
             (assertion["event_id"],),
         ).fetchone()
         if event_row is None:
