@@ -930,5 +930,83 @@ class EventRegistryIntegrationTests(unittest.TestCase):
 
 
 
+    def test_manifest_is_not_reproducible_when_source_or_evidence_bytes_are_missing(self) -> None:
+        event_id = f"event-{uuid4().hex}"
+        missing_source_ref = f"{event_id}-missing-source"
+        missing_evidence_ref = f"{event_id}-missing-evidence"
+        now = datetime.now(timezone.utc)
+        create_event(
+            self.connection,
+            {
+                "event_id": event_id,
+                "description": "Synthetic event with deliberately absent source/evidence bytes.",
+                "affected_asset_refs": ["asset-synthetic"],
+                "source_refs": [missing_source_ref],
+                "created_at": iso(now - timedelta(minutes=1)),
+            },
+        )
+        assertion = {
+            "temporal_assertion_id": f"{event_id}-assertion-v1",
+            "event_id": event_id,
+            "version": 1,
+            "temporal_role": "UNKNOWN",
+            "precision": "UNKNOWN",
+            "interval_start": {"value": None, "inclusive": False},
+            "interval_end": {"value": None, "inclusive": False},
+            "approximation": False,
+            "original_value": None,
+            "original_timezone": None,
+            "original_offset": None,
+            "normalized_start_utc": None,
+            "normalized_end_utc": None,
+            "source_ref": None,
+            "evidence_ref": missing_evidence_ref,
+            "retrieved_at": None,
+            "recorded_at": iso(now - timedelta(days=1)),
+            "supersedes_assertion_id": None,
+            "published_at": None,
+            "first_observed_at": None,
+        }
+        append_temporal_assertion(self.connection, assertion)
+        inserted_at = self.connection.execute(
+            """
+            SELECT inserted_at
+            FROM sinayxa.temporal_assertions
+            WHERE temporal_assertion_id = %s
+            """,
+            (assertion["temporal_assertion_id"],),
+        ).fetchone()[0]
+        assessment = create_temporal_assessment(
+            self.connection,
+            {
+                "assessment_id": f"{event_id}-assessment-1",
+                "event_id": event_id,
+                "assessment_cutoff": iso(inserted_at),
+                "assertion_refs": [assertion["temporal_assertion_id"]],
+                "conflict_decision_refs": [],
+                "rules_version": "temporal-assessment-rules-1.0.0",
+                "software_version": "sinayxa-registry-0.1.0",
+            },
+        )
+        manifest = create_reproducibility_manifest(
+            self.connection,
+            {
+                "manifest_id": f"{event_id}-manifest-1",
+                "assessment_id": assessment["assessment_id"],
+                "excluded_assertions": [],
+            },
+        )
+        self.assertEqual("NOT_REPRODUCIBLE", manifest["reproducibility_status"])
+        self.assertIn(
+            f"source_artifact_missing:{missing_source_ref}",
+            manifest["missing_components"],
+        )
+        self.assertIn(
+            f"evidence_artifact_missing:{missing_evidence_ref}",
+            manifest["missing_components"],
+        )
+
+
+
 if __name__ == "__main__":
     unittest.main()
