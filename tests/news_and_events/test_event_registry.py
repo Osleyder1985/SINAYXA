@@ -941,6 +941,24 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         with self.assertRaises(EventRegistryError):
             register_source_artifact(
                 self.connection,
+                f"source-invalid-status-{uuid4().hex}",
+                b"invalid status type",
+                {
+                    "media_type": "text/plain",
+                    "license_ref": "SYNTHETIC-TEST-DATA",
+                    "usage_status": ["AUTHORIZED"],
+                },
+            )
+        with self.assertRaises(EventRegistryError):
+            register_source_artifact(
+                self.connection,
+                f"source-invalid-metadata-{uuid4().hex}",
+                b"invalid metadata type",
+                None,
+            )
+        with self.assertRaises(EventRegistryError):
+            register_source_artifact(
+                self.connection,
                 f"source-unauthorized-{uuid4().hex}",
                 b"unauthorized",
                 {
