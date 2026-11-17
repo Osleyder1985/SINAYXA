@@ -76,11 +76,37 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $version = '7.6.6'
+          $version = '7.7.0'
+          $expectedSha256 = '7c74e03b20a75b59715847439d046a6214b1863ee79b187872980f139bb4a05f'
           $archive = Join-Path $env:RUNNER_TEMP "PowerShell-$version-win-x64.zip"
           $installDirectory = Join-Path $env:RUNNER_TEMP "PowerShell-$version"
           $uri = "https://github.com/PowerShell/PowerShell/releases/download/v$version/PowerShell-$version-win-x64.zip"
-          Invoke-WebRequest -Uri $uri -OutFile $archive
+
+          # GitHub release downloads can transiently return gateway/error pages.
+          # Retry transport failures, then verify the exact official release digest.
+          $downloaded = $false
+          for ($attempt = 1; $attempt -le 3; $attempt++) {
+            try {
+              Remove-Item -LiteralPath $archive -Force -ErrorAction SilentlyContinue
+              Invoke-WebRequest -Uri $uri -OutFile $archive -TimeoutSec 120
+              if (-not (Test-Path -LiteralPath $archive) -or (Get-Item -LiteralPath $archive).Length -lt 1MB) {
+                throw 'PowerShell release archive is missing or unexpectedly small.'
+              }
+              $actualSha256 = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+              if ($actualSha256 -ne $expectedSha256) {
+                throw "PowerShell release archive SHA-256 mismatch: $actualSha256"
+              }
+              $downloaded = $true
+              break
+            }
+            catch {
+              if ($attempt -eq 3) { throw }
+              Write-Warning "PowerShell release download attempt $attempt failed: $($_.Exception.Message)"
+              Start-Sleep -Seconds (5 * $attempt)
+            }
+          }
+          if (-not $downloaded) { throw 'PowerShell release archive could not be downloaded and verified.' }
+
           New-Item -ItemType Directory -Path $installDirectory -Force | Out-Null
           Expand-Archive -LiteralPath $archive -DestinationPath $installDirectory -Force
           $pwsh = Join-Path $installDirectory 'pwsh.exe'
@@ -88,7 +114,7 @@ jobs:
           $actual = & $pwsh -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
           if ($LASTEXITCODE -ne 0 -or $actual.Trim() -ne $version) { throw "Expected PowerShell $version; detected '$actual'." }
           "SINAYXA_PWSH_PATH=$pwsh" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "Verified PowerShell $actual"
+          "Verified PowerShell $actual (SHA-256: $actualSha256)"
 
       - name: Install pinned PSScriptAnalyzer 1.24.0
         shell: pwsh
