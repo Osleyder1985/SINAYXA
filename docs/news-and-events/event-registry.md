@@ -239,19 +239,80 @@ El manifiesto calcula SHA-256 de la versión exacta del esquema, del módulo de 
 
 **El estado se declara `PARTIALLY_REPRODUCIBLE`, no `REPRODUCIBLE`**, mientras no se conserven el contenido de las fuentes, el contenido de la evidencia, la verificación del build exacto y una instantánea completa del entorno de ejecución. Los identificadores y hashes no sustituyen los documentos fuente ni permiten reconstruir datos que nunca fueron almacenados.
 
-## 8. Límites conocidos de esta primera entrega
+
+## 8. Artefactos locales de fuentes y evidencias
+
+El registro puede conservar los bytes exactos de una fuente y de los fragmentos/evidencias derivados. El operador suministra los archivos; SINAYXA no realiza descargas, crawling ni captura automática.
+
+Ejemplo de `source-metadata.json`:
+
+```json
+{
+  "source_ref": "source-report-001",
+  "source_uri": "urn:sinayxa:synthetic:report-001",
+  "title": "Synthetic source report",
+  "publisher": "SINAYXA test fixture",
+  "media_type": "application/json",
+  "license_ref": "SYNTHETIC-TEST-DATA",
+  "usage_status": "SYNTHETIC",
+  "metadata": {
+    "fixture": "local-validation"
+  }
+}
+```
+
+Registrar los bytes originales:
+
+```powershell
+python -m scripts.news_and_events.register_event register-source-artifact --input .\source-metadata.json --file .\source-report.json
+```
+
+Ejemplo de `evidence-metadata.json`:
+
+```json
+{
+  "evidence_ref": "evidence-report-001",
+  "source_ref": "source-report-001",
+  "evidence_type": "EXTRACT",
+  "media_type": "text/plain",
+  "extraction_method": "manual-synthetic",
+  "extraction_version": "1.0.0",
+  "location_hint": "page 2, paragraph 4",
+  "license_ref": "SYNTHETIC-TEST-DATA",
+  "usage_status": "SYNTHETIC",
+  "metadata": {
+    "fixture": "local-validation"
+  }
+}
+```
+
+Registrar la evidencia y exportar después los bytes exactos:
+
+```powershell
+python -m scripts.news_and_events.register_event register-evidence-artifact --input .\evidence-metadata.json --file .\evidence-extract.txt
+python -m scripts.news_and_events.register_event export-source-artifact --source-ref source-report-001 --output .\source-export.json
+python -m scripts.news_and_events.register_event export-evidence-artifact --evidence-ref evidence-report-001 --output .\evidence-export.txt
+```
+
+Cada artefacto conserva el contenido byte por byte, SHA-256, longitud, media type, licencia, estado de uso y metadatos de procedencia. La exportación verifica longitud y SHA-256 antes de escribir el archivo y se niega a sobrescribir un destino existente.
+
+`usage_status` solo admite `SYNTHETIC` o `AUTHORIZED`. Los artefactos `AUTHORIZED` requieren `authorization_ref`; una evidencia vinculada a una fuente no puede ampliar ni contradecir su estado de autorización. El contenido se guarda en PostgreSQL (`BYTEA`) y no se impone un límite de tamaño adicional en la aplicación.
+
+Los manifiestos incluyen los hashes de los artefactos disponibles antes del `assessment_cutoff`. Una referencia cuyo contenido no exista o haya sido incorporado después del corte se identifica en `missing_components`; no se incorpora retrospectivamente al resultado.
+
+## 9. Límites conocidos de esta primera entrega
 
 - No existe aún interfaz gráfica, API HTTP ni integración con proveedores de noticias.
 - La consulta devuelve el historial temporal conocido; no calcula por sí sola un dictamen de credibilidad, intensidad, impacto o causalidad.
 - Los triggers protegen contra UPDATE/DELETE ordinarios dentro de la base de datos. No equivalen a WORM externo, Object Lock ni resistencia frente a un administrador privilegiado o pérdida del host.
 - No se ha validado todavía instalación local en Windows del propietario ni operación con datos reales.
 
-## 9. Validación automatizada
+## 10. Validación automatizada
 
 La escritura de una nueva afirmación bloquea la fila del acontecimiento (`SELECT ... FOR UPDATE`) durante la lectura del historial y la inserción. Esto serializa la asignación de versiones por acontecimiento cuando existen varios escritores concurrentes; la restricción única de `(event_id, version)` permanece como defensa adicional.
 
-La suite de integración comprueba `UPDATE` y `DELETE` en las siete tablas append-only (`events`, `event_sources`, `temporal_assertions`, `temporal_conflicts`, `conflict_decisions`, `temporal_assessments` y `reproducibility_manifests`), la re-ejecución de las tres migraciones, los ocho defaults de timestamps de registro basados en reloj real, dos escritores concurrentes que intentan anexar la misma versión, el ciclo de decisiones, transiciones inválidas y cortes históricos.
+La suite de integración comprueba `UPDATE` y `DELETE` en las nueve tablas append-only (`events`, `event_sources`, `temporal_assertions`, `temporal_conflicts`, `conflict_decisions`, `temporal_assessments`, `reproducibility_manifests`, `source_artifacts` y `evidence_artifacts`), la re-ejecución de las cuatro migraciones, los diez defaults de timestamps de registro basados en reloj real, dos escritores concurrentes que intentan anexar la misma versión, el ciclo de decisiones, transiciones inválidas y cortes históricos.
 
-El workflow `.github/workflows/event-registry-validation.yml` ejecuta el validador y regresiones del contrato y pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite cubre registro, versionado, consultas históricas, conflictos, decisiones, rechazo de secuencias/transiciones inválidas, concurrencia, idempotencia de migraciones y protección append-only de las siete tablas, evaluaciones temporales y generación de manifiestos RFC 8785.
+El workflow `.github/workflows/event-registry-validation.yml` ejecuta el validador y regresiones del contrato y pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite cubre registro, versionado, consultas históricas, conflictos, decisiones, rechazo de secuencias/transiciones inválidas, concurrencia, idempotencia de migraciones y protección append-only de las nueve tablas, almacenamiento de artefactos, evaluaciones temporales y generación de manifiestos RFC 8785.
 
 La ejecución satisfactoria de CI demuestra el comportamiento del laboratorio sintético; no demuestra disponibilidad operativa local ni veracidad de acontecimientos reales.
