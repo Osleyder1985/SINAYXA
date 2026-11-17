@@ -182,7 +182,62 @@ python -m scripts.news_and_events.register_event conflict-history --conflict-id 
 
 La hora `decided_at` representa la hora declarada de la decisión; PostgreSQL conserva además `inserted_at`, que representa cuándo se incorporó realmente al registro. Los valores por defecto usan `clock_timestamp()` y no `transaction_timestamp()`, para que una transacción larga no retrotraiga artificialmente la hora de incorporación. Las consultas históricas filtran por `inserted_at`, evitando mostrar decisiones que todavía no estaban registradas en el corte consultado. El estado actual se deriva de las decisiones visibles y no se reescribe en el registro inicial del conflicto.
 
-## 7. Límites conocidos de esta primera entrega
+
+## 7. Evaluaciones temporales y manifiestos de reproducibilidad
+
+Una evaluación se ejecuta únicamente cuando el operador la solicita. El archivo `assessment.json` identifica el acontecimiento, el corte UTC y las afirmaciones/decisiones que deben considerarse:
+
+```json
+{
+  "assessment_id": "assessment-event-001",
+  "event_id": "event-protocol-release-001",
+  "assessment_cutoff": "2026-11-17T12:30:00Z",
+  "assertion_refs": [
+    "event-protocol-release-001-v1",
+    "event-protocol-release-001-v2"
+  ],
+  "conflict_decision_refs": [],
+  "rules_version": "temporal-assessment-rules-1.0.0",
+  "software_version": "sinayxa-registry-build-20261117"
+}
+```
+
+Crear la evaluación:
+
+```powershell
+python -m scripts.news_and_events.register_event create-assessment --input .\assessment.json
+```
+
+El sistema calcula `derived_temporal_state` a partir de las afirmaciones seleccionadas y el corte (`PAST`, `ONGOING`, `FUTURE` o `UNDETERMINED`). PostgreSQL asigna `recorded_at`; no se acepta como verdadero un timestamp de registro enviado por el cliente. La evaluación rechaza acontecimientos, afirmaciones o decisiones cuya inserción real en el registro sea posterior al corte.
+
+Consultar la evaluación:
+
+```powershell
+python -m scripts.news_and_events.register_event show-assessment --assessment-id assessment-event-001
+```
+
+Para generar un manifiesto, crear `manifest-request.json`:
+
+```json
+{
+  "manifest_id": "manifest-event-001",
+  "assessment_id": "assessment-event-001",
+  "excluded_assertions": []
+}
+```
+
+Ejecutar:
+
+```powershell
+python -m scripts.news_and_events.register_event create-manifest --input .\manifest-request.json
+python -m scripts.news_and_events.register_event show-manifest --manifest-id manifest-event-001
+```
+
+El manifiesto calcula SHA-256 de la versión exacta del esquema, del módulo de reglas y del resultado serializado mediante RFC 8785. También registra la versión IANA TZDB, las versiones de afirmaciones incluidas/excluidas, las referencias de evidencia y decisiones, y las versiones declaradas de reglas y software.
+
+**El estado se declara `PARTIALLY_REPRODUCIBLE`, no `REPRODUCIBLE`**, mientras no se conserven el contenido de las fuentes, el contenido de la evidencia y una instantánea completa del entorno de ejecución. Los identificadores y hashes no sustituyen los documentos fuente ni permiten reconstruir datos que nunca fueron almacenados.
+
+## 8. Límites conocidos de esta primera entrega
 
 - No existe aún interfaz gráfica, API HTTP ni integración con proveedores de noticias.
 - La consulta devuelve el historial temporal conocido; no calcula por sí sola un dictamen de credibilidad, intensidad, impacto o causalidad.
@@ -190,12 +245,12 @@ La hora `decided_at` representa la hora declarada de la decisión; PostgreSQL co
 - Los triggers protegen contra UPDATE/DELETE ordinarios dentro de la base de datos. No equivalen a WORM externo, Object Lock ni resistencia frente a un administrador privilegiado o pérdida del host.
 - No se ha validado todavía instalación local en Windows del propietario ni operación con datos reales.
 
-## 8. Validación automatizada
+## 9. Validación automatizada
 
 La escritura de una nueva afirmación bloquea la fila del acontecimiento (`SELECT ... FOR UPDATE`) durante la lectura del historial y la inserción. Esto serializa la asignación de versiones por acontecimiento cuando existen varios escritores concurrentes; la restricción única de `(event_id, version)` permanece como defensa adicional.
 
-La suite de integración comprueba `UPDATE` y `DELETE` en las cinco tablas append-only (`events`, `event_sources`, `temporal_assertions`, `temporal_conflicts` y `conflict_decisions`), la re-ejecución de ambas migraciones, los seis defaults de timestamps de registro basados en reloj real, dos escritores concurrentes que intentan anexar la misma versión, el ciclo de decisiones, transiciones inválidas y cortes históricos.
+La suite de integración comprueba `UPDATE` y `DELETE` en las siete tablas append-only (`events`, `event_sources`, `temporal_assertions`, `temporal_conflicts`, `conflict_decisions`, `temporal_assessments` y `reproducibility_manifests`), la re-ejecución de las tres migraciones, los ocho defaults de timestamps de registro basados en reloj real, dos escritores concurrentes que intentan anexar la misma versión, el ciclo de decisiones, transiciones inválidas y cortes históricos.
 
-El workflow `.github/workflows/event-registry-validation.yml` ejecuta el validador y regresiones del contrato y pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite cubre registro, versionado, consultas históricas, conflictos, decisiones, rechazo de secuencias/transiciones inválidas, concurrencia, idempotencia de migraciones y protección append-only de las cinco tablas.
+El workflow `.github/workflows/event-registry-validation.yml` ejecuta el validador y regresiones del contrato y pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite cubre registro, versionado, consultas históricas, conflictos, decisiones, rechazo de secuencias/transiciones inválidas, concurrencia, idempotencia de migraciones y protección append-only de las siete tablas, evaluaciones temporales y generación de manifiestos RFC 8785.
 
 La ejecución satisfactoria de CI demuestra el comportamiento del laboratorio sintético; no demuestra disponibilidad operativa local ni veracidad de acontecimientos reales.
