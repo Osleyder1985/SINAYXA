@@ -113,7 +113,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         self.assertNotEqual(second["recorded_at"], history[1]["recorded_at"])
 
         historical = get_event_as_of(
-            self.connection, event_id, iso(source_b_recorded_at + timedelta(microseconds=1))
+            self.connection, event_id, iso(source_b_recorded_at - timedelta(microseconds=1))
         )
         current = get_event_as_of(
             self.connection, event_id, iso(second_recorded_at + timedelta(seconds=1))
