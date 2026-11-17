@@ -26,7 +26,7 @@ $env:SINAYXA_DATABASE_URL = "postgresql://USUARIO:CONTRASENA@localhost:5432/sina
 python -m scripts.news_and_events.register_event init
 ```
 
-La migración crea el esquema sinayxa y sus tablas. Puede ejecutarse nuevamente sin duplicar los objetos principales. La base de datos y sus credenciales permanecen bajo control local del operador.
+La inicialización aplica en orden las migraciones SQL numeradas (`0001`, `0002`, etc.). La migración `0002_temporal_conflicts.sql` añade las tablas append-only de conflictos y decisiones. Puede ejecutarse nuevamente sin duplicar los objetos principales. La base de datos y sus credenciales permanecen bajo control local del operador.
 
 ## 3. Registrar un acontecimiento
 
