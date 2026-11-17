@@ -406,7 +406,7 @@ Evidencia:
 
 La ejecución demuestra compatibilidad del baseline PostgreSQL 18.7 + Docker 29.10.0 en un runner efímero Linux. **No demuestra** compatibilidad del host Windows local ni de Compose, porque Compose no se utilizó en este ensayo. La validación en el equipo local debe registrar su propio manifiesto y evidencia.
 
-AIStor Server/Client permanece sin release GA y digest verificados en el manifiesto actual; por tanto, el laboratorio integrado C/D/E sigue BLOCKED. No se ha seleccionado proveedor, solicitado licencia ni creado infraestructura externa.
+PR #100 ya capturó metadata oficial de releases estables de AIStor Server y Client. Sin embargo, el manifiesto integrado sigue BLOCKED: aún faltan el digest OCI verificable del Server, checksum/firma del artefacto Windows del Client, SBOM/procedencia aplicable y revisión de licencia/condiciones de uso. No se ha seleccionado proveedor, solicitado licencia ni creado infraestructura externa.
 
 ### Criterio de aceptación adicional
 
