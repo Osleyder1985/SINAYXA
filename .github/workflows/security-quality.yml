@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - main
+      - feature/issue-2-temporal-contract-1.0.0
+      - feature/issue-2-event-registry
     paths:
       - "**"
       - ".github/workflows/security-quality.yml"
