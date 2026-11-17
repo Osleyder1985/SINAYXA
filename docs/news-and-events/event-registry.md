@@ -112,7 +112,7 @@ El corte debe expresarse en UTC con sufijo Z. Una afirmación cuyo recorded_at s
 - No existe aún interfaz gráfica, API HTTP ni integración con proveedores de noticias.
 - La consulta devuelve el historial temporal conocido; no calcula por sí sola un dictamen de credibilidad, intensidad, impacto o causalidad.
 - El modelo de conflictos, decisiones, evaluaciones y manifiestos está definido en el contrato, pero sus operaciones de escritura no forman parte de esta primera vertical.
-- Los triggers protegen contra UPDATE/DELETE ordinarios dentro de la base de datos. No equivalen a WORM externo, Object Lock ni resistencia frente a un administrador privilegiado o pérdida del host.
+- Los triggers bloquean UPDATE/DELETE por fila y TRUNCATE por sentencia dentro de la base de datos. No equivalen a WORM externo, Object Lock ni resistencia frente a un administrador privilegiado o pérdida del host.
 - No se ha validado todavía instalación local en Windows del propietario ni operación con datos reales.
 
 ## 7. Validación automatizada
