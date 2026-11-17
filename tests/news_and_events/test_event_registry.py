@@ -1,10 +1,12 @@
 """PostgreSQL integration tests for the Issue #2 event registry."""
 from __future__ import annotations
 
+import hashlib
 import os
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
@@ -17,9 +19,13 @@ from scripts.news_and_events.event_registry import (
     append_temporal_assertion,
     connect,
     create_event,
+    create_reproducibility_manifest,
+    create_temporal_assessment,
     create_temporal_conflict,
     get_conflict_history,
     get_event_as_of,
+    get_reproducibility_manifest,
+    get_temporal_assessment,
     get_event_history,
     initialize_database,
 )
@@ -257,7 +263,8 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             FROM sinayxa.schema_migrations
             WHERE migration_id IN (
                 'issue-2-event-registry-0001',
-                'issue-2-temporal-conflicts-0002'
+                'issue-2-temporal-conflicts-0002',
+                'issue-2-temporal-assessments-manifests-0003'
             )
             """
         ).fetchone()[0]
@@ -273,13 +280,15 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                 'event_sources_no_truncate',
                 'temporal_assertions_no_truncate',
                 'temporal_conflicts_append_only',
-                'conflict_decisions_append_only'
+                'conflict_decisions_append_only',
+                'temporal_assessments_append_only',
+                'reproducibility_manifests_append_only'
             )
               AND NOT tgisinternal
             """
         ).fetchone()[0]
-        self.assertEqual(2, migration_count)
-        self.assertEqual(8, trigger_count)
+        self.assertEqual(3, migration_count)
+        self.assertEqual(10, trigger_count)
         defaults = self.connection.execute(
             """
             SELECT relation.relname, attribute.attname, pg_get_expr(definition.adbin, definition.adrelid)
@@ -296,11 +305,13 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                   ('event_sources', 'inserted_at'),
                   ('temporal_assertions', 'inserted_at'),
                   ('temporal_conflicts', 'inserted_at'),
-                  ('conflict_decisions', 'inserted_at')
+                  ('conflict_decisions', 'inserted_at'),
+                  ('temporal_assessments', 'inserted_at'),
+                  ('reproducibility_manifests', 'inserted_at')
               )
             """
         ).fetchall()
-        self.assertEqual(6, len(defaults))
+        self.assertEqual(8, len(defaults))
         self.assertTrue(
             all(expression == "clock_timestamp()" for _, _, expression in defaults),
             defaults,
@@ -603,6 +614,188 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             with self.assertRaises(psycopg.Error):
                 with self.connection.transaction():
                     self.connection.execute(statement, (conflict["conflict_id"],))
+
+
+    def test_temporal_assessment_and_manifest_lifecycle(self) -> None:
+        event_id = f"event-{uuid4().hex}"
+        now = datetime.now(timezone.utc)
+        create_event(
+            self.connection,
+            {
+                "event_id": event_id,
+                "description": "Synthetic event for reproducible temporal assessment.",
+                "affected_asset_refs": ["asset-synthetic"],
+                "source_refs": [],
+                "created_at": iso(now - timedelta(minutes=2)),
+            },
+        )
+        assertion = {
+            "temporal_assertion_id": f"{event_id}-assertion-v1",
+            "event_id": event_id,
+            "version": 1,
+            "temporal_role": "SCHEDULED",
+            "precision": "DAY",
+            "interval_start": {
+                "value": iso(now + timedelta(days=1)),
+                "inclusive": True,
+            },
+            "interval_end": {
+                "value": iso(now + timedelta(days=1, hours=23, minutes=59, seconds=59)),
+                "inclusive": True,
+            },
+            "approximation": False,
+            "original_value": "Synthetic event scheduled for tomorrow",
+            "original_timezone": "UTC",
+            "original_offset": "+00:00",
+            "normalized_start_utc": iso(now + timedelta(days=1)),
+            "normalized_end_utc": iso(now + timedelta(days=1, hours=23, minutes=59, seconds=59)),
+            "source_ref": None,
+            "evidence_ref": "evidence-assessment-synthetic",
+            "retrieved_at": None,
+            # The registry must replace this caller-supplied timestamp.
+            "recorded_at": iso(now - timedelta(days=30)),
+            "supersedes_assertion_id": None,
+            "published_at": None,
+            "first_observed_at": None,
+        }
+        append_temporal_assertion(self.connection, assertion)
+        inserted_at = self.connection.execute(
+            """
+            SELECT inserted_at
+            FROM sinayxa.temporal_assertions
+            WHERE temporal_assertion_id = %s
+            """,
+            (assertion["temporal_assertion_id"],),
+        ).fetchone()[0]
+        cutoff = iso(inserted_at)
+
+        request = {
+            "assessment_id": f"{event_id}-assessment-1",
+            "event_id": event_id,
+            "assessment_cutoff": cutoff,
+            "assertion_refs": [assertion["temporal_assertion_id"]],
+            "conflict_decision_refs": [],
+            "rules_version": "temporal-assessment-rules-1.0.0",
+            "software_version": "sinayxa-registry-0.1.0",
+        }
+        too_early = {
+            **request,
+            "assessment_id": f"{event_id}-assessment-too-early",
+            "assessment_cutoff": iso(inserted_at - timedelta(microseconds=1)),
+        }
+        with self.assertRaises(EventRegistryError):
+            create_temporal_assessment(self.connection, too_early)
+
+        assessment = create_temporal_assessment(self.connection, request)
+        self.assertEqual("FUTURE", assessment["derived_temporal_state"])
+        self.assertNotEqual(assertion["recorded_at"], assessment["recorded_at"])
+        stored_assessment = get_temporal_assessment(
+            self.connection, assessment["assessment_id"]
+        )
+        self.assertEqual(assessment, stored_assessment["assessment"])
+        self.assertEqual(
+            assessment["recorded_at"], stored_assessment["recorded_in_registry_at"]
+        )
+        add_source_reference(self.connection, event_id, "source-added-after-assessment-cutoff")
+
+        later_assertion = {
+            **assertion,
+            "temporal_assertion_id": f"{event_id}-assertion-v2",
+            "version": 2,
+            "supersedes_assertion_id": assertion["temporal_assertion_id"],
+        }
+        append_temporal_assertion(self.connection, later_assertion)
+        with self.assertRaises(EventRegistryError):
+            create_reproducibility_manifest(
+                self.connection,
+                {
+                    "manifest_id": f"{event_id}-manifest-future-exclusion",
+                    "assessment_id": assessment["assessment_id"],
+                    "excluded_assertions": [
+                        {
+                            "assertion_id": later_assertion["temporal_assertion_id"],
+                            "version": 2,
+                            "reason": "Not known at the assessment cutoff",
+                        }
+                    ],
+                },
+            )
+
+        manifest = create_reproducibility_manifest(
+            self.connection,
+            {
+                "manifest_id": f"{event_id}-manifest-1",
+                "assessment_id": assessment["assessment_id"],
+                "excluded_assertions": [],
+            },
+        )
+        self.assertEqual("RFC8785", manifest["canonicalization"])
+        self.assertEqual("2026f", manifest["tzdb_version"])
+        self.assertEqual("PARTIALLY_REPRODUCIBLE", manifest["reproducibility_status"])
+        self.assertIn("evidence-assessment-synthetic", manifest["evidence_refs"])
+        self.assertEqual(
+            [{"assertion_id": assertion["temporal_assertion_id"], "version": 1}],
+            manifest["assertion_versions"],
+        )
+        self.assertTrue(
+            all(
+                len(manifest[field]) == 64
+                for field in ("schema_sha256", "rules_sha256", "result_sha256")
+            )
+        )
+        root = Path(__file__).resolve().parents[2]
+        self.assertEqual(
+            hashlib.sha256(
+                (root / "schemas" / "temporal-event-contract-1.0.0.schema.json").read_bytes()
+            ).hexdigest(),
+            manifest["schema_sha256"],
+        )
+        self.assertEqual(
+            hashlib.sha256(
+                (root / "scripts" / "validation" / "validate_temporal_event_contract.py").read_bytes()
+            ).hexdigest(),
+            manifest["rules_sha256"],
+        )
+        self.assertTrue(manifest["missing_components"])
+        stored_manifest = get_reproducibility_manifest(
+            self.connection, manifest["manifest_id"]
+        )
+        self.assertEqual(manifest, stored_manifest["manifest"])
+        self.assertEqual(
+            manifest["created_at"], stored_manifest["recorded_in_registry_at"]
+        )
+        repeated_manifest = create_reproducibility_manifest(
+            self.connection,
+            {
+                "manifest_id": f"{event_id}-manifest-2",
+                "assessment_id": assessment["assessment_id"],
+                "excluded_assertions": [],
+            },
+        )
+        self.assertEqual(manifest["result_sha256"], repeated_manifest["result_sha256"])
+
+        mutations = (
+            (
+                "UPDATE sinayxa.temporal_assessments SET derived_temporal_state = 'PAST' WHERE assessment_id = %s",
+                (assessment["assessment_id"],),
+            ),
+            (
+                "DELETE FROM sinayxa.temporal_assessments WHERE assessment_id = %s",
+                (assessment["assessment_id"],),
+            ),
+            (
+                "UPDATE sinayxa.reproducibility_manifests SET result_sha256 = repeat('0', 64) WHERE manifest_id = %s",
+                (manifest["manifest_id"],),
+            ),
+            (
+                "DELETE FROM sinayxa.reproducibility_manifests WHERE manifest_id = %s",
+                (manifest["manifest_id"],),
+            ),
+        )
+        for statement, parameters in mutations:
+            with self.assertRaises(psycopg.Error):
+                with self.connection.transaction():
+                    self.connection.execute(statement, parameters)
 
 
 if __name__ == "__main__":
