@@ -123,6 +123,16 @@ class TemporalContractTests(unittest.TestCase):
         self.package["temporal_conflicts"][0]["status"]="UNDER_REVIEW"
         self.assert_invalid(lambda p: None, "was not known at assessment cutoff")
 
+    def test_decision_rejects_conflict_recorded_after_cutoff(self):
+        self.package["conflict_decisions"] = [{
+            "decision_id":"decision-conflict-lookahead","conflict_id":"conflict-1","from_status":"OPEN","to_status":"UNDER_REVIEW",
+            "assertion_refs":["ta-event-1-v1"],"supporting_evidence_refs":[],"contrary_evidence_refs":[],
+            "scope":"review","rationale":"review","limitations":"pending","actor_ref":"actor-1",
+            "decided_at":"2026-11-16T10:05:00Z","assessment_cutoff":"2026-11-16T10:03:30Z",
+            "rules_version":"rules-1","supersedes_decision_id":None}]
+        self.package["temporal_conflicts"][0]["status"]="UNDER_REVIEW"
+        self.assert_invalid(lambda p: None, "conflict was not known at assessment cutoff")
+
     def test_decision_cannot_predate_conflict_record(self):
         self.package["conflict_decisions"] = [{
             "decision_id":"decision-early","conflict_id":"conflict-1","from_status":"OPEN","to_status":"UNDER_REVIEW",
