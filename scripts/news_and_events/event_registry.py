@@ -874,6 +874,10 @@ def register_source_artifact(
         raise EventRegistryError("source_ref must be non-empty")
     if not isinstance(media_type, str) or not media_type.strip():
         raise EventRegistryError("source media_type must be non-empty")
+    for field_name in ("source_uri", "title", "publisher"):
+        field_value = metadata.get(field_name)
+        if field_value is not None and not isinstance(field_value, str):
+            raise EventRegistryError(f"source {field_name} must be a string")
     if not isinstance(license_ref, str) or not license_ref.strip():
         raise EventRegistryError("source license_ref must be non-empty")
     _validate_usage_authorization(usage_status, authorization_ref)
@@ -897,7 +901,7 @@ def register_source_artifact(
                 media_type,
                 digest,
                 len(payload),
-                psycopg.Binary(payload),
+                payload,
                 published_at,
                 license_ref,
                 usage_status,
@@ -943,6 +947,8 @@ def register_evidence_artifact(
     authorization_ref = metadata.get("authorization_ref")
     if not isinstance(evidence_ref, str) or not evidence_ref.strip():
         raise EventRegistryError("evidence_ref must be non-empty")
+    if source_ref is not None and (not isinstance(source_ref, str) or not source_ref.strip()):
+        raise EventRegistryError("evidence source_ref must be a non-empty string when provided")
     for field_name, value in (
         ("evidence_type", evidence_type),
         ("media_type", media_type),
@@ -987,7 +993,7 @@ def register_evidence_artifact(
                 media_type,
                 digest,
                 len(payload),
-                psycopg.Binary(payload),
+                payload,
                 extraction_method,
                 extraction_version,
                 metadata.get("location_hint"),
