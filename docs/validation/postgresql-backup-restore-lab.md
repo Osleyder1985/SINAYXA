@@ -53,6 +53,22 @@ Security/dependency gate: [run #43937072696](https://github.com/Osleyder1985/SIN
 
 Esta evidencia sustituye la versión 16.3 como prueba de referencia para la ejecución actual del laboratorio, pero no demuestra ejecución en el equipo local del propietario ni cierra las brechas externas de #89.
 
+
+## Reconciliación de disposiciones posteriores al backup — Issue #113
+
+El arnés amplía el ensayo con un caso sintético separado del backup:
+
+1. El backup se genera cuando existen tres activos sintéticos y cuatro observaciones.
+2. Una disposición posterior `DELETE\t3` se conserva en un ledger temporal independiente, que no forma parte del backup.
+3. La restauración permanece inaccesible para el rol consumidor: se revoca `CONNECT` a `PUBLIC` y no se concede al consumidor antes de validar el ledger.
+4. Con el ledger válido y la referencia resoluble, se eliminan el activo y sus observaciones relacionadas; repetir la operación conserva el mismo estado final.
+5. Solo después se concede acceso al consumidor. Este observa dos activos y no puede consultar el activo dispuesto.
+6. Tres restauraciones adicionales permanecen bloqueadas cuando falta el ledger, cuando su formato es inválido o cuando la referencia no existe.
+
+El reporte versión 1.2.0 registra por separado `restore_gate_before_reconciliation`, `restore_reconciliation`, `missing_ledger_fail_closed`, `invalid_ledger_fail_closed` y `unknown_reference_fail_closed`.
+
+**Interpretación:** esto prueba la secuencia de control de acceso y reconciliación en una instancia PostgreSQL efímera con ledger sintético. No demuestra que un ledger externo sea duradero, independiente, autenticado o resistente a alteraciones; tampoco elimina el backup original ni sus copias. No es evidencia de borrado físico ni cierra #89 o el Área C de #88.
+
 ## Límites de evidencia
 
 No demuestra backup físico del clúster ni PITR, independencia física de backups externos, WORM/Object Lock, eliminación física, reconciliación de snapshots externos ni migración productiva. Un PASS cubre exclusivamente el ensayo PostgreSQL sintético y no cierra #88, #89, #91 ni las áreas C/D/E.
