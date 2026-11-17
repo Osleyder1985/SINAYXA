@@ -14,20 +14,15 @@ import tzdata
 from jsonschema import Draft202012Validator, FormatChecker
 from psycopg.types.json import Jsonb
 
-from scripts.validation.validate_temporal_event_contract import derive_temporal_state, validate_semantics
+from scripts.validation.validate_temporal_event_contract import (
+    derive_temporal_state,
+    validate_semantics,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "schemas" / "temporal-event-contract-1.0.0.schema.json"
 RULES_PATH = ROOT / "scripts" / "validation" / "validate_temporal_event_contract.py"
 MIGRATION_DIR = ROOT / "database" / "migrations"
-EMPTY_COLLECTIONS = {
-    "temporal_conflicts": [],
-    "conflict_decisions": [],
-    "temporal_assessments": [],
-    "reproducibility_manifests": [],
-}
-
-
 class EventRegistryError(ValueError):
     """Raised when a registry operation violates the temporal contract."""
 
