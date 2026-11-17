@@ -302,7 +302,7 @@ Los manifiestos incluyen los hashes de los artefactos disponibles antes del `ass
 
 - No existe aún interfaz gráfica, API HTTP ni integración con proveedores de noticias.
 - La consulta devuelve el historial temporal conocido; no calcula por sí sola un dictamen de credibilidad, intensidad, impacto o causalidad.
-- El manifiesto declara `PARTIALLY_REPRODUCIBLE` mientras no se conserven bytes de fuentes/evidencias, build exacto verificado y snapshot completo del entorno.
+- El manifiesto declara `NOT_REPRODUCIBLE` si faltan bytes de artefactos requeridos en el corte; cuando están presentes, permanece `PARTIALLY_REPRODUCIBLE` hasta verificar build exacto y snapshot completo del entorno.
 - Los triggers bloquean UPDATE/DELETE por fila y TRUNCATE por sentencia en las nueve tablas dentro de la base de datos. No equivalen a WORM externo, Object Lock ni resistencia frente a un administrador privilegiado o pérdida del host.
 - No se ha validado todavía instalación local en Windows del propietario ni operación con datos reales.
 
