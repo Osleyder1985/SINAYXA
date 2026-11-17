@@ -72,7 +72,7 @@ jobs:
           path: source
           persist-credentials: false
 
-      - name: Install and verify exact PowerShell 7.6.6
+      - name: Install and verify exact PowerShell 7.7.0
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
