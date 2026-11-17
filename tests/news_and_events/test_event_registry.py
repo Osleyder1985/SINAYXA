@@ -25,9 +25,13 @@ from scripts.news_and_events.event_registry import (
     get_conflict_history,
     get_event_as_of,
     get_event_history,
+    get_evidence_artifact,
     get_reproducibility_manifest,
+    get_source_artifact,
     get_temporal_assessment,
     initialize_database,
+    register_evidence_artifact,
+    register_source_artifact,
 )
 
 
@@ -559,13 +563,44 @@ class EventRegistryIntegrationTests(unittest.TestCase):
     def test_temporal_assessment_and_manifest_lifecycle(self) -> None:
         event_id = f"event-{uuid4().hex}"
         now = datetime.now(timezone.utc)
+        source_ref = f"{event_id}-source"
+        evidence_ref = f"{event_id}-evidence"
+        register_source_artifact(
+            self.connection,
+            source_ref,
+            b'{"synthetic_source": true}',
+            {
+                "source_uri": f"urn:sinayxa:synthetic:{source_ref}",
+                "title": "Synthetic source artifact",
+                "publisher": "SINAYXA test fixture",
+                "media_type": "application/json",
+                "license_ref": "SYNTHETIC-TEST-DATA",
+                "usage_status": "SYNTHETIC",
+                "metadata": {"fixture": "temporal-assessment"},
+            },
+        )
+        register_evidence_artifact(
+            self.connection,
+            evidence_ref,
+            b'{"synthetic_evidence": true}',
+            {
+                "source_ref": source_ref,
+                "evidence_type": "SYNTHETIC_EXTRACT",
+                "media_type": "application/json",
+                "extraction_method": "synthetic-fixture",
+                "extraction_version": "1.0.0",
+                "license_ref": "SYNTHETIC-TEST-DATA",
+                "usage_status": "SYNTHETIC",
+                "metadata": {"fixture": "temporal-assessment"},
+            },
+        )
         create_event(
             self.connection,
             {
                 "event_id": event_id,
                 "description": "Synthetic event for reproducible temporal assessment.",
                 "affected_asset_refs": ["asset-synthetic"],
-                "source_refs": [],
+                "source_refs": [source_ref],
                 "created_at": iso(now - timedelta(minutes=2)),
             },
         )
@@ -589,8 +624,8 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "original_offset": "+00:00",
             "normalized_start_utc": iso(now + timedelta(days=1)),
             "normalized_end_utc": iso(now + timedelta(days=1, hours=23, minutes=59, seconds=59)),
-            "source_ref": None,
-            "evidence_ref": "evidence-assessment-synthetic",
+            "source_ref": source_ref,
+            "evidence_ref": evidence_ref,
             "retrieved_at": None,
             # The registry must replace this caller-supplied timestamp.
             "recorded_at": iso(now - timedelta(days=30)),
@@ -633,7 +668,20 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             self.connection, assessment["assessment_id"]
         )
         self.assertEqual(assessment, stored_assessment["assessment"])
-        add_source_reference(self.connection, event_id, "source-added-after-assessment-cutoff")
+        late_source_ref = f"{event_id}-late-source"
+        register_source_artifact(
+            self.connection,
+            late_source_ref,
+            b'{"late_synthetic_source": true}',
+            {
+                "source_uri": f"urn:sinayxa:synthetic:{late_source_ref}",
+                "media_type": "application/json",
+                "license_ref": "SYNTHETIC-TEST-DATA",
+                "usage_status": "SYNTHETIC",
+                "metadata": {"fixture": "future-source"},
+            },
+        )
+        add_source_reference(self.connection, event_id, late_source_ref)
 
         later_assertion = {
             **assertion,
@@ -669,7 +717,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         self.assertEqual("RFC8785", manifest["canonicalization"])
         self.assertEqual("2026f", manifest["tzdb_version"])
         self.assertEqual("PARTIALLY_REPRODUCIBLE", manifest["reproducibility_status"])
-        self.assertIn("evidence-assessment-synthetic", manifest["evidence_refs"])
+        self.assertIn(evidence_ref, manifest["evidence_refs"])\n        self.assertNotIn(f"source_artifact_missing:{source_ref}", manifest["missing_components"])\n        self.assertNotIn(f"evidence_artifact_missing:{evidence_ref}", manifest["missing_components"])\n        self.assertNotIn(f"source_artifact_missing:{late_source_ref}", manifest["missing_components"])
         self.assertEqual(
             [{"assertion_id": assertion["temporal_assertion_id"], "version": 1}],
             manifest["assertion_versions"],
