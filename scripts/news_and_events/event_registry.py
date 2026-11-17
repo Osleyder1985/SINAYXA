@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -150,7 +150,7 @@ def append_temporal_assertion(
         # The registry, not the caller, determines when this assertion became known.
         assertion = {
             **assertion,
-            "recorded_at": database_recorded_at.isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "recorded_at": database_recorded_at.astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
         }
         assertion_recorded_at = _utc(assertion["recorded_at"])
         if assertion_recorded_at < event_row[1]:
