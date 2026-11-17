@@ -88,6 +88,10 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         first_recorded_at = datetime.fromisoformat(
             first_history[0]["recorded_at"].replace("Z", "+00:00")
         )
+        first_inserted_at = self.connection.execute(
+            "SELECT inserted_at FROM sinayxa.temporal_assertions WHERE temporal_assertion_id = %s",
+            (first["temporal_assertion_id"],),
+        ).fetchone()[0]
         self.assertGreater(first_recorded_at, datetime.fromisoformat(first["recorded_at"].replace("Z", "+00:00")))
 
         source_b_recorded_at = add_source_reference(
@@ -116,6 +120,14 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "first_observed_at": iso(source_b_recorded_at + timedelta(microseconds=2)),
         }
         append_temporal_assertion(self.connection, second)
+        second_inserted_at = self.connection.execute(
+            "SELECT inserted_at FROM sinayxa.temporal_assertions WHERE temporal_assertion_id = %s",
+            (second["temporal_assertion_id"],),
+        ).fetchone()[0]
+        source_b_inserted_at = self.connection.execute(
+            "SELECT inserted_at FROM sinayxa.event_sources WHERE event_id = %s AND source_ref = %s",
+            (event_id, "source-calendar-b"),
+        ).fetchone()[0]
         history = get_event_history(self.connection, event_id)
         second_recorded_at = datetime.fromisoformat(
             history[1]["recorded_at"].replace("Z", "+00:00")
@@ -124,14 +136,19 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         self.assertNotEqual(second["recorded_at"], history[1]["recorded_at"])
 
         historical = get_event_as_of(
-            self.connection, event_id, iso(source_b_recorded_at - timedelta(microseconds=1))
+            self.connection, event_id, iso(source_b_inserted_at - timedelta(microseconds=1))
         )
         current = get_event_as_of(
-            self.connection, event_id, iso(second_recorded_at + timedelta(seconds=1))
+            self.connection, event_id, iso(second_inserted_at)
+        )
+        source_boundary = get_event_as_of(
+            self.connection, event_id, iso(source_b_inserted_at)
         )
         self.assertIsNotNone(historical)
         self.assertEqual([1], [item["version"] for item in historical["temporal_assertions"]])
         self.assertEqual(["source-calendar-a"], historical["event"]["source_refs"])
+        self.assertEqual([1], [item["version"] for item in source_boundary["temporal_assertions"]])
+        self.assertEqual(["source-calendar-a", "source-calendar-b"], source_boundary["event"]["source_refs"])
         self.assertEqual([1, 2], [item["version"] for item in current["temporal_assertions"]])
         self.assertEqual(
             ["source-calendar-a", "source-calendar-b"],
