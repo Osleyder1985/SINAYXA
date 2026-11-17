@@ -128,13 +128,18 @@ def add_source_reference(
         ).fetchone()
         if event_row is None:
             raise EventRegistryError(f"unknown event_id: {event_id}")
+        registered_at = connection.execute(
+            "SELECT clock_timestamp()"
+        ).fetchone()[0]
         row = connection.execute(
             """
-            INSERT INTO sinayxa.event_sources (event_id, source_ref)
-            VALUES (%s, %s)
-            RETURNING recorded_at
+            INSERT INTO sinayxa.event_sources (
+                event_id, source_ref, recorded_at, inserted_at
+            )
+            VALUES (%s, %s, %s, %s)
+            RETURNING recorded_at, inserted_at
             """,
-            (event_id, source_ref),
+            (event_id, source_ref, registered_at, registered_at),
         ).fetchone()
         if row[0] < event_row[0]:
             raise EventRegistryError("source reference cannot be recorded before the event entered the registry")
@@ -206,10 +211,10 @@ def append_temporal_assertion(
                 original_timezone, original_offset, normalized_start_utc,
                 normalized_end_utc, source_ref, evidence_ref, retrieved_at,
                 recorded_at, supersedes_assertion_id, published_at,
-                first_observed_at, assertion_payload
+                first_observed_at, assertion_payload, inserted_at
             ) VALUES (
                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                %s, %s, %s, %s, %s, %s
+                %s, %s, %s, %s, %s, %s, %s
             )
             """,
             (
@@ -234,6 +239,7 @@ def append_temporal_assertion(
                 _utc(assertion["published_at"]) if assertion["published_at"] else None,
                 _utc(assertion["first_observed_at"]) if assertion["first_observed_at"] else None,
                 Jsonb(assertion),
+                database_recorded_at,
             ),
         )
 
