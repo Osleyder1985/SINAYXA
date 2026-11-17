@@ -20,6 +20,8 @@ ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "schemas" / "temporal-event-contract-1.0.0.schema.json"
 RULES_PATH = ROOT / "scripts" / "validation" / "validate_temporal_event_contract.py"
 MIGRATION_DIR = ROOT / "database" / "migrations"
+
+
 class EventRegistryError(ValueError):
     """Raised when a registry operation violates the temporal contract."""
 
@@ -542,16 +544,6 @@ def create_temporal_assessment(
             if any(row[1] > cutoff for row in decision_rows):
                 raise EventRegistryError("assessment cannot include a decision inserted after its cutoff")
         event, assertions, conflicts, decisions = _load_event_contract_state(connection, event_id)
-        source_rows = connection.execute(
-            """
-            SELECT source_ref
-            FROM sinayxa.event_sources
-            WHERE event_id = %s AND inserted_at <= %s
-            ORDER BY source_ref
-            """,
-            (event_id, cutoff),
-        ).fetchall()
-        event["source_refs"] = [row[0] for row in source_rows]
         _apply_latest_conflict_statuses(conflicts, decisions)
         assessment = dict(request)
         assessment["derived_temporal_state"] = derive_temporal_state(
@@ -644,7 +636,8 @@ def create_reproducibility_manifest(
             """,
             (event_id, assessment_cutoff),
         ).fetchall()
-        event["source_refs"] = [row[0] for row in source_rows]
+        result_event = dict(event)
+        result_event["source_refs"] = [row[0] for row in source_rows]
 
         assertion_index = {item["temporal_assertion_id"]: item for item in assertions}
         decision_index = {item["decision_id"]: item for item in decisions}
@@ -706,7 +699,7 @@ def create_reproducibility_manifest(
         ]
         result_document = {
             "assessment": assessment,
-            "event": event,
+            "event": result_event,
             "temporal_assertions": sorted(
                 selected_assertions, key=lambda item: item["temporal_assertion_id"]
             ),
