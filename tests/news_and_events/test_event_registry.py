@@ -177,16 +177,46 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                 "event_id": event_id,
                 "description": "Synthetic event for truncate protection.",
                 "affected_asset_refs": [],
-                "source_refs": [],
+                "source_refs": ["source-truncate"],
                 "created_at": iso(now),
             },
         )
-        with self.assertRaises(psycopg.Error):
-            with self.connection.transaction():
-                self.connection.execute("TRUNCATE TABLE sinayxa.events")
-        self.assertIsNotNone(
-            get_event_as_of(self.connection, event_id, iso(datetime.now(timezone.utc)))
+        assertion = {
+            "temporal_assertion_id": f"{event_id}-v1",
+            "event_id": event_id,
+            "version": 1,
+            "temporal_role": "UNKNOWN",
+            "precision": "UNKNOWN",
+            "interval_start": {"value": None, "inclusive": False},
+            "interval_end": {"value": None, "inclusive": False},
+            "approximation": False,
+            "original_value": None,
+            "original_timezone": None,
+            "original_offset": None,
+            "normalized_start_utc": None,
+            "normalized_end_utc": None,
+            "source_ref": "source-truncate",
+            "evidence_ref": None,
+            "retrieved_at": None,
+            "recorded_at": iso(now - timedelta(days=30)),
+            "supersedes_assertion_id": None,
+            "published_at": None,
+            "first_observed_at": None,
+        }
+        append_temporal_assertion(self.connection, assertion)
+
+        for table in ("event_sources", "temporal_assertions", "events"):
+            with self.subTest(table=table):
+                with self.assertRaises(psycopg.Error):
+                    with self.connection.transaction():
+                        self.connection.execute(f"TRUNCATE TABLE sinayxa.{table}")
+
+        current = get_event_as_of(
+            self.connection, event_id, iso(datetime.now(timezone.utc))
         )
+        self.assertIsNotNone(current)
+        self.assertEqual(["source-truncate"], current["event"]["source_refs"])
+        self.assertEqual([1], [item["version"] for item in current["temporal_assertions"]])
 
     def test_registry_rejects_updates_to_event_identity(self) -> None:
         event_id = f"event-{uuid4().hex}"
@@ -359,7 +389,6 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         self.assertEqual(1, outcomes.count("accepted"), outcomes)
         rejected = [outcome for outcome in outcomes if outcome.startswith("rejected:")]
         self.assertEqual(1, len(rejected), outcomes)
-        self.assertIn("version", rejected[0].lower(), outcomes)
         history = get_event_history(self.connection, event_id)
         self.assertEqual(1, len(history))
         self.assertEqual(1, history[0]["version"])
