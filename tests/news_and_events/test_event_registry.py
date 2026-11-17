@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import os
 import unittest
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
@@ -205,6 +207,162 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                     "UPDATE sinayxa.events SET description = 'rewritten' WHERE event_id = %s",
                     (event_id,),
                 )
+
+
+    def test_migration_is_idempotent(self) -> None:
+        initialize_database(self.connection)
+        initialize_database(self.connection)
+        migration_count = self.connection.execute(
+            """
+            SELECT count(*)
+            FROM sinayxa.schema_migrations
+            WHERE migration_id = 'issue-2-event-registry-0001'
+            """
+        ).fetchone()[0]
+        trigger_count = self.connection.execute(
+            """
+            SELECT count(*)
+            FROM pg_trigger
+            WHERE tgname IN (
+                'events_append_only',
+                'event_sources_append_only',
+                'temporal_assertions_append_only',
+                'events_no_truncate',
+                'event_sources_no_truncate',
+                'temporal_assertions_no_truncate'
+            )
+              AND NOT tgisinternal
+            """
+        ).fetchone()[0]
+        self.assertEqual(1, migration_count)
+        self.assertEqual(6, trigger_count)
+
+    def test_registry_rejects_update_and_delete_for_all_append_only_tables(self) -> None:
+        event_id = f"event-{uuid4().hex}"
+        now = datetime.now(timezone.utc)
+        create_event(
+            self.connection,
+            {
+                "event_id": event_id,
+                "description": "Synthetic event for append-only enforcement coverage.",
+                "affected_asset_refs": [],
+                "source_refs": [],
+                "created_at": iso(now - timedelta(minutes=1)),
+            },
+        )
+        add_source_reference(self.connection, event_id, "source-append-only")
+        assertion = {
+            "temporal_assertion_id": f"{event_id}-v1",
+            "event_id": event_id,
+            "version": 1,
+            "temporal_role": "UNKNOWN",
+            "precision": "UNKNOWN",
+            "interval_start": {"value": None, "inclusive": False},
+            "interval_end": {"value": None, "inclusive": False},
+            "approximation": False,
+            "original_value": None,
+            "original_timezone": None,
+            "original_offset": None,
+            "normalized_start_utc": None,
+            "normalized_end_utc": None,
+            "source_ref": None,
+            "evidence_ref": None,
+            "retrieved_at": None,
+            "recorded_at": iso(now - timedelta(days=30)),
+            "supersedes_assertion_id": None,
+            "published_at": None,
+            "first_observed_at": None,
+        }
+        append_temporal_assertion(self.connection, assertion)
+
+        mutations = [
+            (
+                "UPDATE sinayxa.events SET description = 'rewritten' WHERE event_id = %s",
+                (event_id,),
+            ),
+            ("DELETE FROM sinayxa.events WHERE event_id = %s", (event_id,)),
+            (
+                """
+                UPDATE sinayxa.event_sources
+                SET source_ref = 'rewritten'
+                WHERE event_id = %s AND source_ref = 'source-append-only'
+                """,
+                (event_id,),
+            ),
+            ("DELETE FROM sinayxa.event_sources WHERE event_id = %s", (event_id,)),
+            (
+                """
+                UPDATE sinayxa.temporal_assertions
+                SET original_value = 'rewritten'
+                WHERE event_id = %s
+                """,
+                (event_id,),
+            ),
+            ("DELETE FROM sinayxa.temporal_assertions WHERE event_id = %s", (event_id,)),
+        ]
+        for statement, parameters in mutations:
+            with self.subTest(statement=statement.split()[0:3]):
+                with self.assertRaises(psycopg.Error):
+                    with self.connection.transaction():
+                        self.connection.execute(statement, parameters)
+
+    def test_concurrent_writers_cannot_append_the_same_version(self) -> None:
+        event_id = f"event-{uuid4().hex}"
+        now = datetime.now(timezone.utc)
+        create_event(
+            self.connection,
+            {
+                "event_id": event_id,
+                "description": "Synthetic event for concurrent version assignment.",
+                "affected_asset_refs": [],
+                "source_refs": [],
+                "created_at": iso(now - timedelta(minutes=1)),
+            },
+        )
+        self.connection.commit()
+        barrier = Barrier(2)
+
+        def append_from_independent_connection(index: int) -> str:
+            assertion = {
+                "temporal_assertion_id": f"{event_id}-writer-{index}",
+                "event_id": event_id,
+                "version": 1,
+                "temporal_role": "UNKNOWN",
+                "precision": "UNKNOWN",
+                "interval_start": {"value": None, "inclusive": False},
+                "interval_end": {"value": None, "inclusive": False},
+                "approximation": False,
+                "original_value": None,
+                "original_timezone": None,
+                "original_offset": None,
+                "normalized_start_utc": None,
+                "normalized_end_utc": None,
+                "source_ref": None,
+                "evidence_ref": None,
+                "retrieved_at": None,
+                "recorded_at": iso(now - timedelta(days=30)),
+                "supersedes_assertion_id": None,
+                "published_at": None,
+                "first_observed_at": None,
+            }
+            with connect() as connection:
+                barrier.wait(timeout=15)
+                try:
+                    append_temporal_assertion(connection, assertion)
+                except EventRegistryError as exc:
+                    return f"rejected: {exc}"
+                return "accepted"
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            outcomes = list(executor.map(append_from_independent_connection, (1, 2)))
+
+        self.assertEqual(1, outcomes.count("accepted"), outcomes)
+        rejected = [outcome for outcome in outcomes if outcome.startswith("rejected:")]
+        self.assertEqual(1, len(rejected), outcomes)
+        self.assertIn("version", rejected[0].lower(), outcomes)
+        history = get_event_history(self.connection, event_id)
+        self.assertEqual(1, len(history))
+        self.assertEqual(1, history[0]["version"])
 
 
 if __name__ == "__main__":
