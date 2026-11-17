@@ -2,7 +2,7 @@ name: PostgreSQL synthetic backup and restore lab
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feature/issue-95-postgresql-backup-restore-lab]
     paths:
       - "scripts/validation/Invoke-PostgreSQLBackupRestoreLab.sh"
       - "docs/validation/postgresql-backup-restore-lab.md"
