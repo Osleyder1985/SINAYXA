@@ -338,7 +338,7 @@ consumer_query() {
 }
 
 consumer_asset_count() {
-  docker exec -e PGPASSWORD=synthetic-consumer-only "$CONTAINER" psql -h 127.0.0.1 -U sinayxa_consumer -d "$1" -Atc "SELECT count(*) FROM research.assets"
+  docker exec -e PGPASSWORD=synthetic-consumer-only "$CONTAINER" psql -h 127.0.0.1 -U sinayxa_consumer -d "$1" -Atc "SELECT (SELECT count(*) FROM research.assets)::text || ':' || (SELECT count(*) FROM research.observations)::text || ':' || (SELECT string_agg(symbol, ',' ORDER BY symbol) FROM research.assets)"
 }
 
 if consumer_query sinayxa_restored >"$WORK_DIR/gate.out" 2>"$WORK_DIR/gate.err"; then
@@ -360,9 +360,15 @@ if [[ "$REFERENCE_EXISTS" != t ]]; then
 fi
 docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_restored -c "DELETE FROM research.observations WHERE asset_id = $DISPOSITION_ID"
 docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_restored -c "DELETE FROM research.assets WHERE asset_id = $DISPOSITION_ID"
+FIRST_RECONCILED_STATE="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_restored -Atc "SELECT (SELECT count(*) FROM research.assets)::text || ':' || (SELECT count(*) FROM research.observations)::text")"
 # Repeating the same disposition must not change the final state.
 docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_restored -c "DELETE FROM research.observations WHERE asset_id = $DISPOSITION_ID"
 docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_restored -c "DELETE FROM research.assets WHERE asset_id = $DISPOSITION_ID"
+SECOND_RECONCILED_STATE="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_restored -Atc "SELECT (SELECT count(*) FROM research.assets)::text || ':' || (SELECT count(*) FROM research.observations)::text")"
+if [[ "$FIRST_RECONCILED_STATE" != "$SECOND_RECONCILED_STATE" ]]; then
+  echo "Repeated disposition changed the reconciled state." >&2
+  exit 1
+fi
 docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_restored -c "GRANT CONNECT ON DATABASE sinayxa_restored TO sinayxa_consumer"
 docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_restored -c "GRANT USAGE ON SCHEMA research TO sinayxa_consumer; GRANT SELECT ON ALL TABLES IN SCHEMA research TO sinayxa_consumer"
 VISIBLE_GATE="$(consumer_query sinayxa_restored)"
@@ -371,7 +377,7 @@ if [[ "$VISIBLE_GATE" != 1 ]]; then
   exit 1
 fi
 VISIBLE_COUNTS="$(consumer_asset_count sinayxa_restored)"
-if [[ "$VISIBLE_COUNTS" != 2 ]]; then
+if [[ "$VISIBLE_COUNTS" != "2:3:BTCUSDT,ETHUSDT" ]]; then
   echo "Unexpected consumer-visible asset count after reconciliation: $VISIBLE_COUNTS" >&2
   exit 1
 fi
@@ -403,7 +409,7 @@ RESULT_invalid_ledger_fail_closed=PASS
 printf 'DELETE\t9999\n' > "$WORK_DIR/unknown-ledger.tsv"
 UNKNOWN_ID="$(cut -f2 "$WORK_DIR/unknown-ledger.tsv")"
 UNKNOWN_EXISTS="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_unknown_reference -Atc "SELECT EXISTS (SELECT 1 FROM research.assets WHERE asset_id = $UNKNOWN_ID)")"
-if [[ "$UNKNOWN_EXISTS" == t ]]; then
+if [[ "$UNKNOWN_EXISTS" != f ]]; then
   echo "Unknown-reference fixture unexpectedly resolves." >&2
   exit 1
 fi
