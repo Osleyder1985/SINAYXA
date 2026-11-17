@@ -1,6 +1,6 @@
 # Registro operativo de acontecimientos — Issue #2
 
-**Estado:** primera implementación en PR #101 (DRAFT), apilada sobre el contrato temporal 1.0.0 de PR #90.  
+**Estado:** primera implementación en PR #106 (DRAFT), sobre el contrato temporal 1.0.0 integrado en main mediante PR #90.  
 **Persistencia:** PostgreSQL local 18.7.  
 **Uso autorizado:** entrada explícita del operador y datos sintéticos de validación.  
 **Fuera de alcance:** captura automática, crawling, vigilancia, scraping, fuentes reales y servicios externos.
