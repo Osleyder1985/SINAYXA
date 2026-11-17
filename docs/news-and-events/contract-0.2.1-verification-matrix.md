@@ -479,7 +479,6 @@ La cobertura automatizada del contrato 0.2.1 está ejecutada y pasa en el HEAD i
 
 PR #85 permanece OPEN / NOT MERGED. Issue #88 permanece OPEN. No se cierran las cinco áreas ni se autoriza merge por inferencia.
 
-
 ## Reconciliación de trazabilidad A/B — HEAD vigente de PR #85 (2026-11-17)
 
 Esta actualización corrige el estado documental de las pruebas que antes aparecían como pendientes de CI. No modifica los criterios normativos ni declara cerradas las áreas A/B.
