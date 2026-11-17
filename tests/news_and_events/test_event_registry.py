@@ -54,6 +54,10 @@ class EventRegistryIntegrationTests(unittest.TestCase):
     def tearDownClass(cls) -> None:
         cls.connection.close()
 
+    def tearDown(self) -> None:
+        # Keep the shared class connection isolated between test methods.
+        self.connection.rollback()
+
     def test_append_versions_and_query_historical_cutoff(self) -> None:
         event_id = f"event-{uuid4().hex}"
         now = datetime.now(timezone.utc).replace(microsecond=0)
