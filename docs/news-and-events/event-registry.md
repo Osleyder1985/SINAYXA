@@ -241,7 +241,6 @@ El manifiesto calcula SHA-256 de la versión exacta del esquema, del módulo de 
 
 **El estado se declara `PARTIALLY_REPRODUCIBLE`, no `REPRODUCIBLE`**, mientras no se conserven el contenido de las fuentes, el contenido de la evidencia, la verificación del build exacto y una instantánea completa del entorno de ejecución. Los identificadores y hashes no sustituyen los documentos fuente ni permiten reconstruir datos que nunca fueron almacenados.
 
-
 ## 8. Artefactos locales de fuentes y evidencias
 
 El registro puede conservar los bytes exactos de una fuente y de los fragmentos/evidencias derivados. El operador suministra los archivos; SINAYXA no realiza descargas, crawling ni captura automática.
