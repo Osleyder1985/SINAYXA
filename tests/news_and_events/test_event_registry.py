@@ -674,22 +674,57 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "supersedes_assertion_id": assertion["temporal_assertion_id"],
         }
         append_temporal_assertion(self.connection, known_excluded_assertion)
-        cutoff_inserted_at = self.connection.execute(
+        conflict = create_temporal_conflict(
+            self.connection,
+            {
+                "conflict_id": f"{event_id}-assessment-conflict",
+                "event_id": event_id,
+                "assertion_refs": [
+                    assertion["temporal_assertion_id"],
+                    known_excluded_assertion["temporal_assertion_id"],
+                ],
+                "disputed_component": "DATE",
+                "classification": "DIRECT_CONTRADICTION",
+                "status": "OPEN",
+            },
+        )
+        conflict_recorded_at = datetime.fromisoformat(
+            conflict["recorded_at"].replace("Z", "+00:00")
+        )
+        decision = {
+            "decision_id": f"{event_id}-assessment-conflict-decision",
+            "conflict_id": conflict["conflict_id"],
+            "from_status": "OPEN",
+            "to_status": "UNDER_REVIEW",
+            "assertion_refs": conflict["assertion_refs"],
+            "supporting_evidence_refs": ["evidence-assessment-support"],
+            "contrary_evidence_refs": ["evidence-assessment-contrary"],
+            "scope": "Synthetic temporal date conflict only.",
+            "rationale": "The assertions are retained for explicit review.",
+            "limitations": "No factual or market-impact conclusion is established.",
+            "actor_ref": "operator-synthetic",
+            "decided_at": iso(datetime.now(timezone.utc)),
+            "assessment_cutoff": iso(conflict_recorded_at + timedelta(microseconds=1)),
+            "rules_version": "temporal-review-1.0.0",
+            "supersedes_decision_id": None,
+        }
+        append_conflict_decision(self.connection, decision)
+        decision_inserted_at = self.connection.execute(
             """
             SELECT inserted_at
-            FROM sinayxa.temporal_assertions
-            WHERE temporal_assertion_id = %s
+            FROM sinayxa.conflict_decisions
+            WHERE decision_id = %s
             """,
-            (known_excluded_assertion["temporal_assertion_id"],),
+            (decision["decision_id"],),
         ).fetchone()[0]
-        cutoff = iso(cutoff_inserted_at)
+        cutoff = iso(decision_inserted_at)
 
         request = {
             "assessment_id": f"{event_id}-assessment-1",
             "event_id": event_id,
             "assessment_cutoff": cutoff,
             "assertion_refs": [assertion["temporal_assertion_id"]],
-            "conflict_decision_refs": [],
+            "conflict_decision_refs": [decision["decision_id"]],
             "rules_version": "temporal-assessment-rules-1.0.0",
             "software_version": "sinayxa-registry-0.1.0",
         }
@@ -765,6 +800,9 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         self.assertEqual("2026f", manifest["tzdb_version"])
         self.assertEqual("PARTIALLY_REPRODUCIBLE", manifest["reproducibility_status"])
         self.assertIn("evidence-assessment-synthetic", manifest["evidence_refs"])
+        self.assertIn("evidence-assessment-support", manifest["evidence_refs"])
+        self.assertIn("evidence-assessment-contrary", manifest["evidence_refs"])
+        self.assertEqual([decision["decision_id"]], manifest["conflict_decision_refs"])
         self.assertEqual(
             [{"assertion_id": assertion["temporal_assertion_id"], "version": 1}],
             manifest["assertion_versions"],
