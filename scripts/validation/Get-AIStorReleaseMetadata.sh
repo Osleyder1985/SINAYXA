@@ -249,4 +249,10 @@ else
 fi
 write_report
 
+printf 'AIStor metadata status: %s (%s)\n' "$STATUS" "$RESULT_CODE"
+printf 'AIStor Server OCI digest: %s\n' "$SERVER_OCI_DIGEST"
+printf 'AIStor Server Windows SHA-256 sidecar: %s\n' "$SERVER_WINDOWS_EXPECTED_SHA256"
+printf 'AIStor Client Windows SHA-256 sidecar: %s\n' "$CLIENT_WINDOWS_EXPECTED_SHA256"
+printf 'Windows detached signature sidecars captured: %s\n' "$SIGNATURE_SIDECARS_CAPTURED"
+printf 'Binary downloaded: false; image pulled: false; signature verification performed: false\n'
 echo "Official AIStor Server and Client release metadata captured; no binary or image was downloaded."
