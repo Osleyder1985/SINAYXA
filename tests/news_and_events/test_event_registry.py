@@ -251,6 +251,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             },
         )
         add_source_reference(self.connection, event_id, "source-append-only")
+        assertion_recorded_at = datetime.now(timezone.utc) + timedelta(minutes=1)
         assertion = {
             "temporal_assertion_id": f"{event_id}-v1",
             "event_id": event_id,
@@ -268,7 +269,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "source_ref": None,
             "evidence_ref": None,
             "retrieved_at": None,
-            "recorded_at": iso(now + timedelta(seconds=1)),
+            "recorded_at": iso(assertion_recorded_at),
             "supersedes_assertion_id": None,
             "published_at": None,
             "first_observed_at": None,
