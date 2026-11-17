@@ -43,6 +43,7 @@ RESULT_missing_ledger_fail_closed=NOT_RUN
 RESULT_invalid_ledger_fail_closed=NOT_RUN
 RESULT_unknown_reference_fail_closed=NOT_RUN
 RESULT_reconciliation_gate_function=NOT_RUN
+RESULT_preserve_unaffected_records=NOT_RUN
 RESULT_container_cleanup=NOT_RUN
 RESULT_volume_cleanup=NOT_RUN
 RESULT_cleanup=NOT_RUN
@@ -91,6 +92,7 @@ write_report() {
     "invalid_ledger_fail_closed": "$RESULT_invalid_ledger_fail_closed",
     "unknown_reference_fail_closed": "$RESULT_unknown_reference_fail_closed",
     "reconciliation_gate_function": "$RESULT_reconciliation_gate_function",
+    "preserve_unaffected_records": "$RESULT_preserve_unaffected_records",
     "container_cleanup": "$RESULT_container_cleanup",
     "volume_cleanup": "$RESULT_volume_cleanup",
     "cleanup": "$RESULT_cleanup"
@@ -416,10 +418,12 @@ reconcile_and_open() {
   fi
 
   # Access is granted only after all ledger and postcondition checks pass.
-  if ! docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "GRANT CONNECT ON DATABASE $db TO sinayxa_consumer"; then
+  if ! docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "GRANT USAGE ON SCHEMA research TO sinayxa_consumer; GRANT SELECT ON ALL TABLES IN SCHEMA research TO sinayxa_consumer"; then
     return 1
   fi
-  if ! docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "GRANT USAGE ON SCHEMA research TO sinayxa_consumer; GRANT SELECT ON ALL TABLES IN SCHEMA research TO sinayxa_consumer"; then
+  # CONNECT is granted last so any earlier privilege failure leaves the
+  # restored database inaccessible to the consumer.
+  if ! docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "GRANT CONNECT ON DATABASE $db TO sinayxa_consumer"; then
     return 1
   fi
 }
@@ -457,6 +461,17 @@ if [[ "$VISIBLE_TARGET" != 0 ]]; then
   echo "Disposed synthetic asset became visible after reconciliation." >&2
   exit 1
 fi
+VISIBLE_ASSETS="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_restored -Atc "SELECT string_agg(asset_id::text || ':' || symbol || ':' || active::text || ':' || to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD\\"T\\"HH24:MI:SS\\"Z\\"'), '|' ORDER BY asset_id) FROM research.assets")"
+if [[ "$VISIBLE_ASSETS" != "1:BTCUSDT:true:2026-01-01T00:00:00Z|2:ETHUSDT:true:2026-01-02T00:00:00Z" ]]; then
+  echo "Unaffected asset records changed during reconciliation: $VISIBLE_ASSETS" >&2
+  exit 1
+fi
+VISIBLE_OBSERVATIONS="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_restored -Atc "SELECT string_agg(observation_id::text || ':' || asset_id::text || ':' || price::text || ':' || source_label, '|' ORDER BY observation_id) FROM research.observations")"
+if [[ "$VISIBLE_OBSERVATIONS" != "1:1:65000.12500000:synthetic-a|2:1:66100.50000000:synthetic-a|3:2:3200.75000000:synthetic-b" ]]; then
+  echo "Unaffected observation records changed during reconciliation: $VISIBLE_OBSERVATIONS" >&2
+  exit 1
+fi
+RESULT_preserve_unaffected_records=PASS
 RESULT_restore_reconciliation=PASS
 
 # Exercise the same gate function with missing, malformed, and unknown ledgers.
