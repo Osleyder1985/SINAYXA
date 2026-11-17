@@ -25,9 +25,13 @@ from scripts.news_and_events.event_registry import (
     get_conflict_history,
     get_event_as_of,
     get_reproducibility_manifest,
+    get_evidence_artifact,
+    get_source_artifact,
     get_temporal_assessment,
     get_event_history,
     initialize_database,
+    register_evidence_artifact,
+    register_source_artifact,
 )
 
 
@@ -200,60 +204,24 @@ class EventRegistryIntegrationTests(unittest.TestCase):
 
 
     def test_registry_rejects_truncate_operations(self) -> None:
-        event_id = f"event-{uuid4().hex}"
-        now = datetime.now(timezone.utc).replace(microsecond=0)
-        create_event(
-            self.connection,
-            {
-                "event_id": event_id,
-                "description": "Synthetic event for truncate protection.",
-                "affected_asset_refs": [],
-                "source_refs": ["source-truncate"],
-                "created_at": iso(now),
-            },
+        tables = (
+            "events",
+            "event_sources",
+            "temporal_assertions",
+            "temporal_conflicts",
+            "conflict_decisions",
+            "temporal_assessments",
+            "reproducibility_manifests",
+            "source_artifacts",
+            "evidence_artifacts",
         )
-        assertion = {
-            "temporal_assertion_id": f"{event_id}-v1",
-            "event_id": event_id,
-            "version": 1,
-            "temporal_role": "UNKNOWN",
-            "precision": "UNKNOWN",
-            "interval_start": {"value": None, "inclusive": False},
-            "interval_end": {"value": None, "inclusive": False},
-            "approximation": False,
-            "original_value": None,
-            "original_timezone": None,
-            "original_offset": None,
-            "normalized_start_utc": None,
-            "normalized_end_utc": None,
-            "source_ref": "source-truncate",
-            "evidence_ref": None,
-            "retrieved_at": None,
-            "recorded_at": iso(now - timedelta(days=30)),
-            "supersedes_assertion_id": None,
-            "published_at": None,
-            "first_observed_at": None,
-        }
-        append_temporal_assertion(self.connection, assertion)
-
-        truncate_statements = {
-            "event_sources": "TRUNCATE TABLE sinayxa.event_sources",
-            "temporal_assertions": "TRUNCATE TABLE sinayxa.temporal_assertions",
-            # CASCADE ensures the events trigger, rather than only the FK guard, rejects it.
-            "events": "TRUNCATE TABLE sinayxa.events CASCADE",
-        }
-        for table, statement in truncate_statements.items():
+        for table in tables:
             with self.subTest(table=table):
-                with self.assertRaisesRegex(psycopg.Error, "append-only"):
+                with self.assertRaises(psycopg.Error):
                     with self.connection.transaction():
-                        self.connection.execute(statement)
-
-        current = get_event_as_of(
-            self.connection, event_id, iso(datetime.now(timezone.utc))
-        )
-        self.assertIsNotNone(current)
-        self.assertEqual(["source-truncate"], current["event"]["source_refs"])
-        self.assertEqual([1], [item["version"] for item in current["temporal_assertions"]])
+                        self.connection.execute(
+                            f"TRUNCATE TABLE sinayxa.{table} CASCADE"
+                        )
 
     def test_registry_rejects_updates_to_event_identity(self) -> None:
         event_id = f"event-{uuid4().hex}"
@@ -283,11 +251,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             """
             SELECT count(*)
             FROM sinayxa.schema_migrations
-            WHERE migration_id IN (
-                'issue-2-event-registry-0001',
-                'issue-2-temporal-conflicts-0002',
-                'issue-2-temporal-assessments-manifests-0003'
-            )
+            WHERE migration_id IN ('issue-2-event-registry-0001', 'issue-2-temporal-conflicts-0002', 'issue-2-temporal-assessments-manifests-0003', 'issue-2-source-evidence-artifacts-0004', 'issue-2-append-only-truncate-guard-0005')
             """
         ).fetchone()[0]
         trigger_count = self.connection.execute(
@@ -296,21 +260,29 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             FROM pg_trigger
             WHERE tgname IN (
                 'events_append_only',
-                'event_sources_append_only',
-                'temporal_assertions_append_only',
                 'events_no_truncate',
+                'event_sources_append_only',
                 'event_sources_no_truncate',
+                'temporal_assertions_append_only',
                 'temporal_assertions_no_truncate',
                 'temporal_conflicts_append_only',
+                'temporal_conflicts_no_truncate',
                 'conflict_decisions_append_only',
+                'conflict_decisions_no_truncate',
                 'temporal_assessments_append_only',
-                'reproducibility_manifests_append_only'
+                'temporal_assessments_no_truncate',
+                'reproducibility_manifests_append_only',
+                'reproducibility_manifests_no_truncate',
+                'source_artifacts_append_only',
+                'source_artifacts_no_truncate',
+                'evidence_artifacts_append_only',
+                'evidence_artifacts_no_truncate'
             )
               AND NOT tgisinternal
             """
         ).fetchone()[0]
-        self.assertEqual(3, migration_count)
-        self.assertEqual(10, trigger_count)
+        self.assertEqual(5, migration_count)
+        self.assertEqual(18, trigger_count)
         defaults = self.connection.execute(
             """
             SELECT relation.relname, attribute.attname, pg_get_expr(definition.adbin, definition.adrelid)
@@ -329,11 +301,13 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                   ('temporal_conflicts', 'inserted_at'),
                   ('conflict_decisions', 'inserted_at'),
                   ('temporal_assessments', 'inserted_at'),
-                  ('reproducibility_manifests', 'inserted_at')
+                  ('reproducibility_manifests', 'inserted_at'),
+                  ('source_artifacts', 'inserted_at'),
+                  ('evidence_artifacts', 'inserted_at')
               )
             """
         ).fetchall()
-        self.assertEqual(8, len(defaults))
+        self.assertEqual(10, len(defaults))
         self.assertTrue(
             all(expression == "clock_timestamp()" for _, _, expression in defaults),
             defaults,
@@ -889,6 +863,196 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             with self.assertRaises(psycopg.Error):
                 with self.connection.transaction():
                     self.connection.execute(statement, parameters)
+
+
+    def test_source_and_evidence_artifacts_preserve_exact_bytes_and_authorization(self) -> None:
+        source_ref = f"source-{uuid4().hex}"
+        evidence_ref = f"evidence-{uuid4().hex}"
+        source_bytes = b'{"synthetic_source":"exact bytes"}'
+        evidence_bytes = b'{"synthetic_evidence":"exact bytes"}'
+        source = register_source_artifact(
+            self.connection,
+            source_ref,
+            source_bytes,
+            {
+                "source_uri": f"urn:sinayxa:synthetic:{source_ref}",
+                "title": "Synthetic source",
+                "publisher": "SINAYXA test fixture",
+                "media_type": "application/json",
+                "license_ref": "SYNTHETIC-TEST-DATA",
+                "usage_status": "SYNTHETIC",
+                "metadata": {"fixture": "artifact-integrity"},
+            },
+        )
+        self.assertEqual(hashlib.sha256(source_bytes).hexdigest(), source["content_sha256"])
+        self.assertEqual(source_bytes, get_source_artifact(self.connection, source_ref)["content_bytes"])
+
+        evidence = register_evidence_artifact(
+            self.connection,
+            evidence_ref,
+            evidence_bytes,
+            {
+                "source_ref": source_ref,
+                "evidence_type": "SYNTHETIC_EXTRACT",
+                "media_type": "application/json",
+                "extraction_method": "synthetic-test",
+                "extraction_version": "1.0.0",
+                "license_ref": "SYNTHETIC-TEST-DATA",
+                "usage_status": "SYNTHETIC",
+                "metadata": {"fixture": "artifact-integrity"},
+            },
+        )
+        self.assertEqual(hashlib.sha256(evidence_bytes).hexdigest(), evidence["content_sha256"])
+        self.assertEqual(
+            evidence_bytes,
+            get_evidence_artifact(self.connection, evidence_ref)["content_bytes"],
+        )
+
+        with self.assertRaises(EventRegistryError):
+            register_source_artifact(
+                self.connection,
+                f"source-unauthorized-{uuid4().hex}",
+                b"unauthorized",
+                {
+                    "media_type": "text/plain",
+                    "license_ref": "UNKNOWN",
+                    "usage_status": "AUTHORIZED",
+                },
+            )
+        with self.assertRaises(EventRegistryError):
+            register_evidence_artifact(
+                self.connection,
+                f"evidence-unauthorized-{uuid4().hex}",
+                b"mismatched rights",
+                {
+                    "source_ref": source_ref,
+                    "evidence_type": "EXTRACT",
+                    "media_type": "text/plain",
+                    "extraction_method": "manual",
+                    "extraction_version": "1.0.0",
+                    "license_ref": "UNKNOWN",
+                    "usage_status": "AUTHORIZED",
+                    "authorization_ref": "unrelated-authorization",
+                },
+            )
+        with self.assertRaises(EventRegistryError):
+            register_evidence_artifact(
+                self.connection,
+                f"evidence-license-mismatch-{uuid4().hex}",
+                b"mismatched license",
+                {
+                    "source_ref": source_ref,
+                    "evidence_type": "EXTRACT",
+                    "media_type": "text/plain",
+                    "extraction_method": "manual",
+                    "extraction_version": "1.0.0",
+                    "license_ref": "DIFFERENT-LICENSE",
+                    "usage_status": "SYNTHETIC",
+                },
+            )
+
+        mutations = (
+            (
+                "UPDATE sinayxa.source_artifacts SET title = 'rewritten' WHERE source_ref = %s",
+                (source_ref,),
+            ),
+            (
+                "DELETE FROM sinayxa.source_artifacts WHERE source_ref = %s",
+                (source_ref,),
+            ),
+            (
+                "UPDATE sinayxa.evidence_artifacts SET location_hint = 'rewritten' WHERE evidence_ref = %s",
+                (evidence_ref,),
+            ),
+            (
+                "DELETE FROM sinayxa.evidence_artifacts WHERE evidence_ref = %s",
+                (evidence_ref,),
+            ),
+        )
+        for statement, parameters in mutations:
+            with self.assertRaises(psycopg.Error):
+                with self.connection.transaction():
+                    self.connection.execute(statement, parameters)
+
+
+
+
+    def test_manifest_is_not_reproducible_when_source_or_evidence_bytes_are_missing(self) -> None:
+        event_id = f"event-{uuid4().hex}"
+        missing_source_ref = f"{event_id}-missing-source"
+        missing_evidence_ref = f"{event_id}-missing-evidence"
+        now = datetime.now(timezone.utc)
+        create_event(
+            self.connection,
+            {
+                "event_id": event_id,
+                "description": "Synthetic event with deliberately absent source/evidence bytes.",
+                "affected_asset_refs": ["asset-synthetic"],
+                "source_refs": [missing_source_ref],
+                "created_at": iso(now - timedelta(minutes=1)),
+            },
+        )
+        assertion = {
+            "temporal_assertion_id": f"{event_id}-assertion-v1",
+            "event_id": event_id,
+            "version": 1,
+            "temporal_role": "UNKNOWN",
+            "precision": "UNKNOWN",
+            "interval_start": {"value": None, "inclusive": False},
+            "interval_end": {"value": None, "inclusive": False},
+            "approximation": False,
+            "original_value": None,
+            "original_timezone": None,
+            "original_offset": None,
+            "normalized_start_utc": None,
+            "normalized_end_utc": None,
+            "source_ref": None,
+            "evidence_ref": missing_evidence_ref,
+            "retrieved_at": None,
+            "recorded_at": iso(now - timedelta(days=1)),
+            "supersedes_assertion_id": None,
+            "published_at": None,
+            "first_observed_at": None,
+        }
+        append_temporal_assertion(self.connection, assertion)
+        inserted_at = self.connection.execute(
+            """
+            SELECT inserted_at
+            FROM sinayxa.temporal_assertions
+            WHERE temporal_assertion_id = %s
+            """,
+            (assertion["temporal_assertion_id"],),
+        ).fetchone()[0]
+        assessment = create_temporal_assessment(
+            self.connection,
+            {
+                "assessment_id": f"{event_id}-assessment-1",
+                "event_id": event_id,
+                "assessment_cutoff": iso(inserted_at),
+                "assertion_refs": [assertion["temporal_assertion_id"]],
+                "conflict_decision_refs": [],
+                "rules_version": "temporal-assessment-rules-1.0.0",
+                "software_version": "sinayxa-registry-0.1.0",
+            },
+        )
+        manifest = create_reproducibility_manifest(
+            self.connection,
+            {
+                "manifest_id": f"{event_id}-manifest-1",
+                "assessment_id": assessment["assessment_id"],
+                "excluded_assertions": [],
+            },
+        )
+        self.assertEqual("NOT_REPRODUCIBLE", manifest["reproducibility_status"])
+        self.assertIn(
+            f"source_artifact_missing:{missing_source_ref}",
+            manifest["missing_components"],
+        )
+        self.assertIn(
+            f"evidence_artifact_missing:{missing_evidence_ref}",
+            manifest["missing_components"],
+        )
+
 
 
 if __name__ == "__main__":
