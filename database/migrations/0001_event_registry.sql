@@ -94,6 +94,21 @@ CREATE TRIGGER temporal_assertions_append_only
     BEFORE UPDATE OR DELETE ON sinayxa.temporal_assertions
     FOR EACH ROW EXECUTE FUNCTION sinayxa.reject_registry_mutation();
 
+DROP TRIGGER IF EXISTS events_no_truncate ON sinayxa.events;
+CREATE TRIGGER events_no_truncate
+    BEFORE TRUNCATE ON sinayxa.events
+    FOR EACH STATEMENT EXECUTE FUNCTION sinayxa.reject_registry_mutation();
+
+DROP TRIGGER IF EXISTS event_sources_no_truncate ON sinayxa.event_sources;
+CREATE TRIGGER event_sources_no_truncate
+    BEFORE TRUNCATE ON sinayxa.event_sources
+    FOR EACH STATEMENT EXECUTE FUNCTION sinayxa.reject_registry_mutation();
+
+DROP TRIGGER IF EXISTS temporal_assertions_no_truncate ON sinayxa.temporal_assertions;
+CREATE TRIGGER temporal_assertions_no_truncate
+    BEFORE TRUNCATE ON sinayxa.temporal_assertions
+    FOR EACH STATEMENT EXECUTE FUNCTION sinayxa.reject_registry_mutation();
+
 INSERT INTO sinayxa.schema_migrations (migration_id)
 VALUES ('issue-2-event-registry-0001')
 ON CONFLICT (migration_id) DO NOTHING;
