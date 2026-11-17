@@ -857,7 +857,7 @@ def create_reproducibility_manifest(
             "software_version": assessment["software_version"],
             "result_sha256": result_digest,
             "canonicalization": "RFC8785",
-            "reproducibility_status": "PARTIALLY_REPRODUCIBLE",
+            "reproducibility_status": "NOT_REPRODUCIBLE" if missing_artifacts else "PARTIALLY_REPRODUCIBLE",
             "missing_components": sorted(
                 [
                     "software_build_revision_not_verified",
