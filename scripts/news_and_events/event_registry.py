@@ -149,7 +149,7 @@ def add_source_reference(
 def append_temporal_assertion(
     connection: psycopg.Connection, assertion: dict[str, Any]
 ) -> None:
-    """Append the next temporal assertion version; prior versions are never replaced."""
+    """Append the next temporal assertion version with a database-assigned knowledge timestamp."""
     with connection.transaction():
         event_row = connection.execute(
             "SELECT event_payload, inserted_at FROM sinayxa.events WHERE event_id = %s FOR UPDATE",
@@ -158,10 +158,13 @@ def append_temporal_assertion(
         if event_row is None:
             raise EventRegistryError(f"unknown event_id: {assertion['event_id']}")
 
-        event = dict(event_row[0])
-        assertion_recorded_at = _utc(assertion["recorded_at"])
-        if assertion_recorded_at < event_row[1]:
+        candidate = dict(assertion)
+        recorded_at = connection.execute("SELECT clock_timestamp()").fetchone()[0]
+        candidate["recorded_at"] = recorded_at.isoformat(timespec="microseconds").replace("+00:00", "Z")
+        if recorded_at < event_row[1]:
             raise EventRegistryError("temporal assertion cannot be recorded before the event entered the registry")
+
+        event = dict(event_row[0])
         source_rows = connection.execute(
             """
             SELECT source_ref, recorded_at
@@ -169,18 +172,18 @@ def append_temporal_assertion(
             WHERE event_id = %s
             ORDER BY source_ref
             """,
-            (assertion["event_id"],),
+            (candidate["event_id"],),
         ).fetchall()
         event["source_refs"] = [row[0] for row in source_rows]
-        if assertion["source_ref"] is not None:
+        if candidate["source_ref"] is not None:
             source_recorded_at = next(
-                (row[1] for row in source_rows if row[0] == assertion["source_ref"]),
+                (row[1] for row in source_rows if row[0] == candidate["source_ref"]),
                 None,
             )
             if source_recorded_at is None:
                 raise EventRegistryError("assertion source_ref is not registered on the event")
-            if source_recorded_at > assertion_recorded_at:
-                raise EventRegistryError("assertion cannot reference a source registered after its recorded_at")
+            if source_recorded_at > recorded_at:
+                raise EventRegistryError("assertion cannot reference a source registered after its database recording time")
 
         previous_rows = connection.execute(
             """
@@ -190,10 +193,10 @@ def append_temporal_assertion(
             ORDER BY version
             FOR UPDATE
             """,
-            (assertion["event_id"],),
+            (candidate["event_id"],),
         ).fetchall()
         previous = [dict(row[0]) for row in previous_rows]
-        _validate_package([event], previous + [assertion])
+        _validate_package([event], previous + [candidate])
 
         connection.execute(
             """
@@ -210,27 +213,27 @@ def append_temporal_assertion(
             )
             """,
             (
-                assertion["temporal_assertion_id"],
-                assertion["event_id"],
-                assertion["version"],
-                assertion["temporal_role"],
-                assertion["precision"],
-                Jsonb(assertion["interval_start"]),
-                Jsonb(assertion["interval_end"]),
-                assertion["approximation"],
-                assertion["original_value"],
-                assertion["original_timezone"],
-                assertion["original_offset"],
-                _utc(assertion["normalized_start_utc"]) if assertion["normalized_start_utc"] else None,
-                _utc(assertion["normalized_end_utc"]) if assertion["normalized_end_utc"] else None,
-                assertion["source_ref"],
-                assertion["evidence_ref"],
-                _utc(assertion["retrieved_at"]) if assertion["retrieved_at"] else None,
-                _utc(assertion["recorded_at"]),
-                assertion["supersedes_assertion_id"],
-                _utc(assertion["published_at"]) if assertion["published_at"] else None,
-                _utc(assertion["first_observed_at"]) if assertion["first_observed_at"] else None,
-                Jsonb(assertion),
+                candidate["temporal_assertion_id"],
+                candidate["event_id"],
+                candidate["version"],
+                candidate["temporal_role"],
+                candidate["precision"],
+                Jsonb(candidate["interval_start"]),
+                Jsonb(candidate["interval_end"]),
+                candidate["approximation"],
+                candidate["original_value"],
+                candidate["original_timezone"],
+                candidate["original_offset"],
+                _utc(candidate["normalized_start_utc"]) if candidate["normalized_start_utc"] else None,
+                _utc(candidate["normalized_end_utc"]) if candidate["normalized_end_utc"] else None,
+                candidate["source_ref"],
+                candidate["evidence_ref"],
+                _utc(candidate["retrieved_at"]) if candidate["retrieved_at"] else None,
+                recorded_at,
+                candidate["supersedes_assertion_id"],
+                _utc(candidate["published_at"]) if candidate["published_at"] else None,
+                _utc(candidate["first_observed_at"]) if candidate["first_observed_at"] else None,
+                Jsonb(candidate),
             ),
         )
 
