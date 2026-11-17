@@ -1,0 +1,600 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sinayxa.org/schemas/temporal-event-contract-1.0.0.schema.json",
+  "title": "SINAYXA Temporal Event Contract 1.0.0",
+  "description": "Structural contract for versioned temporal assertions, conflicts, assessments and reproducibility manifests. Does not authorize capture or production persistence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "events",
+    "contract_version",
+    "temporal_assertions",
+    "temporal_conflicts",
+    "conflict_decisions",
+    "temporal_assessments",
+    "reproducibility_manifests"
+  ],
+  "properties": {
+    "contract_version": {
+      "const": "1.0.0"
+    },
+    "temporal_assertions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/temporalAssertion"
+      }
+    },
+    "temporal_conflicts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/temporalConflict"
+      }
+    },
+    "conflict_decisions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/conflictDecision"
+      }
+    },
+    "temporal_assessments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/temporalAssessment"
+      }
+    },
+    "reproducibility_manifests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/reproducibilityManifest"
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/event"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "utc": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "nullableUtc": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/utc"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "nullableText": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/text"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "inclusive"
+      ],
+      "properties": {
+        "value": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/utc"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "inclusive": {
+          "type": "boolean"
+        }
+      }
+    },
+    "temporalAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temporal_assertion_id",
+        "event_id",
+        "version",
+        "temporal_role",
+        "precision",
+        "interval_start",
+        "interval_end",
+        "approximation",
+        "original_value",
+        "original_timezone",
+        "original_offset",
+        "normalized_start_utc",
+        "normalized_end_utc",
+        "source_ref",
+        "evidence_ref",
+        "retrieved_at",
+        "recorded_at",
+        "supersedes_assertion_id",
+        "published_at",
+        "first_observed_at"
+      ],
+      "properties": {
+        "temporal_assertion_id": {
+          "$ref": "#/$defs/id"
+        },
+        "event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "temporal_role": {
+          "enum": [
+            "ACTUAL",
+            "SCHEDULED",
+            "ESTIMATED",
+            "UNKNOWN"
+          ]
+        },
+        "precision": {
+          "enum": [
+            "YEAR",
+            "MONTH",
+            "DAY",
+            "HOUR",
+            "MINUTE",
+            "SECOND",
+            "RANGE",
+            "UNKNOWN"
+          ]
+        },
+        "interval_start": {
+          "$ref": "#/$defs/boundary"
+        },
+        "interval_end": {
+          "$ref": "#/$defs/boundary"
+        },
+        "approximation": {
+          "type": "boolean"
+        },
+        "original_value": {
+          "$ref": "#/$defs/nullableText"
+        },
+        "original_timezone": {
+          "$ref": "#/$defs/nullableText"
+        },
+        "original_offset": {
+          "$ref": "#/$defs/nullableText"
+        },
+        "normalized_start_utc": {
+          "$ref": "#/$defs/nullableUtc"
+        },
+        "normalized_end_utc": {
+          "$ref": "#/$defs/nullableUtc"
+        },
+        "source_ref": {
+          "$ref": "#/$defs/nullableText"
+        },
+        "evidence_ref": {
+          "$ref": "#/$defs/nullableText"
+        },
+        "retrieved_at": {
+          "$ref": "#/$defs/nullableUtc"
+        },
+        "recorded_at": {
+          "$ref": "#/$defs/utc"
+        },
+        "supersedes_assertion_id": {
+          "$ref": "#/$defs/nullableText"
+        },
+        "published_at": {
+          "$ref": "#/$defs/nullableUtc"
+        },
+        "first_observed_at": {
+          "$ref": "#/$defs/nullableUtc"
+        }
+      }
+    },
+    "temporalConflict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "conflict_id",
+        "event_id",
+        "assertion_refs",
+        "disputed_component",
+        "classification",
+        "status",
+        "recorded_at"
+      ],
+      "properties": {
+        "conflict_id": {
+          "$ref": "#/$defs/id"
+        },
+        "event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "assertion_refs": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "disputed_component": {
+          "enum": [
+            "START",
+            "END",
+            "INTERVAL",
+            "DURATION",
+            "DATE",
+            "TIMEZONE",
+            "OTHER"
+          ]
+        },
+        "classification": {
+          "enum": [
+            "DIRECT_CONTRADICTION",
+            "PRECISION_DIFFERENCE",
+            "TIMEZONE_DIFFERENCE",
+            "SCHEDULE_CHANGE",
+            "SCOPE_DIFFERENCE",
+            "UNCLASSIFIED"
+          ]
+        },
+        "status": {
+          "enum": [
+            "OPEN",
+            "UNDER_REVIEW",
+            "RESOLVED",
+            "REOPENED",
+            "CLOSED_NO_CONFLICT"
+          ]
+        },
+        "recorded_at": {
+          "$ref": "#/$defs/utc"
+        }
+      }
+    },
+    "conflictDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_id",
+        "conflict_id",
+        "from_status",
+        "to_status",
+        "assertion_refs",
+        "supporting_evidence_refs",
+        "contrary_evidence_refs",
+        "scope",
+        "rationale",
+        "limitations",
+        "actor_ref",
+        "decided_at",
+        "assessment_cutoff",
+        "rules_version",
+        "supersedes_decision_id"
+      ],
+      "properties": {
+        "decision_id": {
+          "$ref": "#/$defs/id"
+        },
+        "conflict_id": {
+          "$ref": "#/$defs/id"
+        },
+        "from_status": {
+          "enum": [
+            "OPEN",
+            "UNDER_REVIEW",
+            "RESOLVED",
+            "REOPENED",
+            "CLOSED_NO_CONFLICT"
+          ]
+        },
+        "to_status": {
+          "enum": [
+            "OPEN",
+            "UNDER_REVIEW",
+            "RESOLVED",
+            "REOPENED",
+            "CLOSED_NO_CONFLICT"
+          ]
+        },
+        "assertion_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "supporting_evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "contrary_evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "scope": {
+          "$ref": "#/$defs/text"
+        },
+        "rationale": {
+          "$ref": "#/$defs/text"
+        },
+        "limitations": {
+          "$ref": "#/$defs/text"
+        },
+        "actor_ref": {
+          "$ref": "#/$defs/id"
+        },
+        "decided_at": {
+          "$ref": "#/$defs/utc"
+        },
+        "assessment_cutoff": {
+          "$ref": "#/$defs/utc"
+        },
+        "rules_version": {
+          "$ref": "#/$defs/id"
+        },
+        "supersedes_decision_id": {
+          "$ref": "#/$defs/nullableText"
+        }
+      }
+    },
+    "temporalAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assessment_id",
+        "event_id",
+        "assessment_cutoff",
+        "assertion_refs",
+        "conflict_decision_refs",
+        "derived_temporal_state",
+        "rules_version",
+        "software_version",
+        "recorded_at"
+      ],
+      "properties": {
+        "assessment_id": {
+          "$ref": "#/$defs/id"
+        },
+        "event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "assessment_cutoff": {
+          "$ref": "#/$defs/utc"
+        },
+        "assertion_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "conflict_decision_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "derived_temporal_state": {
+          "enum": [
+            "PAST",
+            "ONGOING",
+            "FUTURE",
+            "UNDETERMINED"
+          ]
+        },
+        "rules_version": {
+          "$ref": "#/$defs/id"
+        },
+        "software_version": {
+          "$ref": "#/$defs/id"
+        },
+        "recorded_at": {
+          "$ref": "#/$defs/utc"
+        }
+      }
+    },
+    "reproducibilityManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_id",
+        "assessment_id",
+        "assessment_cutoff",
+        "contract_version",
+        "schema_sha256",
+        "assertion_versions",
+        "excluded_assertions",
+        "evidence_refs",
+        "conflict_decision_refs",
+        "rules_version",
+        "rules_sha256",
+        "tzdb_version",
+        "software_version",
+        "result_sha256",
+        "canonicalization",
+        "reproducibility_status",
+        "missing_components",
+        "created_at"
+      ],
+      "properties": {
+        "manifest_id": {
+          "$ref": "#/$defs/id"
+        },
+        "assessment_id": {
+          "$ref": "#/$defs/id"
+        },
+        "assessment_cutoff": {
+          "$ref": "#/$defs/utc"
+        },
+        "contract_version": {
+          "const": "1.0.0"
+        },
+        "schema_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "assertion_versions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "assertion_id",
+              "version"
+            ],
+            "properties": {
+              "assertion_id": {
+                "$ref": "#/$defs/id"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        "excluded_assertions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "assertion_id",
+              "version",
+              "reason"
+            ],
+            "properties": {
+              "assertion_id": {
+                "$ref": "#/$defs/id"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "reason": {
+                "$ref": "#/$defs/text"
+              }
+            }
+          }
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "conflict_decision_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "rules_version": {
+          "$ref": "#/$defs/id"
+        },
+        "rules_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "tzdb_version": {
+          "$ref": "#/$defs/id"
+        },
+        "software_version": {
+          "$ref": "#/$defs/id"
+        },
+        "result_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "canonicalization": {
+          "const": "RFC8785"
+        },
+        "reproducibility_status": {
+          "enum": [
+            "REPRODUCIBLE",
+            "PARTIALLY_REPRODUCIBLE",
+            "NOT_REPRODUCIBLE"
+          ]
+        },
+        "missing_components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/text"
+          }
+        },
+        "created_at": {
+          "$ref": "#/$defs/utc"
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "description",
+        "affected_asset_refs",
+        "source_refs",
+        "created_at"
+      ],
+      "properties": {
+        "event_id": {
+          "$ref": "#/$defs/id"
+        },
+        "description": {
+          "$ref": "#/$defs/text"
+        },
+        "affected_asset_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "source_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "created_at": {
+          "$ref": "#/$defs/utc"
+        }
+      }
+    }
+  }
+}
