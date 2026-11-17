@@ -659,7 +659,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "first_observed_at": None,
         }
         append_temporal_assertion(self.connection, assertion)
-        inserted_at = self.connection.execute(
+        first_inserted_at = self.connection.execute(
             """
             SELECT inserted_at
             FROM sinayxa.temporal_assertions
@@ -667,7 +667,22 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             """,
             (assertion["temporal_assertion_id"],),
         ).fetchone()[0]
-        cutoff = iso(inserted_at)
+        known_excluded_assertion = {
+            **assertion,
+            "temporal_assertion_id": f"{event_id}-assertion-v2",
+            "version": 2,
+            "supersedes_assertion_id": assertion["temporal_assertion_id"],
+        }
+        append_temporal_assertion(self.connection, known_excluded_assertion)
+        cutoff_inserted_at = self.connection.execute(
+            """
+            SELECT inserted_at
+            FROM sinayxa.temporal_assertions
+            WHERE temporal_assertion_id = %s
+            """,
+            (known_excluded_assertion["temporal_assertion_id"],),
+        ).fetchone()[0]
+        cutoff = iso(cutoff_inserted_at)
 
         request = {
             "assessment_id": f"{event_id}-assessment-1",
@@ -681,7 +696,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         too_early = {
             **request,
             "assessment_id": f"{event_id}-assessment-too-early",
-            "assessment_cutoff": iso(inserted_at - timedelta(microseconds=1)),
+            "assessment_cutoff": iso(first_inserted_at - timedelta(microseconds=1)),
         }
         with self.assertRaises(EventRegistryError):
             create_temporal_assessment(self.connection, too_early)
@@ -700,9 +715,9 @@ class EventRegistryIntegrationTests(unittest.TestCase):
 
         later_assertion = {
             **assertion,
-            "temporal_assertion_id": f"{event_id}-assertion-v2",
-            "version": 2,
-            "supersedes_assertion_id": assertion["temporal_assertion_id"],
+            "temporal_assertion_id": f"{event_id}-assertion-v3",
+            "version": 3,
+            "supersedes_assertion_id": known_excluded_assertion["temporal_assertion_id"],
         }
         append_temporal_assertion(self.connection, later_assertion)
         with self.assertRaises(EventRegistryError):
@@ -714,19 +729,36 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                     "excluded_assertions": [
                         {
                             "assertion_id": later_assertion["temporal_assertion_id"],
-                            "version": 2,
+                            "version": 3,
                             "reason": "Not known at the assessment cutoff",
                         }
                     ],
                 },
             )
 
+        with self.assertRaisesRegex(EventRegistryError, "classify every assertion"):
+            create_reproducibility_manifest(
+                self.connection,
+                {
+                    "manifest_id": f"{event_id}-manifest-incomplete",
+                    "assessment_id": assessment["assessment_id"],
+                    "excluded_assertions": [],
+                },
+            )
+
+        excluded_v2 = [
+            {
+                "assertion_id": known_excluded_assertion["temporal_assertion_id"],
+                "version": 2,
+                "reason": "Not selected for this assessment.",
+            }
+        ]
         manifest = create_reproducibility_manifest(
             self.connection,
             {
                 "manifest_id": f"{event_id}-manifest-1",
                 "assessment_id": assessment["assessment_id"],
-                "excluded_assertions": [],
+                "excluded_assertions": excluded_v2,
             },
         )
         self.assertEqual("RFC8785", manifest["canonicalization"])
@@ -737,6 +769,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             [{"assertion_id": assertion["temporal_assertion_id"], "version": 1}],
             manifest["assertion_versions"],
         )
+        self.assertEqual(excluded_v2, manifest["excluded_assertions"])
         self.assertTrue(
             all(
                 len(manifest[field]) == 64
@@ -769,7 +802,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             {
                 "manifest_id": f"{event_id}-manifest-2",
                 "assessment_id": assessment["assessment_id"],
-                "excluded_assertions": [],
+                "excluded_assertions": excluded_v2,
             },
         )
         self.assertEqual(manifest["result_sha256"], repeated_manifest["result_sha256"])
