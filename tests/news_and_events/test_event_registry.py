@@ -471,6 +471,26 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         self.assertEqual("UNDER_REVIEW", historical["conflict"]["status"])
         self.assertEqual(1, len(historical["decisions"]))
 
+        # A second conflict on the same event must validate against the first
+        # conflict's reconstructed RESOLVED state, not its immutable OPEN payload.
+        second_conflict = create_temporal_conflict(
+            self.connection,
+            {
+                "conflict_id": f"conflict-{uuid4().hex}",
+                "event_id": event_id,
+                "assertion_refs": [
+                    first["temporal_assertion_id"],
+                    second["temporal_assertion_id"],
+                ],
+                "disputed_component": "INTERVAL",
+                "classification": "PRECISION_DIFFERENCE",
+                "status": "OPEN",
+            },
+        )
+        self.assertEqual("OPEN", get_conflict_history(
+            self.connection, second_conflict["conflict_id"]
+        )["conflict"]["status"])
+
         invalid = {
             **decision_two,
             "decision_id": f"{conflict['conflict_id']}-decision-invalid",
