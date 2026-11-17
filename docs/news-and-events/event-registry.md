@@ -180,7 +180,7 @@ Consultar qué decisiones ya estaban incorporadas al registro en un corte UTC:
 python -m scripts.news_and_events.register_event conflict-history --conflict-id conflict-event-001 --cutoff-utc 2026-11-17T12:30:00Z
 ```
 
-La hora `decided_at` representa la hora declarada de la decisión; PostgreSQL conserva además `inserted_at`, que representa cuándo se incorporó realmente al registro. Las consultas históricas filtran por `inserted_at`, evitando mostrar decisiones que todavía no estaban registradas en el corte consultado. El estado actual se deriva de las decisiones visibles y no se reescribe en el registro inicial del conflicto.
+La hora `decided_at` representa la hora declarada de la decisión; PostgreSQL conserva además `inserted_at`, que representa cuándo se incorporó realmente al registro. Los valores por defecto usan `clock_timestamp()` y no `transaction_timestamp()`, para que una transacción larga no retrotraiga artificialmente la hora de incorporación. Las consultas históricas filtran por `inserted_at`, evitando mostrar decisiones que todavía no estaban registradas en el corte consultado. El estado actual se deriva de las decisiones visibles y no se reescribe en el registro inicial del conflicto.
 
 ## 7. Límites conocidos de esta primera entrega
 
@@ -194,7 +194,7 @@ La hora `decided_at` representa la hora declarada de la decisión; PostgreSQL co
 
 La escritura de una nueva afirmación bloquea la fila del acontecimiento (`SELECT ... FOR UPDATE`) durante la lectura del historial y la inserción. Esto serializa la asignación de versiones por acontecimiento cuando existen varios escritores concurrentes; la restricción única de `(event_id, version)` permanece como defensa adicional.
 
-La suite de integración comprueba `UPDATE` y `DELETE` en las cinco tablas append-only (`events`, `event_sources`, `temporal_assertions`, `temporal_conflicts` y `conflict_decisions`), la re-ejecución de ambas migraciones, dos escritores concurrentes que intentan anexar la misma versión, el ciclo de decisiones, transiciones inválidas y cortes históricos.
+La suite de integración comprueba `UPDATE` y `DELETE` en las cinco tablas append-only (`events`, `event_sources`, `temporal_assertions`, `temporal_conflicts` y `conflict_decisions`), la re-ejecución de ambas migraciones, los seis defaults de timestamps de registro basados en reloj real, dos escritores concurrentes que intentan anexar la misma versión, el ciclo de decisiones, transiciones inválidas y cortes históricos.
 
 El workflow `.github/workflows/event-registry-validation.yml` ejecuta el validador y regresiones del contrato y pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite cubre registro, versionado, consultas históricas, conflictos, decisiones, rechazo de secuencias/transiciones inválidas, concurrencia, idempotencia de migraciones y protección append-only de las cinco tablas.
 
