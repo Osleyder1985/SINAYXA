@@ -107,7 +107,6 @@ python -m scripts.news_and_events.register_event show-as-of --event-id event-pro
 
 El corte debe expresarse en UTC con sufijo Z. Una afirmación cuyo recorded_at sea posterior al corte queda excluida.
 
-
 ## 6. Registrar conflictos y decisiones
 
 Un conflicto enlaza al menos dos afirmaciones temporales del mismo acontecimiento. El registro inicial siempre se crea en estado `OPEN`; el estado posterior se reconstruye a partir del historial inmutable de decisiones.
