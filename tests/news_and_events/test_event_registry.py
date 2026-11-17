@@ -217,6 +217,31 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         ).fetchone()[0]
         self.assertEqual(2, migration_count)
         self.assertEqual(5, trigger_count)
+        defaults = self.connection.execute(
+            """
+            SELECT relation.relname, attribute.attname, pg_get_expr(definition.adbin, definition.adrelid)
+            FROM pg_attrdef AS definition
+            JOIN pg_class AS relation ON relation.oid = definition.adrelid
+            JOIN pg_namespace AS namespace ON namespace.oid = relation.relnamespace
+            JOIN pg_attribute AS attribute
+              ON attribute.attrelid = relation.oid
+             AND attribute.attnum = definition.adnum
+            WHERE namespace.nspname = 'sinayxa'
+              AND (relation.relname, attribute.attname) IN (
+                  ('events', 'inserted_at'),
+                  ('event_sources', 'recorded_at'),
+                  ('event_sources', 'inserted_at'),
+                  ('temporal_assertions', 'inserted_at'),
+                  ('temporal_conflicts', 'inserted_at'),
+                  ('conflict_decisions', 'inserted_at')
+              )
+            """
+        ).fetchall()
+        self.assertEqual(6, len(defaults))
+        self.assertTrue(
+            all(expression == "clock_timestamp()" for _, _, expression in defaults),
+            defaults,
+        )
 
     def test_registry_rejects_update_and_delete_for_all_append_only_tables(self) -> None:
         event_id = f"event-{uuid4().hex}"
