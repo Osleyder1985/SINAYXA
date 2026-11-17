@@ -717,7 +717,10 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         self.assertEqual("RFC8785", manifest["canonicalization"])
         self.assertEqual("2026f", manifest["tzdb_version"])
         self.assertEqual("PARTIALLY_REPRODUCIBLE", manifest["reproducibility_status"])
-        self.assertIn(evidence_ref, manifest["evidence_refs"])\n        self.assertNotIn(f"source_artifact_missing:{source_ref}", manifest["missing_components"])\n        self.assertNotIn(f"evidence_artifact_missing:{evidence_ref}", manifest["missing_components"])\n        self.assertNotIn(f"source_artifact_missing:{late_source_ref}", manifest["missing_components"])
+        self.assertIn(evidence_ref, manifest["evidence_refs"])
+        self.assertNotIn(f"source_artifact_missing:{source_ref}", manifest["missing_components"])
+        self.assertNotIn(f"evidence_artifact_missing:{evidence_ref}", manifest["missing_components"])
+        self.assertNotIn(f"source_artifact_missing:{late_source_ref}", manifest["missing_components"])
         self.assertEqual(
             [{"assertion_id": assertion["temporal_assertion_id"], "version": 1}],
             manifest["assertion_versions"],
