@@ -16,11 +16,15 @@ from scripts.news_and_events.event_registry import (
     create_event,
     create_temporal_conflict,
     get_conflict_history,
+    get_evidence_artifact,
     get_reproducibility_manifest,
+    get_source_artifact,
     get_temporal_assessment,
     get_event_as_of,
     get_event_history,
     initialize_database,
+    register_evidence_artifact,
+    register_source_artifact,
 )
 
 
@@ -75,6 +79,22 @@ def main() -> int:
     show_manifest = commands.add_parser("show-manifest", help="retrieve a reproducibility manifest")
     show_manifest.add_argument("--manifest-id", required=True)
 
+    source_artifact = commands.add_parser("register-source-artifact", help="store exact source bytes and provenance")
+    source_artifact.add_argument("--input", required=True, help="path to source metadata JSON")
+    source_artifact.add_argument("--file", required=True, help="path to exact source bytes")
+
+    evidence_artifact = commands.add_parser("register-evidence-artifact", help="store exact evidence bytes and extraction provenance")
+    evidence_artifact.add_argument("--input", required=True, help="path to evidence metadata JSON")
+    evidence_artifact.add_argument("--file", required=True, help="path to exact evidence bytes")
+
+    export_source = commands.add_parser("export-source-artifact", help="export and hash-verify exact source bytes")
+    export_source.add_argument("--source-ref", required=True)
+    export_source.add_argument("--output", required=True)
+
+    export_evidence = commands.add_parser("export-evidence-artifact", help="export and hash-verify exact evidence bytes")
+    export_evidence.add_argument("--evidence-ref", required=True)
+    export_evidence.add_argument("--output", required=True)
+
     args = parser.parse_args()
     with connect() as connection:
         if args.command == "init":
@@ -114,6 +134,24 @@ def main() -> int:
             print(json.dumps(result, ensure_ascii=False, indent=2))
         elif args.command == "show-manifest":
             result = get_reproducibility_manifest(connection, args.manifest_id)
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        elif args.command == "register-source-artifact":
+            result = register_source_artifact(connection, read_json(args.input)["source_ref"], Path(args.file).read_bytes(), read_json(args.input))
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        elif args.command == "register-evidence-artifact":
+            result = register_evidence_artifact(connection, read_json(args.input)["evidence_ref"], Path(args.file).read_bytes(), read_json(args.input))
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        elif args.command == "export-source-artifact":
+            result = get_source_artifact(connection, args.source_ref)
+            if result is None:
+                raise ValueError(f"unknown source_ref: {args.source_ref}")
+            Path(args.output).write_bytes(result.pop("content_bytes"))
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        elif args.command == "export-evidence-artifact":
+            result = get_evidence_artifact(connection, args.evidence_ref)
+            if result is None:
+                raise ValueError(f"unknown evidence_ref: {args.evidence_ref}")
+            Path(args.output).write_bytes(result.pop("content_bytes"))
             print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
