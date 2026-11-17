@@ -123,6 +123,9 @@ def validate_corroboration(
             for unit in supporting_units
             if unit["source_type"] == "PRIMARIA"
         }
+        if basis == "AMBAS":
+            _require(bool(primary_supporting_sources),
+                     "AMBAS requires at least one primary supporting unit")
         _require(primary_supporting_sources.issubset(eligible_sources),
                  "every primary supporting unit must have authenticated, legitimate, direct evidence scoped to the component")
     elif basis == "CORROBORACION_INDEPENDIENTE":
