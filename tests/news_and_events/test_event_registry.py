@@ -923,5 +923,27 @@ class EventRegistryIntegrationTests(unittest.TestCase):
 
 
 
+    def test_registry_rejects_truncate_for_all_append_only_tables(self) -> None:
+        tables = (
+            "events",
+            "event_sources",
+            "temporal_assertions",
+            "temporal_conflicts",
+            "conflict_decisions",
+            "temporal_assessments",
+            "reproducibility_manifests",
+            "source_artifacts",
+            "evidence_artifacts",
+        )
+        for table in tables:
+            with self.subTest(table=table):
+                with self.assertRaises(psycopg.Error):
+                    with self.connection.transaction():
+                        self.connection.execute(
+                            f"TRUNCATE TABLE sinayxa.{table} CASCADE"
+                        )
+
+
+
 if __name__ == "__main__":
     unittest.main()
