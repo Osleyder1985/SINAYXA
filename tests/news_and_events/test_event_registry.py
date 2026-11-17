@@ -17,10 +17,14 @@ from scripts.news_and_events.event_registry import (
     append_temporal_assertion,
     connect,
     create_event,
+    create_reproducibility_manifest,
+    create_temporal_assessment,
     create_temporal_conflict,
     get_conflict_history,
     get_event_as_of,
     get_event_history,
+    get_reproducibility_manifest,
+    get_temporal_assessment,
     initialize_database,
 )
 
@@ -545,6 +549,137 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             with self.assertRaises(psycopg.Error):
                 with self.connection.transaction():
                     self.connection.execute(statement, (conflict["conflict_id"],))
+
+
+
+    def test_temporal_assessment_and_manifest_lifecycle(self) -> None:
+        event_id = f"event-{uuid4().hex}"
+        now = datetime.now(timezone.utc)
+        create_event(
+            self.connection,
+            {
+                "event_id": event_id,
+                "description": "Synthetic event for reproducible temporal assessment.",
+                "affected_asset_refs": ["asset-synthetic"],
+                "source_refs": [],
+                "created_at": iso(now - timedelta(minutes=2)),
+            },
+        )
+        assertion = {
+            "temporal_assertion_id": f"{event_id}-assertion-v1",
+            "event_id": event_id,
+            "version": 1,
+            "temporal_role": "SCHEDULED",
+            "precision": "DAY",
+            "interval_start": {
+                "value": iso(now + timedelta(days=1)),
+                "inclusive": True,
+            },
+            "interval_end": {
+                "value": iso(now + timedelta(days=1, hours=23, minutes=59, seconds=59)),
+                "inclusive": True,
+            },
+            "approximation": False,
+            "original_value": "Synthetic event scheduled for tomorrow",
+            "original_timezone": "UTC",
+            "original_offset": "+00:00",
+            "normalized_start_utc": iso(now + timedelta(days=1)),
+            "normalized_end_utc": iso(now + timedelta(days=1, hours=23, minutes=59, seconds=59)),
+            "source_ref": None,
+            "evidence_ref": "evidence-assessment-synthetic",
+            "retrieved_at": None,
+            # The registry must replace this caller-supplied timestamp.
+            "recorded_at": iso(now - timedelta(days=30)),
+            "supersedes_assertion_id": None,
+            "published_at": None,
+            "first_observed_at": None,
+        }
+        append_temporal_assertion(self.connection, assertion)
+        inserted_at = self.connection.execute(
+            """
+            SELECT inserted_at
+            FROM sinayxa.temporal_assertions
+            WHERE temporal_assertion_id = %s
+            """,
+            (assertion["temporal_assertion_id"],),
+        ).fetchone()[0]
+        cutoff = iso(inserted_at + timedelta(microseconds=1))
+
+        request = {
+            "assessment_id": f"{event_id}-assessment-1",
+            "event_id": event_id,
+            "assessment_cutoff": cutoff,
+            "assertion_refs": [assertion["temporal_assertion_id"]],
+            "conflict_decision_refs": [],
+            "rules_version": "temporal-assessment-rules-1.0.0",
+            "software_version": "sinayxa-registry-0.1.0",
+        }
+        too_early = {
+            **request,
+            "assessment_id": f"{event_id}-assessment-too-early",
+            "assessment_cutoff": iso(inserted_at - timedelta(microseconds=1)),
+        }
+        with self.assertRaises(EventRegistryError):
+            create_temporal_assessment(self.connection, too_early)
+
+        assessment = create_temporal_assessment(self.connection, request)
+        self.assertEqual("FUTURE", assessment["derived_temporal_state"])
+        self.assertNotEqual(assertion["recorded_at"], assessment["recorded_at"])
+        stored_assessment = get_temporal_assessment(
+            self.connection, assessment["assessment_id"]
+        )
+        self.assertEqual(assessment, stored_assessment["assessment"])
+
+        manifest = create_reproducibility_manifest(
+            self.connection,
+            {
+                "manifest_id": f"{event_id}-manifest-1",
+                "assessment_id": assessment["assessment_id"],
+                "excluded_assertions": [],
+            },
+        )
+        self.assertEqual("RFC8785", manifest["canonicalization"])
+        self.assertEqual("2026f", manifest["tzdb_version"])
+        self.assertEqual("PARTIALLY_REPRODUCIBLE", manifest["reproducibility_status"])
+        self.assertIn("evidence-assessment-synthetic", manifest["evidence_refs"])
+        self.assertEqual(
+            [{"assertion_id": assertion["temporal_assertion_id"], "version": 1}],
+            manifest["assertion_versions"],
+        )
+        self.assertTrue(
+            all(
+                len(manifest[field]) == 64
+                for field in ("schema_sha256", "rules_sha256", "result_sha256")
+            )
+        )
+        self.assertTrue(manifest["missing_components"])
+        stored_manifest = get_reproducibility_manifest(
+            self.connection, manifest["manifest_id"]
+        )
+        self.assertEqual(manifest, stored_manifest["manifest"])
+
+        mutations = (
+            (
+                "UPDATE sinayxa.temporal_assessments SET derived_temporal_state = 'PAST' WHERE assessment_id = %s",
+                (assessment["assessment_id"],),
+            ),
+            (
+                "DELETE FROM sinayxa.temporal_assessments WHERE assessment_id = %s",
+                (assessment["assessment_id"],),
+            ),
+            (
+                "UPDATE sinayxa.reproducibility_manifests SET result_sha256 = repeat('0', 64) WHERE manifest_id = %s",
+                (manifest["manifest_id"],),
+            ),
+            (
+                "DELETE FROM sinayxa.reproducibility_manifests WHERE manifest_id = %s",
+                (manifest["manifest_id"],),
+            ),
+        )
+        for statement, parameters in mutations:
+            with self.assertRaises(psycopg.Error):
+                with self.connection.transaction():
+                    self.connection.execute(statement, parameters)
 
 
 
