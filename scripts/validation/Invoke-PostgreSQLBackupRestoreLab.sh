@@ -461,8 +461,8 @@ if [[ "$VISIBLE_TARGET" != 0 ]]; then
   echo "Disposed synthetic asset became visible after reconciliation." >&2
   exit 1
 fi
-VISIBLE_ASSETS="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_restored -Atc "SELECT string_agg(asset_id::text || ':' || symbol || ':' || active::text || ':' || to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD\\"T\\"HH24:MI:SS\\"Z\\"'), '|' ORDER BY asset_id) FROM research.assets")"
-if [[ "$VISIBLE_ASSETS" != "1:BTCUSDT:true:2026-01-01T00:00:00Z|2:ETHUSDT:true:2026-01-02T00:00:00Z" ]]; then
+VISIBLE_ASSETS="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_restored -Atc "SELECT string_agg(asset_id::text || ':' || symbol || ':' || active::text || ':' || to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS'), '|' ORDER BY asset_id) FROM research.assets")"
+if [[ "$VISIBLE_ASSETS" != "1:BTCUSDT:true:2026-01-01 00:00:00|2:ETHUSDT:true:2026-01-02 00:00:00" ]]; then
   echo "Unaffected asset records changed during reconciliation: $VISIBLE_ASSETS" >&2
   exit 1
 fi
