@@ -499,6 +499,10 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             get_conflict_history(self.connection, conflict["conflict_id"], cutoff_before_conflict)
         )
 
+        conflict_recorded_at = datetime.fromisoformat(
+            conflict["recorded_at"].replace("Z", "+00:00")
+        )
+        assessment_cutoff = iso(conflict_recorded_at + timedelta(microseconds=1))
         decision_one = {
             "decision_id": f"{conflict['conflict_id']}-decision-1",
             "conflict_id": conflict["conflict_id"],
@@ -511,8 +515,8 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "rationale": "The two recorded assertions require review.",
             "limitations": "No factual conclusion is established by this transition.",
             "actor_ref": "operator-synthetic",
-            "decided_at": iso(datetime.now(timezone.utc) + timedelta(seconds=1)),
-            "assessment_cutoff": second["recorded_at"],
+            "decided_at": iso(datetime.now(timezone.utc)),
+            "assessment_cutoff": assessment_cutoff,
             "rules_version": "temporal-review-1.0.0",
             "supersedes_decision_id": None,
         }
@@ -534,8 +538,8 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "rationale": "The selected evidence supports the recorded resolution within the stated scope.",
             "limitations": "This does not establish market impact or causality.",
             "actor_ref": "operator-synthetic",
-            "decided_at": iso(datetime.now(timezone.utc) + timedelta(seconds=2)),
-            "assessment_cutoff": second["recorded_at"],
+            "decided_at": iso(datetime.now(timezone.utc)),
+            "assessment_cutoff": assessment_cutoff,
             "rules_version": "temporal-review-1.0.0",
             "supersedes_decision_id": None,
         }
@@ -574,7 +578,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "decision_id": f"{conflict['conflict_id']}-decision-invalid",
             "from_status": "OPEN",
             "to_status": "UNDER_REVIEW",
-            "decided_at": iso(datetime.now(timezone.utc) + timedelta(seconds=3)),
+            "decided_at": iso(datetime.now(timezone.utc)),
         }
         with self.assertRaises(EventRegistryError):
             append_conflict_decision(self.connection, invalid)
