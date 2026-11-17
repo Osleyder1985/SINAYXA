@@ -342,6 +342,7 @@ def append_conflict_decision(
         if prior_decisions:
             latest = max(prior_decisions, key=lambda item: _utc(item["decided_at"]))
             current_conflict["status"] = latest["to_status"]
+        current_conflict["status"] = decision["to_status"]
         _validate_package([event], assertions, conflicts, decisions + [decision])
         connection.execute(
             """
