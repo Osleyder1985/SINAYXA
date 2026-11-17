@@ -621,6 +621,24 @@ class EventRegistryIntegrationTests(unittest.TestCase):
     def test_temporal_assessment_and_manifest_lifecycle(self) -> None:
         event_id = f"event-{uuid4().hex}"
         now = datetime.now(timezone.utc)
+        for evidence_ref in (
+            "evidence-assessment-synthetic",
+            "evidence-assessment-support",
+            "evidence-assessment-contrary",
+        ):
+            register_evidence_artifact(
+                self.connection,
+                evidence_ref,
+                ("synthetic evidence bytes for " + evidence_ref).encode("utf-8"),
+                {
+                    "evidence_type": "SYNTHETIC_ASSESSMENT_EVIDENCE",
+                    "media_type": "text/plain",
+                    "extraction_method": "synthetic-test",
+                    "extraction_version": "1.0.0",
+                    "license_ref": "SYNTHETIC-TEST-DATA",
+                    "usage_status": "SYNTHETIC",
+                },
+            )
         create_event(
             self.connection,
             {
