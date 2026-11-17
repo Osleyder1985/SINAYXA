@@ -866,7 +866,7 @@ def get_reproducibility_manifest(
 def get_event_as_of(
     connection: psycopg.Connection, event_id: str, cutoff_utc: str
 ) -> dict[str, Any] | None:
-    """Return only assertion versions recorded no later than the requested cutoff."""
+    """Return only records inserted no later than the requested cutoff."""
     cutoff = _utc(cutoff_utc)
     row = connection.execute(
         """
@@ -893,7 +893,7 @@ def get_event_as_of(
         """
         SELECT assertion_payload
         FROM sinayxa.temporal_assertions
-        WHERE event_id = %s AND recorded_at <= %s
+        WHERE event_id = %s AND inserted_at <= %s
         ORDER BY version
         """,
         (event_id, cutoff),
