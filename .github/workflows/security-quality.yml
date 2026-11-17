@@ -9,6 +9,7 @@ on:
       - feature/issue-2-event-registry-hardening
       - feature/issue-2-conflict-decision-registry
       - feature/issue-2-assessments-manifests
+      - feature/issue-2-source-evidence-artifacts
     paths:
       - "**"
       - ".github/workflows/security-quality.yml"
