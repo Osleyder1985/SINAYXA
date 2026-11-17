@@ -56,7 +56,10 @@ jobs:
           mkdir -p "$install_dir"
           tar -xzf "$archive" -C "$install_dir" gitleaks
           echo "$install_dir" >> "$GITHUB_PATH"
-          gitleaks version
+          export PATH="$install_dir:$PATH"
+          version_output="$(gitleaks version)"
+          printf '%s\n' "$version_output"
+          grep -Fq "8.30.1" <<< "$version_output"
       - name: Verify Gitleaks detects a synthetic custom-rule canary
         shell: bash
         run: |
