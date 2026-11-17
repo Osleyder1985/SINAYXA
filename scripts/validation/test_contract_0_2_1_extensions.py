@@ -198,6 +198,18 @@ class Contract021ExtensionTests(unittest.TestCase):
             validate_corroboration("CORROBORADA", "AMBAS", primary_units, primary, set(), self.cutoff)
         validate_corroboration("CORROBORADA", "AMBAS", primary_units, primary, {"u1", "u2"}, self.cutoff)
 
+    def test_ambas_rejects_independent_sources_without_primary_direct_support(self):
+        supporting_units = [
+            {"assessment_unit_id": "u-secondary-1", "source_id": "s2", "source_version_id": "v2",
+             "claim_component_version_id": "cv1", "assessment_cutoff": self.cutoff, "source_type": "SECUNDARIA"},
+            {"assessment_unit_id": "u-secondary-2", "source_id": "s3", "source_version_id": "v3",
+             "claim_component_version_id": "cv1", "assessment_cutoff": self.cutoff, "source_type": "SECUNDARIA"},
+        ]
+        with self.assertRaises(ContractViolation):
+            validate_corroboration(
+                "CORROBORADA", "AMBAS", supporting_units, [], {"u-secondary-1", "u-secondary-2"}, self.cutoff
+            )
+
     def test_primary_authenticity_does_not_allow_unsupported_external_claim(self):
         primary = [{"source_type": "PRIMARIA", "authenticity_status": "AUTENTICADA",
                     "access_status": "PÚBLICO_LEGÍTIMO", "knowledge_basis": "DOCUMENTO_DE_TERCEROS",
