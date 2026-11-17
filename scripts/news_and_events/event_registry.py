@@ -727,24 +727,19 @@ def create_reproducibility_manifest(
             }
             | {row[0] for row in evidence_source_rows}
         )
-        source_artifact_rows = []
-        if source_refs_for_manifest:
-            source_artifact_rows = connection.execute(
+        source_artifact_manifest = []
+        missing_artifacts: list[str] = []
+        for source_ref in source_refs_for_manifest:
+            row = connection.execute(
                 """
                 SELECT source_ref, source_uri, title, publisher, media_type,
                        content_sha256, content_length, content_bytes, published_at,
                        license_ref, usage_status, authorization_ref, captured_at, metadata
                 FROM sinayxa.source_artifacts
-                WHERE source_ref = ANY(%s) AND inserted_at <= %s
-                ORDER BY source_ref
+                WHERE source_ref = %s AND inserted_at <= %s
                 """,
-                (source_refs_for_manifest, assessment_cutoff),
-            ).fetchall()
-        source_artifact_index = {row[0]: row for row in source_artifact_rows}
-        source_artifact_manifest = []
-        missing_artifacts: list[str] = []
-        for source_ref in source_refs_for_manifest:
-            row = source_artifact_index.get(source_ref)
+                (source_ref, assessment_cutoff),
+            ).fetchone()
             if row is None:
                 missing_artifacts.append(f"source_artifact_missing:{source_ref}")
                 continue
@@ -769,24 +764,19 @@ def create_reproducibility_manifest(
                 }
             )
 
-        evidence_artifact_rows = []
-        if evidence_refs_for_manifest:
-            evidence_artifact_rows = connection.execute(
+        evidence_artifact_manifest = []
+        for evidence_ref in evidence_refs_for_manifest:
+            row = connection.execute(
                 """
                 SELECT evidence_ref, source_ref, evidence_type, media_type,
                        content_sha256, content_length, content_bytes,
                        extraction_method, extraction_version, location_hint,
                        license_ref, usage_status, authorization_ref, captured_at, metadata
                 FROM sinayxa.evidence_artifacts
-                WHERE evidence_ref = ANY(%s) AND inserted_at <= %s
-                ORDER BY evidence_ref
+                WHERE evidence_ref = %s AND inserted_at <= %s
                 """,
-                (evidence_refs_for_manifest, assessment_cutoff),
-            ).fetchall()
-        evidence_artifact_index = {row[0]: row for row in evidence_artifact_rows}
-        evidence_artifact_manifest = []
-        for evidence_ref in evidence_refs_for_manifest:
-            row = evidence_artifact_index.get(evidence_ref)
+                (evidence_ref, assessment_cutoff),
+            ).fetchone()
             if row is None:
                 missing_artifacts.append(f"evidence_artifact_missing:{evidence_ref}")
                 continue
@@ -811,6 +801,7 @@ def create_reproducibility_manifest(
                     "metadata": dict(row[14]),
                 }
             )
+
 
         result_document = {
             "assessment": assessment,
