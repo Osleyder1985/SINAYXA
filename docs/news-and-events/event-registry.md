@@ -2,8 +2,8 @@
 
 **Estado:** registro base (#106), concurrencia/inmutabilidad (#108) y conflictos/decisiones (#109) integrados en `main`; evaluaciones y manifiestos (#110) integrados; almacenamiento de artefactos y endurecimiento TRUNCATE en revisión por PR #111.  
 **Persistencia:** PostgreSQL local 18.7.  
-**Uso autorizado:** entrada explícita del operador y datos sintéticos de validación.  
-**Fuera de alcance:** captura automática, crawling, vigilancia, scraping, fuentes reales y servicios externos.
+**Uso autorizado:** entrada explícita del operador; datos sintéticos y archivos reales solo cuando el operador disponga de autorización aplicable.  
+**Fuera de alcance:** obtención automática de fuentes reales, crawling, vigilancia, scraping y servicios externos.
 
 ## 1. Capacidades implementadas
 
@@ -240,7 +240,7 @@ El manifiesto declara `NOT_REPRODUCIBLE` si falta algún artefacto de fuente/evi
 
 ## 8. Artefactos locales de fuentes y evidencias
 
-El registro puede conservar los bytes exactos de una fuente y de los fragmentos/evidencias derivados. El operador suministra los archivos; SINAYXA no realiza descargas, crawling ni captura automática.
+El registro puede conservar los bytes exactos de una fuente y de los fragmentos/evidencias derivados. El operador suministra los archivos y declara el estado de uso; los archivos reales requieren autorización aplicable. SINAYXA no realiza descargas, crawling ni captura automática.
 
 Ejemplo de `source-metadata.json`:
 
