@@ -315,8 +315,8 @@ def create_temporal_conflict(
             """
             INSERT INTO sinayxa.temporal_conflicts (
                 conflict_id, event_id, assertion_refs, disputed_component,
-                classification, status, recorded_at, conflict_payload
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                classification, status, recorded_at, conflict_payload, inserted_at
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 candidate["conflict_id"],
@@ -327,6 +327,7 @@ def create_temporal_conflict(
                 candidate["status"],
                 recorded_at,
                 Jsonb(candidate),
+                recorded_at,
             ),
         )
         return candidate
