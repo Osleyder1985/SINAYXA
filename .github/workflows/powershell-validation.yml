@@ -26,6 +26,19 @@ on:
       - "docs/news-and-events/alert-severity-and-deduplication-proposal.md"
       - "tests/fixtures/methodology/alerts/**"
       - "tests/fixtures/methodology/source-independence/**"
+      - "schemas/source-evidence-contract-0.2.0.schema.json"
+      - "tests/fixtures/contracts/source-evidence-contract-v0.2.0.json"
+      - "scripts/validation/validate_source_evidence_contract_schema.py"
+      - "scripts/validation/contract_0_2_1_extensions.py"
+      - "scripts/validation/migrate_source_evidence_contract_0_2_0_to_0_2_1.py"
+      - "scripts/validation/test_contract_0_2_1_extensions.py"
+      - "schemas/source-evidence-contract-0.2.1.schema.json"
+      - "tests/fixtures/contracts/source-evidence-contract-v0.2.1.json"
+      - "scripts/validation/validate_source_evidence_contract_0_2_1.py"
+      - "docs/news-and-events/source-evidence-contract-0.2.1-addendum.md"
+      - "docs/news-and-events/contract-0.2.1-verification-matrix.md"
+      - "requirements-contract-validation.txt"
+      - "scripts/validation/test_source_evidence_contract.ps1"
       - "scripts/validation/validate_source_independence_fixture.ps1"
       - "scripts/validation/test_source_independence_fixture.ps1"
       - "scripts/validation/validate_alert_fixture.ps1"
@@ -228,6 +241,22 @@ jobs:
           & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_source_independence_fixture.ps1'
           if ($LASTEXITCODE -ne 0) { throw 'The Issue #16 source-independence mutation tests failed.' }
 
+      - name: Validate Issue #78 JSON Schema and synthetic fixture semantics
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/validate_source_evidence_contract.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'The Issue #78 source-evidence contract validator failed.' }
+
+      - name: Run Issue #78 contract negative mutation tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/test_source_evidence_contract.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'The Issue #78 contract mutation tests failed.' }
+
       - name: Validate Issue #17 A01-A15 synthetic alert fixture
         shell: pwsh
         working-directory: source
@@ -274,6 +303,38 @@ jobs:
           $ErrorActionPreference = 'Stop'
           python -m unittest scripts.validation.test_temporal_event_contract -v
           if ($LASTEXITCODE -ne 0) { throw 'Issue #2 temporal contract tests failed.' }
+
+      - name: Install pinned Issue #78 contract-validation dependencies
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m pip install --disable-pip-version-check --no-input -r requirements-contract-validation.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Issue #78 contract-validation dependencies installation failed.' }
+
+      - name: Validate Issue #78 JSON Schema and #15/#16 compatibility
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python scripts/validation/validate_source_evidence_contract_schema.py
+          if ($LASTEXITCODE -ne 0) { throw 'Issue #78 JSON Schema or #15/#16 compatibility validation failed.' }
+
+      - name: Run Issue #78 contract 0.2.1 corrective semantic tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m unittest discover -s scripts/validation -p 'test_contract_0_2_1_extensions.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Issue #78 contract 0.2.1 corrective semantic tests failed.' }
+
+      - name: Validate Issue #78 contract 0.2.1 schema and semantic fixture
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python scripts/validation/validate_source_evidence_contract_0_2_1.py
+          if ($LASTEXITCODE -ne 0) { throw 'Issue #78 contract 0.2.1 schema or semantic fixture validation failed.' }
 
       - name: Record source and fixture provenance
         shell: pwsh
