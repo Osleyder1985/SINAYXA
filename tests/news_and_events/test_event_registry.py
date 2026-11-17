@@ -81,7 +81,6 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             self.connection, event_id, "source-calendar-b"
         )
 
-        second_recorded = source_b_recorded_at + timedelta(microseconds=4)
         second = {
             **first,
             "temporal_assertion_id": f"{event_id}-v2",
@@ -99,29 +98,30 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "source_ref": "source-calendar-b",
             "evidence_ref": "evidence-calendar-b",
             "retrieved_at": iso(source_b_recorded_at + timedelta(microseconds=3)),
-            "recorded_at": iso(second_recorded),
+            # Deliberately backdated client input must not control registry knowledge time.\n            "recorded_at": iso(source_b_recorded_at - timedelta(microseconds=1)),
             "supersedes_assertion_id": first["temporal_assertion_id"],
             "published_at": iso(source_b_recorded_at + timedelta(microseconds=1)),
             "first_observed_at": iso(source_b_recorded_at + timedelta(microseconds=2)),
         }
-        premature = {
-            **second,
-            "temporal_assertion_id": f"{event_id}-v2-premature",
-            "retrieved_at": iso(source_b_recorded_at - timedelta(microseconds=2)),
-            "recorded_at": iso(source_b_recorded_at - timedelta(microseconds=1)),
-            "published_at": iso(source_b_recorded_at - timedelta(microseconds=4)),
-            "first_observed_at": iso(source_b_recorded_at - timedelta(microseconds=3)),
-        }
-        with self.assertRaises(EventRegistryError):
-            append_temporal_assertion(self.connection, premature)
-
         append_temporal_assertion(self.connection, second)
+        stored_second = self.connection.execute(
+            """
+            SELECT assertion_payload
+            FROM sinayxa.temporal_assertions
+            WHERE temporal_assertion_id = %s
+            """,
+            (second["temporal_assertion_id"],),
+        ).fetchone()[0]
+        stored_recorded_at = datetime.fromisoformat(
+            stored_second["recorded_at"].replace("Z", "+00:00")
+        )
+        self.assertGreaterEqual(stored_recorded_at, source_b_recorded_at)
 
         historical = get_event_as_of(
             self.connection, event_id, iso(source_b_recorded_at - timedelta(microseconds=1))
         )
         current = get_event_as_of(
-            self.connection, event_id, iso(second_recorded + timedelta(seconds=1))
+            self.connection, event_id, iso(datetime.now(timezone.utc) + timedelta(seconds=1))
         )
         self.assertIsNotNone(historical)
         self.assertEqual([1], [item["version"] for item in historical["temporal_assertions"]])
