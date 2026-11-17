@@ -695,8 +695,9 @@ def create_reproducibility_manifest(
 
         selected_conflict_ids = {item["conflict_id"] for item in selected_decisions}
         selected_conflicts = [
-            item for item in conflicts if item["conflict_id"] in selected_conflict_ids
+            dict(item) for item in conflicts if item["conflict_id"] in selected_conflict_ids
         ]
+        _apply_latest_conflict_statuses(selected_conflicts, selected_decisions)
         result_document = {
             "assessment": assessment,
             "event": result_event,
