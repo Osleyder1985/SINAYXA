@@ -895,6 +895,35 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         self.assertEqual(source_bytes, stored_source["content_bytes"])
         self.assertEqual(stored_source["captured_at"], stored_source["recorded_at"])
         self.assertEqual(stored_source["recorded_at"], stored_source["inserted_at"])
+        with tempfile.TemporaryDirectory() as directory:
+            export_path = Path(directory) / "source-export.bin"
+            with patch(
+                "sys.argv",
+                [
+                    "register_event.py",
+                    "export-source-artifact",
+                    "--source-ref",
+                    source_ref,
+                    "--output",
+                    str(export_path),
+                ],
+            ):
+                self.assertEqual(0, registry_cli_main())
+            self.assertEqual(source_bytes, export_path.read_bytes())
+            with self.assertRaises(FileExistsError):
+                with patch(
+                    "sys.argv",
+                    [
+                        "register_event.py",
+                        "export-source-artifact",
+                        "--source-ref",
+                        source_ref,
+                        "--output",
+                        str(export_path),
+                    ],
+                ):
+                    registry_cli_main()
+            self.assertEqual(source_bytes, export_path.read_bytes())
 
         evidence = register_evidence_artifact(
             self.connection,
@@ -937,6 +966,19 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             ):
                 with self.assertRaises(FileExistsError):
                     registry_cli_main()
+
+        with self.assertRaises(EventRegistryError):
+            register_source_artifact(
+                self.connection,
+                f"source-synthetic-with-auth-{uuid4().hex}",
+                b"synthetic bytes",
+                {
+                    "media_type": "text/plain",
+                    "license_ref": "SYNTHETIC-TEST-DATA",
+                    "usage_status": "SYNTHETIC",
+                    "authorization_ref": "unnecessary-authorization",
+                },
+            )
 
         authorized_source_ref = f"source-authorized-{uuid4().hex}"
         authorized_evidence_ref = f"evidence-authorized-{uuid4().hex}"
