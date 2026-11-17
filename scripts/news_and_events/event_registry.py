@@ -705,6 +705,19 @@ def create_reproducibility_manifest(
         ]
         _apply_latest_conflict_statuses(selected_conflicts, selected_decisions)
 
+        evidence_refs_for_manifest = sorted(evidence_refs)
+        evidence_source_rows = []
+        if evidence_refs_for_manifest:
+            evidence_source_rows = connection.execute(
+                """
+                SELECT DISTINCT source_ref
+                FROM sinayxa.evidence_artifacts
+                WHERE evidence_ref = ANY(%s)
+                  AND source_ref IS NOT NULL
+                  AND inserted_at <= %s
+                """,
+                (evidence_refs_for_manifest, assessment_cutoff),
+            ).fetchall()
         source_refs_for_manifest = sorted(
             set(result_event["source_refs"])
             | {
@@ -712,6 +725,7 @@ def create_reproducibility_manifest(
                 for item in selected_assertions
                 if item["source_ref"] is not None
             }
+            | {row[0] for row in evidence_source_rows}
         )
         source_artifact_rows = []
         if source_refs_for_manifest:
@@ -756,7 +770,6 @@ def create_reproducibility_manifest(
             )
 
         evidence_artifact_rows = []
-        evidence_refs_for_manifest = sorted(evidence_refs)
         if evidence_refs_for_manifest:
             evidence_artifact_rows = connection.execute(
                 """
