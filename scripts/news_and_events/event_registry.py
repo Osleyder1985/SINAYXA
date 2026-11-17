@@ -1,6 +1,7 @@
 """Explicit, append-only event registry backed by the approved temporal contract."""
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from datetime import datetime, timezone
@@ -8,22 +9,20 @@ from pathlib import Path
 from typing import Any
 
 import psycopg
+import rfc8785
+import tzdata
 from jsonschema import Draft202012Validator, FormatChecker
 from psycopg.types.json import Jsonb
 
-from scripts.validation.validate_temporal_event_contract import validate_semantics
+from scripts.validation.validate_temporal_event_contract import (
+    derive_temporal_state,
+    validate_semantics,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "schemas" / "temporal-event-contract-1.0.0.schema.json"
+RULES_PATH = ROOT / "scripts" / "validation" / "validate_temporal_event_contract.py"
 MIGRATION_DIR = ROOT / "database" / "migrations"
-EMPTY_COLLECTIONS = {
-    "temporal_conflicts": [],
-    "conflict_decisions": [],
-    "temporal_assessments": [],
-    "reproducibility_manifests": [],
-}
-
-
 class EventRegistryError(ValueError):
     """Raised when a registry operation violates the temporal contract."""
 
@@ -45,6 +44,8 @@ def _validate_package(
     assertions: list[dict[str, Any]],
     conflicts: list[dict[str, Any]] | None = None,
     decisions: list[dict[str, Any]] | None = None,
+    assessments: list[dict[str, Any]] | None = None,
+    manifests: list[dict[str, Any]] | None = None,
 ) -> None:
     package = {
         "contract_version": "1.0.0",
@@ -52,7 +53,8 @@ def _validate_package(
         "temporal_assertions": assertions,
         "temporal_conflicts": conflicts or [],
         "conflict_decisions": decisions or [],
-        **{key: value for key, value in EMPTY_COLLECTIONS.items() if key not in {"temporal_conflicts", "conflict_decisions"}},
+        "temporal_assessments": assessments or [],
+        "reproducibility_manifests": manifests or [],
     }
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
     errors = sorted(
@@ -455,10 +457,416 @@ def get_conflict_history(
         }
 
 
+def _load_event_assessment_state(
+    connection: psycopg.Connection, event_id: str
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    assessment_rows = connection.execute(
+        """
+        SELECT assessment_payload
+        FROM sinayxa.temporal_assessments
+        WHERE event_id = %s
+        ORDER BY inserted_at, assessment_id
+        """,
+        (event_id,),
+    ).fetchall()
+    manifest_rows = connection.execute(
+        """
+        SELECT manifests.manifest_payload
+        FROM sinayxa.reproducibility_manifests AS manifests
+        JOIN sinayxa.temporal_assessments AS assessments
+          ON assessments.assessment_id = manifests.assessment_id
+        WHERE assessments.event_id = %s
+        ORDER BY manifests.inserted_at, manifests.manifest_id
+        """,
+        (event_id,),
+    ).fetchall()
+    return (
+        [dict(row[0]) for row in assessment_rows],
+        [dict(row[0]) for row in manifest_rows],
+    )
+
+
+def create_temporal_assessment(
+    connection: psycopg.Connection, request: dict[str, Any]
+) -> dict[str, Any]:
+    """Derive and append a temporal assessment from explicitly selected known records."""
+    event_id = request["event_id"]
+    cutoff = _utc(request["assessment_cutoff"])
+    assertion_refs = request["assertion_refs"]
+    decision_refs = request["conflict_decision_refs"]
+    if not isinstance(assertion_refs, list) or not all(isinstance(item, str) for item in assertion_refs):
+        raise EventRegistryError("assertion_refs must be an array of identifiers")
+    if not isinstance(decision_refs, list) or not all(isinstance(item, str) for item in decision_refs):
+        raise EventRegistryError("conflict_decision_refs must be an array of identifiers")
+    if not assertion_refs:
+        raise EventRegistryError("assessment requires at least one assertion reference")
+    if len(assertion_refs) != len(set(assertion_refs)):
+        raise EventRegistryError("assessment contains duplicate assertion references")
+    if len(decision_refs) != len(set(decision_refs)):
+        raise EventRegistryError("assessment contains duplicate conflict decision references")
+
+    with connection.transaction():
+        event_row = connection.execute(
+            """
+            SELECT event_payload, inserted_at
+            FROM sinayxa.events
+            WHERE event_id = %s
+            FOR UPDATE
+            """,
+            (event_id,),
+        ).fetchone()
+        if event_row is None:
+            raise EventRegistryError(f"unknown event_id: {event_id}")
+        if event_row[1] > cutoff:
+            raise EventRegistryError("event was not present in the registry at the assessment cutoff")
+
+        selected_assertions = connection.execute(
+            """
+            SELECT assertion_payload, inserted_at
+            FROM sinayxa.temporal_assertions
+            WHERE event_id = %s AND temporal_assertion_id = ANY(%s)
+            ORDER BY version
+            """,
+            (event_id, assertion_refs),
+        ).fetchall()
+        if len(selected_assertions) != len(assertion_refs):
+            raise EventRegistryError("assessment contains an unknown or cross-event assertion reference")
+        if any(row[1] > cutoff for row in selected_assertions):
+            raise EventRegistryError("assessment cannot include an assertion inserted after its cutoff")
+
+        if decision_refs:
+            decision_rows = connection.execute(
+                """
+                SELECT decisions.decision_payload, decisions.inserted_at
+                FROM sinayxa.conflict_decisions AS decisions
+                JOIN sinayxa.temporal_conflicts AS conflicts
+                  ON conflicts.conflict_id = decisions.conflict_id
+                WHERE conflicts.event_id = %s AND decisions.decision_id = ANY(%s)
+                ORDER BY decisions.decided_at
+                """,
+                (event_id, decision_refs),
+            ).fetchall()
+            if len(decision_rows) != len(decision_refs):
+                raise EventRegistryError("assessment contains an unknown or cross-event conflict decision reference")
+            if any(row[1] > cutoff for row in decision_rows):
+                raise EventRegistryError("assessment cannot include a decision inserted after its cutoff")
+        event, assertions, conflicts, decisions = _load_event_contract_state(connection, event_id)
+        _apply_latest_conflict_statuses(conflicts, decisions)
+        assessment = dict(request)
+        assessment["derived_temporal_state"] = derive_temporal_state(
+            [dict(row[0]) for row in selected_assertions], cutoff
+        )
+        recorded_at = connection.execute("SELECT clock_timestamp()").fetchone()[0]
+        assessment["recorded_at"] = recorded_at.astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
+        assessments, manifests = _load_event_assessment_state(connection, event_id)
+        _validate_package(
+            [event],
+            assertions,
+            conflicts,
+            decisions,
+            assessments + [assessment],
+            manifests,
+        )
+        connection.execute(
+            """
+            INSERT INTO sinayxa.temporal_assessments (
+                assessment_id, event_id, assessment_cutoff, assertion_refs,
+                conflict_decision_refs, derived_temporal_state, rules_version,
+                software_version, recorded_at, assessment_payload, inserted_at
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                assessment["assessment_id"],
+                event_id,
+                cutoff,
+                assertion_refs,
+                decision_refs,
+                assessment["derived_temporal_state"],
+                assessment["rules_version"],
+                assessment["software_version"],
+                recorded_at,
+                Jsonb(assessment),
+                recorded_at,
+            ),
+        )
+        return assessment
+
+
+def get_temporal_assessment(
+    connection: psycopg.Connection, assessment_id: str
+) -> dict[str, Any] | None:
+    """Retrieve one immutable temporal assessment and its actual registry insertion time."""
+    with connection.transaction():
+        row = connection.execute(
+            """
+            SELECT assessment_payload, inserted_at
+            FROM sinayxa.temporal_assessments
+            WHERE assessment_id = %s
+            """,
+            (assessment_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        return {
+            "assessment": dict(row[0]),
+            "recorded_in_registry_at": row[1].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
+        }
+
+
+def create_reproducibility_manifest(
+    connection: psycopg.Connection, request: dict[str, Any]
+) -> dict[str, Any]:
+    """Create an RFC 8785/SHA-256 manifest for an assessment without overstating reproducibility."""
+    with connection.transaction():
+        assessment_row = connection.execute(
+            """
+            SELECT assessment_payload, event_id
+            FROM sinayxa.temporal_assessments
+            WHERE assessment_id = %s
+            FOR UPDATE
+            """,
+            (request["assessment_id"],),
+        ).fetchone()
+        if assessment_row is None:
+            raise EventRegistryError(f"unknown assessment_id: {request['assessment_id']}")
+        assessment = dict(assessment_row[0])
+        event_id = assessment_row[1]
+        event_lock = connection.execute(
+            "SELECT event_id FROM sinayxa.events WHERE event_id = %s FOR UPDATE",
+            (event_id,),
+        ).fetchone()
+        if event_lock is None:
+            raise EventRegistryError(f"unknown event_id: {event_id}")
+        event, assertions, conflicts, decisions = _load_event_contract_state(connection, event_id)
+        _apply_latest_conflict_statuses(conflicts, decisions)
+        assessments, manifests = _load_event_assessment_state(connection, event_id)
+        assessment_cutoff = _utc(assessment["assessment_cutoff"])
+        source_rows = connection.execute(
+            """
+            SELECT source_ref
+            FROM sinayxa.event_sources
+            WHERE event_id = %s AND inserted_at <= %s
+            ORDER BY source_ref
+            """,
+            (event_id, assessment_cutoff),
+        ).fetchall()
+        result_event = dict(event)
+        result_event["source_refs"] = [row[0] for row in source_rows]
+
+        assertion_index = {item["temporal_assertion_id"]: item for item in assertions}
+        decision_index = {item["decision_id"]: item for item in decisions}
+        selected_assertions = []
+        for assertion_ref in assessment["assertion_refs"]:
+            assertion = assertion_index.get(assertion_ref)
+            if assertion is None:
+                raise EventRegistryError(f"assessment references unknown assertion: {assertion_ref}")
+            selected_assertions.append(assertion)
+
+        excluded_assertions = request.get("excluded_assertions", [])
+        if not isinstance(excluded_assertions, list):
+            raise EventRegistryError("excluded_assertions must be a JSON array")
+        selected_ids = set(assessment["assertion_refs"])
+        excluded_payloads: list[dict[str, Any]] = []
+        for excluded in excluded_assertions:
+            if not isinstance(excluded, dict):
+                raise EventRegistryError("each excluded assertion must be an object")
+            assertion = assertion_index.get(excluded.get("assertion_id"))
+            if assertion is None or assertion["event_id"] != event_id:
+                raise EventRegistryError("excluded assertion is unknown or belongs to another event")
+            if excluded["assertion_id"] in selected_ids:
+                raise EventRegistryError("an assertion cannot be both included and excluded")
+            if not isinstance(excluded.get("reason"), str) or not excluded["reason"].strip():
+                raise EventRegistryError("each excluded assertion requires a non-empty reason")
+            if assertion["version"] != excluded.get("version"):
+                raise EventRegistryError("excluded assertion version does not match the registry")
+            inserted_row = connection.execute(
+                """
+                SELECT inserted_at
+                FROM sinayxa.temporal_assertions
+                WHERE event_id = %s AND temporal_assertion_id = %s
+                """,
+                (event_id, excluded["assertion_id"]),
+            ).fetchone()
+            if inserted_row is None or inserted_row[0] > assessment_cutoff:
+                raise EventRegistryError("excluded assertion was not in the registry at the assessment cutoff")
+            excluded_payloads.append(assertion)
+
+        excluded_ids = {item["assertion_id"] for item in excluded_assertions}
+        if len(excluded_ids) != len(excluded_assertions):
+            raise EventRegistryError("excluded_assertions contains duplicate identifiers")
+        known_assertion_rows = connection.execute(
+            """
+            SELECT temporal_assertion_id
+            FROM sinayxa.temporal_assertions
+            WHERE event_id = %s AND inserted_at <= %s
+            ORDER BY temporal_assertion_id
+            """,
+            (event_id, assessment_cutoff),
+        ).fetchall()
+        known_assertion_ids = {row[0] for row in known_assertion_rows}
+        classified_assertion_ids = selected_ids | excluded_ids
+        if classified_assertion_ids != known_assertion_ids:
+            missing = sorted(known_assertion_ids - classified_assertion_ids)
+            unexpected = sorted(classified_assertion_ids - known_assertion_ids)
+            raise EventRegistryError(
+                "manifest must classify every assertion known at the assessment cutoff; "
+                f"missing={missing}, unexpected={unexpected}"
+            )
+
+        selected_decisions = []
+        for decision_ref in assessment["conflict_decision_refs"]:
+            decision = decision_index.get(decision_ref)
+            if decision is None:
+                raise EventRegistryError(f"assessment references unknown conflict decision: {decision_ref}")
+            selected_decisions.append(decision)
+
+        evidence_refs = {
+            item["evidence_ref"]
+            for item in selected_assertions
+            if item["evidence_ref"] is not None
+        }
+        for decision in selected_decisions:
+            evidence_refs.update(decision["supporting_evidence_refs"])
+            evidence_refs.update(decision["contrary_evidence_refs"])
+
+        selected_conflict_ids = {item["conflict_id"] for item in selected_decisions}
+        selected_conflicts = [
+            dict(item) for item in conflicts if item["conflict_id"] in selected_conflict_ids
+        ]
+        _apply_latest_conflict_statuses(selected_conflicts, selected_decisions)
+        result_document = {
+            "assessment": assessment,
+            "event": result_event,
+            "temporal_assertions": sorted(
+                selected_assertions, key=lambda item: item["temporal_assertion_id"]
+            ),
+            "excluded_assertions": [
+                {
+                    "assertion": item,
+                    "reason": excluded["reason"],
+                }
+                for item, excluded in sorted(
+                    zip(excluded_payloads, excluded_assertions),
+                    key=lambda pair: pair[0]["temporal_assertion_id"],
+                )
+            ],
+            "temporal_conflicts": sorted(
+                selected_conflicts, key=lambda item: item["conflict_id"]
+            ),
+            "conflict_decisions": sorted(
+                selected_decisions, key=lambda item: item["decision_id"]
+            ),
+        }
+        try:
+            result_digest = hashlib.sha256(rfc8785.dumps(result_document)).hexdigest()
+        except (TypeError, ValueError) as exc:
+            raise EventRegistryError(f"assessment result cannot be canonicalized under RFC 8785: {exc}") from exc
+
+        created_at = connection.execute("SELECT clock_timestamp()").fetchone()[0]
+        created_at_text = created_at.astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
+        manifest = {
+            "manifest_id": request["manifest_id"],
+            "assessment_id": assessment["assessment_id"],
+            "assessment_cutoff": assessment["assessment_cutoff"],
+            "contract_version": "1.0.0",
+            "schema_sha256": hashlib.sha256(SCHEMA_PATH.read_bytes()).hexdigest(),
+            "assertion_versions": [
+                {
+                    "assertion_id": item["temporal_assertion_id"],
+                    "version": item["version"],
+                }
+                for item in sorted(selected_assertions, key=lambda item: item["version"])
+            ],
+            "excluded_assertions": excluded_assertions,
+            "evidence_refs": sorted(evidence_refs),
+            "conflict_decision_refs": assessment["conflict_decision_refs"],
+            "rules_version": assessment["rules_version"],
+            "rules_sha256": hashlib.sha256(RULES_PATH.read_bytes()).hexdigest(),
+            "tzdb_version": tzdata.IANA_VERSION,
+            "software_version": assessment["software_version"],
+            "result_sha256": result_digest,
+            "canonicalization": "RFC8785",
+            "reproducibility_status": "PARTIALLY_REPRODUCIBLE",
+            "missing_components": [
+                "source_content_not_persisted",
+                "evidence_content_not_persisted",
+                "software_build_revision_not_verified",
+                "runtime_environment_snapshot_not_embedded",
+            ],
+            "created_at": created_at_text,
+        }
+        _validate_package(
+            [event],
+            assertions,
+            conflicts,
+            decisions,
+            assessments,
+            manifests + [manifest],
+        )
+        connection.execute(
+            """
+            INSERT INTO sinayxa.reproducibility_manifests (
+                manifest_id, assessment_id, assessment_cutoff, contract_version,
+                schema_sha256, assertion_versions, excluded_assertions, evidence_refs,
+                conflict_decision_refs, rules_version, rules_sha256, tzdb_version,
+                software_version, result_sha256, canonicalization,
+                reproducibility_status, missing_components, created_at, manifest_payload, inserted_at
+            ) VALUES (
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+            )
+            """,
+            (
+                manifest["manifest_id"],
+                manifest["assessment_id"],
+                _utc(manifest["assessment_cutoff"]),
+                manifest["contract_version"],
+                manifest["schema_sha256"],
+                Jsonb(manifest["assertion_versions"]),
+                Jsonb(manifest["excluded_assertions"]),
+                manifest["evidence_refs"],
+                manifest["conflict_decision_refs"],
+                manifest["rules_version"],
+                manifest["rules_sha256"],
+                manifest["tzdb_version"],
+                manifest["software_version"],
+                manifest["result_sha256"],
+                manifest["canonicalization"],
+                manifest["reproducibility_status"],
+                manifest["missing_components"],
+                created_at,
+                Jsonb(manifest),
+                created_at,
+            ),
+        )
+        return manifest
+
+
+def get_reproducibility_manifest(
+    connection: psycopg.Connection, manifest_id: str
+) -> dict[str, Any] | None:
+    """Retrieve one immutable reproducibility manifest and its registry insertion time."""
+    with connection.transaction():
+        row = connection.execute(
+            """
+            SELECT manifest_payload, inserted_at
+            FROM sinayxa.reproducibility_manifests
+            WHERE manifest_id = %s
+            """,
+            (manifest_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        return {
+            "manifest": dict(row[0]),
+            "recorded_in_registry_at": row[1].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
+        }
+
+
+
 def get_event_as_of(
     connection: psycopg.Connection, event_id: str, cutoff_utc: str
 ) -> dict[str, Any] | None:
-    """Return only assertion versions recorded no later than the requested cutoff."""
+    """Return only records inserted no later than the requested cutoff."""
     cutoff = _utc(cutoff_utc)
     row = connection.execute(
         """
@@ -475,7 +883,7 @@ def get_event_as_of(
         """
         SELECT source_ref
         FROM sinayxa.event_sources
-        WHERE event_id = %s AND recorded_at <= %s
+        WHERE event_id = %s AND inserted_at <= %s
         ORDER BY source_ref
         """,
         (event_id, cutoff),
@@ -485,7 +893,7 @@ def get_event_as_of(
         """
         SELECT assertion_payload
         FROM sinayxa.temporal_assertions
-        WHERE event_id = %s AND recorded_at <= %s
+        WHERE event_id = %s AND inserted_at <= %s
         ORDER BY version
         """,
         (event_id, cutoff),
