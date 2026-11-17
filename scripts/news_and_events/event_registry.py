@@ -1075,7 +1075,7 @@ def register_evidence_artifact(
         if source_ref is not None:
             source = connection.execute(
                 """
-                SELECT usage_status, authorization_ref
+                SELECT usage_status, authorization_ref, license_ref
                 FROM sinayxa.source_artifacts
                 WHERE source_ref = %s
                 """,
@@ -1083,10 +1083,12 @@ def register_evidence_artifact(
             ).fetchone()
             if source is None:
                 raise EventRegistryError("evidence source_ref has no registered source artifact")
-            if source[0] != usage_status or (
-                usage_status == "AUTHORIZED" and source[1] != authorization_ref
+            if (
+                source[0] != usage_status
+                or source[2] != license_ref
+                or (usage_status == "AUTHORIZED" and source[1] != authorization_ref)
             ):
-                raise EventRegistryError("evidence authorization must not exceed or diverge from its source artifact")
+                raise EventRegistryError("evidence license and authorization must not exceed or diverge from its source artifact")
         captured_at = connection.execute("SELECT clock_timestamp()").fetchone()[0]
         connection.execute(
             """
