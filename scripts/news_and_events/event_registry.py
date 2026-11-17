@@ -145,7 +145,7 @@ def append_temporal_assertion(
 
         event = dict(event_row[0])
         database_recorded_at = connection.execute(
-            "SELECT transaction_timestamp()"
+            "SELECT clock_timestamp()"
         ).fetchone()[0]
         # The registry, not the caller, determines when this assertion became known.
         assertion = {
