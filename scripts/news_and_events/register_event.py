@@ -154,7 +154,8 @@ def main() -> int:
             output_path = Path(args.output)
             if output_path.exists():
                 raise FileExistsError(f"refusing to overwrite existing file: {output_path}")
-            output_path.write_bytes(result.pop("content_bytes"))
+            with output_path.open("xb") as output_file:
+                output_file.write(result.pop("content_bytes"))
             print(json.dumps(result, ensure_ascii=False, indent=2))
         elif args.command == "export-evidence-artifact":
             result = get_evidence_artifact(connection, args.evidence_ref)
@@ -163,7 +164,8 @@ def main() -> int:
             output_path = Path(args.output)
             if output_path.exists():
                 raise FileExistsError(f"refusing to overwrite existing file: {output_path}")
-            output_path.write_bytes(result.pop("content_bytes"))
+            with output_path.open("xb") as output_file:
+                output_file.write(result.pop("content_bytes"))
             print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
