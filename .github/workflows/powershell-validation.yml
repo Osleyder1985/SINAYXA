@@ -8,39 +8,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - "**.ps1"
-      - "**.psm1"
-      - "**.md"
-      - "tests/fixtures/methodology/intensity-horizons/**"
-      - "tests/fixtures/methodology/evidence-standard/**"
-      - "scripts/validation/validate_evidence_standard_fixture.ps1"
-      - "scripts/validation/test_evidence_standard_fixture.ps1"
-      - "docs/news-and-events/intensity-and-time-horizons-test-record.md"
-      - "docs/news-and-events/intensity-and-time-horizons-proposal.md"
-      - "docs/news-and-events/intensity-horizons-empirical-validation-protocol.md"
-      - "docs/news-and-events/evidence-standard-for-indicia-rumours-and-leaks.md"
-      - "docs/news-and-events/source-credibility-and-independence-proposal.md"
-      - "docs/news-and-events/source-evidence-provenance-contract-proposal.md"
-      - "docs/news-and-events/source-monitoring-latency-and-limits-proposal.md"
-      - "docs/news-and-events/alert-severity-and-deduplication-proposal.md"
-      - "tests/fixtures/methodology/alerts/**"
-      - "tests/fixtures/methodology/source-independence/**"
-      - "scripts/validation/validate_source_independence_fixture.ps1"
-      - "scripts/validation/test_source_independence_fixture.ps1"
-      - "scripts/validation/validate_alert_fixture.ps1"
-      - "scripts/validation/test_alert_fixture.ps1"
-      - ".github/workflows/powershell-validation.yml"
-      - ".github/workflows/security-quality.yml"
-      - "schemas/temporal-event-contract-1.0.0.schema.json"
-      - "tests/fixtures/contracts/temporal-event-contract-v1.0.0.json"
-      - "scripts/validation/validate_temporal_event_contract.py"
-      - "scripts/validation/test_temporal_event_contract.py"
-      - "requirements-temporal-contract-validation.txt"
-      - "database/migrations/**"
-      - "scripts/news_and_events/**"
-      - "tests/news_and_events/**"
-      - "docs/news-and-events/event-registry.md"
   workflow_dispatch:
     inputs:
       target_ref:
