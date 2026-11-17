@@ -1,6 +1,7 @@
 """Explicit, append-only event registry backed by the approved temporal contract."""
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from datetime import datetime
@@ -8,13 +9,16 @@ from pathlib import Path
 from typing import Any
 
 import psycopg
+import rfc8785
+import tzdata
 from jsonschema import Draft202012Validator, FormatChecker
 from psycopg.types.json import Jsonb
 
-from scripts.validation.validate_temporal_event_contract import validate_semantics
+from scripts.validation.validate_temporal_event_contract import derive_temporal_state, validate_semantics
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "schemas" / "temporal-event-contract-1.0.0.schema.json"
+RULES_PATH = ROOT / "scripts" / "validation" / "validate_temporal_event_contract.py"
 MIGRATION_DIR = ROOT / "database" / "migrations"
 EMPTY_COLLECTIONS = {
     "temporal_conflicts": [],
@@ -45,6 +49,8 @@ def _validate_package(
     assertions: list[dict[str, Any]],
     conflicts: list[dict[str, Any]] | None = None,
     decisions: list[dict[str, Any]] | None = None,
+    assessments: list[dict[str, Any]] | None = None,
+    manifests: list[dict[str, Any]] | None = None,
 ) -> None:
     package = {
         "contract_version": "1.0.0",
@@ -52,7 +58,8 @@ def _validate_package(
         "temporal_assertions": assertions,
         "temporal_conflicts": conflicts or [],
         "conflict_decisions": decisions or [],
-        **{key: value for key, value in EMPTY_COLLECTIONS.items() if key not in {"temporal_conflicts", "conflict_decisions"}},
+        "temporal_assessments": assessments or [],
+        "reproducibility_manifests": manifests or [],
     }
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
     errors = sorted(
