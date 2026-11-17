@@ -108,7 +108,7 @@ Información conocida en un instante concreto:
 python -m scripts.news_and_events.register_event show-as-of --event-id event-protocol-release-001 --cutoff-utc 2026-11-16T12:03:30Z
 ```
 
-El corte debe expresarse en UTC con sufijo Z. Una afirmación cuya inserción real (`inserted_at`) sea posterior al corte queda excluida.
+El corte debe expresarse en UTC con sufijo Z. La consulta excluye las filas cuya inserción real (`inserted_at`) sea posterior al corte, aunque su `recorded_at` de payload se haya asignado unos microsegundos antes durante la validación.
 
 ## 6. Registrar conflictos y decisiones
 
@@ -247,8 +247,8 @@ El manifiesto calcula SHA-256 de la versión exacta del esquema, del módulo de 
 
 ## 9. Validación automatizada
 
-El workflow `.github/workflows/event-registry-validation.yml` ejecuta el validador, las regresiones del contrato y las pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite cubre registro, versionado, consultas históricas, conflictos, decisiones, transiciones inválidas, concurrencia, idempotencia de las tres migraciones y protección append-only.
+El workflow `.github/workflows/event-registry-validation.yml` ejecuta el validador, las regresiones del contrato y las pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite cubre registro, versionado, consultas históricas por `inserted_at`, conflictos, decisiones, evaluaciones, manifiestos, transiciones inválidas, concurrencia, idempotencia de las tres migraciones y protección append-only. La prueba de corte comprueba los límites exactos anterior/a la inserción.
 
-La escritura de afirmaciones bloquea la fila del acontecimiento con `SELECT ... FOR UPDATE`, serializando la asignación de versiones entre conexiones concurrentes para el mismo evento. La restricción única `(event_id, version)` sigue siendo una defensa adicional. La suite verifica dos escritores independientes, idempotencia de migración y rechazo de `UPDATE`/`DELETE` en las siete tablas.
+La escritura de afirmaciones bloquea la fila del acontecimiento con `SELECT ... FOR UPDATE`, serializando la asignación de versiones entre conexiones concurrentes para el mismo evento. La restricción única `(event_id, version)` sigue siendo una defensa adicional. La suite verifica dos escritores independientes, idempotencia de las tres migraciones, diez triggers `UPDATE`/`DELETE` y los ocho defaults `clock_timestamp()`.
 
 La ejecución satisfactoria de CI demuestra el comportamiento del laboratorio sintético; no demuestra disponibilidad operativa local ni veracidad de acontecimientos reales.
