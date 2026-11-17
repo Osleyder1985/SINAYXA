@@ -435,6 +435,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "supersedes_assertion_id": first["temporal_assertion_id"],
         }
         append_temporal_assertion(self.connection, second)
+        second_recorded_at = get_event_history(self.connection, event_id)[-1]["recorded_at"]
 
         cutoff_before_conflict = iso(datetime.now(timezone.utc) - timedelta(seconds=1))
         conflict = create_temporal_conflict(
@@ -468,7 +469,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "limitations": "No factual conclusion is established by this transition.",
             "actor_ref": "operator-synthetic",
             "decided_at": iso(datetime.now(timezone.utc) + timedelta(seconds=1)),
-            "assessment_cutoff": second["recorded_at"],
+            "assessment_cutoff": second_recorded_at,
             "rules_version": "temporal-review-1.0.0",
             "supersedes_decision_id": None,
         }
@@ -491,7 +492,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "limitations": "This does not establish market impact or causality.",
             "actor_ref": "operator-synthetic",
             "decided_at": iso(datetime.now(timezone.utc) + timedelta(seconds=2)),
-            "assessment_cutoff": second["recorded_at"],
+            "assessment_cutoff": second_recorded_at,
             "rules_version": "temporal-review-1.0.0",
             "supersedes_decision_id": None,
         }
