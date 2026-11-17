@@ -144,6 +144,14 @@ def append_temporal_assertion(
             raise EventRegistryError(f"unknown event_id: {assertion['event_id']}")
 
         event = dict(event_row[0])
+        database_recorded_at = connection.execute(
+            "SELECT transaction_timestamp()"
+        ).fetchone()[0]
+        # The registry, not the caller, determines when this assertion became known.
+        assertion = {
+            **assertion,
+            "recorded_at": database_recorded_at.isoformat(timespec="microseconds").replace("+00:00", "Z"),
+        }
         assertion_recorded_at = _utc(assertion["recorded_at"])
         if assertion_recorded_at < event_row[1]:
             raise EventRegistryError("temporal assertion cannot be recorded before the event entered the registry")
