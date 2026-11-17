@@ -128,6 +128,7 @@ def add_source_reference(
         ).fetchone()
         if event_row is None:
             raise EventRegistryError(f"unknown event_id: {event_id}")
+        registered_at = connection.execute("SELECT clock_timestamp()").fetchone()[0]
         row = connection.execute(
             """
             INSERT INTO sinayxa.event_sources (
@@ -136,12 +137,7 @@ def add_source_reference(
             VALUES (%s, %s, %s, %s)
             RETURNING recorded_at, inserted_at
             """,
-            (
-                event_id,
-                source_ref,
-                (registered_at := connection.execute("SELECT clock_timestamp()").fetchone()[0]),
-                registered_at,
-            ),
+            (event_id, source_ref, registered_at, registered_at),
         ).fetchone()
         if row[0] < event_row[0]:
             raise EventRegistryError("source reference cannot be recorded before the event entered the registry")
@@ -978,6 +974,8 @@ def _validate_usage_authorization(
         raise EventRegistryError("authorization_ref must be a non-empty string when provided")
     if usage_status == "AUTHORIZED" and not authorization_ref:
         raise EventRegistryError("AUTHORIZED artifacts require authorization_ref")
+    if usage_status == "SYNTHETIC" and authorization_ref is not None:
+        raise EventRegistryError("SYNTHETIC artifacts must not declare authorization_ref")
 
 
 def register_source_artifact(
@@ -1094,7 +1092,8 @@ def register_evidence_artifact(
         if source_ref is not None:
             source = connection.execute(
                 """
-                SELECT usage_status, authorization_ref, license_ref
+                SELECT usage_status, authorization_ref, license_ref,
+                       content_sha256, content_length, content_bytes
                 FROM sinayxa.source_artifacts
                 WHERE source_ref = %s
                 """,
@@ -1102,12 +1101,18 @@ def register_evidence_artifact(
             ).fetchone()
             if source is None:
                 raise EventRegistryError("evidence source_ref has no registered source artifact")
+            source_bytes = bytes(source[5])
+            if (
+                len(source_bytes) != source[4]
+                or hashlib.sha256(source_bytes).hexdigest() != source[3]
+            ):
+                raise EventRegistryError("linked source artifact integrity check failed")
             if (
                 source[0] != usage_status
+                or source[1] != authorization_ref
                 or source[2] != license_ref
-                or (usage_status == "AUTHORIZED" and source[1] != authorization_ref)
             ):
-                raise EventRegistryError("evidence license and authorization must not exceed or diverge from its source artifact")
+                raise EventRegistryError("evidence license and authorization must exactly match its source artifact")
         captured_at = connection.execute("SELECT clock_timestamp()").fetchone()[0]
         connection.execute(
             """
