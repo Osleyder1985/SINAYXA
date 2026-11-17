@@ -86,6 +86,8 @@ Crear assertion-v1.json:
 }
 ```
 
+El campo `recorded_at` del JSON se conserva por compatibilidad con el contrato, pero la API lo sustituye por `clock_timestamp()` de PostgreSQL. El cliente no puede elegir ni retrotraer el instante en que la afirmación entra en el registro.
+
 Anexar la versión:
 
 ```powershell
