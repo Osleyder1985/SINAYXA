@@ -321,6 +321,10 @@ if ! cmp -s "$WORK_DIR/sinayxa_source-data.sql" "$WORK_DIR/sinayxa_repeated-data
 fi
 RESULT_repeat_restore=PASS
 
+for db in sinayxa_missing_ledger sinayxa_invalid_ledger sinayxa_unknown_reference; do
+  docker exec -i "$CONTAINER" pg_restore --exit-on-error --no-owner --no-acl -U postgres -d "$db" < "$WORK_DIR/backup.dump"
+done
+
 # Restore-gating test: this backup predates the disposition. The synthetic
 # ledger is separate from the backup; restored copies remain inaccessible
 # until the ledger is validated and reconciled.
