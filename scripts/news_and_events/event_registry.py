@@ -20,14 +20,6 @@ ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "schemas" / "temporal-event-contract-1.0.0.schema.json"
 RULES_PATH = ROOT / "scripts" / "validation" / "validate_temporal_event_contract.py"
 MIGRATION_DIR = ROOT / "database" / "migrations"
-EMPTY_COLLECTIONS = {
-    "temporal_conflicts": [],
-    "conflict_decisions": [],
-    "temporal_assessments": [],
-    "reproducibility_manifests": [],
-}
-
-
 class EventRegistryError(ValueError):
     """Raised when a registry operation violates the temporal contract."""
 
@@ -493,6 +485,10 @@ def create_temporal_assessment(
     cutoff = _utc(request["assessment_cutoff"])
     assertion_refs = request["assertion_refs"]
     decision_refs = request["conflict_decision_refs"]
+    if not isinstance(assertion_refs, list) or not all(isinstance(item, str) for item in assertion_refs):
+        raise EventRegistryError("assertion_refs must be an array of identifiers")
+    if not isinstance(decision_refs, list) or not all(isinstance(item, str) for item in decision_refs):
+        raise EventRegistryError("conflict_decision_refs must be an array of identifiers")
     if not assertion_refs:
         raise EventRegistryError("assessment requires at least one assertion reference")
     if len(assertion_refs) != len(set(assertion_refs)):
@@ -529,7 +525,6 @@ def create_temporal_assessment(
         if any(row[1] > cutoff for row in selected_assertions):
             raise EventRegistryError("assessment cannot include an assertion inserted after its cutoff")
 
-        selected_decisions: list[dict[str, Any]] = []
         if decision_refs:
             decision_rows = connection.execute(
                 """
@@ -546,8 +541,6 @@ def create_temporal_assessment(
                 raise EventRegistryError("assessment contains an unknown or cross-event conflict decision reference")
             if any(row[1] > cutoff for row in decision_rows):
                 raise EventRegistryError("assessment cannot include a decision inserted after its cutoff")
-            selected_decisions = [dict(row[0]) for row in decision_rows]
-
         event, assertions, conflicts, decisions = _load_event_contract_state(connection, event_id)
         source_rows = connection.execute(
             """
@@ -675,6 +668,8 @@ def create_reproducibility_manifest(
                 raise EventRegistryError("excluded assertion is unknown or belongs to another event")
             if excluded["assertion_id"] in selected_ids:
                 raise EventRegistryError("an assertion cannot be both included and excluded")
+            if not isinstance(excluded.get("reason"), str) or not excluded["reason"].strip():
+                raise EventRegistryError("each excluded assertion requires a non-empty reason")
             if assertion["version"] != excluded.get("version"):
                 raise EventRegistryError("excluded assertion version does not match the registry")
             inserted_row = connection.execute(
