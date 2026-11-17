@@ -335,6 +335,7 @@ done
 for db in sinayxa_restored sinayxa_missing_ledger sinayxa_invalid_ledger sinayxa_unknown_reference; do
   docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "REVOKE CONNECT ON DATABASE $db FROM PUBLIC"
   docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "REVOKE ALL ON SCHEMA research FROM PUBLIC"
+  docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "CREATE SCHEMA reconciliation; REVOKE ALL ON SCHEMA reconciliation FROM PUBLIC; CREATE TABLE reconciliation.applied_dispositions (disposition_id BIGINT PRIMARY KEY, action TEXT NOT NULL CHECK (action = 'DELETE'), applied_at TIMESTAMPTZ NOT NULL DEFAULT now())"
 done
 
 consumer_query() {
@@ -351,13 +352,11 @@ if consumer_query sinayxa_restored >"$WORK_DIR/gate.out" 2>"$WORK_DIR/gate.err";
 fi
 RESULT_restore_gate=PASS
 
-consumer_asset_count() {
-  docker exec -e PGPASSWORD=synthetic-consumer-only "$CONTAINER" psql -h 127.0.0.1 -U sinayxa_consumer -d "$1" -Atc "SELECT (SELECT count(*) FROM research.assets)::text || ':' || (SELECT count(*) FROM research.observations)::text || ':' || (SELECT string_agg(symbol, ',' ORDER BY symbol) FROM research.assets)"
-}
-
 # This single gate function is exercised for every scenario. It must not grant
 # consumer access until the ledger is present, structurally valid, references
 # the expected restored record, and the reconciliation result is verified.
+# A transactionally written receipt distinguishes a valid replay from an
+# unrelated missing reference with coincidentally matching row counts.
 reconcile_and_open() {
   local db="$1"
   local ledger="$2"
@@ -382,18 +381,20 @@ reconcile_and_open() {
   fi
 
   if [[ "$reference_exists" == t ]]; then
-    if ! docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "BEGIN; DELETE FROM research.observations WHERE asset_id = $disposition_id; DELETE FROM research.assets WHERE asset_id = $disposition_id; COMMIT;"; then
+    if ! docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "BEGIN; DELETE FROM research.observations WHERE asset_id = $disposition_id; DELETE FROM research.assets WHERE asset_id = $disposition_id; INSERT INTO reconciliation.applied_dispositions(disposition_id, action) VALUES ($disposition_id, 'DELETE'); COMMIT;"; then
       echo "Disposition reconciliation failed for $db." >&2
       return 1
     fi
   elif [[ "$reference_exists" == f ]]; then
-    # A repeated application is accepted only when the exact synthetic
-    # post-reconciliation state already exists; unknown references fail closed.
-    if ! final_state="$(docker exec "$CONTAINER" psql -U postgres -d "$db" -Atc "SELECT (SELECT count(*) FROM research.assets)::text || ':' || (SELECT count(*) FROM research.observations)::text")"; then
+    # A replay is accepted only when this exact disposition has a committed
+    # receipt from the first successful reconciliation; cardinality alone is
+    # not proof that an arbitrary unknown reference was previously applied.
+    local receipt_exists
+    if ! receipt_exists="$(docker exec "$CONTAINER" psql -U postgres -d "$db" -Atc "SELECT EXISTS (SELECT 1 FROM reconciliation.applied_dispositions WHERE disposition_id = $disposition_id AND action = 'DELETE')")"; then
       return 1
     fi
-    if [[ "$final_state" != "2:3" ]]; then
-      echo "Disposition reference is unknown for $db." >&2
+    if [[ "$receipt_exists" != t ]]; then
+      echo "Disposition reference is unknown or has no reconciliation receipt for $db." >&2
       return 1
     fi
   else
