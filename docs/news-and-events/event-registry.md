@@ -1,6 +1,6 @@
 # Registro operativo de acontecimientos — Issue #2
 
-**Estado:** registro base integrado en `main` mediante PR #106; endurecimiento de concurrencia e inmutabilidad en PR #108 (DRAFT).  
+**Estado:** registro base integrado mediante PR #106; concurrencia e inmutabilidad integradas mediante PR #108; conflictos y decisiones en revisión por PR #109.  
 **Persistencia:** PostgreSQL local 18.7.  
 **Uso autorizado:** entrada explícita del operador y datos sintéticos de validación.  
 **Fuera de alcance:** captura automática, crawling, vigilancia, scraping, fuentes reales y servicios externos.
@@ -12,7 +12,9 @@
 - Anexar afirmaciones temporales versionadas (ACTUAL, SCHEDULED, ESTIMATED, UNKNOWN). El timestamp `recorded_at` lo asigna PostgreSQL mediante `clock_timestamp()` al registrar la afirmación; el cliente no puede retrotraer cuándo el registro conoció la afirmación.
 - Validar cada paquete con JSON Schema Draft 2020-12 y las invariantes semánticas del contrato 1.0.0.
 - Consultar qué versiones estaban registradas a un corte UTC y recuperar el historial completo.
-- Impedir mediante triggers SQL la modificación, eliminación y truncado (TRUNCATE) de acontecimientos, referencias de fuentes y afirmaciones temporales.
+- Registrar conflictos entre afirmaciones del mismo acontecimiento y decisiones humanas con evidencia favorable/contraria, alcance, justificación y limitaciones.
+- Reconstruir el estado de cada conflicto desde decisiones append-only y consultar el historial conocido en un corte de inserción UTC.
+- Impedir UPDATE/DELETE en acontecimientos, fuentes, afirmaciones, conflictos y decisiones; impedir TRUNCATE en las tres tablas base.
 
 La consulta histórica utiliza recorded_at, no la fecha del acontecimiento. Por tanto, una revisión posterior no aparece en consultas cuyo corte precede a su registro.
 
@@ -26,7 +28,7 @@ $env:SINAYXA_DATABASE_URL = "postgresql://USUARIO:CONTRASENA@localhost:5432/sina
 python -m scripts.news_and_events.register_event init
 ```
 
-La migración crea el esquema sinayxa y sus tablas. Puede ejecutarse nuevamente sin duplicar los objetos principales. La base de datos y sus credenciales permanecen bajo control local del operador.
+La inicialización aplica en orden las migraciones SQL numeradas (`0001`, `0002`, etc.). La migración `0002_temporal_conflicts.sql` añade las tablas append-only de conflictos y decisiones. Puede ejecutarse nuevamente sin duplicar los objetos principales. La base de datos y sus credenciales permanecen bajo control local del operador.
 
 ## 3. Registrar un acontecimiento
 
@@ -107,17 +109,90 @@ python -m scripts.news_and_events.register_event show-as-of --event-id event-pro
 
 El corte debe expresarse en UTC con sufijo Z. Una afirmación cuyo recorded_at sea posterior al corte queda excluida.
 
-## 6. Límites conocidos de esta primera entrega
+## 6. Registrar conflictos y decisiones
+
+Un conflicto enlaza al menos dos afirmaciones temporales del mismo acontecimiento. El registro inicial siempre se crea en estado `OPEN`; el estado posterior se reconstruye a partir del historial inmutable de decisiones.
+
+Crear `conflict.json`:
+
+```json
+{
+  "conflict_id": "conflict-event-001",
+  "event_id": "event-protocol-release-001",
+  "assertion_refs": [
+    "event-protocol-release-001-v1",
+    "event-protocol-release-001-v2"
+  ],
+  "disputed_component": "DATE",
+  "classification": "DIRECT_CONTRADICTION",
+  "status": "OPEN"
+}
+```
+
+El campo `recorded_at` lo asigna PostgreSQL. Registrar:
+
+```powershell
+python -m scripts.news_and_events.register_event create-conflict --input .\conflict.json
+```
+
+Una decisión debe identificar la transición, las afirmaciones consideradas, la evidencia favorable y contraria, el alcance, la justificación, las limitaciones, el actor, la versión de reglas y el corte de evaluación. Ejemplo de transición a revisión:
+
+```json
+{
+  "decision_id": "conflict-event-001-decision-1",
+  "conflict_id": "conflict-event-001",
+  "from_status": "OPEN",
+  "to_status": "UNDER_REVIEW",
+  "assertion_refs": [
+    "event-protocol-release-001-v1",
+    "event-protocol-release-001-v2"
+  ],
+  "supporting_evidence_refs": [],
+  "contrary_evidence_refs": [],
+  "scope": "Revisión de la discrepancia temporal",
+  "rationale": "Las dos afirmaciones requieren revisión.",
+  "limitations": "No se establece todavía una conclusión factual.",
+  "actor_ref": "operator-id",
+  "decided_at": "2026-11-17T12:00:00Z",
+  "assessment_cutoff": "2026-11-17T11:59:00Z",
+  "rules_version": "temporal-review-1.0.0",
+  "supersedes_decision_id": null
+}
+```
+
+Anexar la decisión:
+
+```powershell
+python -m scripts.news_and_events.register_event append-decision --input .\decision.json
+```
+
+Para pasar a `RESOLVED`, el contrato exige evidencia de apoyo, justificación, alcance y limitaciones explícitos. Reabrir un conflicto previamente resuelto exige referenciar la decisión que se sustituye. Una transición inválida o una secuencia con estados incompatibles se rechaza sin alterar el historial.
+
+Consultar el historial:
+
+```powershell
+python -m scripts.news_and_events.register_event conflict-history --conflict-id conflict-event-001
+```
+
+Consultar qué decisiones ya estaban incorporadas al registro en un corte UTC:
+
+```powershell
+python -m scripts.news_and_events.register_event conflict-history --conflict-id conflict-event-001 --cutoff-utc 2026-11-17T12:30:00Z
+```
+
+La hora `decided_at` representa la hora declarada de la decisión; PostgreSQL conserva además `inserted_at`, que representa cuándo se incorporó realmente al registro. Los valores por defecto usan `clock_timestamp()` y no `transaction_timestamp()`, para que una transacción larga no retrotraiga artificialmente la hora de incorporación. Las consultas históricas filtran por `inserted_at`, evitando mostrar decisiones que todavía no estaban registradas en el corte consultado. El estado actual se deriva de las decisiones visibles y no se reescribe en el registro inicial del conflicto.
+
+## 7. Límites conocidos de esta entrega
 
 - No existe aún interfaz gráfica, API HTTP ni integración con proveedores de noticias.
 - La consulta devuelve el historial temporal conocido; no calcula por sí sola un dictamen de credibilidad, intensidad, impacto o causalidad.
-- El modelo de conflictos, decisiones, evaluaciones y manifiestos está definido en el contrato, pero sus operaciones de escritura no forman parte de esta primera vertical.
+- Las evaluaciones temporales y los manifiestos de reproducibilidad siguen pendientes; se abordarán en las siguientes entregas.
 - Los triggers bloquean UPDATE/DELETE por fila y TRUNCATE por sentencia dentro de la base de datos. No equivalen a WORM externo, Object Lock ni resistencia frente a un administrador privilegiado o pérdida del host.
 - No se ha validado todavía instalación local en Windows del propietario ni operación con datos reales.
 
-## 7. Validación automatizada
+## 8. Validación automatizada
 
-El workflow .github/workflows/event-registry-validation.yml ejecuta el validador y regresiones del contrato y pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite incluye registro, nueva versión, consulta histórica, rechazo de secuencia discontinua y rechazo de modificaciones del registro.
+El workflow `.github/workflows/event-registry-validation.yml` ejecuta el validador, las regresiones del contrato y las pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite cubre registro, versionado, consultas históricas, conflictos, decisiones, transiciones inválidas, concurrencia, idempotencia de las dos migraciones y protección append-only.
 
 La escritura de afirmaciones bloquea la fila del acontecimiento con `SELECT ... FOR UPDATE`, serializando la asignación de versiones entre conexiones concurrentes para el mismo evento. La restricción única `(event_id, version)` sigue siendo una defensa adicional. La suite verifica dos escritores independientes, idempotencia de migración y rechazo de `UPDATE`/`DELETE` en las tres tablas.
 
