@@ -451,54 +451,56 @@ def get_event_as_of(
 ) -> dict[str, Any] | None:
     """Return only assertion versions recorded no later than the requested cutoff."""
     cutoff = _utc(cutoff_utc)
-    row = connection.execute(
-        """
-        SELECT event_payload
-        FROM sinayxa.events
-        WHERE event_id = %s AND inserted_at <= %s
-        """,
-        (event_id, cutoff),
-    ).fetchone()
-    if row is None:
-        return None
-    event = dict(row[0])
-    sources = connection.execute(
-        """
-        SELECT source_ref
-        FROM sinayxa.event_sources
-        WHERE event_id = %s AND recorded_at <= %s
-        ORDER BY source_ref
-        """,
-        (event_id, cutoff),
-    ).fetchall()
-    event["source_refs"] = [item[0] for item in sources]
-    assertions = connection.execute(
-        """
-        SELECT assertion_payload
-        FROM sinayxa.temporal_assertions
-        WHERE event_id = %s AND recorded_at <= %s
-        ORDER BY version
-        """,
-        (event_id, cutoff),
-    ).fetchall()
-    return {
-        "event": event,
-        "temporal_assertions": [dict(item[0]) for item in assertions],
-        "as_of_utc": cutoff_utc,
-    }
+    with connection.transaction():
+        row = connection.execute(
+            """
+            SELECT event_payload
+            FROM sinayxa.events
+            WHERE event_id = %s AND inserted_at <= %s
+            """,
+            (event_id, cutoff),
+        ).fetchone()
+        if row is None:
+            return None
+        event = dict(row[0])
+        sources = connection.execute(
+            """
+            SELECT source_ref
+            FROM sinayxa.event_sources
+            WHERE event_id = %s AND recorded_at <= %s
+            ORDER BY source_ref
+            """,
+            (event_id, cutoff),
+        ).fetchall()
+        event["source_refs"] = [item[0] for item in sources]
+        assertions = connection.execute(
+            """
+            SELECT assertion_payload
+            FROM sinayxa.temporal_assertions
+            WHERE event_id = %s AND recorded_at <= %s
+            ORDER BY version
+            """,
+            (event_id, cutoff),
+        ).fetchall()
+        return {
+            "event": event,
+            "temporal_assertions": [dict(item[0]) for item in assertions],
+            "as_of_utc": cutoff_utc,
+        }
 
 
 def get_event_history(
     connection: psycopg.Connection, event_id: str
 ) -> list[dict[str, Any]]:
     """Return the complete append-only temporal assertion history for one event."""
-    rows = connection.execute(
-        """
-        SELECT assertion_payload
-        FROM sinayxa.temporal_assertions
-        WHERE event_id = %s
-        ORDER BY version
-        """,
-        (event_id,),
-    ).fetchall()
-    return [dict(row[0]) for row in rows]
+    with connection.transaction():
+        rows = connection.execute(
+            """
+            SELECT assertion_payload
+            FROM sinayxa.temporal_assertions
+            WHERE event_id = %s
+            ORDER BY version
+            """,
+            (event_id,),
+        ).fetchall()
+        return [dict(row[0]) for row in rows]
