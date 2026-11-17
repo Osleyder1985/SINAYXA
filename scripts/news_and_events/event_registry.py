@@ -623,6 +623,12 @@ def create_reproducibility_manifest(
             raise EventRegistryError(f"unknown assessment_id: {request['assessment_id']}")
         assessment = dict(assessment_row[0])
         event_id = assessment_row[1]
+        event_lock = connection.execute(
+            "SELECT event_id FROM sinayxa.events WHERE event_id = %s FOR UPDATE",
+            (event_id,),
+        ).fetchone()
+        if event_lock is None:
+            raise EventRegistryError(f"unknown event_id: {event_id}")
         event, assertions, conflicts, decisions = _load_event_contract_state(connection, event_id)
         _apply_latest_conflict_statuses(conflicts, decisions)
         assessments, manifests = _load_event_assessment_state(connection, event_id)
