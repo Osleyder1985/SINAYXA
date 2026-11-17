@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { lint } from "markdownlint/sync";
 
 const config = JSON.parse(readFileSync(".markdownlint.jsonc", "utf8"));
+delete config.$schema;
 const trackedMarkdownFiles = execFileSync(
   "git",
   [
