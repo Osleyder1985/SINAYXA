@@ -11,9 +11,13 @@ from scripts.news_and_events.event_registry import (
     append_conflict_decision,
     append_temporal_assertion,
     connect,
+    create_reproducibility_manifest,
+    create_temporal_assessment,
     create_event,
     create_temporal_conflict,
     get_conflict_history,
+    get_reproducibility_manifest,
+    get_temporal_assessment,
     get_event_as_of,
     get_event_history,
     initialize_database,
@@ -59,6 +63,18 @@ def main() -> int:
     conflict_history.add_argument("--conflict-id", required=True)
     conflict_history.add_argument("--cutoff-utc", help="optional registry-knowledge cutoff in UTC")
 
+    assessment = commands.add_parser("create-assessment", help="derive and append a temporal assessment")
+    assessment.add_argument("--input", required=True, help="path to assessment request JSON")
+
+    show_assessment = commands.add_parser("show-assessment", help="retrieve a temporal assessment")
+    show_assessment.add_argument("--assessment-id", required=True)
+
+    manifest = commands.add_parser("create-manifest", help="create an RFC 8785 reproducibility manifest")
+    manifest.add_argument("--input", required=True, help="path to manifest request JSON")
+
+    show_manifest = commands.add_parser("show-manifest", help="retrieve a reproducibility manifest")
+    show_manifest.add_argument("--manifest-id", required=True)
+
     args = parser.parse_args()
     with connect() as connection:
         if args.command == "init":
@@ -86,6 +102,18 @@ def main() -> int:
             print("Conflict decision appended.")
         elif args.command == "conflict-history":
             result = get_conflict_history(connection, args.conflict_id, args.cutoff_utc)
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        elif args.command == "create-assessment":
+            result = create_temporal_assessment(connection, read_json(args.input))
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        elif args.command == "show-assessment":
+            result = get_temporal_assessment(connection, args.assessment_id)
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        elif args.command == "create-manifest":
+            result = create_reproducibility_manifest(connection, read_json(args.input))
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        elif args.command == "show-manifest":
+            result = get_reproducibility_manifest(connection, args.manifest_id)
             print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
