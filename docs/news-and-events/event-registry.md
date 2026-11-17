@@ -9,7 +9,7 @@
 
 - Crear un registro de acontecimiento con identificador estable, descripción, activos relacionados, fuentes conocidas y fecha de creación.
 - Añadir referencias de fuentes posteriores sin reescribir el registro original.
-- Anexar afirmaciones temporales versionadas (ACTUAL, SCHEDULED, ESTIMATED, UNKNOWN). El timestamp `recorded_at` lo asigna PostgreSQL al iniciar la transacción; el cliente no puede retrotraer cuándo el registro conoció la afirmación.
+- Anexar afirmaciones temporales versionadas (ACTUAL, SCHEDULED, ESTIMATED, UNKNOWN). El timestamp `recorded_at` lo asigna PostgreSQL mediante `clock_timestamp()` al registrar la afirmación; el cliente no puede retrotraer cuándo el registro conoció la afirmación.
 - Validar cada paquete con JSON Schema Draft 2020-12 y las invariantes semánticas del contrato 1.0.0.
 - Consultar qué versiones estaban registradas a un corte UTC y recuperar el historial completo.
 - Impedir mediante triggers SQL la modificación, eliminación y truncado (TRUNCATE) de acontecimientos, referencias de fuentes y afirmaciones temporales.
