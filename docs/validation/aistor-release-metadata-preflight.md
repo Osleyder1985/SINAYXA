@@ -41,7 +41,6 @@ Si el endpoint no responde, el JSON es inválido o su estructura no permite dist
 
 Refs #100, #91, #89. Este preflight no cierra ninguna de las áreas A–E de #88.
 
-
 ## Sidecars oficiales Windows amd64 localizados
 
 Para las versiones registradas en la captura actual, los directorios oficiales publican:
