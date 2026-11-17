@@ -54,7 +54,7 @@ write_report() {
   end_epoch="$(date +%s)"
   cat > "$REPORT" <<EOF
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "classification": "LAB_SYNTHETIC",
   "status": "$status",
   "postgres_image": "$IMAGE",
@@ -330,6 +330,10 @@ for db in sinayxa_restored sinayxa_missing_ledger sinayxa_invalid_ledger sinayxa
 done
 
 consumer_query() {
+  docker exec -e PGPASSWORD=synthetic-consumer-only "$CONTAINER" psql -h 127.0.0.1 -U sinayxa_consumer -d "$1" -Atc "SELECT 1"
+}
+
+consumer_asset_count() {
   docker exec -e PGPASSWORD=synthetic-consumer-only "$CONTAINER" psql -h 127.0.0.1 -U sinayxa_consumer -d "$1" -Atc "SELECT count(*) FROM research.assets"
 }
 
@@ -357,7 +361,12 @@ docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_restored
 docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_restored -c "DELETE FROM research.assets WHERE asset_id = $DISPOSITION_ID"
 docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_restored -c "GRANT CONNECT ON DATABASE sinayxa_restored TO sinayxa_consumer"
 docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_restored -c "GRANT USAGE ON SCHEMA research TO sinayxa_consumer; GRANT SELECT ON ALL TABLES IN SCHEMA research TO sinayxa_consumer"
-VISIBLE_COUNTS="$(consumer_query sinayxa_restored)"
+VISIBLE_GATE="$(consumer_query sinayxa_restored)"
+if [[ "$VISIBLE_GATE" != 1 ]]; then
+  echo "Consumer connection gate did not open after reconciliation." >&2
+  exit 1
+fi
+VISIBLE_COUNTS="$(consumer_asset_count sinayxa_restored)"
 if [[ "$VISIBLE_COUNTS" != 2 ]]; then
   echo "Unexpected consumer-visible asset count after reconciliation: $VISIBLE_COUNTS" >&2
   exit 1
