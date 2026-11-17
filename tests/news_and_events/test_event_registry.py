@@ -93,6 +93,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             (first["temporal_assertion_id"],),
         ).fetchone()[0]
         self.assertGreater(first_recorded_at, datetime.fromisoformat(first["recorded_at"].replace("Z", "+00:00")))
+        self.assertEqual(first_recorded_at, first_inserted_at)
         before_first_assertion = get_event_as_of(
             self.connection, event_id, iso(first_inserted_at - timedelta(microseconds=1))
         )
