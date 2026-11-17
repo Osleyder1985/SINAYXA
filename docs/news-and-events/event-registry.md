@@ -1,6 +1,6 @@
 # Registro operativo de acontecimientos — Issue #2
 
-**Estado:** registro inicial en PR #101, endurecimiento en PR #102 y operaciones de conflictos/decisiones en PR #103 (todas DRAFT y apiladas; ninguna fusionada).  
+**Estado:** registro inicial en PR #101, endurecimiento en PR #102, conflictos/decisiones en PR #103 y evaluaciones/manifiestos en PR #104 (todas DRAFT y apiladas; ninguna fusionada).  
 **Persistencia:** PostgreSQL local 18.7.  
 **Uso autorizado:** entrada explícita del operador y datos sintéticos de validación.  
 **Fuera de alcance:** captura automática, crawling, vigilancia, scraping, fuentes reales y servicios externos.
@@ -14,9 +14,10 @@
 - Consultar qué versiones estaban registradas a un corte UTC y recuperar el historial completo.
 - Registrar conflictos entre afirmaciones del mismo acontecimiento y anexar decisiones humanas con evidencia favorable/contraria, alcance, justificación y limitaciones.
 - Reconstruir el estado del conflicto desde su historial append-only y consultar decisiones conocidas en un corte de inserción UTC.
-- Impedir mediante triggers SQL la modificación o eliminación de acontecimientos, fuentes, afirmaciones, conflictos y decisiones.
+- Derivar estados temporales bajo demanda y generar manifiestos SHA-256 con canonicalización RFC 8785.
+- Impedir mediante triggers SQL la modificación o eliminación de las siete tablas de registro.
 
-La consulta histórica utiliza recorded_at, no la fecha del acontecimiento. Por tanto, una revisión posterior no aparece en consultas cuyo corte precede a su registro.
+Las consultas históricas utilizan el instante real de incorporación asignado por PostgreSQL (`inserted_at`), no una fecha de acontecimiento ni un timestamp de registro declarado por el cliente. Las afirmaciones también reciben `recorded_at` desde PostgreSQL. Esto evita que una entrada posterior se haga pasar por información conocida antes.
 
 ## 2. Preparación local (PowerShell)
 
@@ -28,7 +29,7 @@ $env:SINAYXA_DATABASE_URL = "postgresql://USUARIO:CONTRASENA@localhost:5432/sina
 python -m scripts.news_and_events.register_event init
 ```
 
-La inicialización aplica en orden las migraciones SQL numeradas (`0001`, `0002`, etc.). La migración `0002_temporal_conflicts.sql` añade las tablas append-only de conflictos y decisiones. Puede ejecutarse nuevamente sin duplicar los objetos principales. La base de datos y sus credenciales permanecen bajo control local del operador.
+La inicialización aplica en orden las migraciones SQL numeradas (`0001`, `0002`, `0003`, etc.). La migración `0002_temporal_conflicts.sql` añade conflictos y decisiones; `0003_temporal_assessments_manifests.sql` añade evaluaciones y manifiestos. Las migraciones son idempotentes. La base de datos y sus credenciales permanecen bajo control local del operador.
 
 ## 3. Registrar un acontecimiento
 
@@ -241,7 +242,6 @@ El manifiesto calcula SHA-256 de la versión exacta del esquema, del módulo de 
 
 - No existe aún interfaz gráfica, API HTTP ni integración con proveedores de noticias.
 - La consulta devuelve el historial temporal conocido; no calcula por sí sola un dictamen de credibilidad, intensidad, impacto o causalidad.
-- Las evaluaciones temporales y los manifiestos de reproducibilidad siguen definidos en el contrato, pero sus operaciones de escritura no forman parte de esta entrega.
 - Los triggers protegen contra UPDATE/DELETE ordinarios dentro de la base de datos. No equivalen a WORM externo, Object Lock ni resistencia frente a un administrador privilegiado o pérdida del host.
 - No se ha validado todavía instalación local en Windows del propietario ni operación con datos reales.
 
