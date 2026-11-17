@@ -209,7 +209,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             """
             SELECT count(*)
             FROM sinayxa.schema_migrations
-            WHERE migration_id IN ('issue-2-event-registry-0001', 'issue-2-temporal-conflicts-0002', 'issue-2-temporal-assessments-manifests-0003')
+            WHERE migration_id IN ('issue-2-event-registry-0001', 'issue-2-temporal-conflicts-0002', 'issue-2-temporal-assessments-manifests-0003', 'issue-2-source-evidence-artifacts-0004')
             """
         ).fetchone()[0]
         trigger_count = self.connection.execute(
@@ -223,13 +223,15 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                 'temporal_conflicts_append_only',
                 'conflict_decisions_append_only',
                 'temporal_assessments_append_only',
-                'reproducibility_manifests_append_only'
+                'reproducibility_manifests_append_only',
+                'source_artifacts_append_only',
+                'evidence_artifacts_append_only'
             )
               AND NOT tgisinternal
             """
         ).fetchone()[0]
-        self.assertEqual(3, migration_count)
-        self.assertEqual(7, trigger_count)
+        self.assertEqual(4, migration_count)
+        self.assertEqual(9, trigger_count)
         defaults = self.connection.execute(
             """
             SELECT relation.relname, attribute.attname, pg_get_expr(definition.adbin, definition.adrelid)
@@ -248,11 +250,13 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                   ('temporal_conflicts', 'inserted_at'),
                   ('conflict_decisions', 'inserted_at'),
                   ('temporal_assessments', 'inserted_at'),
-                  ('reproducibility_manifests', 'inserted_at')
+                  ('reproducibility_manifests', 'inserted_at'),
+                  ('source_artifacts', 'inserted_at'),
+                  ('evidence_artifacts', 'inserted_at')
               )
             """
         ).fetchall()
-        self.assertEqual(8, len(defaults))
+        self.assertEqual(10, len(defaults))
         self.assertTrue(
             all(expression == "clock_timestamp()" for _, _, expression in defaults),
             defaults,
@@ -775,6 +779,102 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             (
                 "DELETE FROM sinayxa.reproducibility_manifests WHERE manifest_id = %s",
                 (manifest["manifest_id"],),
+            ),
+        )
+        for statement, parameters in mutations:
+            with self.assertRaises(psycopg.Error):
+                with self.connection.transaction():
+                    self.connection.execute(statement, parameters)
+
+
+
+    def test_source_and_evidence_artifacts_preserve_exact_bytes_and_authorization(self) -> None:
+        source_ref = f"source-{uuid4().hex}"
+        evidence_ref = f"evidence-{uuid4().hex}"
+        source_bytes = b'{"synthetic_source":"exact bytes"}'
+        evidence_bytes = b'{"synthetic_evidence":"exact bytes"}'
+        source = register_source_artifact(
+            self.connection,
+            source_ref,
+            source_bytes,
+            {
+                "source_uri": f"urn:sinayxa:synthetic:{source_ref}",
+                "title": "Synthetic source",
+                "publisher": "SINAYXA test fixture",
+                "media_type": "application/json",
+                "license_ref": "SYNTHETIC-TEST-DATA",
+                "usage_status": "SYNTHETIC",
+                "metadata": {"fixture": "artifact-integrity"},
+            },
+        )
+        self.assertEqual(hashlib.sha256(source_bytes).hexdigest(), source["content_sha256"])
+        self.assertEqual(source_bytes, get_source_artifact(self.connection, source_ref)["content_bytes"])
+
+        evidence = register_evidence_artifact(
+            self.connection,
+            evidence_ref,
+            evidence_bytes,
+            {
+                "source_ref": source_ref,
+                "evidence_type": "SYNTHETIC_EXTRACT",
+                "media_type": "application/json",
+                "extraction_method": "synthetic-test",
+                "extraction_version": "1.0.0",
+                "license_ref": "SYNTHETIC-TEST-DATA",
+                "usage_status": "SYNTHETIC",
+                "metadata": {"fixture": "artifact-integrity"},
+            },
+        )
+        self.assertEqual(hashlib.sha256(evidence_bytes).hexdigest(), evidence["content_sha256"])
+        self.assertEqual(
+            evidence_bytes,
+            get_evidence_artifact(self.connection, evidence_ref)["content_bytes"],
+        )
+
+        with self.assertRaises(EventRegistryError):
+            register_source_artifact(
+                self.connection,
+                f"source-unauthorized-{uuid4().hex}",
+                b"unauthorized",
+                {
+                    "media_type": "text/plain",
+                    "license_ref": "UNKNOWN",
+                    "usage_status": "AUTHORIZED",
+                },
+            )
+        with self.assertRaises(EventRegistryError):
+            register_evidence_artifact(
+                self.connection,
+                f"evidence-unauthorized-{uuid4().hex}",
+                b"mismatched rights",
+                {
+                    "source_ref": source_ref,
+                    "evidence_type": "EXTRACT",
+                    "media_type": "text/plain",
+                    "extraction_method": "manual",
+                    "extraction_version": "1.0.0",
+                    "license_ref": "UNKNOWN",
+                    "usage_status": "AUTHORIZED",
+                    "authorization_ref": "unrelated-authorization",
+                },
+            )
+
+        mutations = (
+            (
+                "UPDATE sinayxa.source_artifacts SET title = 'rewritten' WHERE source_ref = %s",
+                (source_ref,),
+            ),
+            (
+                "DELETE FROM sinayxa.source_artifacts WHERE source_ref = %s",
+                (source_ref,),
+            ),
+            (
+                "UPDATE sinayxa.evidence_artifacts SET location_hint = 'rewritten' WHERE evidence_ref = %s",
+                (evidence_ref,),
+            ),
+            (
+                "DELETE FROM sinayxa.evidence_artifacts WHERE evidence_ref = %s",
+                (evidence_ref,),
             ),
         )
         for statement, parameters in mutations:
