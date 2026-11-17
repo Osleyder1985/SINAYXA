@@ -704,9 +704,106 @@ def create_reproducibility_manifest(
             dict(item) for item in conflicts if item["conflict_id"] in selected_conflict_ids
         ]
         _apply_latest_conflict_statuses(selected_conflicts, selected_decisions)
+
+        source_refs_for_manifest = sorted(
+            set(result_event["source_refs"])
+            | {
+                item["source_ref"]
+                for item in selected_assertions
+                if item["source_ref"] is not None
+            }
+        )
+        source_artifact_rows = []
+        if source_refs_for_manifest:
+            source_artifact_rows = connection.execute(
+                """
+                SELECT source_ref, source_uri, title, publisher, media_type,
+                       content_sha256, content_length, content_bytes, published_at,
+                       license_ref, usage_status, authorization_ref, captured_at, metadata
+                FROM sinayxa.source_artifacts
+                WHERE source_ref = ANY(%s) AND inserted_at <= %s
+                ORDER BY source_ref
+                """,
+                (source_refs_for_manifest, assessment_cutoff),
+            ).fetchall()
+        source_artifact_index = {row[0]: row for row in source_artifact_rows}
+        source_artifact_manifest = []
+        missing_artifacts: list[str] = []
+        for source_ref in source_refs_for_manifest:
+            row = source_artifact_index.get(source_ref)
+            if row is None:
+                missing_artifacts.append(f"source_artifact_missing:{source_ref}")
+                continue
+            content = bytes(row[7])
+            if len(content) != row[6] or hashlib.sha256(content).hexdigest() != row[5]:
+                raise EventRegistryError(f"source artifact integrity check failed: {source_ref}")
+            source_artifact_manifest.append(
+                {
+                    "source_ref": row[0],
+                    "source_uri": row[1],
+                    "title": row[2],
+                    "publisher": row[3],
+                    "media_type": row[4],
+                    "content_sha256": row[5],
+                    "content_length": row[6],
+                    "published_at": row[8].isoformat(timespec="microseconds").replace("+00:00", "Z") if row[8] else None,
+                    "license_ref": row[9],
+                    "usage_status": row[10],
+                    "authorization_ref": row[11],
+                    "captured_at": row[12].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+                    "metadata": dict(row[13]),
+                }
+            )
+
+        evidence_artifact_rows = []
+        evidence_refs_for_manifest = sorted(evidence_refs)
+        if evidence_refs_for_manifest:
+            evidence_artifact_rows = connection.execute(
+                """
+                SELECT evidence_ref, source_ref, evidence_type, media_type,
+                       content_sha256, content_length, content_bytes,
+                       extraction_method, extraction_version, location_hint,
+                       license_ref, usage_status, authorization_ref, captured_at, metadata
+                FROM sinayxa.evidence_artifacts
+                WHERE evidence_ref = ANY(%s) AND inserted_at <= %s
+                ORDER BY evidence_ref
+                """,
+                (evidence_refs_for_manifest, assessment_cutoff),
+            ).fetchall()
+        evidence_artifact_index = {row[0]: row for row in evidence_artifact_rows}
+        evidence_artifact_manifest = []
+        for evidence_ref in evidence_refs_for_manifest:
+            row = evidence_artifact_index.get(evidence_ref)
+            if row is None:
+                missing_artifacts.append(f"evidence_artifact_missing:{evidence_ref}")
+                continue
+            content = bytes(row[6])
+            if len(content) != row[5] or hashlib.sha256(content).hexdigest() != row[4]:
+                raise EventRegistryError(f"evidence artifact integrity check failed: {evidence_ref}")
+            evidence_artifact_manifest.append(
+                {
+                    "evidence_ref": row[0],
+                    "source_ref": row[1],
+                    "evidence_type": row[2],
+                    "media_type": row[3],
+                    "content_sha256": row[4],
+                    "content_length": row[5],
+                    "extraction_method": row[7],
+                    "extraction_version": row[8],
+                    "location_hint": row[9],
+                    "license_ref": row[10],
+                    "usage_status": row[11],
+                    "authorization_ref": row[12],
+                    "captured_at": row[13].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+                    "metadata": dict(row[14]),
+                }
+            )
+
         result_document = {
             "assessment": assessment,
             "event": result_event,
+            "source_artifacts": source_artifact_manifest,
+            "evidence_artifacts": evidence_artifact_manifest,
             "temporal_assertions": sorted(
                 selected_assertions, key=lambda item: item["temporal_assertion_id"]
             ),
@@ -757,12 +854,13 @@ def create_reproducibility_manifest(
             "result_sha256": result_digest,
             "canonicalization": "RFC8785",
             "reproducibility_status": "PARTIALLY_REPRODUCIBLE",
-            "missing_components": [
-                "source_content_not_persisted",
-                "evidence_content_not_persisted",
-                "software_build_revision_not_verified",
-                "runtime_environment_snapshot_not_embedded",
-            ],
+            "missing_components": sorted(
+                [
+                    "software_build_revision_not_verified",
+                    "runtime_environment_snapshot_not_embedded",
+                ]
+                + missing_artifacts
+            ),
             "created_at": created_at_text,
         }
         _validate_package(
