@@ -960,11 +960,13 @@ def _artifact_bytes(value: bytes | bytearray | memoryview) -> bytes:
 def _validate_usage_authorization(
     usage_status: str, authorization_ref: str | None
 ) -> None:
-    if usage_status not in {"SYNTHETIC", "AUTHORIZED"}:
+    if not isinstance(usage_status, str) or usage_status not in {"SYNTHETIC", "AUTHORIZED"}:
         raise EventRegistryError("artifact usage_status must be SYNTHETIC or AUTHORIZED")
-    if usage_status == "AUTHORIZED" and (
+    if authorization_ref is not None and (
         not isinstance(authorization_ref, str) or not authorization_ref.strip()
     ):
+        raise EventRegistryError("authorization_ref must be a non-empty string when provided")
+    if usage_status == "AUTHORIZED" and not authorization_ref:
         raise EventRegistryError("AUTHORIZED artifacts require authorization_ref")
 
 
@@ -975,6 +977,8 @@ def register_source_artifact(
     metadata: dict[str, Any],
 ) -> dict[str, Any]:
     """Store exact source bytes and provenance; no network retrieval is performed."""
+    if not isinstance(metadata, dict):
+        raise EventRegistryError("source metadata must be a JSON object")
     payload = _artifact_bytes(content)
     details = _artifact_metadata(metadata.get("metadata"), "source")
     media_type = metadata.get("media_type")
@@ -1046,6 +1050,8 @@ def register_evidence_artifact(
     metadata: dict[str, Any],
 ) -> dict[str, Any]:
     """Store exact evidence bytes and extraction provenance; no source is fetched."""
+    if not isinstance(metadata, dict):
+        raise EventRegistryError("evidence metadata must be a JSON object")
     payload = _artifact_bytes(content)
     details = _artifact_metadata(metadata.get("metadata"), "evidence")
     source_ref = metadata.get("source_ref")
@@ -1069,6 +1075,8 @@ def register_evidence_artifact(
     ):
         if not isinstance(value, str) or not value.strip():
             raise EventRegistryError(f"evidence {field_name} must be non-empty")
+    if metadata.get("location_hint") is not None and not isinstance(metadata["location_hint"], str):
+        raise EventRegistryError("evidence location_hint must be a string")
     _validate_usage_authorization(usage_status, authorization_ref)
     digest = hashlib.sha256(payload).hexdigest()
     with connection.transaction():
