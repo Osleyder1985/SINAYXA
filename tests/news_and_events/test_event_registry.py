@@ -165,6 +165,27 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             append_temporal_assertion(self.connection, invalid)
         self.assertEqual([], get_event_history(self.connection, event_id))
 
+
+    def test_registry_rejects_truncate_operations(self) -> None:
+        event_id = f"event-{uuid4().hex}"
+        now = datetime.now(timezone.utc).replace(microsecond=0)
+        create_event(
+            self.connection,
+            {
+                "event_id": event_id,
+                "description": "Synthetic event for truncate protection.",
+                "affected_asset_refs": [],
+                "source_refs": [],
+                "created_at": iso(now),
+            },
+        )
+        with self.assertRaises(psycopg.Error):
+            with self.connection.transaction():
+                self.connection.execute("TRUNCATE TABLE sinayxa.events")
+        self.assertIsNotNone(
+            get_event_as_of(self.connection, event_id, iso(datetime.now(timezone.utc)))
+        )
+
     def test_registry_rejects_updates_to_event_identity(self) -> None:
         event_id = f"event-{uuid4().hex}"
         now = datetime.now(timezone.utc).replace(microsecond=0)
