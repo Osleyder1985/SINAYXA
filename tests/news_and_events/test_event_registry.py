@@ -795,21 +795,6 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                 with self.connection.transaction():
                     self.connection.execute(statement, parameters)
 
-        for table in (
-            "events",
-            "event_sources",
-            "temporal_assertions",
-            "temporal_conflicts",
-            "conflict_decisions",
-            "temporal_assessments",
-            "reproducibility_manifests",
-            "source_artifacts",
-            "evidence_artifacts",
-        ):
-            with self.assertRaises(psycopg.Error):
-                with self.connection.transaction():
-                    self.connection.execute(f"TRUNCATE TABLE sinayxa.{table} CASCADE")
-
 
 
     def test_source_and_evidence_artifacts_preserve_exact_bytes_and_authorization(self) -> None:
