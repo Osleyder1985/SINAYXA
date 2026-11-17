@@ -198,7 +198,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             """
             SELECT count(*)
             FROM sinayxa.schema_migrations
-            WHERE migration_id IN ('issue-2-event-registry-0001', 'issue-2-temporal-conflicts-0002')
+            WHERE migration_id IN ('issue-2-event-registry-0001', 'issue-2-temporal-conflicts-0002', 'issue-2-temporal-assessments-manifests-0003')
             """
         ).fetchone()[0]
         trigger_count = self.connection.execute(
@@ -210,13 +210,15 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                 'event_sources_append_only',
                 'temporal_assertions_append_only',
                 'temporal_conflicts_append_only',
-                'conflict_decisions_append_only'
+                'conflict_decisions_append_only',
+                'temporal_assessments_append_only',
+                'reproducibility_manifests_append_only'
             )
               AND NOT tgisinternal
             """
         ).fetchone()[0]
-        self.assertEqual(2, migration_count)
-        self.assertEqual(5, trigger_count)
+        self.assertEqual(3, migration_count)
+        self.assertEqual(7, trigger_count)
         defaults = self.connection.execute(
             """
             SELECT relation.relname, attribute.attname, pg_get_expr(definition.adbin, definition.adrelid)
@@ -233,11 +235,13 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                   ('event_sources', 'inserted_at'),
                   ('temporal_assertions', 'inserted_at'),
                   ('temporal_conflicts', 'inserted_at'),
-                  ('conflict_decisions', 'inserted_at')
+                  ('conflict_decisions', 'inserted_at'),
+                  ('temporal_assessments', 'inserted_at'),
+                  ('reproducibility_manifests', 'inserted_at')
               )
             """
         ).fetchall()
-        self.assertEqual(6, len(defaults))
+        self.assertEqual(8, len(defaults))
         self.assertTrue(
             all(expression == "clock_timestamp()" for _, _, expression in defaults),
             defaults,
