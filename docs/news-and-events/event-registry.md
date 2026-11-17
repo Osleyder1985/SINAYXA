@@ -233,7 +233,7 @@ python -m scripts.news_and_events.register_event create-manifest --input .\manif
 python -m scripts.news_and_events.register_event show-manifest --manifest-id manifest-event-001
 ```
 
-El manifiesto calcula SHA-256 de la versión exacta del esquema, del módulo de reglas y del resultado serializado mediante RFC 8785. También registra la versión IANA TZDB, las versiones de afirmaciones incluidas/excluidas, las referencias de evidencia y decisiones, y las versiones declaradas de reglas y software.
+El manifiesto calcula SHA-256 de la versión exacta del esquema, del módulo de reglas y del resultado serializado mediante RFC 8785. Exige además que cada afirmación incorporada al registro antes del corte quede clasificada como incluida o excluida con una razón; no permite omisiones silenciosas. Los timestamps `recorded_at`/`created_at` e `inserted_at` se fijan al mismo instante de reloj de PostgreSQL. También registra la versión IANA TZDB, las versiones de afirmaciones incluidas/excluidas, las referencias de evidencia y decisiones, y las versiones declaradas de reglas y software.
 
 **El estado se declara `PARTIALLY_REPRODUCIBLE`, no `REPRODUCIBLE`**, mientras no se conserven el contenido de las fuentes, el contenido de la evidencia, la verificación del build exacto y una instantánea completa del entorno de ejecución. Los identificadores y hashes no sustituyen los documentos fuente ni permiten reconstruir datos que nunca fueron almacenados.
 
