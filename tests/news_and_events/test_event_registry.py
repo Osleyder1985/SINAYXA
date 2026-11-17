@@ -1,11 +1,13 @@
 """PostgreSQL integration tests for the Issue #2 event registry."""
 from __future__ import annotations
 
+import hashlib
 import os
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from uuid import uuid4
 
 import psycopg
@@ -676,6 +678,19 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                 len(manifest[field]) == 64
                 for field in ("schema_sha256", "rules_sha256", "result_sha256")
             )
+        )
+        root = Path(__file__).resolve().parents[2]
+        self.assertEqual(
+            hashlib.sha256(
+                (root / "schemas" / "temporal-event-contract-1.0.0.schema.json").read_bytes()
+            ).hexdigest(),
+            manifest["schema_sha256"],
+        )
+        self.assertEqual(
+            hashlib.sha256(
+                (root / "scripts" / "validation" / "validate_temporal_event_contract.py").read_bytes()
+            ).hexdigest(),
+            manifest["rules_sha256"],
         )
         self.assertTrue(manifest["missing_components"])
         stored_manifest = get_reproducibility_manifest(
