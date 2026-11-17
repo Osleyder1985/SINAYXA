@@ -789,7 +789,7 @@ def create_reproducibility_manifest(
                     "media_type": row[4],
                     "content_sha256": row[5],
                     "content_length": row[6],
-                    "published_at": row[8].isoformat(timespec="microseconds").replace("+00:00", "Z") if row[8] else None,
+                    "published_at": row[8].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z") if row[8] else None,
                     "license_ref": row[9],
                     "usage_status": row[10],
                     "authorization_ref": row[11],
@@ -1069,7 +1069,7 @@ def register_source_artifact(
             "license_ref": license_ref,
             "usage_status": usage_status,
             "authorization_ref": authorization_ref,
-            "captured_at": captured_at.isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "captured_at": captured_at.astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
             "metadata": details,
         }
 
@@ -1178,7 +1178,7 @@ def register_evidence_artifact(
             "license_ref": license_ref,
             "usage_status": usage_status,
             "authorization_ref": authorization_ref,
-            "captured_at": captured_at.isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "captured_at": captured_at.astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
             "metadata": details,
         }
 
@@ -1213,13 +1213,13 @@ def get_source_artifact(
             "content_sha256": row[4],
             "content_length": row[5],
             "content_bytes": content,
-            "published_at": row[7].isoformat(timespec="microseconds").replace("+00:00", "Z") if row[7] else None,
+            "published_at": row[7].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z") if row[7] else None,
             "license_ref": row[8],
             "usage_status": row[9],
             "authorization_ref": row[10],
-            "captured_at": row[11].isoformat(timespec="microseconds").replace("+00:00", "Z"),
-            "recorded_at": row[12].isoformat(timespec="microseconds").replace("+00:00", "Z"),
-            "inserted_at": row[13].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "captured_at": row[11].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "recorded_at": row[12].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "inserted_at": row[13].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
             "metadata": dict(row[14]),
         }
 
@@ -1259,9 +1259,9 @@ def get_evidence_artifact(
             "license_ref": row[9],
             "usage_status": row[10],
             "authorization_ref": row[11],
-            "captured_at": row[12].isoformat(timespec="microseconds").replace("+00:00", "Z"),
-            "recorded_at": row[13].isoformat(timespec="microseconds").replace("+00:00", "Z"),
-            "inserted_at": row[14].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "captured_at": row[12].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "recorded_at": row[13].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
+            "inserted_at": row[14].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
             "metadata": dict(row[15]),
         }
 
