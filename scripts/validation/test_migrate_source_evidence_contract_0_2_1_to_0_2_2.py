@@ -141,6 +141,14 @@ class Contract022MigrationTests(unittest.TestCase):
         with self.assertRaisesRegex(MigrationRejected, "rationale"):
             self._migrate(source, mappings)
 
+    def test_duplicate_event_refs_are_rejected(self):
+        source = self._uuid_compatible_source()
+        mappings = self._mapping_for(source)
+        refs = mappings["actor_roles"]["SYNTHETIC_TEST"]["event_refs"]
+        refs.append(refs[0])
+        with self.assertRaisesRegex(MigrationRejected, "event_refs"):
+            self._migrate(source, mappings)
+
     def test_mapping_must_cover_exact_historical_event_ids(self):
         source = self._uuid_compatible_source()
         mappings = self._mapping_for(source)
