@@ -553,7 +553,7 @@ def create_temporal_assessment(
             """
             SELECT source_ref
             FROM sinayxa.event_sources
-            WHERE event_id = %s AND recorded_at <= %s
+            WHERE event_id = %s AND inserted_at <= %s
             ORDER BY source_ref
             """,
             (event_id, cutoff),
@@ -826,7 +826,7 @@ def get_event_as_of(
             """
             SELECT source_ref
             FROM sinayxa.event_sources
-            WHERE event_id = %s AND recorded_at <= %s
+            WHERE event_id = %s AND inserted_at <= %s
             ORDER BY source_ref
             """,
             (event_id, cutoff),
@@ -836,7 +836,7 @@ def get_event_as_of(
             """
             SELECT assertion_payload
             FROM sinayxa.temporal_assertions
-            WHERE event_id = %s AND recorded_at <= %s
+            WHERE event_id = %s AND inserted_at <= %s
             ORDER BY version
             """,
             (event_id, cutoff),
