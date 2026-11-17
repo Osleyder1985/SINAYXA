@@ -3,8 +3,7 @@ name: Issue #2 — Event registry validation
 on:
   pull_request:
     branches:
-      - feature/issue-2-temporal-contract-1.0.0
-      - feature/issue-2-event-registry
+      - main
     paths:
       - "database/migrations/**"
       - "scripts/news_and_events/**"
