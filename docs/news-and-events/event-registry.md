@@ -1,6 +1,6 @@
 # Registro operativo de acontecimientos — Issue #2
 
-**Estado:** registro inicial en PR #101, endurecimiento en PR #102, conflictos/decisiones en PR #103 y evaluaciones/manifiestos en PR #104 (todas DRAFT y apiladas; ninguna fusionada).  
+**Estado:** registro inicial en PR #101, endurecimiento en PR #102, conflictos/decisiones en PR #103 y evaluaciones/manifiestos en PR #104 y artefactos fuente/evidencia en PR #105 (todas DRAFT y apiladas; ninguna fusionada).  
 **Persistencia:** PostgreSQL local 18.7.  
 **Uso autorizado:** entrada explícita del operador y datos sintéticos de validación.  
 **Fuera de alcance:** captura automática, crawling, vigilancia, scraping, fuentes reales y servicios externos.
@@ -15,7 +15,9 @@
 - Registrar conflictos entre afirmaciones del mismo acontecimiento y anexar decisiones humanas con evidencia favorable/contraria, alcance, justificación y limitaciones.
 - Reconstruir el estado del conflicto desde su historial append-only y consultar decisiones conocidas en un corte de inserción UTC.
 - Derivar estados temporales bajo demanda y generar manifiestos SHA-256 con canonicalización RFC 8785.
-- Impedir mediante triggers SQL la modificación o eliminación de las siete tablas de registro.
+- Conservar bytes exactos de fuentes y evidencias suministrados por el operador, con SHA-256, licencia y estado de autorización.
+- Exportar artefactos verificando longitud y hash antes de escribir.
+- Impedir mediante triggers SQL la modificación o eliminación de las nueve tablas de registro.
 
 Las consultas históricas utilizan el instante real de incorporación asignado por PostgreSQL (`inserted_at`), no una fecha de acontecimiento ni un timestamp de registro declarado por el cliente. Las afirmaciones también reciben `recorded_at` desde PostgreSQL. Esto evita que una entrada posterior se haga pasar por información conocida antes.
 
@@ -29,7 +31,7 @@ $env:SINAYXA_DATABASE_URL = "postgresql://USUARIO:CONTRASENA@localhost:5432/sina
 python -m scripts.news_and_events.register_event init
 ```
 
-La inicialización aplica en orden las migraciones SQL numeradas (`0001`, `0002`, `0003`, etc.). La migración `0002_temporal_conflicts.sql` añade conflictos y decisiones; `0003_temporal_assessments_manifests.sql` añade evaluaciones y manifiestos. Las migraciones son idempotentes. La base de datos y sus credenciales permanecen bajo control local del operador.
+La inicialización aplica en orden las migraciones SQL numeradas (`0001`, `0002`, `0003`, etc.). La migración `0002_temporal_conflicts.sql` añade conflictos/decisiones; `0003_temporal_assessments_manifests.sql` añade evaluaciones/manifiestos; `0004_source_evidence_artifacts.sql` añade almacenamiento local de fuentes/evidencias. Las migraciones son idempotentes. La base de datos y sus credenciales permanecen bajo control local del operador.
 
 ## 3. Registrar un acontecimiento
 
