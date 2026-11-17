@@ -380,14 +380,20 @@ def get_conflict_history(
 ) -> dict[str, Any] | None:
     """Return the conflict and decisions known by registry insertion time at a cutoff."""
     cutoff = _utc(cutoff_utc) if cutoff_utc is not None else None
-    row = connection.execute(
-        """
-        SELECT conflict_payload, inserted_at
-        FROM sinayxa.temporal_conflicts
-        WHERE conflict_id = %s AND (%s IS NULL OR inserted_at <= %s)
-        """,
-        (conflict_id, cutoff, cutoff),
-    ).fetchone()
+    if cutoff is None:
+        row = connection.execute(
+            "SELECT conflict_payload, inserted_at FROM sinayxa.temporal_conflicts WHERE conflict_id = %s",
+            (conflict_id,),
+        ).fetchone()
+    else:
+        row = connection.execute(
+            """
+            SELECT conflict_payload, inserted_at
+            FROM sinayxa.temporal_conflicts
+            WHERE conflict_id = %s AND inserted_at <= %s
+            """,
+            (conflict_id, cutoff),
+        ).fetchone()
     if row is None:
         return None
     conflict = dict(row[0])
