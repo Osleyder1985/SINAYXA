@@ -9,7 +9,7 @@
 
 - Crear un registro de acontecimiento con identificador estable, descripción, activos relacionados, fuentes conocidas y fecha de creación.
 - Añadir referencias de fuentes posteriores sin reescribir el registro original.
-- Anexar afirmaciones temporales versionadas (ACTUAL, SCHEDULED, ESTIMATED, UNKNOWN). El timestamp `recorded_at` lo asigna PostgreSQL mediante `clock_timestamp()` al registrar la afirmación; el cliente no puede retrotraer cuándo el registro conoció la afirmación.
+- Anexar afirmaciones temporales versionadas (ACTUAL, SCHEDULED, ESTIMATED, UNKNOWN). PostgreSQL asigna `recorded_at` mediante `clock_timestamp()` y persiste el mismo instante en `inserted_at`; el cliente no puede retrotraer cuándo el registro conoció la afirmación.
 - Validar cada paquete con JSON Schema Draft 2020-12 y las invariantes semánticas del contrato 1.0.0.
 - Consultar qué versiones estaban registradas a un corte UTC y recuperar el historial completo.
 - Registrar conflictos entre afirmaciones del mismo acontecimiento y decisiones humanas con evidencia favorable/contraria, alcance, justificación y limitaciones.
@@ -292,7 +292,7 @@ python -m scripts.news_and_events.register_event export-source-artifact --source
 python -m scripts.news_and_events.register_event export-evidence-artifact --evidence-ref evidence-report-001 --output .\evidence-export.txt
 ```
 
-Cada artefacto conserva el contenido byte por byte, SHA-256, longitud, media type, licencia, estado de uso y metadatos de procedencia. La exportación verifica longitud y SHA-256 antes de escribir el archivo y se niega a sobrescribir un destino existente.
+Cada artefacto conserva el contenido byte por byte, SHA-256, longitud, media type, licencia, estado de uso y metadatos de procedencia. `captured_at` indica cuándo el operador incorporó los bytes al registro; no sustituye la fecha de publicación (`published_at`) ni afirma cuándo se obtuvo originalmente la fuente. `captured_at`, `recorded_at` e `inserted_at` comparten el mismo instante asignado por PostgreSQL. La exportación verifica longitud y SHA-256 antes de escribir el archivo y se niega a sobrescribir un destino existente.
 
 `usage_status` solo admite `SYNTHETIC` o `AUTHORIZED`. Los artefactos `AUTHORIZED` requieren `authorization_ref`; una evidencia vinculada a una fuente no puede ampliar ni contradecir su licencia ni su estado de autorización. `authorization_ref` es una referencia declarada por el operador, no una validación jurídica automática; el operador debe verificar la autorización y conservar su soporte. El contenido se guarda en PostgreSQL (`BYTEA`) y no se impone un límite de tamaño adicional en la aplicación.
 
