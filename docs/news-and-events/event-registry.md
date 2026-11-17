@@ -1,6 +1,6 @@
 # Registro operativo de acontecimientos — Issue #2
 
-**Estado:** registro base (#106), concurrencia/inmutabilidad (#108) y conflictos/decisiones (#109) integrados en `main`; evaluaciones y manifiestos (#110) integrados; almacenamiento de artefactos y endurecimiento TRUNCATE en preparación.  
+**Estado:** registro base (#106), concurrencia/inmutabilidad (#108) y conflictos/decisiones (#109) integrados en `main`; evaluaciones y manifiestos (#110) integrados; almacenamiento de artefactos y endurecimiento TRUNCATE en revisión por PR #111.  
 **Persistencia:** PostgreSQL local 18.7.  
 **Uso autorizado:** entrada explícita del operador y datos sintéticos de validación.  
 **Fuera de alcance:** captura automática, crawling, vigilancia, scraping, fuentes reales y servicios externos.
