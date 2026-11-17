@@ -101,6 +101,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             (first["temporal_assertion_id"],),
         ).fetchone()[0]
         self.assertGreater(first_recorded_at, datetime.fromisoformat(first["recorded_at"].replace("Z", "+00:00")))
+        self.assertEqual(first_recorded_at, first_inserted_at)
         before_first_assertion = get_event_as_of(
             self.connection, event_id, iso(first_inserted_at - timedelta(microseconds=1))
         )
@@ -141,6 +142,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             "SELECT inserted_at FROM sinayxa.event_sources WHERE event_id = %s AND source_ref = %s",
             (event_id, "source-calendar-b"),
         ).fetchone()[0]
+        self.assertEqual(source_b_recorded_at, source_b_inserted_at)
         history = get_event_history(self.connection, event_id)
         second_recorded_at = datetime.fromisoformat(
             history[1]["recorded_at"].replace("Z", "+00:00")
@@ -221,7 +223,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         )
         for table in tables:
             with self.subTest(table=table):
-                with self.assertRaises(psycopg.Error):
+                with self.assertRaisesRegex(psycopg.Error, "TRUNCATE is forbidden"):
                     with self.connection.transaction():
                         self.connection.execute(
                             f"TRUNCATE TABLE sinayxa.{table} CASCADE"
@@ -889,7 +891,10 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             },
         )
         self.assertEqual(hashlib.sha256(source_bytes).hexdigest(), source["content_sha256"])
-        self.assertEqual(source_bytes, get_source_artifact(self.connection, source_ref)["content_bytes"])
+        stored_source = get_source_artifact(self.connection, source_ref)
+        self.assertEqual(source_bytes, stored_source["content_bytes"])
+        self.assertEqual(stored_source["captured_at"], stored_source["recorded_at"])
+        self.assertEqual(stored_source["recorded_at"], stored_source["inserted_at"])
 
         evidence = register_evidence_artifact(
             self.connection,
@@ -907,10 +912,10 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             },
         )
         self.assertEqual(hashlib.sha256(evidence_bytes).hexdigest(), evidence["content_sha256"])
-        self.assertEqual(
-            evidence_bytes,
-            get_evidence_artifact(self.connection, evidence_ref)["content_bytes"],
-        )
+        stored_evidence = get_evidence_artifact(self.connection, evidence_ref)
+        self.assertEqual(evidence_bytes, stored_evidence["content_bytes"])
+        self.assertEqual(stored_evidence["captured_at"], stored_evidence["recorded_at"])
+        self.assertEqual(stored_evidence["recorded_at"], stored_evidence["inserted_at"])
         with tempfile.TemporaryDirectory() as temporary_directory:
             source_export = Path(temporary_directory) / "source.bin"
             evidence_export = Path(temporary_directory) / "evidence.bin"
