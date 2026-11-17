@@ -498,6 +498,11 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         self.assertIsNone(
             get_conflict_history(self.connection, conflict["conflict_id"], cutoff_before_conflict)
         )
+        self.assertIsNotNone(
+            get_conflict_history(
+                self.connection, conflict["conflict_id"], conflict["recorded_at"]
+            )
+        )
 
         conflict_recorded_at = datetime.fromisoformat(
             conflict["recorded_at"].replace("Z", "+00:00")
