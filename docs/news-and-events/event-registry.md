@@ -239,7 +239,7 @@ python -m scripts.news_and_events.register_event show-manifest --manifest-id man
 
 El manifiesto calcula SHA-256 de la versión exacta del esquema, del módulo de reglas y del resultado serializado mediante RFC 8785. También registra la versión IANA TZDB, las versiones de afirmaciones incluidas/excluidas, las referencias de evidencia y decisiones, y las versiones declaradas de reglas y software.
 
-**El estado se declara `PARTIALLY_REPRODUCIBLE`, no `REPRODUCIBLE`**, mientras no se conserven el contenido de las fuentes, el contenido de la evidencia, la verificación del build exacto y una instantánea completa del entorno de ejecución. Los identificadores y hashes no sustituyen los documentos fuente ni permiten reconstruir datos que nunca fueron almacenados.
+El estado se calcula conservadoramente: `NOT_REPRODUCIBLE` si falta algún artefacto de fuente/evidencia requerido en el corte; `PARTIALLY_REPRODUCIBLE` si todos esos bytes están disponibles pero el build exacto o el entorno de ejecución no están verificados. Esta entrega no puede declarar `REPRODUCIBLE` mientras falten esos últimos componentes. Los identificadores y hashes no sustituyen los documentos fuente ni permiten reconstruir datos que nunca fueron almacenados.
 
 ## 8. Artefactos locales de fuentes y evidencias
 
