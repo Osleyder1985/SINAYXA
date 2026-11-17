@@ -498,6 +498,16 @@ if consumer_query sinayxa_invalid_ledger >"$WORK_DIR/invalid.out" 2>"$WORK_DIR/i
 fi
 RESULT_invalid_ledger_fail_closed=PASS
 
+# Reproduce the former false-positive shape deliberately: this database has
+# the expected 2:3 row counts, but no receipt exists for disposition 9999.
+# Matching cardinalities must never authorize an unrelated missing reference.
+docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_unknown_reference -c "DELETE FROM research.observations WHERE asset_id = 3; DELETE FROM research.assets WHERE asset_id = 3"
+UNKNOWN_REFERENCE_STATE="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_unknown_reference -Atc "SELECT (SELECT count(*) FROM research.assets)::text || ':' || (SELECT count(*) FROM research.observations)::text")"
+if [[ "$UNKNOWN_REFERENCE_STATE" != "2:3" ]]; then
+  echo "Unknown-reference collision fixture was not prepared: $UNKNOWN_REFERENCE_STATE" >&2
+  exit 1
+fi
+
 printf 'DELETE\t9999\n' > "$WORK_DIR/unknown-ledger.tsv"
 if reconcile_and_open sinayxa_unknown_reference "$WORK_DIR/unknown-ledger.tsv"; then
   echo "Unknown disposition reference was unexpectedly accepted." >&2
