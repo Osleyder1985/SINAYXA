@@ -1,21 +1,22 @@
 # Registro operativo de acontecimientos — Issue #2
 
-**Estado:** registro base (#106), concurrencia/inmutabilidad (#108) y conflictos/decisiones (#109) integrados en `main`; evaluaciones y manifiestos en revisión por PR #110.  
+**Estado:** registro base (#106), concurrencia/inmutabilidad (#108) y conflictos/decisiones (#109) integrados en `main`; evaluaciones y manifiestos (#110) integrados; almacenamiento de artefactos y endurecimiento TRUNCATE en revisión por PR #111.  
 **Persistencia:** PostgreSQL local 18.7.  
-**Uso autorizado:** entrada explícita del operador y datos sintéticos de validación.  
-**Fuera de alcance:** captura automática, crawling, vigilancia, scraping, fuentes reales y servicios externos.
+**Uso autorizado:** entrada explícita del operador; datos sintéticos y archivos reales solo cuando el operador disponga de autorización aplicable.  
+**Fuera de alcance:** obtención automática de fuentes reales, crawling, vigilancia, scraping y servicios externos.
 
 ## 1. Capacidades implementadas
 
 - Crear un registro de acontecimiento con identificador estable, descripción, activos relacionados, fuentes conocidas y fecha de creación.
 - Añadir referencias de fuentes posteriores sin reescribir el registro original.
-- Anexar afirmaciones temporales versionadas (ACTUAL, SCHEDULED, ESTIMATED, UNKNOWN). El timestamp `recorded_at` lo asigna PostgreSQL mediante `clock_timestamp()` al registrar la afirmación; el cliente no puede retrotraer cuándo el registro conoció la afirmación.
+- Anexar afirmaciones temporales versionadas (ACTUAL, SCHEDULED, ESTIMATED, UNKNOWN). PostgreSQL asigna `recorded_at` mediante `clock_timestamp()` y persiste el mismo instante en `inserted_at`; el cliente no puede retrotraer cuándo el registro conoció la afirmación.
 - Validar cada paquete con JSON Schema Draft 2020-12 y las invariantes semánticas del contrato 1.0.0.
 - Consultar qué versiones estaban registradas a un corte UTC y recuperar el historial completo.
 - Registrar conflictos entre afirmaciones del mismo acontecimiento y decisiones humanas con evidencia favorable/contraria, alcance, justificación y limitaciones.
 - Reconstruir el estado de cada conflicto desde decisiones append-only y consultar el historial conocido en un corte de inserción UTC.
 - Derivar estados temporales bajo demanda y generar manifiestos SHA-256 con canonicalización RFC 8785.
-- Impedir UPDATE/DELETE en las siete tablas de registro; impedir TRUNCATE en las tres tablas base.
+- Conservar y verificar bytes originales de fuentes y evidencias suministrados explícitamente por el operador.
+- Impedir UPDATE/DELETE y TRUNCATE en las nueve tablas append-only del registro.
 
 Las consultas históricas utilizan `inserted_at`, asignado por PostgreSQL al incorporar cada fila, y no la fecha del acontecimiento ni el `recorded_at` declarado en el payload. Así, una validación lenta no puede hacer aparecer una afirmación antes de que la fila exista realmente en el registro.
 
@@ -235,20 +236,80 @@ python -m scripts.news_and_events.register_event show-manifest --manifest-id man
 
 El manifiesto calcula SHA-256 de la versión exacta del esquema, del módulo de reglas y del resultado serializado mediante RFC 8785. Exige además que cada afirmación incorporada al registro antes del corte quede clasificada como incluida o excluida con una razón; no permite omisiones silenciosas. Los timestamps `recorded_at`/`created_at` e `inserted_at` se fijan al mismo instante de reloj de PostgreSQL. También registra la versión IANA TZDB, las versiones de afirmaciones incluidas/excluidas, las referencias de evidencia y decisiones, y las versiones declaradas de reglas y software.
 
-**El estado se declara `PARTIALLY_REPRODUCIBLE`, no `REPRODUCIBLE`**, mientras no se conserven el contenido de las fuentes, el contenido de la evidencia, la verificación del build exacto y una instantánea completa del entorno de ejecución. Los identificadores y hashes no sustituyen los documentos fuente ni permiten reconstruir datos que nunca fueron almacenados.
+El manifiesto declara `NOT_REPRODUCIBLE` si falta algún artefacto de fuente/evidencia requerido en el corte; declara `PARTIALLY_REPRODUCIBLE` cuando esos bytes están presentes pero aún faltan la verificación del build exacto y la instantánea completa del entorno. No declara `REPRODUCIBLE` mientras falten esos componentes. Los identificadores y hashes no sustituyen los documentos fuente ni permiten reconstruir datos que nunca fueron almacenados.
 
-## 8. Límites conocidos de esta entrega
+## 8. Artefactos locales de fuentes y evidencias
+
+El registro puede conservar los bytes exactos de una fuente y de los fragmentos/evidencias derivados. El operador suministra los archivos y declara el estado de uso; los archivos reales requieren autorización aplicable. SINAYXA no realiza descargas, crawling ni captura automática.
+
+Ejemplo de `source-metadata.json`:
+
+```json
+{
+  "source_ref": "source-report-001",
+  "source_uri": "urn:sinayxa:synthetic:report-001",
+  "title": "Synthetic source report",
+  "publisher": "SINAYXA test fixture",
+  "media_type": "application/json",
+  "license_ref": "SYNTHETIC-TEST-DATA",
+  "usage_status": "SYNTHETIC",
+  "metadata": {
+    "fixture": "local-validation"
+  }
+}
+```
+
+Registrar los bytes originales:
+
+```powershell
+python -m scripts.news_and_events.register_event register-source-artifact --input .\source-metadata.json --file .\source-report.json
+```
+
+Ejemplo de `evidence-metadata.json`:
+
+```json
+{
+  "evidence_ref": "evidence-report-001",
+  "source_ref": "source-report-001",
+  "evidence_type": "EXTRACT",
+  "media_type": "text/plain",
+  "extraction_method": "manual-synthetic",
+  "extraction_version": "1.0.0",
+  "location_hint": "page 2, paragraph 4",
+  "license_ref": "SYNTHETIC-TEST-DATA",
+  "usage_status": "SYNTHETIC",
+  "metadata": {
+    "fixture": "local-validation"
+  }
+}
+```
+
+Registrar la evidencia y exportar después los bytes exactos:
+
+```powershell
+python -m scripts.news_and_events.register_event register-evidence-artifact --input .\evidence-metadata.json --file .\evidence-extract.txt
+python -m scripts.news_and_events.register_event export-source-artifact --source-ref source-report-001 --output .\source-export.json
+python -m scripts.news_and_events.register_event export-evidence-artifact --evidence-ref evidence-report-001 --output .\evidence-export.txt
+```
+
+Cada artefacto conserva el contenido byte por byte, SHA-256, longitud, media type, licencia, estado de uso y metadatos de procedencia. `captured_at` indica cuándo el operador incorporó los bytes al registro; no sustituye la fecha de publicación (`published_at`) ni afirma cuándo se obtuvo originalmente la fuente. `captured_at`, `recorded_at` e `inserted_at` comparten el mismo instante asignado por PostgreSQL. La exportación verifica longitud y SHA-256 antes de escribir el archivo y se niega a sobrescribir un destino existente.
+
+`usage_status` solo admite `SYNTHETIC` o `AUTHORIZED`. Los artefactos `AUTHORIZED` requieren `authorization_ref`; una evidencia vinculada a una fuente no puede ampliar ni contradecir su licencia ni su estado de autorización. `authorization_ref` es una referencia declarada por el operador, no una validación jurídica automática; el operador debe verificar la autorización y conservar su soporte. El contenido se guarda en PostgreSQL (`BYTEA`) y no se impone un límite de tamaño adicional en la aplicación.
+
+Los manifiestos incluyen los hashes y timestamps reales `inserted_at` de los artefactos disponibles antes del `assessment_cutoff`. Una referencia cuyo contenido no exista o haya sido incorporado después del corte se identifica en `missing_components`; no se incorpora retrospectivamente al resultado.
+
+## 9. Límites conocidos de esta entrega
 
 - No existe aún interfaz gráfica, API HTTP ni integración con proveedores de noticias.
 - La consulta devuelve el historial temporal conocido; no calcula por sí sola un dictamen de credibilidad, intensidad, impacto o causalidad.
-- El manifiesto declara `PARTIALLY_REPRODUCIBLE` mientras no se conserven bytes de fuentes/evidencias, build exacto verificado y snapshot completo del entorno.
-- Los triggers bloquean UPDATE/DELETE por fila y TRUNCATE por sentencia dentro de la base de datos. No equivalen a WORM externo, Object Lock ni resistencia frente a un administrador privilegiado o pérdida del host.
+- El manifiesto declara `NOT_REPRODUCIBLE` si faltan bytes de artefactos requeridos en el corte; cuando están presentes, permanece `PARTIALLY_REPRODUCIBLE` hasta verificar build exacto y snapshot completo del entorno.
+- Los triggers bloquean UPDATE/DELETE por fila y TRUNCATE por sentencia en las nueve tablas dentro de la base de datos. No equivalen a WORM externo, Object Lock ni resistencia frente a un administrador privilegiado o pérdida del host.
 - No se ha validado todavía instalación local en Windows del propietario ni operación con datos reales.
 
-## 9. Validación automatizada
+## 10. Validación automatizada
 
-El workflow `.github/workflows/event-registry-validation.yml` ejecuta el validador, las regresiones del contrato y las pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite cubre registro, versionado, consultas históricas por `inserted_at`, conflictos, decisiones, evaluaciones, manifiestos, transiciones inválidas, concurrencia, idempotencia de las tres migraciones y protección append-only. La prueba de corte comprueba los límites exactos anterior/a la inserción.
+El workflow `.github/workflows/event-registry-validation.yml` ejecuta el validador, las regresiones del contrato y las pruebas de integración contra PostgreSQL 18.7 fijado por digest. La suite cubre registro, versionado, consultas históricas por `inserted_at`, conflictos, decisiones, evaluaciones, manifiestos, artefactos, autorización, integridad SHA-256, transiciones inválidas, concurrencia, idempotencia de las cinco migraciones y protección UPDATE/DELETE/TRUNCATE en las nueve tablas.
 
-La escritura de afirmaciones bloquea la fila del acontecimiento con `SELECT ... FOR UPDATE`, serializando la asignación de versiones entre conexiones concurrentes para el mismo evento. La restricción única `(event_id, version)` sigue siendo una defensa adicional. La suite verifica dos escritores independientes, idempotencia de las tres migraciones, diez triggers `UPDATE`/`DELETE` y los ocho defaults `clock_timestamp()`.
+La escritura de afirmaciones bloquea la fila del acontecimiento con `SELECT ... FOR UPDATE`, serializando la asignación de versiones entre conexiones concurrentes para el mismo evento. La restricción única `(event_id, version)` sigue siendo una defensa adicional. La suite verifica dos escritores independientes, idempotencia de las cinco migraciones, 18 triggers de inmutabilidad y diez defaults `clock_timestamp()`.
 
 La ejecución satisfactoria de CI demuestra el comportamiento del laboratorio sintético; no demuestra disponibilidad operativa local ni veracidad de acontecimientos reales.
