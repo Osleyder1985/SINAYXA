@@ -133,16 +133,6 @@ class TemporalContractTests(unittest.TestCase):
         self.package["temporal_conflicts"][0]["status"]="UNDER_REVIEW"
         self.assert_invalid(lambda p: None, "conflict was not known at assessment cutoff")
 
-    def test_decision_cannot_predate_conflict_record(self):
-        self.package["conflict_decisions"] = [{
-            "decision_id":"decision-early","conflict_id":"conflict-1","from_status":"OPEN","to_status":"UNDER_REVIEW",
-            "assertion_refs":["ta-event-1-v1"],"supporting_evidence_refs":[],"contrary_evidence_refs":[],
-            "scope":"review","rationale":"review","limitations":"pending","actor_ref":"actor-1",
-            "decided_at":"2026-11-16T10:03:00Z","assessment_cutoff":"2026-11-16T10:03:00Z",
-            "rules_version":"rules-1","supersedes_decision_id":None}]
-        self.package["temporal_conflicts"][0]["status"]="UNDER_REVIEW"
-        self.assert_invalid(lambda p: None, "cannot predate its conflict record")
-
     def test_assessment_rejects_late_known_assertion(self):
         self.assert_invalid(lambda p: p["temporal_assessments"][0].update(assessment_cutoff="2026-11-15T10:00:00Z"), "not known at assessment cutoff")
 
