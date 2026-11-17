@@ -478,3 +478,41 @@ PR #99 permanece DRAFT y apilada sobre la rama de PR #85. No debe retargetearse 
 La cobertura automatizada del contrato 0.2.1 está ejecutada y pasa en el HEAD indicado. No se identificó en esta revisión una justificación para duplicar pruebas sintéticas ya cubiertas. La siguiente brecha no es un fallo genérico de CI: son límites de evidencia real, revisión semántica y controles operacionales externos descritos arriba.
 
 PR #85 permanece OPEN / NOT MERGED. Issue #88 permanece OPEN. No se cierran las cinco áreas ni se autoriza merge por inferencia.
+
+
+## Reconciliación de trazabilidad A/B — HEAD vigente de PR #85 (2026-11-17)
+
+Esta actualización corrige el estado documental de las pruebas que antes aparecían como pendientes de CI. No modifica los criterios normativos ni declara cerradas las áreas A/B.
+
+### Evidencia exacta
+
+- HEAD: `38007f340582efa87e0b044de41e7797b8621e78`.
+- PowerShell quality gate: [run #44014819943](https://github.com/Osleyder1985/SINAYXA/actions/runs/44014819943) — SUCCESS.
+- Job PowerShell 7.7.0 / Windows: 124 pruebas correctivas PASS; 11 archivos PowerShell inventariados y parseados; PSScriptAnalyzer 1.24.0 con cero findings.
+- Security/dependency quality gate: [run #44014820323](https://github.com/Osleyder1985/SINAYXA/actions/runs/44014820323) — SUCCESS; npm audit, Markdown lint, Gitleaks full-history y OSV PR scan SUCCESS. OSV full SKIPPED y no contabilizado como PASS.
+
+### Área A — IND-08
+
+En el log del run #44014819943 se ejecutan y pasan:
+
+- `test_021_dependency_edge_must_connect_two_assessed_source_versions`.
+- `test_021_dependency_edge_cannot_connect_a_source_version_to_itself`.
+- `test_021_package_accepts_evidenced_dependency_for_exact_component`.
+- `test_021_package_rejects_dependency_edge_without_evidence`.
+- `test_021_package_rejects_dependency_edge_from_another_component`.
+
+La evidencia demuestra que la arista de dependencia debe conectar dos versiones de fuente distintas, evaluadas dentro del conjunto exacto y componente correspondiente, con evidencia. No demuestra descubrimiento exhaustivo de citas/republicaciones reales ni independencia factual de las fuentes.
+
+### Área B — COR-04
+
+El mismo run ejecuta y pasa:
+
+- `test_021_contradiction_rejects_duplicate_component_evidence_links`.
+
+La prueba cierra el hueco técnico de enlaces duplicados para evidencia/rol/componente detectado en la revisión anterior. Junto con los tests previos de evidencia contraria exacta, contradicción y rechazo de la misma pieza en ambos roles, fortalece el control estructural. No determina por sí sola solapamiento semántico de fragmentos, autenticidad material ni suficiencia probatoria; esos juicios siguen requiriendo revisión humana.
+
+### Dictamen actualizado A/B
+
+La cobertura automatizada adicional de IND-08 y del enlace duplicado COR-04 ya no está pendiente de CI: ambos casos pasan en el HEAD citado. La trazabilidad de nombres de pruebas y el resultado del run quedan registrados aquí.
+
+A y B permanecen ABIERTAS hasta revisión formal de suficiencia normativa, cobertura de todos los límites y aceptación humana de los alcances semánticos. C, D y E mantienen sus brechas operacionales documentadas. No se infiere cierre de #88, aprobación técnica final ni autorización de merge de PR #85.
