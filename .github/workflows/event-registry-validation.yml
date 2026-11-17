@@ -1,0 +1,67 @@
+name: Issue #2 — Event registry validation
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "database/migrations/**"
+      - "scripts/news_and_events/**"
+      - "docs/news-and-events/event-registry.md"
+      - "scripts/validation/validate_temporal_event_contract.py"
+      - "schemas/temporal-event-contract-1.0.0.schema.json"
+      - "tests/**"
+      - "tests/fixtures/contracts/temporal-event-contract-v1.0.0.json"
+      - "requirements-temporal-contract-validation.txt"
+      - ".github/workflows/event-registry-validation.yml"
+permissions:
+  contents: read
+
+jobs:
+  postgres-event-registry:
+    name: PostgreSQL 18.7 event registry integration
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres@sha256:2ea8630df176ad090ec92136dee850397c5af8781e4bcf2e4162593691c61bbc
+        env:
+          POSTGRES_DB: sinayxa_test
+          POSTGRES_USER: sinayxa
+          POSTGRES_PASSWORD: sinayxa_test_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sinayxa -d sinayxa_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      SINAYXA_DATABASE_URL: postgresql://sinayxa:sinayxa_test_only@localhost:5432/sinayxa_test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-temporal-contract-validation.txt
+
+      - name: Install pinned validation and database dependencies
+        run: python -m pip install --requirement requirements-temporal-contract-validation.txt
+
+      - name: Validate temporal contract fixture and semantics
+        run: python scripts/validation/validate_temporal_event_contract.py
+
+      - name: Run temporal contract regression tests
+        run: python -m unittest scripts.validation.test_temporal_event_contract -v
+
+      - name: Compile the event registry and CLI
+        run: python -m compileall -q scripts/news_and_events
+
+      - name: Verify the local CLI entry point
+        run: python -m scripts.news_and_events.register_event --help
+
+      - name: Run PostgreSQL event registry integration tests
+        run: python -m unittest tests.news_and_events.test_event_registry -v
