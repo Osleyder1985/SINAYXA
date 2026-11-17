@@ -22,6 +22,17 @@ if (trackedMarkdownFiles.length === 0) {
   throw new Error("No Markdown files were found by git ls-files.");
 }
 
+const canaryResults = lint({
+  strings: { "__sinayxa_markdownlint_canary__.md": "#Invalid heading\n" },
+  config
+});
+if (!canaryResults["__sinayxa_markdownlint_canary__.md"]?.some(
+  (error) => error.ruleNames?.includes("MD018")
+)) {
+  throw new Error("Markdown lint self-test failed: MD018 canary was not detected.");
+}
+console.log("Markdown lint self-test passed: MD018 canary detected.");
+
 const results = lint({ files: trackedMarkdownFiles, config });
 let errorCount = 0;
 
