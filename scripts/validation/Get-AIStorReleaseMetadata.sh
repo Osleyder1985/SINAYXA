@@ -34,6 +34,14 @@ SERVER_WINDOWS_CHECKSUM_FILE_SHA256=NOT_CAPTURED
 CLIENT_WINDOWS_CHECKSUM_URL=NOT_RESOLVED
 CLIENT_WINDOWS_EXPECTED_SHA256=NOT_CAPTURED
 CLIENT_WINDOWS_CHECKSUM_FILE_SHA256=NOT_CAPTURED
+SERVER_WINDOWS_ASC_URL=NOT_RESOLVED
+SERVER_WINDOWS_ASC_FILE_SHA256=NOT_CAPTURED
+SERVER_WINDOWS_MINISIG_URL=NOT_RESOLVED
+SERVER_WINDOWS_MINISIG_FILE_SHA256=NOT_CAPTURED
+CLIENT_WINDOWS_ASC_URL=NOT_RESOLVED
+CLIENT_WINDOWS_ASC_FILE_SHA256=NOT_CAPTURED
+CLIENT_WINDOWS_MINISIG_URL=NOT_RESOLVED
+CLIENT_WINDOWS_MINISIG_FILE_SHA256=NOT_CAPTURED
 SERVER_RELEASE_NOTES_URL=NOT_RESOLVED
 SERVER_SBOM_CYCLONEDX_URL=NOT_RESOLVED
 SERVER_SBOM_SPDX_URL=NOT_RESOLVED
@@ -46,7 +54,7 @@ mkdir -p "$ARTIFACT_DIR"
 write_report() {
   cat > "$REPORT_FILE" <<EOF
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "classification": "OFFICIAL_RELEASE_METADATA_CAPTURE_ONLY",
   "status": "$STATUS",
   "result_code": "$RESULT_CODE",
@@ -84,6 +92,17 @@ write_report() {
   "client_windows_checksum_url": "$CLIENT_WINDOWS_CHECKSUM_URL",
   "client_windows_expected_sha256": "$CLIENT_WINDOWS_EXPECTED_SHA256",
   "client_windows_checksum_file_sha256": "$CLIENT_WINDOWS_CHECKSUM_FILE_SHA256",
+  "server_windows_asc_url": "$SERVER_WINDOWS_ASC_URL",
+  "server_windows_asc_file_sha256": "$SERVER_WINDOWS_ASC_FILE_SHA256",
+  "server_windows_minisig_url": "$SERVER_WINDOWS_MINISIG_URL",
+  "server_windows_minisig_file_sha256": "$SERVER_WINDOWS_MINISIG_FILE_SHA256",
+  "client_windows_asc_url": "$CLIENT_WINDOWS_ASC_URL",
+  "client_windows_asc_file_sha256": "$CLIENT_WINDOWS_ASC_FILE_SHA256",
+  "client_windows_minisig_url": "$CLIENT_WINDOWS_MINISIG_URL",
+  "client_windows_minisig_file_sha256": "$CLIENT_WINDOWS_MINISIG_FILE_SHA256",
+  "signature_sidecars_captured": "$SIGNATURE_SIDECARS_CAPTURED",
+  "signature_verification_performed": false,
+  "checksum_compared_to_binary": false,
   "release_classification": "SERVER_LATEST_STABLE_API_CLIENT_LATEST_PUBLISHED_INDEX",
   "binary_download_performed": false,
   "image_pull_performed": false,
@@ -184,9 +203,49 @@ if curl --fail --silent --show-error --location --max-time 30 --output "$CLIENT_
   read -r CLIENT_WINDOWS_CHECKSUM_FILE_SHA256 _ <<< "$CLIENT_CHECKSUM_HASH_LINE"
 fi
 
+SERVER_WINDOWS_ASC_URL="${SERVER_WINDOWS_CHECKSUM_URL%.sha256sum}.asc"
+SERVER_WINDOWS_MINISIG_URL="${SERVER_WINDOWS_CHECKSUM_URL%.sha256sum}.minisig"
+CLIENT_WINDOWS_ASC_URL="${CLIENT_WINDOWS_CHECKSUM_URL%.sha256sum}.asc"
+CLIENT_WINDOWS_MINISIG_URL="${CLIENT_WINDOWS_CHECKSUM_URL%.sha256sum}.minisig"
+SERVER_ASC_FILE="$ARTIFACT_DIR/aistor-server-windows-amd64.asc"
+SERVER_MINISIG_FILE="$ARTIFACT_DIR/aistor-server-windows-amd64.minisig"
+CLIENT_ASC_FILE="$ARTIFACT_DIR/aistor-client-windows-amd64.asc"
+CLIENT_MINISIG_FILE="$ARTIFACT_DIR/aistor-client-windows-amd64.minisig"
+
+if curl --fail --silent --show-error --location --max-time 30 --output "$SERVER_ASC_FILE" "$SERVER_WINDOWS_ASC_URL"; then
+  HASH_LINE="$(sha256sum "$SERVER_ASC_FILE")"
+  read -r SERVER_WINDOWS_ASC_FILE_SHA256 _ <<< "$HASH_LINE"
+fi
+if curl --fail --silent --show-error --location --max-time 30 --output "$SERVER_MINISIG_FILE" "$SERVER_WINDOWS_MINISIG_URL"; then
+  HASH_LINE="$(sha256sum "$SERVER_MINISIG_FILE")"
+  read -r SERVER_WINDOWS_MINISIG_FILE_SHA256 _ <<< "$HASH_LINE"
+fi
+if curl --fail --silent --show-error --location --max-time 30 --output "$CLIENT_ASC_FILE" "$CLIENT_WINDOWS_ASC_URL"; then
+  HASH_LINE="$(sha256sum "$CLIENT_ASC_FILE")"
+  read -r CLIENT_WINDOWS_ASC_FILE_SHA256 _ <<< "$HASH_LINE"
+fi
+if curl --fail --silent --show-error --location --max-time 30 --output "$CLIENT_MINISIG_FILE" "$CLIENT_WINDOWS_MINISIG_URL"; then
+  HASH_LINE="$(sha256sum "$CLIENT_MINISIG_FILE")"
+  read -r CLIENT_WINDOWS_MINISIG_FILE_SHA256 _ <<< "$HASH_LINE"
+fi
+
+if [[ "$SERVER_WINDOWS_EXPECTED_SHA256" =~ ^[a-fA-F0-9]{64}$ &&
+      "$CLIENT_WINDOWS_EXPECTED_SHA256" =~ ^[a-fA-F0-9]{64}$ &&
+      "$SERVER_WINDOWS_ASC_FILE_SHA256" != NOT_CAPTURED &&
+      "$SERVER_WINDOWS_MINISIG_FILE_SHA256" != NOT_CAPTURED &&
+      "$CLIENT_WINDOWS_ASC_FILE_SHA256" != NOT_CAPTURED &&
+      "$CLIENT_WINDOWS_MINISIG_FILE_SHA256" != NOT_CAPTURED ]]; then
+  SIGNATURE_SIDECARS_CAPTURED=true
+fi
+
 RETRIEVED_AT_UTC="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-STATUS=CAPTURED
-RESULT_CODE=SERVER_AND_CLIENT_RELEASE_METADATA_PRESERVED
+if [[ "$SIGNATURE_SIDECARS_CAPTURED" == true ]]; then
+  STATUS=CAPTURED
+  RESULT_CODE=SERVER_AND_CLIENT_METADATA_CHECKSUMS_AND_SIGNATURE_SIDECARS_PRESERVED
+else
+  STATUS=PARTIAL
+  RESULT_CODE=RELEASE_METADATA_CAPTURED_BUT_CHECKSUM_OR_SIGNATURE_SIDECARS_INCOMPLETE
+fi
 write_report
 
 echo "Official AIStor Server and Client release metadata captured; no binary or image was downloaded."
