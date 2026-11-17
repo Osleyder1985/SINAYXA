@@ -4,7 +4,7 @@ CREATE SCHEMA IF NOT EXISTS sinayxa;
 
 CREATE TABLE IF NOT EXISTS sinayxa.schema_migrations (
     migration_id text PRIMARY KEY,
-    applied_at timestamptz NOT NULL DEFAULT transaction_timestamp()
+    applied_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
 
 CREATE TABLE IF NOT EXISTS sinayxa.events (
@@ -15,20 +15,23 @@ CREATE TABLE IF NOT EXISTS sinayxa.events (
     created_at timestamptz NOT NULL,
     contract_version text NOT NULL CHECK (contract_version = '1.0.0'),
     event_payload jsonb NOT NULL,
-    inserted_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+    inserted_at timestamptz NOT NULL DEFAULT clock_timestamp(),
     CONSTRAINT events_payload_is_object CHECK (jsonb_typeof(event_payload) = 'object')
 );
 
 CREATE TABLE IF NOT EXISTS sinayxa.event_sources (
     event_id varchar(128) NOT NULL REFERENCES sinayxa.events(event_id) ON DELETE RESTRICT,
     source_ref varchar(4000) NOT NULL CHECK (length(btrim(source_ref)) > 0),
-    recorded_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
-    inserted_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+    recorded_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+    inserted_at timestamptz NOT NULL DEFAULT clock_timestamp(),
     PRIMARY KEY (event_id, source_ref)
 );
 
 ALTER TABLE sinayxa.event_sources
-    ADD COLUMN IF NOT EXISTS recorded_at timestamptz NOT NULL DEFAULT transaction_timestamp();
+    ADD COLUMN IF NOT EXISTS recorded_at timestamptz NOT NULL DEFAULT clock_timestamp();
+
+ALTER TABLE sinayxa.event_sources
+    ALTER COLUMN recorded_at SET DEFAULT clock_timestamp();
 
 CREATE TABLE IF NOT EXISTS sinayxa.temporal_assertions (
     temporal_assertion_id varchar(128) PRIMARY KEY,
@@ -52,7 +55,7 @@ CREATE TABLE IF NOT EXISTS sinayxa.temporal_assertions (
     published_at timestamptz,
     first_observed_at timestamptz,
     assertion_payload jsonb NOT NULL,
-    inserted_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+    inserted_at timestamptz NOT NULL DEFAULT clock_timestamp(),
     CONSTRAINT temporal_assertions_event_fk
         FOREIGN KEY (event_id) REFERENCES sinayxa.events(event_id) ON DELETE RESTRICT,
     CONSTRAINT temporal_assertions_version_uq UNIQUE (event_id, version),
