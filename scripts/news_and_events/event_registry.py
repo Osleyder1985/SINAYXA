@@ -695,6 +695,28 @@ def create_reproducibility_manifest(
                 raise EventRegistryError("excluded assertion was not in the registry at the assessment cutoff")
             excluded_payloads.append(assertion)
 
+        excluded_ids = {item["assertion_id"] for item in excluded_assertions}
+        if len(excluded_ids) != len(excluded_assertions):
+            raise EventRegistryError("excluded_assertions contains duplicate identifiers")
+        known_assertion_rows = connection.execute(
+            """
+            SELECT temporal_assertion_id
+            FROM sinayxa.temporal_assertions
+            WHERE event_id = %s AND inserted_at <= %s
+            ORDER BY temporal_assertion_id
+            """,
+            (event_id, assessment_cutoff),
+        ).fetchall()
+        known_assertion_ids = {row[0] for row in known_assertion_rows}
+        classified_assertion_ids = selected_ids | excluded_ids
+        if classified_assertion_ids != known_assertion_ids:
+            missing = sorted(known_assertion_ids - classified_assertion_ids)
+            unexpected = sorted(classified_assertion_ids - known_assertion_ids)
+            raise EventRegistryError(
+                "manifest must classify every assertion known at the assessment cutoff; "
+                f"missing={missing}, unexpected={unexpected}"
+            )
+
         selected_decisions = []
         for decision_ref in assessment["conflict_decision_refs"]:
             decision = decision_index.get(decision_ref)
@@ -771,8 +793,8 @@ def create_reproducibility_manifest(
                     "license_ref": row[9],
                     "usage_status": row[10],
                     "authorization_ref": row[11],
-                    "captured_at": row[12].isoformat(timespec="microseconds").replace("+00:00", "Z"),
-                    "inserted_at": row[13].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+                    "captured_at": row[12].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
+                    "recorded_in_registry_at": row[13].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
                     "metadata": dict(row[14]),
                 }
             )
@@ -810,8 +832,8 @@ def create_reproducibility_manifest(
                     "license_ref": row[10],
                     "usage_status": row[11],
                     "authorization_ref": row[12],
-                    "captured_at": row[13].isoformat(timespec="microseconds").replace("+00:00", "Z"),
-                    "inserted_at": row[14].isoformat(timespec="microseconds").replace("+00:00", "Z"),
+                    "captured_at": row[13].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
+                    "recorded_in_registry_at": row[14].astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z"),
                     "metadata": dict(row[15]),
                 }
             )
