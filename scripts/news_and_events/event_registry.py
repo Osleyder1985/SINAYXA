@@ -130,11 +130,18 @@ def add_source_reference(
             raise EventRegistryError(f"unknown event_id: {event_id}")
         row = connection.execute(
             """
-            INSERT INTO sinayxa.event_sources (event_id, source_ref)
-            VALUES (%s, %s)
-            RETURNING recorded_at
+            INSERT INTO sinayxa.event_sources (
+                event_id, source_ref, recorded_at, inserted_at
+            )
+            VALUES (%s, %s, %s, %s)
+            RETURNING recorded_at, inserted_at
             """,
-            (event_id, source_ref),
+            (
+                event_id,
+                source_ref,
+                (registered_at := connection.execute("SELECT clock_timestamp()").fetchone()[0]),
+                registered_at,
+            ),
         ).fetchone()
         if row[0] < event_row[0]:
             raise EventRegistryError("source reference cannot be recorded before the event entered the registry")
@@ -206,10 +213,10 @@ def append_temporal_assertion(
                 original_timezone, original_offset, normalized_start_utc,
                 normalized_end_utc, source_ref, evidence_ref, retrieved_at,
                 recorded_at, supersedes_assertion_id, published_at,
-                first_observed_at, assertion_payload
+                first_observed_at, assertion_payload, inserted_at
             ) VALUES (
                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                %s, %s, %s, %s, %s, %s
+                %s, %s, %s, %s, %s, %s, %s
             )
             """,
             (
@@ -234,6 +241,7 @@ def append_temporal_assertion(
                 _utc(assertion["published_at"]) if assertion["published_at"] else None,
                 _utc(assertion["first_observed_at"]) if assertion["first_observed_at"] else None,
                 Jsonb(assertion),
+                database_recorded_at,
             ),
         )
 
@@ -1005,8 +1013,8 @@ def register_source_artifact(
             INSERT INTO sinayxa.source_artifacts (
                 source_ref, source_uri, title, publisher, media_type, content_sha256,
                 content_length, content_bytes, published_at, license_ref, usage_status,
-                authorization_ref, captured_at, recorded_at, metadata
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                authorization_ref, captured_at, recorded_at, metadata, inserted_at
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 source_ref,
@@ -1024,6 +1032,7 @@ def register_source_artifact(
                 captured_at,
                 captured_at,
                 Jsonb(details),
+                captured_at,
             ),
         )
         return {
@@ -1104,8 +1113,8 @@ def register_evidence_artifact(
                 evidence_ref, source_ref, evidence_type, media_type, content_sha256,
                 content_length, content_bytes, extraction_method, extraction_version,
                 location_hint, license_ref, usage_status, authorization_ref,
-                captured_at, recorded_at, metadata
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                captured_at, recorded_at, metadata, inserted_at
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 evidence_ref,
@@ -1124,6 +1133,7 @@ def register_evidence_artifact(
                 captured_at,
                 captured_at,
                 Jsonb(details),
+                captured_at,
             ),
         )
         return {
