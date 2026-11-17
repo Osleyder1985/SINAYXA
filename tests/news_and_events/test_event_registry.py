@@ -908,6 +908,36 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             get_evidence_artifact(self.connection, evidence_ref)["content_bytes"],
         )
 
+        authorized_source_ref = f"source-authorized-{uuid4().hex}"
+        authorized_evidence_ref = f"evidence-authorized-{uuid4().hex}"
+        authorization_ref = f"authorization-record-{uuid4().hex}"
+        register_source_artifact(
+            self.connection,
+            authorized_source_ref,
+            b"authorized synthetic source",
+            {
+                "media_type": "text/plain",
+                "license_ref": "AUTHORIZED-TEST-LICENSE",
+                "usage_status": "AUTHORIZED",
+                "authorization_ref": authorization_ref,
+            },
+        )
+        register_evidence_artifact(
+            self.connection,
+            authorized_evidence_ref,
+            b"authorized synthetic evidence",
+            {
+                "source_ref": authorized_source_ref,
+                "evidence_type": "AUTHORIZED_TEST_EXTRACT",
+                "media_type": "text/plain",
+                "extraction_method": "manual-test",
+                "extraction_version": "1.0.0",
+                "license_ref": "AUTHORIZED-TEST-LICENSE",
+                "usage_status": "AUTHORIZED",
+                "authorization_ref": authorization_ref,
+            },
+        )
+
         with self.assertRaises(EventRegistryError):
             register_source_artifact(
                 self.connection,
@@ -1023,6 +1053,30 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             """,
             (assertion["temporal_assertion_id"],),
         ).fetchone()[0]
+        register_source_artifact(
+            self.connection,
+            missing_source_ref,
+            b"registered after the assessment cutoff",
+            {
+                "media_type": "text/plain",
+                "license_ref": "SYNTHETIC-TEST-DATA",
+                "usage_status": "SYNTHETIC",
+            },
+        )
+        register_evidence_artifact(
+            self.connection,
+            missing_evidence_ref,
+            b"evidence registered after the assessment cutoff",
+            {
+                "source_ref": missing_source_ref,
+                "evidence_type": "LATE_TEST_EXTRACT",
+                "media_type": "text/plain",
+                "extraction_method": "manual-test",
+                "extraction_version": "1.0.0",
+                "license_ref": "SYNTHETIC-TEST-DATA",
+                "usage_status": "SYNTHETIC",
+            },
+        )
         assessment = create_temporal_assessment(
             self.connection,
             {
@@ -1051,6 +1105,106 @@ class EventRegistryIntegrationTests(unittest.TestCase):
         self.assertIn(
             f"evidence_artifact_missing:{missing_evidence_ref}",
             manifest["missing_components"],
+        )
+
+
+
+    def test_manifest_includes_source_and_evidence_artifacts_known_at_cutoff(self) -> None:
+        event_id = f"event-{uuid4().hex}"
+        source_ref = f"{event_id}-source"
+        evidence_ref = f"{event_id}-evidence"
+        source_bytes = b"source bytes present before cutoff"
+        evidence_bytes = b"evidence bytes present before cutoff"
+        now = datetime.now(timezone.utc)
+
+        register_source_artifact(
+            self.connection,
+            source_ref,
+            source_bytes,
+            {
+                "media_type": "text/plain",
+                "license_ref": "SYNTHETIC-TEST-DATA",
+                "usage_status": "SYNTHETIC",
+            },
+        )
+        register_evidence_artifact(
+            self.connection,
+            evidence_ref,
+            evidence_bytes,
+            {
+                "source_ref": source_ref,
+                "evidence_type": "SYNTHETIC_EXTRACT",
+                "media_type": "text/plain",
+                "extraction_method": "manual-test",
+                "extraction_version": "1.0.0",
+                "license_ref": "SYNTHETIC-TEST-DATA",
+                "usage_status": "SYNTHETIC",
+            },
+        )
+        create_event(
+            self.connection,
+            {
+                "event_id": event_id,
+                "description": "Synthetic event with source/evidence artifacts known at cutoff.",
+                "affected_asset_refs": [],
+                "source_refs": [source_ref],
+                "created_at": iso(now - timedelta(minutes=1)),
+            },
+        )
+        assertion = {
+            "temporal_assertion_id": f"{event_id}-assertion-v1",
+            "event_id": event_id,
+            "version": 1,
+            "temporal_role": "UNKNOWN",
+            "precision": "UNKNOWN",
+            "interval_start": {"value": None, "inclusive": False},
+            "interval_end": {"value": None, "inclusive": False},
+            "approximation": False,
+            "original_value": None,
+            "original_timezone": None,
+            "original_offset": None,
+            "normalized_start_utc": None,
+            "normalized_end_utc": None,
+            "source_ref": source_ref,
+            "evidence_ref": evidence_ref,
+            "retrieved_at": None,
+            "recorded_at": iso(now - timedelta(days=1)),
+            "supersedes_assertion_id": None,
+            "published_at": None,
+            "first_observed_at": None,
+        }
+        append_temporal_assertion(self.connection, assertion)
+        inserted_at = self.connection.execute(
+            "SELECT inserted_at FROM sinayxa.temporal_assertions WHERE temporal_assertion_id = %s",
+            (assertion["temporal_assertion_id"],),
+        ).fetchone()[0]
+        assessment = create_temporal_assessment(
+            self.connection,
+            {
+                "assessment_id": f"{event_id}-assessment-1",
+                "event_id": event_id,
+                "assessment_cutoff": iso(inserted_at),
+                "assertion_refs": [assertion["temporal_assertion_id"]],
+                "conflict_decision_refs": [],
+                "rules_version": "temporal-assessment-rules-1.0.0",
+                "software_version": "sinayxa-registry-0.1.0",
+            },
+        )
+        manifest = create_reproducibility_manifest(
+            self.connection,
+            {
+                "manifest_id": f"{event_id}-manifest-1",
+                "assessment_id": assessment["assessment_id"],
+                "excluded_assertions": [],
+            },
+        )
+        self.assertEqual("PARTIALLY_REPRODUCIBLE", manifest["reproducibility_status"])
+        self.assertIn(evidence_ref, manifest["evidence_refs"])
+        self.assertFalse(
+            any(
+                item.startswith(("source_artifact_missing:", "evidence_artifact_missing:"))
+                for item in manifest["missing_components"]
+            )
         )
 
 
