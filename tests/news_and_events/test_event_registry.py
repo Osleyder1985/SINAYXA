@@ -604,7 +604,7 @@ class EventRegistryIntegrationTests(unittest.TestCase):
             """,
             (assertion["temporal_assertion_id"],),
         ).fetchone()[0]
-        cutoff = iso(inserted_at + timedelta(microseconds=1))
+        cutoff = iso(inserted_at)
 
         request = {
             "assessment_id": f"{event_id}-assessment-1",
