@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS sinayxa.temporal_conflicts (
     ),
     recorded_at timestamptz NOT NULL,
     conflict_payload jsonb NOT NULL CHECK (jsonb_typeof(conflict_payload) = 'object'),
-    inserted_at timestamptz NOT NULL DEFAULT transaction_timestamp()
+    inserted_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
 
 CREATE INDEX IF NOT EXISTS temporal_conflicts_event_recorded_idx
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS sinayxa.conflict_decisions (
     rules_version varchar(128) NOT NULL,
     supersedes_decision_id varchar(128),
     decision_payload jsonb NOT NULL CHECK (jsonb_typeof(decision_payload) = 'object'),
-    inserted_at timestamptz NOT NULL DEFAULT transaction_timestamp(),
+    inserted_at timestamptz NOT NULL DEFAULT clock_timestamp(),
     CONSTRAINT conflict_decisions_conflict_time_uq UNIQUE (conflict_id, decided_at),
     CONSTRAINT conflict_decisions_conflict_id_uq UNIQUE (conflict_id, decision_id),
     CONSTRAINT conflict_decisions_supersedes_fk
@@ -68,6 +68,20 @@ DROP TRIGGER IF EXISTS conflict_decisions_append_only ON sinayxa.conflict_decisi
 CREATE TRIGGER conflict_decisions_append_only
     BEFORE UPDATE OR DELETE ON sinayxa.conflict_decisions
     FOR EACH ROW EXECUTE FUNCTION sinayxa.reject_registry_mutation();
+
+-- Use wall-clock insertion timestamps, not transaction start timestamps.
+-- This preserves correct registry knowledge-time ordering after long transactions.
+ALTER TABLE sinayxa.events
+    ALTER COLUMN inserted_at SET DEFAULT clock_timestamp();
+ALTER TABLE sinayxa.event_sources
+    ALTER COLUMN recorded_at SET DEFAULT clock_timestamp(),
+    ALTER COLUMN inserted_at SET DEFAULT clock_timestamp();
+ALTER TABLE sinayxa.temporal_assertions
+    ALTER COLUMN inserted_at SET DEFAULT clock_timestamp();
+ALTER TABLE sinayxa.temporal_conflicts
+    ALTER COLUMN inserted_at SET DEFAULT clock_timestamp();
+ALTER TABLE sinayxa.conflict_decisions
+    ALTER COLUMN inserted_at SET DEFAULT clock_timestamp();
 
 INSERT INTO sinayxa.schema_migrations (migration_id)
 VALUES ('issue-2-temporal-conflicts-0002')
