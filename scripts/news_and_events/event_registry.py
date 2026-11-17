@@ -641,6 +641,17 @@ def create_reproducibility_manifest(
         event, assertions, conflicts, decisions = _load_event_contract_state(connection, event_id)
         _apply_latest_conflict_statuses(conflicts, decisions)
         assessments, manifests = _load_event_assessment_state(connection, event_id)
+        assessment_cutoff = _utc(assessment["assessment_cutoff"])
+        source_rows = connection.execute(
+            """
+            SELECT source_ref
+            FROM sinayxa.event_sources
+            WHERE event_id = %s AND inserted_at <= %s
+            ORDER BY source_ref
+            """,
+            (event_id, assessment_cutoff),
+        ).fetchall()
+        event["source_refs"] = [row[0] for row in source_rows]
 
         assertion_index = {item["temporal_assertion_id"]: item for item in assertions}
         decision_index = {item["decision_id"]: item for item in decisions}
@@ -655,6 +666,7 @@ def create_reproducibility_manifest(
         if not isinstance(excluded_assertions, list):
             raise EventRegistryError("excluded_assertions must be a JSON array")
         selected_ids = set(assessment["assertion_refs"])
+        excluded_payloads: list[dict[str, Any]] = []
         for excluded in excluded_assertions:
             if not isinstance(excluded, dict):
                 raise EventRegistryError("each excluded assertion must be an object")
@@ -665,8 +677,17 @@ def create_reproducibility_manifest(
                 raise EventRegistryError("an assertion cannot be both included and excluded")
             if assertion["version"] != excluded.get("version"):
                 raise EventRegistryError("excluded assertion version does not match the registry")
-            if _utc(assertion["recorded_at"]) > _utc(assessment["assessment_cutoff"]):
-                raise EventRegistryError("excluded assertion was not known at the assessment cutoff")
+            inserted_row = connection.execute(
+                """
+                SELECT inserted_at
+                FROM sinayxa.temporal_assertions
+                WHERE event_id = %s AND temporal_assertion_id = %s
+                """,
+                (event_id, excluded["assertion_id"]),
+            ).fetchone()
+            if inserted_row is None or inserted_row[0] > assessment_cutoff:
+                raise EventRegistryError("excluded assertion was not in the registry at the assessment cutoff")
+            excluded_payloads.append(assertion)
 
         selected_decisions = []
         for decision_ref in assessment["conflict_decision_refs"]:
@@ -694,6 +715,16 @@ def create_reproducibility_manifest(
             "temporal_assertions": sorted(
                 selected_assertions, key=lambda item: item["temporal_assertion_id"]
             ),
+            "excluded_assertions": [
+                {
+                    "assertion": item,
+                    "reason": excluded["reason"],
+                }
+                for item, excluded in sorted(
+                    zip(excluded_payloads, excluded_assertions),
+                    key=lambda pair: pair[0]["temporal_assertion_id"],
+                )
+            ],
             "temporal_conflicts": sorted(
                 selected_conflicts, key=lambda item: item["conflict_id"]
             ),
