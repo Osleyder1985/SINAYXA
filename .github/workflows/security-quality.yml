@@ -6,6 +6,7 @@ on:
       - main
       - feature/issue-2-temporal-contract-1.0.0
       - feature/issue-2-event-registry
+      - feature/issue-2-event-registry-hardening
       - feature/issue-2-conflict-decision-registry
     paths:
       - "**"
