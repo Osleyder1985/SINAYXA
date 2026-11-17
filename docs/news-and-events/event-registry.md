@@ -183,7 +183,6 @@ python -m scripts.news_and_events.register_event conflict-history --conflict-id 
 
 La hora `decided_at` representa la hora declarada de la decisión; PostgreSQL conserva además `inserted_at`, que representa cuándo se incorporó realmente al registro. Los valores por defecto usan `clock_timestamp()` y no `transaction_timestamp()`, para que una transacción larga no retrotraiga artificialmente la hora de incorporación. Las consultas históricas filtran por `inserted_at`, evitando mostrar decisiones que todavía no estaban registradas en el corte consultado. El estado actual se deriva de las decisiones visibles y no se reescribe en el registro inicial del conflicto.
 
-
 ## 7. Evaluaciones temporales y manifiestos de reproducibilidad
 
 Una evaluación se ejecuta únicamente cuando el operador la solicita. El archivo `assessment.json` identifica el acontecimiento, el corte UTC y las afirmaciones/decisiones que deben considerarse:
