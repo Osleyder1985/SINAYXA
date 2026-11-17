@@ -398,15 +398,26 @@ def get_conflict_history(
     if row is None:
         return None
     conflict = dict(row[0])
-    decisions = connection.execute(
-        """
-        SELECT decision_payload, inserted_at
-        FROM sinayxa.conflict_decisions
-        WHERE conflict_id = %s AND (%s IS NULL OR inserted_at <= %s)
-        ORDER BY decided_at
-        """,
-        (conflict_id, cutoff, cutoff),
-    ).fetchall()
+    if cutoff is None:
+        decisions = connection.execute(
+            """
+            SELECT decision_payload, inserted_at
+            FROM sinayxa.conflict_decisions
+            WHERE conflict_id = %s
+            ORDER BY decided_at
+            """,
+            (conflict_id,),
+        ).fetchall()
+    else:
+        decisions = connection.execute(
+            """
+            SELECT decision_payload, inserted_at
+            FROM sinayxa.conflict_decisions
+            WHERE conflict_id = %s AND inserted_at <= %s
+            ORDER BY decided_at
+            """,
+            (conflict_id, cutoff),
+        ).fetchall()
     decision_history = [
         {
             "decision": dict(item[0]),
