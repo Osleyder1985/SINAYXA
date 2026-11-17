@@ -331,14 +331,17 @@ class EventRegistryIntegrationTests(unittest.TestCase):
                 barrier.wait(timeout=15)
                 try:
                     append_temporal_assertion(connection, assertion)
-                except EventRegistryError:
-                    return "rejected"
+                except EventRegistryError as exc:
+                    return f"rejected: {exc}"
                 return "accepted"
 
         with ThreadPoolExecutor(max_workers=2) as executor:
             outcomes = list(executor.map(append_from_independent_connection, (1, 2)))
 
-        self.assertEqual(["accepted", "rejected"], sorted(outcomes))
+        self.assertEqual(1, outcomes.count("accepted"), outcomes)
+        rejected = [outcome for outcome in outcomes if outcome.startswith("rejected:")]
+        self.assertEqual(1, len(rejected), outcomes)
+        self.assertIn("contiguous", rejected[0], outcomes)
         history = get_event_history(self.connection, event_id)
         self.assertEqual(1, len(history))
         self.assertEqual(1, history[0]["version"])
