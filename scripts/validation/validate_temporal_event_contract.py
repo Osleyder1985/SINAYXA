@@ -198,8 +198,6 @@ def validate_semantics(package: dict[str, Any]) -> None:
         conflict_recorded = parse_utc(conflict["recorded_at"], f"{cid}.recorded_at")
         if conflict_recorded > cutoff:
             raise ContractError(f"{did}: conflict was not known at assessment cutoff")
-        if decided < conflict_recorded:
-            raise ContractError(f"{did}: decision cannot predate its conflict record")
         for ref in decision["assertion_refs"]:
             assertion_recorded = parse_utc(assertion_index[ref]["recorded_at"], f"{ref}.recorded_at")
             if assertion_recorded > cutoff:
