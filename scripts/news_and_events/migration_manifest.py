@@ -78,6 +78,17 @@ def _verify_git_provenance(
 
     manifest_path = manifest_path.resolve()
     migrations_dir = migrations_dir.resolve()
+    # Pure temporary-directory tests may validate structure without Git. Once a
+    # .git marker exists in an ancestor, however, provenance verification is
+    # mandatory: Git errors must fail closed rather than silently skip checks.
+    git_marker = next(
+        (parent / ".git" for parent in (manifest_path.parent, *manifest_path.parent.parents)
+         if (parent / ".git").exists()),
+        None,
+    )
+    if git_marker is None:
+        return
+
     try:
         repository_root_text = subprocess.run(
             ["git", "-C", str(manifest_path.parent), "rev-parse", "--show-toplevel"],
@@ -86,10 +97,13 @@ def _verify_git_provenance(
             stderr=subprocess.PIPE,
             text=True,
         ).stdout.strip()
-    except (OSError, subprocess.CalledProcessError):
-        # Pure temporary-directory tests can validate structure without a Git checkout.
-        # The CI workflow explicitly checks out full history, so this is not skipped there.
-        return
+    except (OSError, subprocess.CalledProcessError) as exc:
+        detail = getattr(exc, "stderr", b"") or b""
+        if isinstance(detail, bytes):
+            detail = detail.decode("utf-8", errors="replace").strip()
+        raise MigrationManifestError(
+            f"Git checkout detected but provenance cannot be verified: {detail or exc}"
+        ) from exc
 
     repository_root = Path(repository_root_text).resolve()
     try:
