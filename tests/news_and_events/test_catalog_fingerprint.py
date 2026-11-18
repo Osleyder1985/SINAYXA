@@ -439,6 +439,12 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             self.connection.commit()
             after = fingerprint_schema(self.connection)
             self.assertNotEqual(before.sha256, after.sha256)
+            policy = next(
+                item for item in after.records
+                if item["object_type"] == "policy"
+                and item["identity"] == "fp_probe_policy"
+            )
+            self.assertEqual(["PUBLIC"], policy["roles"])
         finally:
             self.connection.execute("DROP TABLE IF EXISTS sinayxa.fp_probe_policy")
             self.connection.commit()
