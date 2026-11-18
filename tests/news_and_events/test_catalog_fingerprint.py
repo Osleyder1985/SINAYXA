@@ -197,6 +197,20 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_rejects_undefined_shell_types(self) -> None:
+        self.connection.execute("CREATE TYPE sinayxa.fp_probe_shell")
+        self.connection.commit()
+        try:
+            with self.assertRaisesRegex(
+                CatalogFingerprintError, "unsupported schema objects"
+            ):
+                fingerprint_schema(self.connection)
+        finally:
+            self.connection.execute(
+                "DROP TYPE IF EXISTS sinayxa.fp_probe_shell"
+            )
+            self.connection.commit()
+
     def test_fingerprint_rejects_unrepresented_range_types(self) -> None:
         self.connection.execute(
             """
