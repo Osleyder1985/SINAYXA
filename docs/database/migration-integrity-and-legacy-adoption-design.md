@@ -59,7 +59,6 @@ For a new database, each migration's DDL, legacy-compatible ID row (if retained)
 
 For an existing database with old IDs and no digests, classify those rows as `LEGACY_UNVERIFIED`. Never fill in the current SQL digest and label it as the historical executed digest.
 
-
 ### 3.2.1 Control-plane bootstrap
 
 The integrity ledger must exist before the first application migration can be recorded. Avoid a circular dependency by separating migration-control metadata from the application schema:
@@ -72,7 +71,6 @@ The integrity ledger must exist before the first application migration can be re
 - Fingerprint the application schema `sinayxa` independently. Verify `sinayxa_control` against its own bootstrap contract; do not mix control-plane objects into the legacy application baseline.
 
 The bootstrap SQL is a trust anchor and must be reviewed, hashed, tested for atomic creation and partial-state refusal, and changed only through an explicit bootstrap-version upgrade. It is not generated from the current working tree at runtime.
-
 
 ### 3.3 Legacy adoption is a separate operation
 
