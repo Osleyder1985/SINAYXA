@@ -74,7 +74,7 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         self.assertTrue(all("support_function" in item for item in functions))
         self.assertEqual(18, len(triggers))
         foreign_keys = [
-            item for item in result.records
+            item for item in first.records
             if item["object_type"] == "constraint"
             and item["constraint_type"] == "f"
         ]
