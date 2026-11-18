@@ -101,7 +101,10 @@ def _bootstrap_or_verify(connection: psycopg.Connection, bootstrap_sql: str) -> 
             ORDER BY singleton
             """
         ).fetchall()
-        if bootstrap_rows != [(BOOTSTRAP_VERSION, BOOTSTRAP_SHA256)]:
+        normalized_bootstrap_rows = [
+            (version, digest.strip()) for version, digest in bootstrap_rows
+        ]
+        if normalized_bootstrap_rows != [(BOOTSTRAP_VERSION, BOOTSTRAP_SHA256)]:
             raise MigrationRunnerError(
                 "control-plane bootstrap record is missing, duplicated, or does not match "
                 "the pinned bootstrap contract"
