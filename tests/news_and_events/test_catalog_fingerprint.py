@@ -596,6 +596,35 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_detects_relation_owner_changes(self) -> None:
+        role_name = f"fp_owner_{uuid4().hex}"
+        table_name = f"fp_probe_owner_{uuid4().hex}"
+        self.connection.execute(f'CREATE ROLE "{role_name}"')
+        self.connection.execute(
+            f'CREATE TABLE sinayxa."{table_name}" (value integer)'
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                f'ALTER TABLE sinayxa."{table_name}" OWNER TO "{role_name}"'
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+            relation = next(
+                item for item in after.records
+                if item["object_type"] == "relation"
+                and item["identity"] == f"sinayxa.{table_name}"
+            )
+            self.assertEqual(role_name, relation["owner"])
+        finally:
+            self.connection.execute(
+                f'DROP TABLE IF EXISTS sinayxa."{table_name}" CASCADE'
+            )
+            self.connection.execute(f'DROP ROLE IF EXISTS "{role_name}"')
+            self.connection.commit()
+
     def test_fingerprint_detects_relation_acl_changes(self) -> None:
         self.connection.execute(
             "CREATE TABLE sinayxa.fp_probe_acl (value integer)"
