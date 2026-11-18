@@ -341,6 +341,14 @@ jobs:
           python scripts/validation/validate_source_evidence_contract_0_2_1.py
           if ($LASTEXITCODE -ne 0) { throw 'Issue #78 contract 0.2.1 schema or semantic fixture validation failed.' }
 
+      - name: Run Issue #93 isolated synthetic validation lab
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/Invoke-SyntheticValidationLab.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'Issue #93 synthetic validation lab failed.' }
+
       - name: Record source and fixture provenance
         shell: pwsh
         working-directory: source
