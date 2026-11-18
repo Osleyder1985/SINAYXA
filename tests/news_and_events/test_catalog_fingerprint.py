@@ -337,6 +337,39 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_detects_composite_attribute_collation_changes(self) -> None:
+        self.connection.execute(
+            """
+            CREATE TYPE sinayxa.fp_probe_composite AS (
+                label text
+            )
+            """
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                """
+                ALTER TYPE sinayxa.fp_probe_composite
+                ALTER ATTRIBUTE label SET DATA TYPE text COLLATE "C"
+                """
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+            composite = next(
+                item for item in after.records
+                if item["object_type"] == "type"
+                and item["identity"] == "fp_probe_composite"
+            )
+            self.assertEqual("C", composite["attributes"][0]["collation_name"])
+            self.assertEqual("pg_catalog", composite["attributes"][0]["collation_schema"])
+        finally:
+            self.connection.execute(
+                "DROP TYPE IF EXISTS sinayxa.fp_probe_composite CASCADE"
+            )
+            self.connection.commit()
+
     def test_fingerprint_detects_enum_type_changes(self) -> None:
         self.connection.execute(
             "CREATE TYPE sinayxa.fp_probe_enum AS ENUM ('alpha')"
