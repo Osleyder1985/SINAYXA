@@ -117,21 +117,21 @@ Never collapse `LEGACY_ADOPTED_CATALOG_MATCH` into `FRESH_VERIFIED`.
 
 ## 5. Test matrix and evidence requirements
 
-| Scenario  |  Expected result  |  Required evidence |
-| --- | --- | --- |
-| Empty PostgreSQL 18.7 database | All migrations applied once | Ledger rows and catalog fingerprint |
-| Second initialization | No SQL replay | Execution spy / unchanged applied rows |
-| Same ID, same digest | Skip | Explicit skip result |
-| Same ID, changed bytes | Fail before SQL | Drift exception; sentinel DDL absent |
-| Same version, different ID | Fail closed | Version collision error |
-| New migration | Only new migration executes | Per-migration execution log |
-| SQL fails midway | DDL and ledger row both absent | Catalog + ledger assertions |
-| Failure after earlier commit | Earlier row retained; retry resumes | Two-stage failure/retry test |
-| Two concurrent initializers | Exactly-once migration application | Parallel connections and catalog/ledger checks |
-| Legacy IDs without hashes | Remain unverified until adoption | No synthetic digest backfill |
-| Legacy catalog exact match | Separate adoption attestation | Fingerprint and verifier provenance |
-| Legacy catalog mismatch | Adoption refused, no DDL | Before/after catalog comparison |
-| Backup restore | Restored logical state matches | Isolated restore and invariant report |
+### Test cases
+
+- **Empty PostgreSQL 18.7 database:** apply all migrations once; verify ledger rows and catalog fingerprint.
+- **Second initialization:** do not replay SQL; verify execution spy and unchanged applied rows.
+- **Same ID and same digest:** skip the migration and return an explicit skip result.
+- **Same ID with changed bytes:** fail before SQL; verify drift exception and absence of sentinel DDL.
+- **Same version with a different ID:** fail closed with a version-collision error.
+- **New migration:** execute only the pending migration; verify per-migration execution log.
+- **SQL fails midway:** both DDL and ledger row are absent after rollback.
+- **Failure after an earlier commit:** retain the earlier applied row; retry resumes at the next migration.
+- **Two concurrent initializers:** verify exactly-once application using parallel connections and catalog/ledger checks.
+- **Legacy IDs without hashes:** remain unverified until adoption; do not backfill synthetic digests.
+- **Legacy catalog exact match:** produce a separate adoption attestation with fingerprint and verifier provenance.
+- **Legacy catalog mismatch:** refuse adoption without DDL; compare catalog state before and after.
+- **Backup restore:** restore logical state to an isolated instance and verify invariants and artifact digests.
 
 Tests must use unique disposable schemas or databases and synthetic records. No production or external provider is involved.
 
