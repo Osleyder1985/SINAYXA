@@ -131,6 +131,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             """
             SELECT c.relname, c.relkind, c.relpersistence, c.relispartition,
                    c.relrowsecurity, c.relforcerowsecurity, c.relreplident, c.relispopulated,
+                   table_am.amname AS table_access_method,
                    owner.rolname AS owner,
                    COALESCE((
                      SELECT jsonb_agg(jsonb_build_object(
@@ -157,6 +158,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             JOIN pg_namespace n ON n.oid = c.relnamespace
             JOIN pg_roles owner ON owner.oid = c.relowner
             LEFT JOIN pg_partitioned_table pt ON pt.partrelid = c.oid
+            LEFT JOIN pg_am table_am ON table_am.oid = c.relam
             WHERE n.nspname = %s
               AND c.relkind IN ('r', 'p', 'v', 'm', 'S')
             ORDER BY c.relname
@@ -195,6 +197,27 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                 f"{schema_name}: {partitioned_relations}"
             )
 
+        inherited_relations = _rows(
+            connection,
+            """
+            SELECT parent_ns.nspname AS parent_schema, parent.relname AS parent_relation,
+                   child_ns.nspname AS child_schema, child.relname AS child_relation
+            FROM pg_inherits inheritance
+            JOIN pg_class parent ON parent.oid = inheritance.inhparent
+            JOIN pg_namespace parent_ns ON parent_ns.oid = parent.relnamespace
+            JOIN pg_class child ON child.oid = inheritance.inhrelid
+            JOIN pg_namespace child_ns ON child_ns.oid = child.relnamespace
+            WHERE parent_ns.nspname = %s OR child_ns.nspname = %s
+            ORDER BY parent_ns.nspname, parent.relname, child_ns.nspname, child.relname
+            """,
+            (schema_name, schema_name),
+        )
+        if inherited_relations:
+            raise CatalogFingerprintError(
+                "unsupported table inheritance involving "
+                f"{schema_name}: {inherited_relations}"
+            )
+
         for rel in relation_rows:
             name = f"{schema_name}.{rel['relname']}"
             records.append(
@@ -204,6 +227,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     name,
                     kind=rel["relkind"],
                     persistence=rel["relpersistence"],
+                    table_access_method=rel["table_access_method"],
                     is_partition=rel["relispartition"],
                     row_security=rel["relrowsecurity"],
                     force_row_security=rel["relforcerowsecurity"],
