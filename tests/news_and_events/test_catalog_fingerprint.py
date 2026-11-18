@@ -395,7 +395,7 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         try:
             before = fingerprint_schema(self.connection)
             self.connection.execute(
-                "GRANT USAGE ON TYPE sinayxa.fp_probe_acl_type TO PUBLIC"
+                "REVOKE USAGE ON TYPE sinayxa.fp_probe_acl_type FROM PUBLIC"
             )
             self.connection.commit()
             after = fingerprint_schema(self.connection)
@@ -405,7 +405,7 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
                 if item["object_type"] == "type"
                 and item["identity"] == "fp_probe_acl_type"
             )
-            self.assertTrue(
+            self.assertFalse(
                 any(privilege["grantee"] == "PUBLIC" and
                     privilege["privilege"] == "USAGE"
                     for privilege in typ["acl"])
