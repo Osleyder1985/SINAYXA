@@ -32,6 +32,7 @@ class MigrationManifestTests(unittest.TestCase):
                     "migration_id": "example-0001",
                     "path": "0001_example.sql",
                     "sha256": hashlib.sha256(self.sql_bytes).hexdigest(),
+                    "source_revision": "b" * 40,
                     "execution_mode": "transactional",
                 }
             ],
@@ -88,6 +89,7 @@ class MigrationManifestTests(unittest.TestCase):
             "migration_id": "example-0003",
             "path": "0002_example.sql",
             "sha256": hashlib.sha256(second_bytes).hexdigest(),
+            "source_revision": "b" * 40,
             "execution_mode": "transactional",
         }
         self.document["migrations"].append(second)
