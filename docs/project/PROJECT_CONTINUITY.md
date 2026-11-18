@@ -128,3 +128,39 @@ Chats may be considered safe to delete only after:
 ## 9. Next action
 
 Continue the full audit of the seven open PRs, starting with #85 because #99 depends on it, then #96 because #115 depends on it. In parallel, audit the mainline PRs #117, #94, and #100. Preserve all current branches and do not merge or close anything during the audit.
+
+
+## 10. PR audit — exact HEAD check-runs and review state
+
+The following was retrieved from GitHub's commit check-runs API for each currently observed PR head. A skipped job is not a pass. Review states are comments unless explicitly stated otherwise.
+
+| PR | Exact-head CI result | Review state | Audit conclusion |
+|---|---|---|---|
+| #85 | PowerShell 7.6.6 PASS; PowerShell 7.7.0 PASS; PostgreSQL event registry PASS; Gitleaks PASS; OSV PR PASS; npm audit FAIL; OSV full SKIPPED. Run https://github.com/Osleyder1985/SINAYXA/actions/runs/44202513299. | 3 COMMENT reviews; no APPROVE; no inline threads returned. | Blocked by the same picomatch advisory tracked in #116. Its five areas A–E also remain open in #88/#89. |
+| #94 | PowerShell 7.6.6 PASS; PowerShell 7.7.0 PASS; event registry PASS; Gitleaks PASS; npm audit PASS; OSV PR PASS; OSV full SKIPPED. Runs https://github.com/Osleyder1985/SINAYXA/actions/runs/44013758761 and https://github.com/Osleyder1985/SINAYXA/actions/runs/44013759030. | 4 COMMENT reviews; no APPROVE; no inline threads returned. | CI supports the filesystem-only synthetic lab. It does not prove PostgreSQL, physical erasure, external copies, WORM/Object Lock, or production migration. |
+| #96 | PowerShell 7.6.6 PASS; PowerShell 7.7.0 PASS; PostgreSQL 18.7 lab PASS; Gitleaks PASS; OSV PR PASS; npm audit FAIL; OSV full SKIPPED. Run https://github.com/Osleyder1985/SINAYXA/actions/runs/44188987821. | 3 COMMENT reviews; no APPROVE; no inline threads returned. | Lab scope passes, but security gate fails due to five HIGH picomatch findings. Must be revalidated after #117 is integrated. |
+| #99 | PowerShell 7.6.6/7.7.0 checks PASS; Gitleaks PASS; npm audit PASS; OSV PR PASS; OSV full SKIPPED in the returned checks. | 4 COMMENT reviews; no APPROVE; no inline threads returned. | Remains DRAFT and stacked on #85. The synthetic contract/migration does not close human semantic mapping, operational retention, external immutability, or deletion evidence. Revalidate after base integration. |
+| #100 | AIStor metadata preflight PASS; PowerShell 7.6.6/7.7.0 PASS; Gitleaks PASS; OSV PR PASS; npm audit FAIL; OSV full SKIPPED. Run https://github.com/Osleyder1985/SINAYXA/actions/runs/44190081816. | 1 COMMENT review; no APPROVE; no inline threads returned. | Metadata/digests/sidecars are captured, but executable signatures have not been cryptographically verified against trusted keys, checksums have not been compared to downloaded binaries, and license/use review remains pending. Security gate also fails. Overall deployment/use remains BLOCKED. |
+| #115 | PostgreSQL 18.7 / Docker 29.10.0 adversarial fixture and lab PASS. Run https://github.com/Osleyder1985/SINAYXA/actions/runs/44201807263. No security/dependency workflow is present in the returned exact-head checks. | No reviews returned; no inline threads returned. | DRAFT, stacked on #96. Its lab passes, but the security gate is not evidenced for this head and the base PR has a failing npm audit. Keep blocked. |
+| #117 | PowerShell 7.6.6/7.7.0 PASS; event registry PASS; Gitleaks PASS; npm audit PASS; OSV PR PASS; OSV full SKIPPED. Run https://github.com/Osleyder1985/SINAYXA/actions/runs/44203986892. | No reviews returned; no inline threads returned. | The security remediation's exact current HEAD has green executed checks and no HIGH/CRITICAL npm audit findings. It is the prerequisite remediation for #85/#96/#100. Still requires review and integration; do not merge automatically. |
+
+### 10.1 Review interpretation
+
+- No APPROVE review was returned for any of the seven PRs.
+- Existing technical reviews are COMMENT, not APPROVE. They explicitly preserve scope limits and/or identify open operational gaps.
+- No inline review threads were returned by the review-thread listing for these PRs. This does not replace checking issue/PR conversation comments and latest review history.
+- The mergeable=true metadata reported by GitHub is only a merge-conflict signal; it does not mean policy, CI, architecture, scope, or review gates are satisfied.
+- The combined commit-status endpoint returned no legacy status contexts. The check-runs endpoint is the evidence source used above.
+
+### 10.2 Recommended dependency order — no merge performed
+
+1. Review #117's six-file diff and exact-head tests; if complete, it is the first security remediation candidate.
+2. After #117 is integrated, update/rebase #85, #96, and #100 onto the corrected base and rerun every required gate on their new exact HEADs.
+3. Re-review #85 against #88/#89. The current evidence does not close areas A–E; determine whether the PR's declared scope is complete without claiming those external gaps are resolved.
+4. Only after #85's base decision, rebase/retarget #99 and rerun all checks on the resulting head. Keep it DRAFT until the semantic and governance gates are met.
+5. Only after #96's base decision and security revalidation, rebase/retarget #115 and run the complete required quality suite, not only the PostgreSQL lab.
+6. #94 may be considered independently for its narrow filesystem-lab scope after review of its exact diff and merge policy; it must not be represented as production deletion/backup proof.
+7. #100 remains blocked for the full AIStor use/deployment objective until cryptographic artifact verification and license/use review are completed, regardless of metadata capture success.
+
+Issue tracking this continuity work: https://github.com/Osleyder1985/SINAYXA/issues/118.
+
