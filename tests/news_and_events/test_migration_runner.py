@@ -105,7 +105,7 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             historical_sql = migrations / "0001_event_registry.sql"
             historical_sql.write_bytes(
                 historical_sql.read_bytes()
-                + b"\\nCREATE TABLE sinayxa.must_not_execute (id integer);\\n"
+                + b"\nCREATE TABLE sinayxa.must_not_execute (id integer);\n"
             )
             with self.assertRaisesRegex(
                 MigrationRunnerError, "migration manifest verification failed"
@@ -142,9 +142,9 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
 
             document = json.loads(manifest.read_text(encoding="utf-8"))
             new_sql = (
-                "CREATE TABLE sinayxa.runner_extension_marker (id integer PRIMARY KEY);\\n"
+                "CREATE TABLE sinayxa.runner_extension_marker (id integer PRIMARY KEY);\n"
                 "INSERT INTO sinayxa.schema_migrations (migration_id) "
-                "VALUES ('issue-121-runner-extension-0006');\\n"
+                "VALUES ('issue-121-runner-extension-0006');\n"
             )
             filename = "0006_runner_extension.sql"
             (migrations / filename).write_text(new_sql, encoding="utf-8")
@@ -159,7 +159,7 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                 }
             )
             manifest.write_text(
-                json.dumps(document, indent=2) + "\\n",
+                json.dumps(document, indent=2) + "\n",
                 encoding="utf-8",
             )
 
