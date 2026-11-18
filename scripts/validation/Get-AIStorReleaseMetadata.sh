@@ -203,6 +203,12 @@ if [[ "$SERVER_PRODUCT" != "AIStor Server" || "$SERVER_VERSION" == "NOT_RESOLVED
   exit 1
 fi
 
+if [[ ! "$SERVER_VERSION" =~ ^RELEASE\.[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}Z$ ]]; then
+  RESULT_CODE=SERVER_RELEASE_VERSION_FORMAT_INVALID
+  write_report
+  exit 1
+fi
+
 SERVER_RELEASE_NOTES_URL="https://dl.min.io/aistor/minio/release/notes/release-notes-$SERVER_VERSION.md"
 SERVER_SBOM_CYCLONEDX_URL="https://dl.min.io/aistor/minio/release/notes/sbom-$SERVER_VERSION.cyclonedx.json"
 SERVER_SBOM_SPDX_URL="https://dl.min.io/aistor/minio/release/notes/sbom-$SERVER_VERSION.spdx.json"
@@ -248,45 +254,89 @@ CLIENT_WINDOWS_CHECKSUM_URL="https://dl.min.io/aistor/mc/release/windows-amd64/m
 SERVER_CHECKSUM_FILE="$ARTIFACT_DIR/aistor-server-windows-amd64.sha256sum"
 CLIENT_CHECKSUM_FILE="$ARTIFACT_DIR/aistor-client-windows-amd64.sha256sum"
 
-if curl --fail --silent --show-error --location --max-time 30 --output "$SERVER_CHECKSUM_FILE" "$SERVER_WINDOWS_CHECKSUM_URL"; then
-  read -r SERVER_WINDOWS_EXPECTED_SHA256 _ < "$SERVER_CHECKSUM_FILE"
-  SERVER_CHECKSUM_HASH_LINE="$(sha256sum "$SERVER_CHECKSUM_FILE")"
-  read -r SERVER_WINDOWS_CHECKSUM_FILE_SHA256 _ <<< "$SERVER_CHECKSUM_HASH_LINE"
-fi
-if curl --fail --silent --show-error --location --max-time 30 --output "$CLIENT_CHECKSUM_FILE" "$CLIENT_WINDOWS_CHECKSUM_URL"; then
-  read -r CLIENT_WINDOWS_EXPECTED_SHA256 _ < "$CLIENT_CHECKSUM_FILE"
-  CLIENT_CHECKSUM_HASH_LINE="$(sha256sum "$CLIENT_CHECKSUM_FILE")"
-  read -r CLIENT_WINDOWS_CHECKSUM_FILE_SHA256 _ <<< "$CLIENT_CHECKSUM_HASH_LINE"
-fi
+fetch_nonempty_sidecar() {
+  local url="$1"
+  local output="$2"
+  if ! curl --fail --silent --show-error --location --max-time 30 --output "$output" "$url"; then
+    rm -f "$output"
+    return 1
+  fi
+  if [[ ! -s "$output" ]]; then
+    rm -f "$output"
+    return 1
+  fi
+}
 
-SERVER_WINDOWS_ASC_URL="${SERVER_WINDOWS_CHECKSUM_URL%.sha256sum}.asc"
-SERVER_WINDOWS_MINISIG_URL="${SERVER_WINDOWS_CHECKSUM_URL%.sha256sum}.minisig"
-CLIENT_WINDOWS_ASC_URL="${CLIENT_WINDOWS_CHECKSUM_URL%.sha256sum}.asc"
-CLIENT_WINDOWS_MINISIG_URL="${CLIENT_WINDOWS_CHECKSUM_URL%.sha256sum}.minisig"
+capture_checksum_sidecar() {
+  local url="$1"
+  local output="$2"
+  local -n expected_ref="$3"
+  local -n digest_ref="$4"
+  local checksum filename extra
+  if ! fetch_nonempty_sidecar "$url" "$output"; then
+    return 1
+  fi
+  read -r checksum filename extra < "$output" || true
+  if [[ ! "$checksum" =~ ^[a-fA-F0-9]{64}$ || -z "$filename" || -n "$extra" ]]; then
+    rm -f "$output"
+    return 1
+  fi
+  expected_ref="$(printf '%s' "$checksum" | tr '[:upper:]' '[:lower:]')"
+  digest_ref="$(sha256sum "$output" | awk '{print $1}')"
+}
+
+capture_openpgp_sidecar() {
+  local url="$1"
+  local output="$2"
+  local -n digest_ref="$3"
+  if ! fetch_nonempty_sidecar "$url" "$output"; then
+    return 1
+  fi
+  if ! grep -q '^-----BEGIN PGP SIGNATURE-----$' "$output" ||
+     ! grep -q '^-----END PGP SIGNATURE-----$' "$output"; then
+    rm -f "$output"
+    return 1
+  fi
+  digest_ref="$(sha256sum "$output" | awk '{print $1}')"
+}
+
+capture_minisign_sidecar() {
+  local url="$1"
+  local output="$2"
+  local -n digest_ref="$3"
+  if ! fetch_nonempty_sidecar "$url" "$output"; then
+    return 1
+  fi
+  if ! grep -q '^untrusted comment:' "$output" ||
+     ! grep -q '^trusted comment:' "$output" ||
+     [[ "$(wc -l < "$output")" -lt 4 ]]; then
+    rm -f "$output"
+    return 1
+  fi
+  digest_ref="$(sha256sum "$output" | awk '{print $1}')"
+}
+
+capture_checksum_sidecar "$SERVER_WINDOWS_CHECKSUM_URL" "$SERVER_CHECKSUM_FILE" SERVER_WINDOWS_EXPECTED_SHA256 SERVER_WINDOWS_CHECKSUM_FILE_SHA256 || true
+capture_checksum_sidecar "$CLIENT_WINDOWS_CHECKSUM_URL" "$CLIENT_CHECKSUM_FILE" CLIENT_WINDOWS_EXPECTED_SHA256 CLIENT_WINDOWS_CHECKSUM_FILE_SHA256 || true
+
+SERVER_WINDOWS_ASC_URL="\${SERVER_WINDOWS_CHECKSUM_URL%.sha256sum}.asc"
+SERVER_WINDOWS_MINISIG_URL="\${SERVER_WINDOWS_CHECKSUM_URL%.sha256sum}.minisig"
+CLIENT_WINDOWS_ASC_URL="\${CLIENT_WINDOWS_CHECKSUM_URL%.sha256sum}.asc"
+CLIENT_WINDOWS_MINISIG_URL="\${CLIENT_WINDOWS_CHECKSUM_URL%.sha256sum}.minisig"
 SERVER_ASC_FILE="$ARTIFACT_DIR/aistor-server-windows-amd64.asc"
 SERVER_MINISIG_FILE="$ARTIFACT_DIR/aistor-server-windows-amd64.minisig"
 CLIENT_ASC_FILE="$ARTIFACT_DIR/aistor-client-windows-amd64.asc"
 CLIENT_MINISIG_FILE="$ARTIFACT_DIR/aistor-client-windows-amd64.minisig"
 
-if curl --fail --silent --show-error --location --max-time 30 --output "$SERVER_ASC_FILE" "$SERVER_WINDOWS_ASC_URL"; then
-  HASH_LINE="$(sha256sum "$SERVER_ASC_FILE")"
-  read -r SERVER_WINDOWS_ASC_FILE_SHA256 _ <<< "$HASH_LINE"
-fi
-if curl --fail --silent --show-error --location --max-time 30 --output "$SERVER_MINISIG_FILE" "$SERVER_WINDOWS_MINISIG_URL"; then
-  HASH_LINE="$(sha256sum "$SERVER_MINISIG_FILE")"
-  read -r SERVER_WINDOWS_MINISIG_FILE_SHA256 _ <<< "$HASH_LINE"
-fi
-if curl --fail --silent --show-error --location --max-time 30 --output "$CLIENT_ASC_FILE" "$CLIENT_WINDOWS_ASC_URL"; then
-  HASH_LINE="$(sha256sum "$CLIENT_ASC_FILE")"
-  read -r CLIENT_WINDOWS_ASC_FILE_SHA256 _ <<< "$HASH_LINE"
-fi
-if curl --fail --silent --show-error --location --max-time 30 --output "$CLIENT_MINISIG_FILE" "$CLIENT_WINDOWS_MINISIG_URL"; then
-  HASH_LINE="$(sha256sum "$CLIENT_MINISIG_FILE")"
-  read -r CLIENT_WINDOWS_MINISIG_FILE_SHA256 _ <<< "$HASH_LINE"
-fi
+capture_openpgp_sidecar "$SERVER_WINDOWS_ASC_URL" "$SERVER_ASC_FILE" SERVER_WINDOWS_ASC_FILE_SHA256 || true
+capture_minisign_sidecar "$SERVER_WINDOWS_MINISIG_URL" "$SERVER_MINISIG_FILE" SERVER_WINDOWS_MINISIG_FILE_SHA256 || true
+capture_openpgp_sidecar "$CLIENT_WINDOWS_ASC_URL" "$CLIENT_ASC_FILE" CLIENT_WINDOWS_ASC_FILE_SHA256 || true
+capture_minisign_sidecar "$CLIENT_WINDOWS_MINISIG_URL" "$CLIENT_MINISIG_FILE" CLIENT_WINDOWS_MINISIG_FILE_SHA256 || true
 
 if [[ "$SERVER_WINDOWS_EXPECTED_SHA256" =~ ^[a-fA-F0-9]{64}$ &&
       "$CLIENT_WINDOWS_EXPECTED_SHA256" =~ ^[a-fA-F0-9]{64}$ &&
+      "$SERVER_WINDOWS_CHECKSUM_FILE_SHA256" != NOT_CAPTURED &&
+      "$CLIENT_WINDOWS_CHECKSUM_FILE_SHA256" != NOT_CAPTURED &&
       "$SERVER_WINDOWS_ASC_FILE_SHA256" != NOT_CAPTURED &&
       "$SERVER_WINDOWS_MINISIG_FILE_SHA256" != NOT_CAPTURED &&
       "$CLIENT_WINDOWS_ASC_FILE_SHA256" != NOT_CAPTURED &&
