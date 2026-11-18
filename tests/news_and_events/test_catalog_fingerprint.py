@@ -354,6 +354,98 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_detects_function_acl_changes(self) -> None:
+        self.connection.execute(
+            """
+            CREATE FUNCTION sinayxa.fp_probe_function_acl()
+            RETURNS integer LANGUAGE sql IMMUTABLE AS 'SELECT 1'
+            """
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                "REVOKE EXECUTE ON FUNCTION "
+                "sinayxa.fp_probe_function_acl() FROM PUBLIC"
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+            function = next(
+                item for item in after.records
+                if item["object_type"] == "function"
+                and item["identity"] == "fp_probe_function_acl()"
+            )
+            self.assertFalse(
+                any(privilege["grantee"] == "PUBLIC" and
+                    privilege["privilege"] == "EXECUTE"
+                    for privilege in function["acl"])
+            )
+        finally:
+            self.connection.execute(
+                "DROP FUNCTION IF EXISTS sinayxa.fp_probe_function_acl()"
+            )
+            self.connection.commit()
+
+    def test_fingerprint_detects_type_acl_changes(self) -> None:
+        self.connection.execute(
+            "CREATE TYPE sinayxa.fp_probe_acl_type AS ENUM ('one', 'two')"
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                "GRANT USAGE ON TYPE sinayxa.fp_probe_acl_type TO PUBLIC"
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+            typ = next(
+                item for item in after.records
+                if item["object_type"] == "type"
+                and item["identity"] == "fp_probe_acl_type"
+            )
+            self.assertTrue(
+                any(privilege["grantee"] == "PUBLIC" and
+                    privilege["privilege"] == "USAGE"
+                    for privilege in typ["acl"])
+            )
+        finally:
+            self.connection.execute(
+                "DROP TYPE IF EXISTS sinayxa.fp_probe_acl_type CASCADE"
+            )
+            self.connection.commit()
+
+    def test_fingerprint_detects_sequence_acl_changes(self) -> None:
+        self.connection.execute(
+            "CREATE SEQUENCE sinayxa.fp_probe_acl_sequence"
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                "GRANT SELECT ON SEQUENCE "
+                "sinayxa.fp_probe_acl_sequence TO PUBLIC"
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+            sequence = next(
+                item for item in after.records
+                if item["object_type"] == "relation"
+                and item["identity"] == "sinayxa.fp_probe_acl_sequence"
+            )
+            self.assertTrue(
+                any(privilege["grantee"] == "PUBLIC" and
+                    privilege["privilege"] == "SELECT"
+                    for privilege in sequence["acl"])
+            )
+        finally:
+            self.connection.execute(
+                "DROP SEQUENCE IF EXISTS sinayxa.fp_probe_acl_sequence"
+            )
+            self.connection.commit()
+
     def test_fingerprint_detects_constraint_changes(self) -> None:
         self.connection.execute(
             "CREATE TABLE sinayxa.fp_probe_constraint (value integer)"
