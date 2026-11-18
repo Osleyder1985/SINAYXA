@@ -596,7 +596,6 @@ HEAD verificado antes de esta actualización: `200980640e2f2e76738d237e653928ce6
 
 La aprobación de CI no equivale a completar la continuidad. **No eliminar conversaciones del proyecto** hasta que las tres puertas anteriores estén verificadas y registradas, y la prueba de recuperación sea satisfactoria.
 
-
 ### 14.13 Revalidación de Markdown y quality gates — HEAD 94a04ee — 2026-11-18
 
 #### Corrección del fallo inicial
