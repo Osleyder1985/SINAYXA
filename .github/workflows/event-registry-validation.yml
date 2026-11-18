@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - main
+      - feat/issue-121-fresh-database-migration-runner
+      - feat/issue-121-catalog-fingerprint-readonly
       - test/issue-121-migration-manifest-integrity
     paths:
       - "database/migrations/**"
@@ -73,6 +75,13 @@ jobs:
 
       - name: Run PostgreSQL migration runner integration tests
         run: python -m unittest tests.news_and_events.test_migration_runner -v
+
+      - name: Run read-only catalog fingerprint tests
+        run: python -m unittest tests.news_and_events.test_catalog_fingerprint -v
+
+      - name: Run read-only legacy adoption preflight tests
+        if: hashFiles('scripts/news_and_events/legacy_adoption_preflight.py') != ''
+        run: python -m unittest tests.news_and_events.test_legacy_adoption_preflight -v
 
       - name: Run PostgreSQL event registry integration tests
         run: python -m unittest tests.news_and_events.test_event_registry -v
