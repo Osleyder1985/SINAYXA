@@ -164,6 +164,39 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             admin.close()
 
 
+    def test_fingerprint_rejects_unrepresented_operators(self) -> None:
+        self.connection.execute(
+            """
+            CREATE FUNCTION sinayxa.fp_probe_operator_eq(integer, integer)
+            RETURNS boolean LANGUAGE sql IMMUTABLE
+            AS 'SELECT $1 = $2'
+            """
+        )
+        self.connection.execute(
+            """
+            CREATE OPERATOR sinayxa.=== (
+                LEFTARG = integer,
+                RIGHTARG = integer,
+                FUNCTION = sinayxa.fp_probe_operator_eq
+            )
+            """
+        )
+        self.connection.commit()
+        try:
+            with self.assertRaisesRegex(
+                CatalogFingerprintError, "unsupported schema objects"
+            ):
+                fingerprint_schema(self.connection)
+        finally:
+            self.connection.execute(
+                "DROP OPERATOR IF EXISTS sinayxa.===(integer, integer)"
+            )
+            self.connection.execute(
+                "DROP FUNCTION IF EXISTS "
+                "sinayxa.fp_probe_operator_eq(integer, integer)"
+            )
+            self.connection.commit()
+
     def test_fingerprint_rejects_partitioned_relations(self) -> None:
         self.connection.execute(
             "CREATE TABLE sinayxa.fp_probe_partitioned "
