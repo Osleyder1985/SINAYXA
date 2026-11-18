@@ -612,9 +612,17 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                      SELECT jsonb_agg(jsonb_build_object(
                        'name', a.attname,
                        'type', pg_catalog.format_type(a.atttypid, a.atttypmod),
-                       'not_null', a.attnotnull
+                       'not_null', a.attnotnull,
+                       'collation_schema', attribute_collation_schema.nspname,
+                       'collation_name', attribute_collation.collname,
+                       'storage', a.attstorage,
+                       'compression', a.attcompression
                      ) ORDER BY a.attnum)
                      FROM pg_attribute a
+                     LEFT JOIN pg_collation attribute_collation
+                       ON attribute_collation.oid = a.attcollation
+                     LEFT JOIN pg_namespace attribute_collation_schema
+                       ON attribute_collation_schema.oid = attribute_collation.collnamespace
                      WHERE a.attrelid = t.typrelid AND a.attnum > 0 AND NOT a.attisdropped
                    ), '[]'::jsonb) AS attributes
             FROM pg_type t
