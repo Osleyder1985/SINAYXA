@@ -63,6 +63,16 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         })
         self.assertIn("function", {record["object_type"] for record in first.records})
         self.assertIn("trigger", {record["object_type"] for record in first.records})
+        relations = [r for r in first.records if r["object_type"] == "relation"]
+        functions = [r for r in first.records if r["object_type"] == "function"]
+        triggers = [r for r in first.records if r["object_type"] == "trigger"]
+        columns = [r for r in first.records if r["object_type"] == "column"]
+        types = [r for r in first.records if r["object_type"] == "type"]
+        self.assertEqual(10, len(relations))
+        self.assertEqual(2, len(functions))
+        self.assertEqual(18, len(triggers))
+        self.assertTrue(all("acl" in item for item in columns))
+        self.assertTrue(all("owner" in item and "acl" in item for item in types))
         self.assertEqual(0, self.connection.info.transaction_status)
 
     def test_fingerprint_excludes_business_rows(self) -> None:
