@@ -1,0 +1,35 @@
+name: AIStor official release metadata preflight
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/validation/Get-AIStorReleaseMetadata.sh"
+      - "docs/validation/aistor-release-metadata-preflight.md"
+      - ".github/workflows/aistor-release-metadata-preflight.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  aistor-metadata:
+    name: Capture official AIStor metadata only
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Capture official metadata
+        shell: bash
+        run: bash scripts/validation/Get-AIStorReleaseMetadata.sh
+      - name: Upload raw metadata and report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: aistor-release-metadata
+          path: artifacts/aistor-release-metadata/
+          if-no-files-found: warn
+          retention-days: 14
