@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import unittest
+from uuid import uuid4
 
 import psycopg
 
@@ -63,6 +64,26 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         self.assertIn("function", {record["object_type"] for record in first.records})
         self.assertIn("trigger", {record["object_type"] for record in first.records})
         self.assertEqual(0, self.connection.info.transaction_status)
+
+    def test_fingerprint_excludes_business_rows(self) -> None:
+        before = fingerprint_schema(self.connection)
+        event_id = f"catalog-fingerprint-{uuid4().hex}"
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa.events
+                (event_id, description, created_at, contract_version, event_payload)
+            VALUES (%s, %s, clock_timestamp(), '1.0.0', '{}'::jsonb)
+            """,
+            (event_id, "Synthetic row proving data is outside the catalog digest"),
+        )
+        self.connection.commit()
+
+        after = fingerprint_schema(self.connection)
+        self.assertEqual(before.sha256, after.sha256)
+
+    def test_preview_rejects_schema_outside_approved_scope(self) -> None:
+        with self.assertRaisesRegex(CatalogFingerprintError, "restricted to schema"):
+            fingerprint_schema(self.connection, "public")
 
     def test_fingerprint_requires_idle_connection(self) -> None:
         with self.connection.transaction():
