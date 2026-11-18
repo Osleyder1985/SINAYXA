@@ -36,6 +36,7 @@ The test passed on PostgreSQL 18.7 in CI. This demonstrates exact logical row-st
 This is **not** a physical backup, a full-cluster backup, or a `pg_dump` archive test. The schema is recreated from the migration manifest; the application data tables are restored from binary `COPY` streams. The control-plane schema and its integrity ledger are freshly bootstrapped on the target, not copied from the source.
 
 The experiment does not prove:
+
 - recovery of production data or an existing deployed installation;
 - point-in-time recovery, WAL replay, or disaster recovery;
 - restoration of roles, grants, server configuration, extensions, or external object storage;
