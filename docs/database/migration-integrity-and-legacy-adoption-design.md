@@ -74,12 +74,11 @@ The fingerprint must be derived from a deterministic, documented set of PostgreS
 
 If the catalog cannot be normalized, differs from the approved baseline, contains unexpected objects, or lacks required objects, adoption fails closed. The adoption attestation must say that it verifies present catalog equivalence only; it does not prove which historical SQL bytes were executed.
 
-
 ### 3.3.1 Catalog fingerprint contract v1
 
 The first fingerprint implementation is deliberately scoped to the application schema `sinayxa` on PostgreSQL 18.7. It is a schema-equivalence check, not a data-integrity check and not proof of historical SQL execution. The fingerprint algorithm must have an explicit version (for example, `sinayxa-catalog-v1`) and must fail closed when it encounters a catalog feature that the version does not understand.
 
-**Objects and semantic properties included**
+#### Objects and semantic properties included
 
 - **Schema:** qualified name, owner role, schema ACL, and explicitly granted privileges.
 - **Relations:** every relation in `sinayxa`, including relation kind, persistence, partitioning metadata, row-security flags, replica-identity mode, owner, and ACL. The known baseline includes the ten current tables: the nine business tables plus `schema_migrations`.
@@ -95,13 +94,13 @@ The first fingerprint implementation is deliberately scoped to the application s
 
 The expected baseline must explicitly enumerate the current schema objects and their semantic properties. Any additional object in the managed schema that is not represented by the fingerprint algorithm is an unsupported catalog object and causes adoption to fail; it must not be silently ignored. Missing expected objects also cause failure. The initial baseline must account for the two current PL/pgSQL functions (`reject_registry_mutation()` and `reject_registry_truncate()`) and all row-level and statement-level triggers created by migrations 0001–0005.
 
-**Canonicalization and digest**
+#### Canonicalization and digest
 
 Catalog queries may use OIDs internally to join PostgreSQL catalogs, but OIDs must never appear in the serialized fingerprint. Resolve references to stable qualified names and ordered column names. Normalize each object into a typed JSON record; sort records by object type, qualified name, and stable identity. Serialize with UTF-8 JSON, lexicographically sorted object keys, no insignificant whitespace, and a documented null/boolean/number representation. Compute SHA-256 over those exact serialized bytes. The attestation stores the algorithm version, PostgreSQL server version, record count, and final digest, plus the normalized record-set artifact or its separately retained digest-addressed artifact.
 
 Role names in owners and ACLs are semantically relevant. Do not discard ACLs or silently remap owners to make two schemas compare equal. If the expected roles are absent or differ, the verifier must return an explicit unsupported-environment/mismatch result. System schemas and volatile physical/statistical fields (OIDs, relfilenodes, relation sizes, row estimates, planner statistics, transaction IDs, and timestamps) are excluded. Excluding these fields must not exclude logical schema properties listed above.
 
-**Separation from data validation**
+#### Separation from data validation
 
 A matching catalog fingerprint does not prove that table contents, sequence positions, append-only history, or artifact bytes match. Adoption and restore tests must separately compare the approved logical-data invariants: row counts and primary-key sets per table, FK consistency, payload values, temporal ordering, sequence state where used, and content lengths/SHA-256 for source and evidence artifacts. These checks remain synthetic in this laboratory and do not prove production recovery.
 
