@@ -550,3 +550,49 @@ PR #100 ya está MERGED (commit 73de7b25c79ca4b65d91903606b704554959d286). Issue
 - Historiales recuperados y revisados: #3–#27, #46, #78, #88 (41 comentarios), #89, #97 y #98. Se registraron las decisiones explícitas y las dependencias; los duplicados #21–#23 no se cuentan como decisiones resueltas.
 - La prueba de recuperación desde conversación nueva y la verificación de worktrees/cambios locales de Windows siguen pendientes. La documentación no demuestra que no existan cambios locales sin subir.
 - No borrar conversaciones hasta completar esas verificaciones.
+
+
+### 14.12 Reconciliación de PR abiertas y evidencia exacta — 2026-11-18
+
+Esta sección actualiza el inventario y los resultados posteriores a 14.11. Se conserva el historial previo; los estados PASS/FAIL/SKIPPED se vinculan al HEAD exacto y no se transfieren entre commits.
+
+#### Inventario vigente
+
+- Rama `main`: `73de7b25c79ca4b65d91903606b704554959d286`.
+- PR abiertas: **3** — #85, #99 y #119.
+- Issues abiertas: **25**.
+- PR #117, #96, #115, #94 y #100 ya están integradas según las secciones anteriores; sus límites funcionales/operacionales no se consideran cerrados por esa integración.
+
+#### PR #85 — contrato 0.2.1
+
+HEAD verificado: `b229a17176e8b9bb1259311e4ccfb9e8c8849ee0`.
+
+- PowerShell quality gate [run #44212018393](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212018393): SUCCESS; PowerShell 7.7.0 y contexto requerido 7.6.6 SUCCESS; 12 archivos PowerShell inventariados; 0 errores de parser; PSScriptAnalyzer 1.24.0 con 0 findings; 125 pruebas correctivas 0.2.1 PASS y 36 pruebas de regresión de seguridad PASS.
+- Security/dependency [run #44212018919](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212018919): SUCCESS; npm audit sin vulnerabilidades; Markdown lint, Gitleaks full-history y OSV PR scan PASS. OSV full SKIPPED por diseño en pull_request; no es PASS.
+- Workflow Issue/integración [run #44212018449](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212018449): SUCCESS.
+- Dictamen registrado en la revisión COMMENT: 9.2/10 para la entrega contractual sintética. PR #85 continúa OPEN / NOT MERGED; las áreas A–E de #88 y la evidencia operacional de #89 permanecen abiertas. No hay APPROVE técnico ni autorización de merge.
+
+#### PR #99 — contrato 0.2.2
+
+HEAD verificado: `54c0edc3a62e9d90ed8c5a44463ea5cc8b1e4c87`.
+
+- PowerShell quality gate [run #44212493216](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212493216): SUCCESS; 125 pruebas 0.2.1, 12 pruebas 0.2.2, 5 pruebas CSPRNG UUIDv4, 17 pruebas de migración 0.2.1→0.2.2 y 36 pruebas de regresión de seguridad PASS; PSScriptAnalyzer 1.24.0 con 0 findings.
+- Security/dependency [run #44212493747](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212493747): SUCCESS; npm audit, Gitleaks y OSV PR scan PASS. OSV full SKIPPED por diseño en pull_request.
+- Dictamen registrado en revisión COMMENT: 9.5/10 para la entrega sintética 0.2.2. Sigue DRAFT / OPEN y apilada sobre #85. No se integra antes de resolver la aceptación de #85; la suficiencia semántica de mappings históricos y la integración del generador en un emisor operativo siguen requiriendo revisión/evidencia específica.
+
+#### PR #119 — continuidad documental
+
+HEAD verificado antes de esta actualización: `200980640e2f2e76738d237e653928ce61396d0a`.
+
+- PowerShell [run #44212711921](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212711921): SUCCESS; contextos PowerShell 7.7.0 y 7.6.6 SUCCESS.
+- Security/dependency [run #44212712043](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212712043): SUCCESS; Markdown lint, npm audit, Gitleaks y OSV PR scan PASS. OSV full SKIPPED por diseño en pull_request.
+- La comparación del HEAD contra `main` confirma que el diff funcional de esta PR está limitado a `docs/project/PROJECT_CONTINUITY.md`; los resultados de checks de este HEAD no validan el nuevo commit documental que añade esta sección. Ejecutar de nuevo los gates aplicables sobre el HEAD resultante y registrar el resultado sin reutilizar estos PASS.
+- PR #119 continúa DRAFT / OPEN / NOT MERGED y sin review APPROVE.
+
+#### Puertas de continuidad aún pendientes
+
+1. Completar la revisión de historiales/comentarios y decisiones de los 25 Issues abiertos, dejando trazabilidad de cualquier decisión material no preservada todavía.
+2. Ejecutar una prueba real de recuperación desde una conversación nueva: reconstruir el proyecto, las restricciones, los estados de las tres PR y la siguiente tarea usando este documento y sus referencias, sin depender del historial de chats.
+3. Inspeccionar el equipo Windows cuando esté disponible y reconciliar worktrees, ramas, HEADs locales y cambios sin commit/no publicados. GitHub no puede demostrar el estado de esos archivos locales.
+
+La aprobación de CI no equivale a completar la continuidad. **No eliminar conversaciones del proyecto** hasta que las tres puertas anteriores estén verificadas y registradas, y la prueba de recuperación sea satisfactoria.
