@@ -669,6 +669,40 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                 )
             )
 
+        collations = _rows(
+            connection,
+            """
+            SELECT c.collname, c.collprovider::text AS provider,
+                   c.collisdeterministic, c.collencoding,
+                   c.collcollate, c.collctype, c.colliculocale,
+                   c.collicurules, c.collversion,
+                   owner.rolname AS owner
+            FROM pg_collation c
+            JOIN pg_namespace n ON n.oid = c.collnamespace
+            JOIN pg_roles owner ON owner.oid = c.collowner
+            WHERE n.nspname = %s
+            ORDER BY c.collname
+            """,
+            (schema_name,),
+        )
+        for collation in collations:
+            records.append(
+                _record(
+                    "collation",
+                    schema_name,
+                    collation["collname"],
+                    provider=collation["provider"],
+                    deterministic=collation["collisdeterministic"],
+                    encoding=collation["collencoding"],
+                    locale=collation["collcollate"],
+                    ctype=collation["collctype"],
+                    icu_locale=collation["colliculocale"],
+                    icu_rules=collation["collicurules"],
+                    version=collation["collversion"],
+                    owner=collation["owner"],
+                )
+            )
+
         extensions = _rows(
             connection,
             """
