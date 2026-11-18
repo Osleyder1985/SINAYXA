@@ -203,11 +203,8 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         self.connection.execute(
             """
             CREATE FUNCTION sinayxa.fp_probe_trigger_fn()
-            RETURNS trigger LANGUAGE plpgsql AS $
-            BEGIN
-                RETURN NEW;
-            END;
-            $
+            RETURNS trigger LANGUAGE plpgsql
+            AS 'BEGIN RETURN NEW; END;'
             """
         )
         self.connection.commit()
