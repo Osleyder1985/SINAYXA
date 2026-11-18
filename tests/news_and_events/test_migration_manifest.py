@@ -228,5 +228,36 @@ class MigrationManifestTests(unittest.TestCase):
             )
 
 
+    def test_git_provenance_rejects_sql_changed_after_source_commit(self) -> None:
+        root, _, source = self._git_repository()
+        sql = root / "database/migrations/0001_example.sql"
+        sql.write_bytes(b"CREATE TABLE example (id bigint);\\n")
+        subprocess.run(
+            ["git", "-C", str(root), "add", "."], check=True,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        )
+        subprocess.run(
+            ["git", "-C", str(root), "commit", "-q", "-m", "later SQL change"],
+            check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        )
+        baseline = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            check=True, stdout=subprocess.PIPE, text=True,
+        ).stdout.strip()
+        record = MigrationRecord(
+            version=1,
+            migration_id="example-0001",
+            path="0001_example.sql",
+            sha256=hashlib.sha256(sql.read_bytes()).hexdigest(),
+            source_revision=source,
+            execution_mode="transactional",
+        )
+        with self.assertRaisesRegex(MigrationManifestError, "source revision SHA-256 mismatch"):
+            _verify_git_provenance(
+                (record,), baseline, root / "database/migrations/manifest.json",
+                root / "database/migrations",
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
