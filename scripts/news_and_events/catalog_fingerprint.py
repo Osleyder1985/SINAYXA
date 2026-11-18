@@ -340,7 +340,9 @@ def _fingerprint_schema_in_transaction(
     constraints = _rows(
         connection,
         """
-        SELECT c.relname, con.conname, con.contype, con.condeferrable,
+        SELECT COALESCE(c.relname, domain_type.typname) AS object_name,
+               CASE WHEN con.contypid <> 0 THEN 'domain' ELSE 'relation' END AS constraint_scope,
+               con.conname, con.contype, con.condeferrable,
                con.condeferred, con.conenforced, con.convalidated, con.conperiod,
                supporting_index_schema.nspname AS supporting_index_schema,
                supporting_index.relname AS supporting_index_name,
@@ -357,25 +359,28 @@ def _fingerprint_schema_in_transaction(
                  JOIN pg_attribute a ON a.attrelid = con.confrelid AND a.attnum = k.attnum
                ), '[]'::jsonb) AS referenced_columns
         FROM pg_constraint con
-        JOIN pg_class c ON c.oid = con.conrelid
-        JOIN pg_namespace n ON n.oid = c.relnamespace
+        LEFT JOIN pg_class c ON c.oid = con.conrelid
+        LEFT JOIN pg_namespace n ON n.oid = c.relnamespace
+        LEFT JOIN pg_type domain_type ON domain_type.oid = con.contypid
+        LEFT JOIN pg_namespace domain_ns ON domain_ns.oid = domain_type.typnamespace
         LEFT JOIN pg_class rc ON rc.oid = con.confrelid
         LEFT JOIN pg_namespace rn ON rn.oid = rc.relnamespace
-         LEFT JOIN pg_class supporting_index ON supporting_index.oid = con.conindid
-         LEFT JOIN pg_namespace supporting_index_schema
-           ON supporting_index_schema.oid = supporting_index.relnamespace
-        WHERE n.nspname = %s
-        ORDER BY c.relname, con.conname
+        LEFT JOIN pg_class supporting_index ON supporting_index.oid = con.conindid
+        LEFT JOIN pg_namespace supporting_index_schema
+          ON supporting_index_schema.oid = supporting_index.relnamespace
+        WHERE n.nspname = %s OR domain_ns.nspname = %s
+        ORDER BY object_name, con.conname
         """,
-        (schema_name,),
+        (schema_name, schema_name),
     )
     for con in constraints:
-        name = f"{schema_name}.{con['relname']}.{con['conname']}"
+        name = f"{schema_name}.{con['object_name']}.{con['conname']}"
         records.append(
             _record(
                 "constraint",
-                f"{schema_name}.{con['relname']}",
+                f"{schema_name}.{con['object_name']}",
                 con["conname"],
+                constraint_scope=con["constraint_scope"],
                 constraint_type=con["contype"],
                 deferrable=con["condeferrable"],
                 initially_deferred=con["condeferred"],
