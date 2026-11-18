@@ -64,5 +64,8 @@ jobs:
       - name: Verify the local CLI entry point
         run: python -m scripts.news_and_events.register_event --help
 
+      - name: Run pure migration manifest integrity tests
+        run: python -m unittest tests.news_and_events.test_migration_manifest -v
+
       - name: Run PostgreSQL event registry integration tests
         run: python -m unittest tests.news_and_events.test_event_registry -v
