@@ -128,6 +128,23 @@ class MigrationManifestTests(unittest.TestCase):
         with self.assertRaisesRegex(MigrationManifestError, "only transactional"):
             load_and_verify_manifest(self.manifest_path, self.migrations)
 
+    def test_rejects_invalid_source_revision(self) -> None:
+        self.document["migrations"][0]["source_revision"] = "not-a-git-sha"
+        self.write_manifest()
+        with self.assertRaisesRegex(MigrationManifestError, "source_revision"):
+            load_and_verify_manifest(self.manifest_path, self.migrations)
+
+    def test_rejects_invalid_baseline_revision(self) -> None:
+        self.document["baseline_revision"] = "not-a-git-sha"
+        self.write_manifest()
+        with self.assertRaisesRegex(MigrationManifestError, "baseline_revision"):
+            load_and_verify_manifest(self.manifest_path, self.migrations)
+
+    def test_rejects_missing_migration_file(self) -> None:
+        self.sql_path.unlink()
+        with self.assertRaisesRegex(MigrationManifestError, "does not exist"):
+            load_and_verify_manifest(self.manifest_path, self.migrations)
+
     def test_repository_manifest_matches_all_historical_sql_files(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
         records = load_and_verify_manifest(
