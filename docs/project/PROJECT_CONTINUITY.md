@@ -458,7 +458,7 @@ Se inspeccionaron bodies e historiales disponibles de los Issues del módulo. Re
 
 Los Issues #3–#12 son requisitos funcionales pendientes, no funcionalidades disponibles. La documentación y los fixtures sintéticos no acreditan ingestión operativa, vigilancia, alertas, análisis automatizado, predicción ni causalidad.
 
-#### PR #119 / continuidad
+#### PR #119 / estado de continuidad actualizado
 
 - Rama actualizada sobre main 3292428...; HEAD actual de rama f79ac13377e69dccddf6b672c911dbb43e6e094b.
 - El CI del HEAD exacto debe finalizar; no se transfieren resultados de 560e994... ni de de10871....
