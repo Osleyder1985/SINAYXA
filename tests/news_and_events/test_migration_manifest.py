@@ -6,6 +6,7 @@ import json
 import tempfile
 import subprocess
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from scripts.news_and_events.migration_manifest import (
@@ -214,6 +215,17 @@ class MigrationManifestTests(unittest.TestCase):
                 (record,), baseline, root / "database/migrations/manifest.json",
                 root / "database/migrations",
             )
+
+    def test_git_provenance_fails_closed_when_checkout_git_is_unavailable(self) -> None:
+        (self.root / ".git").mkdir()
+        with patch(
+            "subprocess.run",
+            side_effect=subprocess.CalledProcessError(128, ["git", "rev-parse"]),
+        ):
+            with self.assertRaisesRegex(MigrationManifestError, "Git checkout detected"):
+                _verify_git_provenance(
+                    (), "a" * 40, self.manifest_path, self.migrations
+                )
 
     def test_git_provenance_rejects_digest_not_matching_baseline_blob(self) -> None:
         root, baseline, source = self._git_repository()
