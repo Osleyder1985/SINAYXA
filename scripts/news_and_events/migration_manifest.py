@@ -101,6 +101,28 @@ def _verify_git_provenance(
 
     _git_output(repository_root, "cat-file", "-e", f"{baseline_revision}^{{commit}}")
 
+    baseline_sql_output = _git_output(
+        repository_root,
+        "ls-tree",
+        "-r",
+        "--name-only",
+        baseline_revision,
+        "--",
+        migrations_relative.as_posix(),
+    ).decode("utf-8", errors="strict")
+    baseline_sql_paths = {
+        path[len(migrations_relative.as_posix()) + 1 :]
+        for path in baseline_sql_output.splitlines()
+        if path.startswith(migrations_relative.as_posix() + "/") and path.endswith(".sql")
+    }
+    declared_sql_paths = {record.path for record in records}
+    if baseline_sql_paths != declared_sql_paths:
+        raise MigrationManifestError(
+            "baseline SQL inventory mismatch; "
+            f"unlisted={sorted(baseline_sql_paths - declared_sql_paths)}, "
+            f"missing={sorted(declared_sql_paths - baseline_sql_paths)}"
+        )
+
     for record in records:
         git_path = (migrations_relative / PurePosixPath(record.path)).as_posix()
         baseline_bytes = _git_output(
