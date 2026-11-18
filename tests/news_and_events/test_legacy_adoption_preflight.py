@@ -77,8 +77,12 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
             self.connection, approved_baseline_sha256=self.approved_digest
         )
 
-        self.assertEqual("PREFLIGHT_MATCH", result.status)
-        self.assertEqual((), result.reasons)
+        # The current verifier is explicitly marked preview; matching bytes
+        # cannot authorize adoption until its contract is finalized and reviewed.
+        self.assertEqual("LEGACY_UNVERIFIED", result.status)
+        self.assertTrue(
+            any("still a preview" in reason for reason in result.reasons)
+        )
         self.assertEqual(180007, result.server_version_num)
         self.assertEqual(tuple(sorted(LEGACY_MIGRATION_IDS)), result.legacy_migration_ids)
         self.assertEqual(self.approved_digest, result.computed_fingerprint)
