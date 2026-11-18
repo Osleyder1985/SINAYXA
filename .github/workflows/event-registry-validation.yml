@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - test/issue-121-migration-manifest-integrity
     paths:
       - "database/migrations/**"
       - "scripts/news_and_events/**"
