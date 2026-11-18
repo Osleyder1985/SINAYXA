@@ -210,6 +210,11 @@ def apply_migrations(
     The function never adopts legacy databases. Each migration SQL and its
     integrity-ledger row commit in the same transaction under one advisory lock.
     """
+    if connection.info.transaction_status != psycopg.pq.TransactionStatus.IDLE:
+        raise MigrationRunnerError(
+            "migration runner requires an idle connection; caller-owned transactions are not supported"
+        )
+
     try:
         records = load_and_verify_manifest(manifest_path, migrations_dir)
     except MigrationManifestError as exc:
