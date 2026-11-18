@@ -572,7 +572,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             SELECT t.typname, t.typtype, t.typcategory, t.typnotnull, t.typdefault,
                    t.typtypmod,
                    collation_schema.nspname AS collation_schema,
-                   collation.collname AS collation_name,
+                   coll.collname AS collation_name,
                    owner.rolname AS owner,
                    COALESCE((
                      SELECT jsonb_agg(jsonb_build_object(
@@ -604,9 +604,9 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             FROM pg_type t
             JOIN pg_namespace n ON n.oid = t.typnamespace
             JOIN pg_roles owner ON owner.oid = t.typowner
-            LEFT JOIN pg_collation collation ON collation.oid = t.typcollation
+            LEFT JOIN pg_collation coll ON coll.oid = t.typcollation
             LEFT JOIN pg_namespace collation_schema
-              ON collation_schema.oid = collation.collnamespace
+              ON collation_schema.oid = coll.collnamespace
             WHERE n.nspname = %s AND t.typtype <> 'p'
             ORDER BY t.typname
             """,
