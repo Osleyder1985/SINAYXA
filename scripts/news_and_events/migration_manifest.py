@@ -125,7 +125,7 @@ def _verify_git_provenance(
             "--",
             git_path,
         ).decode("utf-8", errors="strict")
-        changes = [line.split("\\t", 1) for line in change_output.splitlines() if line]
+        changes = [line.split("\t", 1) for line in change_output.splitlines() if line]
         if not any(len(parts) == 2 and parts[0] == "A" and parts[1] == git_path for parts in changes):
             raise MigrationManifestError(
                 f"source_revision did not add declared migration path: "
