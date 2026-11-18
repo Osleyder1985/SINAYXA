@@ -612,9 +612,12 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             """
             SELECT c.relname, p.polname, p.polcmd, p.polpermissive,
                    COALESCE((
-                     SELECT jsonb_agg(r.rolname ORDER BY r.rolname)
+                     SELECT jsonb_agg(
+                       CASE WHEN role_oid = 0 THEN 'PUBLIC' ELSE r.rolname END
+                       ORDER BY CASE WHEN role_oid = 0 THEN 'PUBLIC' ELSE r.rolname END
+                     )
                      FROM unnest(p.polroles) role_oid
-                     JOIN pg_roles r ON r.oid = role_oid
+                     LEFT JOIN pg_roles r ON r.oid = role_oid
                    ), '[]'::jsonb) AS roles,
                    pg_get_expr(p.polqual, p.polrelid, true) AS using_expression,
                    pg_get_expr(p.polwithcheck, p.polrelid, true) AS check_expression
