@@ -129,6 +129,10 @@ def preflight_legacy_adoption(
                 reasons.append(
                     "application catalog does not match the approved baseline fingerprint"
                 )
+            if ALGORITHM_VERSION.endswith("-preview"):
+                reasons.append(
+                    "catalog fingerprint algorithm is still a preview and cannot authorize legacy adoption"
+                )
 
     return LegacyAdoptionPreflight(
         status="PREFLIGHT_MATCH" if not reasons else "LEGACY_UNVERIFIED",
