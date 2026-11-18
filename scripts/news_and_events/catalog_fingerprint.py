@@ -252,6 +252,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                    COALESCE((
                      SELECT jsonb_agg(option ORDER BY option)
                      FROM unnest(a.attoptions) AS column_option(option)
+                     WHERE option NOT LIKE 'pg_attver=%'
                    ), '[]'::jsonb) AS column_options,
                    cn.nspname AS collation_schema, coll.collname AS collation_name,
                    a.attidentity, a.attgenerated,
