@@ -231,6 +231,31 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_rejects_table_inheritance(self) -> None:
+        self.connection.execute(
+            "CREATE TABLE sinayxa.fp_probe_inheritance_parent (value integer)"
+        )
+        self.connection.execute(
+            """
+            CREATE TABLE sinayxa.fp_probe_inheritance_child ()
+            INHERITS (sinayxa.fp_probe_inheritance_parent)
+            """
+        )
+        self.connection.commit()
+        try:
+            with self.assertRaisesRegex(
+                CatalogFingerprintError, "unsupported table inheritance"
+            ):
+                fingerprint_schema(self.connection)
+        finally:
+            self.connection.execute(
+                "DROP TABLE IF EXISTS sinayxa.fp_probe_inheritance_child"
+            )
+            self.connection.execute(
+                "DROP TABLE IF EXISTS sinayxa.fp_probe_inheritance_parent"
+            )
+            self.connection.commit()
+
     def test_fingerprint_rejects_partitioned_relations(self) -> None:
         self.connection.execute(
             "CREATE TABLE sinayxa.fp_probe_partitioned "
