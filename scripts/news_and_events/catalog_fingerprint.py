@@ -467,7 +467,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             JOIN pg_namespace n ON n.oid = c.relnamespace
             JOIN pg_proc p ON p.oid = t.tgfoid
             JOIN pg_namespace pn ON pn.oid = p.pronamespace
-            WHERE n.nspname = %s
+            WHERE n.nspname = %s AND NOT t.tgisinternal
             ORDER BY c.relname, t.tgname
             """,
             (schema_name,),
