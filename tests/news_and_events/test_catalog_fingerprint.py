@@ -384,6 +384,51 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_detects_replica_identity_index_selection(self) -> None:
+        self.connection.execute(
+            """
+            CREATE TABLE sinayxa.fp_probe_replident (
+                id integer NOT NULL,
+                value text NOT NULL
+            )
+            """
+        )
+        self.connection.execute(
+            """
+            CREATE UNIQUE INDEX fp_probe_replident_idx
+            ON sinayxa.fp_probe_replident (id)
+            """
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                """
+                ALTER TABLE sinayxa.fp_probe_replident
+                REPLICA IDENTITY USING INDEX fp_probe_replident_idx
+                """
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+            before_index = next(
+                item for item in before.records
+                if item["object_type"] == "index"
+                and item["identity"] == "fp_probe_replident_idx"
+            )
+            after_index = next(
+                item for item in after.records
+                if item["object_type"] == "index"
+                and item["identity"] == "fp_probe_replident_idx"
+            )
+            self.assertFalse(before_index["replica_identity"])
+            self.assertTrue(after_index["replica_identity"])
+        finally:
+            self.connection.execute(
+                "DROP TABLE IF EXISTS sinayxa.fp_probe_replident CASCADE"
+            )
+            self.connection.commit()
+
     def test_fingerprint_detects_function_definition_changes(self) -> None:
         self.connection.execute(
             """
