@@ -464,3 +464,48 @@ Los Issues #3–#12 son requisitos funcionales pendientes, no funcionalidades di
 - El CI del HEAD exacto debe finalizar; no se transfieren resultados de 560e994... ni de de10871....
 - PR #119 sigue DRAFT / OPEN. Quedan pendientes: revisión integral de decisiones/historiales que no se cubrieron en esta pasada, prueba real de recuperación desde una conversación nueva y verificación de worktrees/cambios locales de Windows.
 - No borrar conversaciones hasta completar y registrar las tres verificaciones pendientes.
+
+### 14.10 Reconciliación final de integraciones y CI de continuidad — 2026-11-18
+
+#### PR #100 / Issue #100
+
+- PR #100 fue fusionada en main mediante squash: 73de7b25c79ca4b65d91903606b704554959d286.
+- Issue #100 permanece OPEN; la captura de metadata/sidecars está integrada, pero readiness sigue BLOCKED hasta verificar checksum contra binario, firma criptográfica y licencia/uso.
+- Gates post-merge en main: Security/dependency [run #44211589746](https://github.com/Osleyder1985/SINAYXA/actions/runs/44211589746) SUCCESS; PowerShell [run #44211589469](https://github.com/Osleyder1985/SINAYXA/actions/runs/44211589469) SUCCESS, incluidos 7.7.0 y 7.6.6.
+- El Issue #27 y #118 recibieron comentarios de reconciliación: #100 ya no figura como PR abierta; sus pendientes se mantienen en el Issue.
+
+#### Issue #46 — primer escaneo programado
+
+- Se encontró y verificó la primera ejecución con event=schedule en main: [run #43870638585](https://github.com/Osleyder1985/SINAYXA/actions/runs/43870638585), HEAD 3e5f7b29da741d61b7fdce0f1c599f00930b98a3, conclusión SUCCESS.
+- OSV full, Gitleaks full-history y npm audit: SUCCESS. OSV PR scan quedó SKIPPED por diseño en evento schedule.
+- El ruleset protect-main permanece ACTIVE, ID 27316946, bypass vacío; el control negativo de PR #52 ya demostró bloqueo ante check requerido fallido.
+- Issue #46 fue cerrado como COMPLETED; esto cierra solo la calidad/gobernanza de sus controles, no la calidad 10/10 del producto completo.
+
+#### PR #85 / Issue #78 — actualización de rama
+
+- La rama de PR #85 se actualizó sobre main 73de7b25... conservando su contrato 0.2.1 y reconciliando manualmente el workflow PowerShell para preservar tanto los pasos de contrato #78 como el laboratorio filesystem #93 integrado en main.
+- HEAD actual: b229a17176e8b9bb1259311e4ccfb9e8c8849ee0. Sus nuevos workflows están pending/queued al registrar esta sección; no se transfieren resultados de c36cc48... ni del commit intermedio 813a7cc....
+- PR #85 continúa OPEN / NOT MERGED. El contrato 0.2.1 está aprobado por el propietario, pero A–E de #88 y las brechas operativas de #89 siguen abiertas. No fusionar por el mero hecho de que la nueva base se haya actualizado.
+- PR #99 permanece DRAFT / OPEN y apilada sobre #85; debe esperar la integración de 0.2.1 y una revalidación exacta de su propio HEAD.
+
+#### Auditoría de historiales
+
+- Se revisaron los cuerpos y comentarios disponibles de #3–#27, incluidos los 41 comentarios de #88, y los historiales de #78, #89, #97 y #98.
+- #21/#22/#23 se confirmaron CLOSED como DUPLICATE de #18/#19/#20; no son decisiones independientes.
+- #97 contiene aprobación expresa de la alternativa B endurecida; #98 contiene la especificación de implementación 0.2.2 y su historial de correcciones. PR #99 sigue sin integrar.
+- Esta pasada no certifica todavía la revisión integral de todos los artefactos externos ni sustituye la recuperación real desde una conversación nueva.
+
+#### PR #119 — CI del HEAD verificado
+
+- HEAD: 484357d3e25ee80bbdc193f0d0f4953cfbb7cc69, actualizado sobre main 73de7b25...
+- Security/dependency [run #44211712700](https://github.com/Osleyder1985/SINAYXA/actions/runs/44211712700): SUCCESS; npm audit, Gitleaks y OSV PR scan SUCCESS; OSV full SKIPPED en pull_request.
+- PowerShell [run #44211712140](https://github.com/Osleyder1985/SINAYXA/actions/runs/44211712140): SUCCESS; contextos 7.7.0 y 7.6.6.
+- Markdown lint pasó dentro del security/dependency job. El HEAD anterior efc4edd falló por MD024; se corrigió el encabezado duplicado y el HEAD 484357d pasó.
+- PR #119 continúa DRAFT / OPEN / NOT MERGED. La documentación debe actualizarse una vez más para registrar su HEAD definitivo después de esta anotación y ejecutar CI sobre ese nuevo HEAD.
+
+#### Inventario actual
+
+- PR abiertas: 3 — #85, #99 y #119.
+- Issues abiertas: 25.
+- Issues cerradas en esta secuencia: #46, #93, #95, #113 y #116. Issue #100 permanece abierto por sus verificaciones posteriores.
+- La prohibición de eliminar conversaciones sigue vigente: falta verificar worktrees/cambios locales en Windows y ejecutar la prueba real de recuperación desde una conversación nueva.
