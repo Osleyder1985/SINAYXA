@@ -206,7 +206,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     not_null=col["attnotnull"],
                     collation_schema=col["collation_schema"],
                     collation_name=col["collation_name"],
-                    identity=col["attidentity"],
+                    identity_kind=col["attidentity"],
                     generated=col["attgenerated"],
                     default_expression=col["default_expression"],
                 )
