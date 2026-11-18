@@ -152,6 +152,13 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                             json.dumps({"fixture": "issue-121", "synthetic": True}),
                         ),
                     )
+                    self.connection.execute(
+                        """
+                        INSERT INTO sinayxa.event_sources (event_id, source_ref)
+                        VALUES (%s, %s)
+                        """,
+                        (event_id, source_ref),
+                    )
                     for version, assertion_id in enumerate(assertion_ids, start=1):
                         self.connection.execute(
                             """
