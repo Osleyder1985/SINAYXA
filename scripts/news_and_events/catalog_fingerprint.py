@@ -674,7 +674,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             """
             SELECT c.collname, c.collprovider::text AS provider,
                    c.collisdeterministic, c.collencoding,
-                   c.collcollate, c.collctype, c.colliculocale,
+                   c.collcollate, c.collctype, c.colllocale,
                    c.collicurules, c.collversion,
                    owner.rolname AS owner
             FROM pg_collation c
@@ -696,7 +696,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     encoding=collation["collencoding"],
                     locale=collation["collcollate"],
                     ctype=collation["collctype"],
-                    icu_locale=collation["colliculocale"],
+                    provider_locale=collation["colllocale"],
                     icu_rules=collation["collicurules"],
                     version=collation["collversion"],
                     owner=collation["owner"],
