@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import hashlib
 from pathlib import Path
-from typing import Iterable
 
 import psycopg
 
@@ -22,7 +21,7 @@ MANIFEST_PATH = ROOT / "database" / "migrations" / "manifest.json"
 MIGRATIONS_DIR = ROOT / "database" / "migrations"
 BOOTSTRAP_PATH = ROOT / "database" / "control-plane" / "bootstrap-v1.sql"
 BOOTSTRAP_VERSION = 1
-BOOTSTRAP_SHA256 = "ba5d875c95d9d5be6655a3ee844466db45b431aa48b8db52950ed1eecaa9917f"
+BOOTSTRAP_SHA256 = "1cba84056869562fa4ce831624405074c046da74d3cac31e01bac47fe746f8f4"
 RUNNER_VERSION = "0.1.0"
 ADVISORY_LOCK_NAMESPACE = 1936289385
 ADVISORY_LOCK_KEY = 1
