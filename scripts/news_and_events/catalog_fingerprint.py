@@ -668,6 +668,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             connection,
             """
             SELECT owner.rolname AS owner, d.defaclobjtype,
+                   COALESCE(n.nspname, 'GLOBAL') AS privilege_scope,
                    COALESCE((
                      SELECT jsonb_agg(jsonb_build_object(
                        'grantee', CASE WHEN x.grantee = 0 THEN 'PUBLIC' ELSE grantee_role.rolname END,
@@ -682,10 +683,10 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                      LEFT JOIN pg_roles grantor_role ON grantor_role.oid = x.grantor
                    ), '[]'::jsonb) AS acl
             FROM pg_default_acl d
-            JOIN pg_namespace n ON n.oid = d.defaclnamespace
+            LEFT JOIN pg_namespace n ON n.oid = d.defaclnamespace
             JOIN pg_roles owner ON owner.oid = d.defaclrole
-            WHERE n.nspname = %s
-            ORDER BY owner.rolname, d.defaclobjtype
+            WHERE d.defaclnamespace = 0 OR n.nspname = %s
+            ORDER BY privilege_scope, owner.rolname, d.defaclobjtype
             """,
             (schema_name,),
         )
@@ -693,9 +694,10 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             records.append(
                 _record(
                     "default_privileges",
-                    schema_name,
+                    privilege["privilege_scope"],
                     f"{privilege['owner']}:{privilege['defaclobjtype']}",
                     owner=privilege["owner"],
+                    scope=privilege["privilege_scope"],
                     object_type_code=privilege["defaclobjtype"],
                     acl=privilege["acl"],
                 )
