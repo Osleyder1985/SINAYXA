@@ -117,8 +117,8 @@ Never collapse `LEGACY_ADOPTED_CATALOG_MATCH` into `FRESH_VERIFIED`.
 
 ## 5. Test matrix and evidence requirements
 
-| Scenario | Expected result | Required evidence |
-|---|---|---|
+| Scenario  |  Expected result  |  Required evidence |
+| --- | --- | --- |
 | Empty PostgreSQL 18.7 database | All migrations applied once | Ledger rows and catalog fingerprint |
 | Second initialization | No SQL replay | Execution spy / unchanged applied rows |
 | Same ID, same digest | Skip | Explicit skip result |
