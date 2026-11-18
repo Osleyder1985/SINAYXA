@@ -366,3 +366,47 @@ PR #119 permanece DRAFT / OPEN / NOT MERGED. Los gates del HEAD actual pasan, pe
 - PR #85 y #94 modifican workflows que también fueron cambiados por la remediación #117; sus ramas requieren reconciliación manual de esos archivos antes de revalidación. PR #99 depende de #85 y debe esperar esa reconciliación.
 
 No se fusionaron #85, #94, #96, #99, #100, #115 ni #119. La única integración de esta etapa fue #117, validada en su HEAD exacto y posteriormente en `main`.
+
+### 14.8 Integraciones adicionales y estado actualizado — 2026-11-18
+
+#### PR #96 / Issue #95
+
+- PR #96 integrada en main mediante squash: 93082ea734a82c093b81d02bfed5b4eb0f7be534.
+- Issue #95 cerrado como COMPLETED.
+- En main, Security/dependency [run #44209479593](https://github.com/Osleyder1985/SINAYXA/actions/runs/44209479593) SUCCESS, incluidos npm audit, Gitleaks y OSV full.
+- En main, PowerShell [run #44209479425](https://github.com/Osleyder1985/SINAYXA/actions/runs/44209479425) SUCCESS, contextos 7.7.0 y 7.6.6.
+
+#### PR #115 / Issue #113
+
+- PR #115 fue convertida de stacked PR a PR contra main después de integrar #96; se reconstruyó su árbol sobre la nueva base para que el diff funcional quedara limitado a documentación y arnés de reconciliación.
+- Un HEAD intermedio falló al no encontrar el socket local de PostgreSQL; se añadió diagnóstico de estado/logs del contenedor antes de cleanup. El HEAD final 332c352382ecdace926716172bd921545edb7376 pasó PostgreSQL lab [#44209916744](https://github.com/Osleyder1985/SINAYXA/actions/runs/44209916744), Security [#44209917212](https://github.com/Osleyder1985/SINAYXA/actions/runs/44209917212) y PowerShell [#44209916920](https://github.com/Osleyder1985/SINAYXA/actions/runs/44209916920).
+- PR #115 integrada mediante squash en main: 453690f006400775dff92b225ab4e5ed369a861b.
+- Issue #113 cerrado como COMPLETED. No se cierran #89 ni Área C de #88.
+
+#### PR #94 / Issue #93
+
+- Rama actualizada sobre main 453690f..., conservando exclusivamente los tres archivos propios del laboratorio filesystem.
+- HEAD actual: 6cad0923ec0a18a13bb24e7abcc2ebfc8863cb7e.
+- Security [run #44210713000](https://github.com/Osleyder1985/SINAYXA/actions/runs/44210713000), workflow Issue [#44210712731](https://github.com/Osleyder1985/SINAYXA/actions/runs/44210712731) y PowerShell [#44210712727](https://github.com/Osleyder1985/SINAYXA/actions/runs/44210712727) estaban queued/pending o in progress en el momento de esta actualización. No se reutilizan resultados de HEAD anteriores como PASS del HEAD actual.
+
+#### PR #100 — AIStor metadata preflight
+
+- Se reemplazó la construcción manual del JSON por serialización jq -n con argumentos tipados.
+- Se exige que los sidecars no estén vacíos y que cumplan estructura mínima: SHA-256 hexadecimal + nombre de archivo, delimitadores OpenPGP y estructura Minisign.
+- Se corrigió la derivación de URLs .asc/.minisig; el primer intento de hardening escapó incorrectamente las expansiones Bash y produjo una captura PARTIAL. La corrección posterior fue verificada.
+- En el HEAD 17c41af1df36894ceea20a918426f90f9f188591, preflight [run #44210617351](https://github.com/Osleyder1985/SINAYXA/actions/runs/44210617351) SUCCESS: estado de captura CAPTURED, sidecars CAPTURED, sin descargar binarios ni imágenes.
+- Artefacto [aistor-release-metadata](https://github.com/Osleyder1985/SINAYXA/actions/runs/44210617351/artifacts/14384809984), reporte schema 1.3.0: capture_status=CAPTURED, readiness_status=BLOCKED, signature_verification_performed=false, checksum_compared_to_binary=false.
+- Security/dependency [run #44210617723](https://github.com/Osleyder1985/SINAYXA/actions/runs/44210617723) SUCCESS. PowerShell para ese HEAD seguía pending/in progress. PR #100 no se fusiona mientras falte la revalidación completa y revisión final; la preparación global AIStor permanece BLOCKED.
+
+#### PR #85 / PR #99
+
+- PR #85 se actualizó con main y con rutas específicas para disparar los contextos requeridos cuando cambian los archivos Node/Markdown lint.
+- HEAD c36cc48d494fa870c0bb39205f47fc6e9b6ecfcd: Security [#44209730185](https://github.com/Osleyder1985/SINAYXA/actions/runs/44209730185), Issue [#44209727836](https://github.com/Osleyder1985/SINAYXA/actions/runs/44209727836) y PowerShell [#44209727785](https://github.com/Osleyder1985/SINAYXA/actions/runs/44209727785) SUCCESS. Sigue sin estar listo para merge porque los criterios semánticos A–E de #88 y la aceptación operacional de #89 continúan abiertos.
+- PR #99 permanece DRAFT y apilada sobre #85; no se declara integrable ni se transfieren checks de su base.
+
+#### PR #119 / continuidad
+
+- Rama actualizada sobre main 453690f...; HEAD actual de la rama en el momento de esta anotación: de10871eb751607f116a1384f12fbc1297e72ee7.
+- Debe verificarse CI sobre este HEAD exacto. Los PASS del HEAD anterior ef85fa0... no se transfieren.
+- PR #119 continúa DRAFT / OPEN. Aunque el paquete documental y los gates anteriores pasaron, siguen pendientes la revisión integral de historiales de Issues/decisiones, la prueba de recuperación desde una conversación nueva y la verificación de worktrees/cambios locales en Windows.
+- No borrar conversaciones hasta completar esas tres verificaciones y cerrar formalmente la revisión de continuidad.
