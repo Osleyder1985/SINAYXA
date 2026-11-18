@@ -551,7 +551,6 @@ PR #100 ya está MERGED (commit 73de7b25c79ca4b65d91903606b704554959d286). Issue
 - La prueba de recuperación desde conversación nueva y la verificación de worktrees/cambios locales de Windows siguen pendientes. La documentación no demuestra que no existan cambios locales sin subir.
 - No borrar conversaciones hasta completar esas verificaciones.
 
-
 ### 14.12 Reconciliación de PR abiertas y evidencia exacta — 2026-11-18
 
 Esta sección actualiza el inventario y los resultados posteriores a 14.11. Se conserva el historial previo; los estados PASS/FAIL/SKIPPED se vinculan al HEAD exacto y no se transfieren entre commits.
@@ -580,7 +579,7 @@ HEAD verificado: `54c0edc3a62e9d90ed8c5a44463ea5cc8b1e4c87`.
 - Security/dependency [run #44212493747](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212493747): SUCCESS; npm audit, Gitleaks y OSV PR scan PASS. OSV full SKIPPED por diseño en pull_request.
 - Dictamen registrado en revisión COMMENT: 9.5/10 para la entrega sintética 0.2.2. Sigue DRAFT / OPEN y apilada sobre #85. No se integra antes de resolver la aceptación de #85; la suficiencia semántica de mappings históricos y la integración del generador en un emisor operativo siguen requiriendo revisión/evidencia específica.
 
-#### PR #119 — continuidad documental
+#### PR #119 — continuidad documental: verificación previa
 
 HEAD verificado antes de esta actualización: `200980640e2f2e76738d237e653928ce61396d0a`.
 
