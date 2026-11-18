@@ -187,32 +187,28 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             self.connection.commit()
 
     def test_fingerprint_detects_global_default_privilege_changes(self) -> None:
-        from psycopg import sql
-
-        role_name = f"fp_default_acl_{uuid4().hex[:16]}"
-        can_create_role = self.connection.execute(
+        existing = self.connection.execute(
             """
-            SELECT rolsuper OR rolcreaterole
-            FROM pg_roles
-            WHERE rolname = current_user
+            SELECT EXISTS (
+                SELECT 1
+                FROM pg_default_acl d
+                CROSS JOIN LATERAL aclexplode(d.defaclacl) x
+                WHERE d.defaclnamespace = 0
+                  AND d.defaclrole = (SELECT oid FROM pg_roles WHERE rolname = current_user)
+                  AND x.grantee = 0
+                  AND x.privilege_type = 'TRUNCATE'
+            )
             """
         ).fetchone()[0]
         self.connection.commit()
-        if not can_create_role:
-            self.skipTest("integration role cannot create an isolated test role")
+        if existing:
+            self.skipTest("current role already has a global PUBLIC TRUNCATE default")
 
-        role = sql.Identifier(role_name)
         try:
-            self.connection.execute(
-                sql.SQL("CREATE ROLE {}").format(role)
-            )
-            self.connection.commit()
             before = fingerprint_schema(self.connection)
             self.connection.execute(
-                sql.SQL(
-                    "ALTER DEFAULT PRIVILEGES FOR ROLE {} "
-                    "GRANT SELECT ON TABLES TO PUBLIC"
-                ).format(role)
+                "ALTER DEFAULT PRIVILEGES "
+                "GRANT TRUNCATE ON TABLES TO PUBLIC"
             )
             self.connection.commit()
             after = fingerprint_schema(self.connection)
@@ -221,16 +217,14 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
                 any(
                     item["object_type"] == "default_privileges"
                     and item["scope"] == "GLOBAL"
-                    and item["owner"] == role_name
+                    and item["owner"] == self.connection.info.user
                     for item in after.records
                 )
             )
         finally:
             self.connection.execute(
-                sql.SQL("DROP OWNED BY {}").format(role)
-            )
-            self.connection.execute(
-                sql.SQL("DROP ROLE IF EXISTS {}").format(role)
+                "ALTER DEFAULT PRIVILEGES "
+                "REVOKE TRUNCATE ON TABLES FROM PUBLIC"
             )
             self.connection.commit()
 
