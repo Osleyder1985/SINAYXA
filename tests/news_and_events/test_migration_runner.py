@@ -250,7 +250,7 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             ).fetchone()[0]
         )
         self.assertEqual(
-            1,
+            2,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa.schema_migrations"
             ).fetchone()[0],
