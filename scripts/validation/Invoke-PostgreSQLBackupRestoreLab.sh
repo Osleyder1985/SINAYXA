@@ -109,6 +109,13 @@ cleanup() {
   trap - EXIT
   set +e
 
+  if [[ "$rc" -ne 0 && "$CONTAINER_CREATED" == true ]]; then
+    echo "::group::PostgreSQL container failure diagnostics"
+    docker inspect --format 'state={{.State.Status}} exit_code={{.State.ExitCode}} error={{.State.Error}}' "$CONTAINER" 2>&1 || true
+    docker logs "$CONTAINER" 2>&1 || true
+    echo "::endgroup::"
+  fi
+
   if [[ "$CONTAINER_CREATED" == true ]]; then
     docker rm -fv "$CONTAINER" >/dev/null 2>&1 || true
 
