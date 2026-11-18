@@ -77,11 +77,14 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
     supported. Any foreign relation, custom pseudo-type, or unsupported
     catalog state causes a fail-closed error.
     """
+    if schema_name != "sinayxa":
+        raise CatalogFingerprintError("preview verifier is restricted to schema 'sinayxa'")
     if connection.info.transaction_status != 0:
         raise CatalogFingerprintError("fingerprinting requires an idle connection")
 
     with connection.transaction():
         connection.execute("SET TRANSACTION READ ONLY")
+        connection.execute("SET LOCAL search_path = pg_catalog, pg_temp")
         server_version_num, read_only = connection.execute(
             "SELECT current_setting('server_version_num')::integer, "
             "current_setting('transaction_read_only')"
@@ -97,7 +100,17 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             connection,
             """
             SELECT n.nspname AS schema_name, r.rolname AS owner,
-                   COALESCE(n.nspacl::text, '{}') AS acl
+                   COALESCE((
+                     SELECT jsonb_agg(jsonb_build_object(
+                       'grantee', CASE WHEN x.grantee = 0 THEN 'PUBLIC' ELSE grantee_role.rolname END,
+                       'grantor', CASE WHEN x.grantor = 0 THEN 'PUBLIC' ELSE grantor_role.rolname END,
+                       'privilege', x.privilege_type,
+                       'grantable', x.is_grantable
+                     ) ORDER BY x.grantee, x.grantor, x.privilege_type, x.is_grantable)
+                     FROM aclexplode(COALESCE(n.nspacl, acldefault('n', n.nspowner))) x
+                     LEFT JOIN pg_roles grantee_role ON grantee_role.oid = x.grantee
+                     LEFT JOIN pg_roles grantor_role ON grantor_role.oid = x.grantor
+                   ), '[]'::jsonb) AS acl
             FROM pg_namespace n
             JOIN pg_roles r ON r.oid = n.nspowner
             WHERE n.nspname = %s
@@ -118,7 +131,22 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             """
             SELECT c.relname, c.relkind, c.relpersistence, c.relispartition,
                    c.relrowsecurity, c.relforcerowsecurity, c.relreplident,
-                   owner.rolname AS owner, COALESCE(c.relacl::text, '{}') AS acl,
+                   owner.rolname AS owner,
+                   COALESCE((
+                     SELECT jsonb_agg(jsonb_build_object(
+                       'grantee', CASE WHEN x.grantee = 0 THEN 'PUBLIC' ELSE grantee_role.rolname END,
+                       'grantor', CASE WHEN x.grantor = 0 THEN 'PUBLIC' ELSE grantor_role.rolname END,
+                       'privilege', x.privilege_type,
+                       'grantable', x.is_grantable
+                     ) ORDER BY x.grantee, x.grantor, x.privilege_type, x.is_grantable)
+                     FROM aclexplode(COALESCE(
+                       c.relacl,
+                       acldefault(CASE WHEN c.relkind = 'S' THEN 'S' ELSE 'r' END, c.relowner)
+                     )) x
+                     LEFT JOIN pg_roles grantee_role ON grantee_role.oid = x.grantee
+                     LEFT JOIN pg_roles grantor_role ON grantor_role.oid = x.grantor
+                   ), '[]'::jsonb) AS acl,
+                   COALESCE(to_jsonb(c.reloptions), '[]'::jsonb) AS relation_options,
                    COALESCE(pt.partstrat::text, '') AS partition_strategy,
                    CASE WHEN c.relkind IN ('v', 'm')
                         THEN pg_get_viewdef(c.oid, true) ELSE NULL END AS view_definition
@@ -162,6 +190,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     owner=rel["owner"],
                     acl=rel["acl"],
                     partition_strategy=rel["partition_strategy"],
+                    relation_options=rel["relation_options"],
                     view_definition=rel["view_definition"],
                 )
             )
@@ -302,7 +331,8 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             SELECT c.relname, s.seqtypid::regtype::text AS sequence_type,
                    s.seqstart, s.seqincrement, s.seqmax, s.seqmin, s.seqcache, s.seqcycle,
                    owner.rolname AS owner,
-                   COALESCE(dep.refobjid::regclass::text, '') AS owned_by
+                   CASE WHEN rc.relname IS NULL THEN ''
+                        ELSE concat_ws('.', rn.nspname, rc.relname, ra.attname) END AS owned_by
             FROM pg_class c
             JOIN pg_namespace n ON n.oid = c.relnamespace
             JOIN pg_sequence s ON s.seqrelid = c.oid
@@ -310,6 +340,9 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             LEFT JOIN pg_depend dep ON dep.classid = 'pg_class'::regclass
                  AND dep.objid = c.oid AND dep.refclassid = 'pg_class'::regclass
                  AND dep.deptype IN ('a', 'i')
+            LEFT JOIN pg_class rc ON rc.oid = dep.refobjid
+            LEFT JOIN pg_namespace rn ON rn.oid = rc.relnamespace
+            LEFT JOIN pg_attribute ra ON ra.attrelid = rc.oid AND ra.attnum = dep.refobjsubid
             WHERE n.nspname = %s
             ORDER BY c.relname
             """,
@@ -341,8 +374,22 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                    pg_get_function_result(p.oid) AS result_type, l.lanname AS language,
                    pg_get_functiondef(p.oid) AS definition, p.provolatile, p.proisstrict,
                    p.prosecdef, p.proleakproof, p.proparallel, p.procost,
-                   COALESCE(p.proconfig::text, '{}') AS configuration,
-                   owner.rolname AS owner, COALESCE(p.proacl::text, '{}') AS acl
+                   COALESCE((
+                     SELECT jsonb_agg(setting ORDER BY setting)
+                     FROM unnest(p.proconfig) AS config(setting)
+                   ), '[]'::jsonb) AS configuration,
+                   owner.rolname AS owner,
+                   COALESCE((
+                     SELECT jsonb_agg(jsonb_build_object(
+                       'grantee', CASE WHEN x.grantee = 0 THEN 'PUBLIC' ELSE grantee_role.rolname END,
+                       'grantor', CASE WHEN x.grantor = 0 THEN 'PUBLIC' ELSE grantor_role.rolname END,
+                       'privilege', x.privilege_type,
+                       'grantable', x.is_grantable
+                     ) ORDER BY x.grantee, x.grantor, x.privilege_type, x.is_grantable)
+                     FROM aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner))) x
+                     LEFT JOIN pg_roles grantee_role ON grantee_role.oid = x.grantee
+                     LEFT JOIN pg_roles grantor_role ON grantor_role.oid = x.grantor
+                   ), '[]'::jsonb) AS acl
             FROM pg_proc p
             JOIN pg_namespace n ON n.oid = p.pronamespace
             JOIN pg_language l ON l.oid = p.prolang
@@ -413,7 +460,8 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
         types = _rows(
             connection,
             """
-            SELECT t.typname, t.typtype, t.typcategory, t.typnotnull,
+            SELECT t.typname, t.typtype, t.typcategory, t.typnotnull, t.typdefault,
+                   t.typtypmod, t.typcollation::regcollation::text AS collation,
                    pg_catalog.format_type(t.typbasetype, t.typtypmod) AS base_type,
                    COALESCE((
                      SELECT jsonb_agg(e.enumlabel ORDER BY e.enumsortorder)
@@ -444,10 +492,52 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     type_kind=typ["typtype"],
                     category=typ["typcategory"],
                     not_null=typ["typnotnull"],
+                    default_expression=typ["typdefault"],
+                    type_modifier=typ["typtypmod"],
+                    collation=typ["collation"],
                     base_type=typ["base_type"],
                     enum_labels=typ["enum_labels"],
                     attributes=typ["attributes"],
                 )
+            )
+
+        domain_constraints = _rows(
+            connection,
+            """
+            SELECT t.typname, con.conname, con.convalidated,
+                   pg_get_constraintdef(con.oid, true) AS definition
+            FROM pg_constraint con
+            JOIN pg_type t ON t.oid = con.contypid
+            JOIN pg_namespace n ON n.oid = t.typnamespace
+            WHERE n.nspname = %s
+            ORDER BY t.typname, con.conname
+            """,
+            (schema_name,),
+        )
+        for constraint in domain_constraints:
+            records.append(
+                _record(
+                    "domain_constraint",
+                    f"{schema_name}.{constraint['typname']}",
+                    constraint["conname"],
+                    validated=constraint["convalidated"],
+                    definition=constraint["definition"],
+                )
+            )
+
+        pseudo_types = _rows(
+            connection,
+            """
+            SELECT t.typname
+            FROM pg_type t JOIN pg_namespace n ON n.oid = t.typnamespace
+            WHERE n.nspname = %s AND t.typtype = 'p'
+            ORDER BY t.typname
+            """,
+            (schema_name,),
+        )
+        if pseudo_types:
+            raise CatalogFingerprintError(
+                f"unsupported pseudo-types in {schema_name}: {pseudo_types}"
             )
 
         policies = _rows(
