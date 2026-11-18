@@ -91,6 +91,393 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             ).fetchone()[0].strip(),
         )
 
+    def test_synthetic_historical_snapshots_upgrade_and_preserve_invariants(self) -> None:
+        """Exercise synthetic snapshots at every migration boundary, then roll forward."""
+        event_id = "issue-121-snapshot-event"
+        assertion_ids = (
+            "issue-121-snapshot-assertion-1",
+            "issue-121-snapshot-assertion-2",
+        )
+        conflict_id = "issue-121-snapshot-conflict"
+        decision_id = "issue-121-snapshot-decision"
+        assessment_id = "issue-121-snapshot-assessment"
+        manifest_id = "issue-121-snapshot-manifest"
+        source_ref = "urn:sinayxa:synthetic:issue-121-source"
+        evidence_ref = "urn:sinayxa:synthetic:issue-121-evidence"
+        source_bytes = b"issue-121 synthetic historical source bytes"
+        evidence_bytes = b"issue-121 synthetic historical evidence bytes"
+        source_digest = hashlib.sha256(source_bytes).hexdigest()
+        evidence_digest = hashlib.sha256(evidence_bytes).hexdigest()
+        now = "2026-01-02T03:04:05+00:00"
+
+        with tempfile.TemporaryDirectory() as temporary:
+            source_migrations = migration_runner.MIGRATIONS_DIR
+            complete_manifest = json.loads(
+                (source_migrations / "manifest.json").read_text(encoding="utf-8")
+            )
+
+            # Each prefix is a separate, inventory-consistent synthetic snapshot.
+            for boundary in range(1, 6):
+                snapshot_dir = Path(temporary) / f"snapshot-{boundary}"
+                snapshot_dir.mkdir()
+                snapshot_manifest = dict(complete_manifest)
+                snapshot_manifest["migrations"] = complete_manifest["migrations"][:boundary]
+                for record in snapshot_manifest["migrations"]:
+                    shutil.copy2(source_migrations / record["path"], snapshot_dir / record["path"])
+                manifest_path = snapshot_dir / "manifest.json"
+                manifest_path.write_text(
+                    json.dumps(snapshot_manifest, indent=2) + "\n",
+                    encoding="utf-8",
+                )
+                apply_migrations(
+                    self.connection,
+                    manifest_path=manifest_path,
+                    migrations_dir=snapshot_dir,
+                )
+
+                if boundary == 1:
+                    self.connection.execute(
+                        """
+                        INSERT INTO sinayxa.events
+                            (event_id, description, affected_asset_refs, source_refs,
+                             created_at, contract_version, event_payload)
+                        VALUES (%s, %s, %s, %s, %s, '1.0.0', %s::jsonb)
+                        """,
+                        (
+                            event_id,
+                            "Synthetic event retained across historical upgrades",
+                            ["BTC"],
+                            [source_ref],
+                            now,
+                            json.dumps({"fixture": "issue-121", "synthetic": True}),
+                        ),
+                    )
+                    for version, assertion_id in enumerate(assertion_ids, start=1):
+                        self.connection.execute(
+                            """
+                            INSERT INTO sinayxa.temporal_assertions
+                                (temporal_assertion_id, event_id, version, temporal_role,
+                                 precision, interval_start, interval_end, approximation,
+                                 recorded_at, assertion_payload)
+                            VALUES (%s, %s, %s, 'ACTUAL', 'DAY',
+                                    '{"value":"2026-01-01","inclusive":true}'::jsonb,
+                                    '{"value":"2026-01-02","inclusive":true}'::jsonb,
+                                    false, %s, %s::jsonb)
+                            """,
+                            (
+                                assertion_id,
+                                event_id,
+                                version,
+                                now,
+                                json.dumps({"fixture": "issue-121", "version": version}),
+                            ),
+                        )
+
+                elif boundary == 2:
+                    self.connection.execute(
+                        """
+                        INSERT INTO sinayxa.temporal_conflicts
+                            (conflict_id, event_id, assertion_refs, disputed_component,
+                             classification, status, recorded_at, conflict_payload)
+                        VALUES (%s, %s, %s, 'DATE', 'DIRECT_CONTRADICTION',
+                                'OPEN', %s, %s::jsonb)
+                        """,
+                        (
+                            conflict_id,
+                            event_id,
+                            list(assertion_ids),
+                            now,
+                            json.dumps({"fixture": "issue-121"}),
+                        ),
+                    )
+                    self.connection.execute(
+                        """
+                        INSERT INTO sinayxa.conflict_decisions
+                            (decision_id, conflict_id, from_status, to_status,
+                             assertion_refs, supporting_evidence_refs,
+                             contrary_evidence_refs, scope, rationale, limitations,
+                             actor_ref, decided_at, assessment_cutoff, rules_version,
+                             decision_payload)
+                        VALUES (%s, %s, 'OPEN', 'UNDER_REVIEW', %s, '{}', '{}',
+                                'synthetic fixture', 'preserve the unresolved conflict',
+                                'synthetic data only', 'issue-121-test', %s, %s,
+                                'snapshot-rules-1', %s::jsonb)
+                        """,
+                        (
+                            decision_id,
+                            conflict_id,
+                            [assertion_ids[0]],
+                            now,
+                            now,
+                            json.dumps({"fixture": "issue-121"}),
+                        ),
+                    )
+
+                elif boundary == 3:
+                    self.connection.execute(
+                        """
+                        INSERT INTO sinayxa.temporal_assessments
+                            (assessment_id, event_id, assessment_cutoff, assertion_refs,
+                             conflict_decision_refs, derived_temporal_state, rules_version,
+                             software_version, recorded_at, assessment_payload)
+                        VALUES (%s, %s, %s, %s, %s, 'UNDETERMINED',
+                                'snapshot-rules-1', 'snapshot-runner-1', %s, %s::jsonb)
+                        """,
+                        (
+                            assessment_id,
+                            event_id,
+                            now,
+                            list(assertion_ids),
+                            [decision_id],
+                            now,
+                            json.dumps({"fixture": "issue-121"}),
+                        ),
+                    )
+                    self.connection.execute(
+                        """
+                        INSERT INTO sinayxa.reproducibility_manifests
+                            (manifest_id, assessment_id, assessment_cutoff,
+                             contract_version, schema_sha256, assertion_versions,
+                             excluded_assertions, evidence_refs, conflict_decision_refs,
+                             rules_version, rules_sha256, tzdb_version, software_version,
+                             result_sha256, canonicalization, reproducibility_status,
+                             missing_components, created_at, manifest_payload)
+                        VALUES (%s, %s, %s, '1.0.0', %s, %s::jsonb, '[]'::jsonb,
+                                '{}', %s, 'snapshot-rules-1', %s, 'synthetic-tzdb',
+                                'snapshot-runner-1', %s, 'RFC8785',
+                                'PARTIALLY_REPRODUCIBLE', '{}', %s, %s::jsonb)
+                        """,
+                        (
+                            manifest_id,
+                            assessment_id,
+                            now,
+                            "a" * 64,
+                            json.dumps([{"assertion_id": assertion_ids[0], "version": 1}]),
+                            [decision_id],
+                            "b" * 64,
+                            "c" * 64,
+                            now,
+                            json.dumps({"fixture": "issue-121"}),
+                        ),
+                    )
+
+                elif boundary == 4:
+                    self.connection.execute(
+                        """
+                        INSERT INTO sinayxa.source_artifacts
+                            (source_ref, source_uri, title, publisher, media_type,
+                             content_sha256, content_length, content_bytes, license_ref,
+                             usage_status, captured_at, recorded_at, metadata)
+                        VALUES (%s, %s, 'Synthetic source', 'SINAYXA test fixture',
+                                'application/octet-stream', %s, %s, %s,
+                                'SYNTHETIC-TEST-DATA', 'SYNTHETIC', %s, %s,
+                                '{"fixture":"issue-121"}'::jsonb)
+                        """,
+                        (
+                            source_ref,
+                            source_ref,
+                            source_digest,
+                            len(source_bytes),
+                            source_bytes,
+                            now,
+                            now,
+                        ),
+                    )
+                    self.connection.execute(
+                        """
+                        INSERT INTO sinayxa.evidence_artifacts
+                            (evidence_ref, source_ref, evidence_type, media_type,
+                             content_sha256, content_length, content_bytes,
+                             extraction_method, extraction_version, license_ref,
+                             usage_status, captured_at, recorded_at, metadata)
+                        VALUES (%s, %s, 'SYNTHETIC_EXTRACT', 'application/octet-stream',
+                                %s, %s, %s, 'snapshot-test', '1.0.0',
+                                'SYNTHETIC-TEST-DATA', 'SYNTHETIC', %s, %s,
+                                '{"fixture":"issue-121"}'::jsonb)
+                        """,
+                        (
+                            evidence_ref,
+                            source_ref,
+                            evidence_digest,
+                            len(evidence_bytes),
+                            evidence_bytes,
+                            now,
+                            now,
+                        ),
+                    )
+
+                # Commit each synthetic snapshot before the next runner invocation.
+                self.connection.commit()
+
+            complete_dir = Path(temporary) / "complete-manifest"
+            shutil.copytree(source_migrations, complete_dir)
+            complete_manifest_path = complete_dir / "manifest.json"
+            self.assertEqual(
+                (),
+                apply_migrations(
+                    self.connection,
+                    manifest_path=complete_manifest_path,
+                    migrations_dir=complete_dir,
+                ),
+            )
+
+        self.assertEqual(
+            (event_id, "Synthetic event retained across historical upgrades",
+             ["BTC"], [source_ref]),
+            self.connection.execute(
+                "SELECT event_id, description, affected_asset_refs, source_refs "
+                "FROM sinayxa.events WHERE event_id = %s",
+                (event_id,),
+            ).fetchone(),
+        )
+        self.assertEqual(
+            list(assertion_ids),
+            [
+                row[0]
+                for row in self.connection.execute(
+                    "SELECT temporal_assertion_id FROM sinayxa.temporal_assertions "
+                    "WHERE event_id = %s ORDER BY version",
+                    (event_id,),
+                ).fetchall()
+            ],
+        )
+        self.assertEqual(
+            (conflict_id, event_id, list(assertion_ids)),
+            self.connection.execute(
+                "SELECT conflict_id, event_id, assertion_refs "
+                "FROM sinayxa.temporal_conflicts WHERE conflict_id = %s",
+                (conflict_id,),
+            ).fetchone(),
+        )
+        self.assertEqual(
+            (decision_id, conflict_id, "OPEN", "UNDER_REVIEW"),
+            self.connection.execute(
+                "SELECT decision_id, conflict_id, from_status, to_status "
+                "FROM sinayxa.conflict_decisions WHERE decision_id = %s",
+                (decision_id,),
+            ).fetchone(),
+        )
+        self.assertEqual(
+            (assessment_id, event_id, list(assertion_ids), [decision_id]),
+            self.connection.execute(
+                "SELECT assessment_id, event_id, assertion_refs, conflict_decision_refs "
+                "FROM sinayxa.temporal_assessments WHERE assessment_id = %s",
+                (assessment_id,),
+            ).fetchone(),
+        )
+        self.assertEqual(
+            (manifest_id, assessment_id, "PARTIALLY_REPRODUCIBLE"),
+            self.connection.execute(
+                "SELECT manifest_id, assessment_id, reproducibility_status "
+                "FROM sinayxa.reproducibility_manifests WHERE manifest_id = %s",
+                (manifest_id,),
+            ).fetchone(),
+        )
+        self.assertEqual(
+            (source_digest, len(source_bytes), source_bytes),
+            self.connection.execute(
+                "SELECT content_sha256, content_length, content_bytes "
+                "FROM sinayxa.source_artifacts WHERE source_ref = %s",
+                (source_ref,),
+            ).fetchone(),
+        )
+        self.assertEqual(
+            (evidence_digest, len(evidence_bytes), evidence_bytes),
+            self.connection.execute(
+                "SELECT content_sha256, content_length, content_bytes "
+                "FROM sinayxa.evidence_artifacts WHERE evidence_ref = %s",
+                (evidence_ref,),
+            ).fetchone(),
+        )
+        self.assertEqual(
+            5,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa_control.migration_integrity"
+            ).fetchone()[0],
+        )
+        self.assertEqual(
+            5,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.schema_migrations"
+            ).fetchone()[0],
+        )
+
+        # Logical data backup: schema is recreated from the approved migrations.
+        tables = (
+            "events",
+            "event_sources",
+            "temporal_assertions",
+            "temporal_conflicts",
+            "conflict_decisions",
+            "temporal_assessments",
+            "reproducibility_manifests",
+            "source_artifacts",
+            "evidence_artifacts",
+        )
+        self.connection.commit()
+        target_database = f"sinayxa_restore_{uuid4().hex}"
+        self.admin.execute(
+            sql.SQL("CREATE DATABASE {}").format(sql.Identifier(target_database))
+        )
+        target_parameters = conninfo_to_dict(DATABASE_URL)
+        target_parameters["dbname"] = target_database
+        target_url = make_conninfo(**target_parameters)
+        restored = None
+        backup_temporary = tempfile.TemporaryDirectory()
+        try:
+            backup_dir = Path(backup_temporary.name)
+            backup_digests: dict[str, str] = {}
+            for table in tables:
+                chunks: list[bytes] = []
+                with self.connection.cursor().copy(
+                    f"COPY (SELECT * FROM sinayxa.{table} ORDER BY 1, 2) "
+                    "TO STDOUT (FORMAT BINARY)"
+                ) as copy:
+                    while chunk := copy.read():
+                        chunks.append(chunk)
+                backup_bytes = b"".join(chunks)
+                (backup_dir / f"{table}.copy").write_bytes(backup_bytes)
+                backup_digests[table] = hashlib.sha256(backup_bytes).hexdigest()
+            self.connection.commit()
+
+            restored = psycopg.connect(target_url)
+            self.assertEqual(5, len(apply_migrations(restored)))
+            for table in tables:
+                backup_bytes = (backup_dir / f"{table}.copy").read_bytes()
+                with restored.cursor().copy(
+                    f"COPY sinayxa.{table} FROM STDIN (FORMAT BINARY)"
+                ) as copy:
+                    copy.write(backup_bytes)
+            restored.commit()
+
+            for table in tables:
+                restored_chunks: list[bytes] = []
+                with restored.cursor().copy(
+                    f"COPY (SELECT * FROM sinayxa.{table} ORDER BY 1, 2) "
+                    "TO STDOUT (FORMAT BINARY)"
+                ) as copy:
+                    while chunk := copy.read():
+                        restored_chunks.append(chunk)
+                restored_bytes = b"".join(restored_chunks)
+                self.assertEqual(
+                    backup_digests[table],
+                    hashlib.sha256(restored_bytes).hexdigest(),
+                    f"logical backup restore differs for sinayxa.{table}",
+                )
+            restored.commit()
+        finally:
+            if restored is not None:
+                restored.close()
+            self.admin.execute(
+                "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+                "WHERE datname = %s AND pid <> pg_backend_pid()",
+                (target_database,),
+            )
+            self.admin.execute(
+                sql.SQL("DROP DATABASE {}").format(sql.Identifier(target_database))
+            )
+            backup_temporary.cleanup()
+
     def test_modified_applied_sql_artifact_fails_before_database_changes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             migrations = Path(temporary) / "migrations"
