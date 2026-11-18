@@ -247,7 +247,12 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             SELECT c.relname, a.attnum, a.attname,
                    tn.nspname AS type_schema, t.typname AS type_name,
                    pg_catalog.format_type(a.atttypid, a.atttypmod) AS formatted_type,
-                   a.atttypmod, a.attnotnull,
+                   a.atttypmod, a.attnotnull, a.attstorage, a.attcompression,
+                   a.attstattarget,
+                   COALESCE((
+                     SELECT jsonb_agg(option ORDER BY option)
+                     FROM unnest(a.attoptions) AS column_option(option)
+                   ), '[]'::jsonb) AS column_options,
                    cn.nspname AS collation_schema, coll.collname AS collation_name,
                    a.attidentity, a.attgenerated,
                    pg_get_expr(d.adbin, d.adrelid, true) AS default_expression,
@@ -292,6 +297,10 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     formatted_type=col["formatted_type"],
                     type_modifier=col["atttypmod"],
                     not_null=col["attnotnull"],
+                    storage_strategy=col["attstorage"],
+                    compression_method=col["attcompression"],
+                    statistics_target=col["attstattarget"],
+                    column_options=col["column_options"],
                     collation_schema=col["collation_schema"],
                     collation_name=col["collation_name"],
                     identity_kind=col["attidentity"],
