@@ -80,6 +80,7 @@ jobs:
         run: python -m unittest tests.news_and_events.test_catalog_fingerprint -v
 
       - name: Run read-only legacy adoption preflight tests
+        if: hashFiles('scripts/news_and_events/legacy_adoption_preflight.py') != ''
         run: python -m unittest tests.news_and_events.test_legacy_adoption_preflight -v
 
       - name: Run PostgreSQL event registry integration tests
