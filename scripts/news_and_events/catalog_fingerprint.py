@@ -107,7 +107,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                        'privilege', x.privilege_type,
                        'grantable', x.is_grantable
                      ) ORDER BY x.grantee, x.grantor, x.privilege_type, x.is_grantable)
-                     FROM aclexplode(COALESCE(n.nspacl, acldefault('n', n.nspowner))) x
+                     FROM aclexplode(COALESCE(n.nspacl, acldefault('n'::\"char\", n.nspowner))) x
                      LEFT JOIN pg_roles grantee_role ON grantee_role.oid = x.grantee
                      LEFT JOIN pg_roles grantor_role ON grantor_role.oid = x.grantor
                    ), '[]'::jsonb) AS acl
@@ -141,7 +141,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                      ) ORDER BY x.grantee, x.grantor, x.privilege_type, x.is_grantable)
                      FROM aclexplode(COALESCE(
                        c.relacl,
-                       acldefault(CASE WHEN c.relkind = 'S' THEN 'S' ELSE 'r' END, c.relowner)
+                       acldefault((CASE WHEN c.relkind = 'S' THEN 'S' ELSE 'r' END)::\"char\", c.relowner)
                      )) x
                      LEFT JOIN pg_roles grantee_role ON grantee_role.oid = x.grantee
                      LEFT JOIN pg_roles grantor_role ON grantor_role.oid = x.grantor
@@ -401,7 +401,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                        'privilege', x.privilege_type,
                        'grantable', x.is_grantable
                      ) ORDER BY x.grantee, x.grantor, x.privilege_type, x.is_grantable)
-                     FROM aclexplode(COALESCE(p.proacl, acldefault('f', p.proowner))) x
+                     FROM aclexplode(COALESCE(p.proacl, acldefault('f'::\"char\", p.proowner))) x
                      LEFT JOIN pg_roles grantee_role ON grantee_role.oid = x.grantee
                      LEFT JOIN pg_roles grantor_role ON grantor_role.oid = x.grantor
                    ), '[]'::jsonb) AS acl
