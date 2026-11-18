@@ -410,3 +410,57 @@ No se fusionaron #85, #94, #96, #99, #100, #115 ni #119. La única integración 
 - Debe verificarse CI sobre este HEAD exacto. Los PASS del HEAD anterior ef85fa0... no se transfieren.
 - PR #119 continúa DRAFT / OPEN. Aunque el paquete documental y los gates anteriores pasaron, siguen pendientes la revisión integral de historiales de Issues/decisiones, la prueba de recuperación desde una conversación nueva y la verificación de worktrees/cambios locales en Windows.
 - No borrar conversaciones hasta completar esas tres verificaciones y cerrar formalmente la revisión de continuidad.
+
+### 14.9 Reconciliación de Issues del módulo y estado de integraciones — 2026-11-18
+
+#### Integraciones y cierre de Issues
+
+- PR #94 integrada en main: 3292428d0c8edeffa68f8086007b0fdecbf7c2a3; Issue #93 cerrado después de verificar el push gate en main.
+- PR #96 integrada en main: 93082ea734a82c093b81d02bfed5b4eb0f7be534; Issue #95 cerrado después de verificar Security/dependency y PowerShell en main.
+- PR #115 integrada en main: 453690f006400775dff92b225ab4e5ed369a861b; Issue #113 cerrado después de verificar Security/dependency y PowerShell en main.
+- PR #117 integrada en main: fcfc85925e823a00e8ee57ebf4d445f55d5a1d3c; Issue #116 cerrado después de verificar npm audit, Gitleaks, OSV full en push y PowerShell.
+- PR #93/#95/#113/#116 se cierran solo por el alcance sintético o de remediación que efectivamente quedó integrado. No se cierran #88/#89/#91 ni sus áreas operacionales.
+
+#### PR #100 — estado exacto de captura AIStor
+
+- La rama se actualizó sobre el main que incluye PR #94. HEAD actual: b91baad4a2c9c9592e3b2ea46aa8391fa456b5a6.
+- AIStor metadata preflight [run #44211342715](https://github.com/Osleyder1985/SINAYXA/actions/runs/44211342715): SUCCESS. El log confirma CAPTURED, digest OCI index, sidecars checksum/OpenPGP/Minisign capturados y que no se descargaron binarios ni imagen.
+- Artefacto [aistor-release-metadata](https://github.com/Osleyder1985/SINAYXA/actions/runs/44211342715/artifacts/14386755563), schema 1.3.0: capture_status=CAPTURED; readiness_status=BLOCKED; signature_sidecars_captured=true; signature_verification_performed=false; checksum_compared_to_binary=false; binary_download_performed=false; image_pull_performed=false.
+- Security/dependency [run #44211342959](https://github.com/Osleyder1985/SINAYXA/actions/runs/44211342959): SUCCESS en npm audit, Gitleaks y OSV PR; OSV full SKIPPED por diseño en pull_request.
+- PowerShell [run #44211342709](https://github.com/Osleyder1985/SINAYXA/actions/runs/44211342709) seguía en ejecución en el momento de esta anotación. No se declara mergeable/complete hasta su resultado final.
+- Issue #100 permanece OPEN por las verificaciones posteriores aún pendientes: comparar checksum con el binario seleccionado, verificar criptográficamente la firma contra una clave confiable y revisar licencia/uso. El estado de readiness no se elevará a READY por la mera captura de sidecars.
+
+#### Revisión de Issues #3–#27 — historial y estado metodológico
+
+Se inspeccionaron bodies e historiales disponibles de los Issues del módulo. Resumen de estado, sin inferir aprobación donde no existe:
+
+- #3 indicios/filtraciones: OPEN; depende del registro de acontecimientos #2, aplica el estándar aprobado #15 y la rúbrica cerrada #16. No hay detector productivo.
+- #4 contraste de fuentes: OPEN; #15 y #16 están resueltos metodológicamente, pero el contrato lógico #78 sigue siendo prerequisito para implementación.
+- #5 impacto potencial: OPEN; la escala/horizontes de #14 y expectativas de #24 siguen bloqueantes.
+- #6 antecedentes comparables: OPEN; depende de metodología de comparabilidad #19.
+- #7 vigilancia: OPEN; depende de límites/latencia #18 y autorización por fuente.
+- #8 alertas: OPEN; depende de severidad/deduplicación #17 y del contenido de #5/#11.
+- #9 expectativas/descuento: OPEN; depende de #24.
+- #10 reacción real: OPEN; depende de #20. No atribuir causalidad por coincidencia temporal.
+- #11 vigencia/ciclo de vida: OPEN; depende de #25.
+- #12 relaciones/efectos combinados: OPEN; depende de #26.
+- #13 definiciones operativas: CLOSED; aprobación expresa e integración del glosario mediante PR #39.
+- #14 intensidad/horizontes: OPEN; fixture T01–T20 y CI no equivalen a aprobación metodológica ni ejecución humana formal. I0–I4 y tres relojes siguen como propuesta no aprobada.
+- #15 estándar probatorio: CLOSED y aprobado expresamente; PR #43 integrada.
+- #16 credibilidad/independencia: CLOSED y aprobado expresamente; rúbrica, S01–S16, evaluaciones por factor y controles negativos integrados. No implica automatización productiva.
+- #17 severidad/deduplicación: OPEN; propuesta y fixtures A01–A15 integrados, pero umbrales/canales/cooldowns y aprobación metodológica siguen pendientes.
+- #18 latencia/límites: OPEN; propuesta integrada mediante PR #68; faltan fuentes autorizadas, mediciones reales y pruebas L01–L15.
+- #19 comparabilidad histórica: OPEN; no consta protocolo aprobado en el historial revisado.
+- #20 reacción/atribución: OPEN; no consta protocolo aprobado en el historial revisado.
+- #21, #22 y #23 están CLOSED como DUPLICATE de #18, #19 y #20 respectivamente; no se cuentan como decisiones independientes resueltas.
+- #24 expectativas/descuento, #25 ciclo de vida y #26 relaciones/efectos combinados: OPEN; no consta aprobación metodológica en los historiales revisados.
+- #27 índice maestro: OPEN; su body requiere reconciliación con las integraciones #94/#96/#115 y con los estados actualizados de #100/#119.
+
+Los Issues #3–#12 son requisitos funcionales pendientes, no funcionalidades disponibles. La documentación y los fixtures sintéticos no acreditan ingestión operativa, vigilancia, alertas, análisis automatizado, predicción ni causalidad.
+
+#### PR #119 / continuidad
+
+- Rama actualizada sobre main 3292428...; HEAD actual de rama f79ac13377e69dccddf6b672c911dbb43e6e094b.
+- El CI del HEAD exacto debe finalizar; no se transfieren resultados de 560e994... ni de de10871....
+- PR #119 sigue DRAFT / OPEN. Quedan pendientes: revisión integral de decisiones/historiales que no se cubrieron en esta pasada, prueba real de recuperación desde una conversación nueva y verificación de worktrees/cambios locales de Windows.
+- No borrar conversaciones hasta completar y registrar las tres verificaciones pendientes.
