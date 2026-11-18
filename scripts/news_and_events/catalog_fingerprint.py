@@ -462,7 +462,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                    p.prosecdef, p.proleakproof, p.proparallel, p.procost,
                    CASE WHEN support.oid IS NULL THEN NULL ELSE
                      format(
-                       '%I.%I(%s)',
+                       '%%I.%%I(%%s)',
                        support_schema.nspname,
                        support.proname,
                        pg_get_function_identity_arguments(support.oid)
