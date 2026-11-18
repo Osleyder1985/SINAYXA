@@ -53,66 +53,121 @@ WORKFLOW_RUN_ID="$GITHUB_RUN_ID"
 mkdir -p "$ARTIFACT_DIR"
 
 write_report() {
-  cat > "$REPORT_FILE" <<EOF
-{
-  "schema_version": "1.2.0",
-  "classification": "OFFICIAL_RELEASE_METADATA_CAPTURE_ONLY",
-  "status": "$STATUS",
-  "result_code": "$RESULT_CODE",
-  "retrieved_at_utc": "$RETRIEVED_AT_UTC",
-  "commit_sha": "$COMMIT_SHA",
-  "workflow_run_id": "$WORKFLOW_RUN_ID",
-  "server_source_uri": "$SERVER_SOURCE_URL",
-  "server_product": "$SERVER_PRODUCT",
-  "server_version": "$SERVER_VERSION",
-  "server_release_date": "$SERVER_RELEASE_DATE",
-  "server_metadata_file": "$SERVER_METADATA_FILE",
-  "server_metadata_sha256": "$SERVER_METADATA_SHA256",
-  "server_metadata_bytes": $SERVER_METADATA_BYTES,
-  "server_metadata_top_level_keys": "$SERVER_TOP_LEVEL_KEYS",
-  "server_release_notes_uri": "$SERVER_RELEASE_NOTES_URL",
-  "server_sbom_cyclonedx_uri": "$SERVER_SBOM_CYCLONEDX_URL",
-  "server_sbom_spdx_uri": "$SERVER_SBOM_SPDX_URL",
-  "client_source_uri": "$CLIENT_SOURCE_URL",
-  "client_product": "$CLIENT_PRODUCT",
-  "client_version": "$CLIENT_VERSION",
-  "client_index_file": "$CLIENT_INDEX_FILE",
-  "client_index_sha256": "$CLIENT_INDEX_SHA256",
-  "client_index_bytes": $CLIENT_INDEX_BYTES,
-  "client_release_notes_uri": "$CLIENT_RELEASE_NOTES_URL",
-  "client_sbom_cyclonedx_uri": "$CLIENT_SBOM_CYCLONEDX_URL",
-  "client_sbom_spdx_uri": "$CLIENT_SBOM_SPDX_URL",
-  "server_image_ref": "$SERVER_IMAGE_REF",
-  "server_oci_digest": "$SERVER_OCI_DIGEST",
-  "server_oci_digest_linux_amd64": "$SERVER_OCI_DIGEST_LINUX_AMD64",
-  "server_oci_digest_linux_arm64": "$SERVER_OCI_DIGEST_LINUX_ARM64",
-  "server_oci_inspect_sha256": "$SERVER_OCI_INSPECT_SHA256",
-  "server_windows_checksum_url": "$SERVER_WINDOWS_CHECKSUM_URL",
-  "server_windows_expected_sha256": "$SERVER_WINDOWS_EXPECTED_SHA256",
-  "server_windows_checksum_file_sha256": "$SERVER_WINDOWS_CHECKSUM_FILE_SHA256",
-  "client_windows_checksum_url": "$CLIENT_WINDOWS_CHECKSUM_URL",
-  "client_windows_expected_sha256": "$CLIENT_WINDOWS_EXPECTED_SHA256",
-  "client_windows_checksum_file_sha256": "$CLIENT_WINDOWS_CHECKSUM_FILE_SHA256",
-  "server_windows_asc_url": "$SERVER_WINDOWS_ASC_URL",
-  "server_windows_asc_file_sha256": "$SERVER_WINDOWS_ASC_FILE_SHA256",
-  "server_windows_minisig_url": "$SERVER_WINDOWS_MINISIG_URL",
-  "server_windows_minisig_file_sha256": "$SERVER_WINDOWS_MINISIG_FILE_SHA256",
-  "client_windows_asc_url": "$CLIENT_WINDOWS_ASC_URL",
-  "client_windows_asc_file_sha256": "$CLIENT_WINDOWS_ASC_FILE_SHA256",
-  "client_windows_minisig_url": "$CLIENT_WINDOWS_MINISIG_URL",
-  "client_windows_minisig_file_sha256": "$CLIENT_WINDOWS_MINISIG_FILE_SHA256",
-  "signature_sidecars_captured": "$SIGNATURE_SIDECARS_CAPTURED",
-  "signature_verification_performed": false,
-  "checksum_compared_to_binary": false,
-  "release_classification": "SERVER_LATEST_STABLE_API_CLIENT_LATEST_PUBLISHED_INDEX",
-  "binary_download_performed": false,
-  "image_pull_performed": false,
-  "software_installation_performed": false,
-  "license_requested": false,
-  "license_activated": false,
-  "external_resources_created": false
-}
-EOF
+  jq -n \
+    --arg schema_version "1.3.0" \
+    --arg status "$STATUS" \
+    --arg capture_status "$STATUS" \
+    --arg readiness_status "BLOCKED" \
+    --arg result_code "$RESULT_CODE" \
+    --arg retrieved_at_utc "$RETRIEVED_AT_UTC" \
+    --arg commit_sha "$COMMIT_SHA" \
+    --arg workflow_run_id "$WORKFLOW_RUN_ID" \
+    --arg server_source_uri "$SERVER_SOURCE_URL" \
+    --arg server_product "$SERVER_PRODUCT" \
+    --arg server_version "$SERVER_VERSION" \
+    --arg server_release_date "$SERVER_RELEASE_DATE" \
+    --arg server_metadata_file "$SERVER_METADATA_FILE" \
+    --arg server_metadata_sha256 "$SERVER_METADATA_SHA256" \
+    --argjson server_metadata_bytes "$SERVER_METADATA_BYTES" \
+    --arg server_metadata_top_level_keys "$SERVER_TOP_LEVEL_KEYS" \
+    --arg server_release_notes_uri "$SERVER_RELEASE_NOTES_URL" \
+    --arg server_sbom_cyclonedx_uri "$SERVER_SBOM_CYCLONEDX_URL" \
+    --arg server_sbom_spdx_uri "$SERVER_SBOM_SPDX_URL" \
+    --arg client_source_uri "$CLIENT_SOURCE_URL" \
+    --arg client_product "$CLIENT_PRODUCT" \
+    --arg client_version "$CLIENT_VERSION" \
+    --arg client_index_file "$CLIENT_INDEX_FILE" \
+    --arg client_index_sha256 "$CLIENT_INDEX_SHA256" \
+    --argjson client_index_bytes "$CLIENT_INDEX_BYTES" \
+    --arg client_release_notes_uri "$CLIENT_RELEASE_NOTES_URL" \
+    --arg client_sbom_cyclonedx_uri "$CLIENT_SBOM_CYCLONEDX_URL" \
+    --arg client_sbom_spdx_uri "$CLIENT_SBOM_SPDX_URL" \
+    --arg server_image_ref "$SERVER_IMAGE_REF" \
+    --arg server_oci_digest "$SERVER_OCI_DIGEST" \
+    --arg server_oci_digest_linux_amd64 "$SERVER_OCI_DIGEST_LINUX_AMD64" \
+    --arg server_oci_digest_linux_arm64 "$SERVER_OCI_DIGEST_LINUX_ARM64" \
+    --arg server_oci_inspect_sha256 "$SERVER_OCI_INSPECT_SHA256" \
+    --arg server_windows_checksum_url "$SERVER_WINDOWS_CHECKSUM_URL" \
+    --arg server_windows_expected_sha256 "$SERVER_WINDOWS_EXPECTED_SHA256" \
+    --arg server_windows_checksum_file_sha256 "$SERVER_WINDOWS_CHECKSUM_FILE_SHA256" \
+    --arg client_windows_checksum_url "$CLIENT_WINDOWS_CHECKSUM_URL" \
+    --arg client_windows_expected_sha256 "$CLIENT_WINDOWS_EXPECTED_SHA256" \
+    --arg client_windows_checksum_file_sha256 "$CLIENT_WINDOWS_CHECKSUM_FILE_SHA256" \
+    --arg server_windows_asc_url "$SERVER_WINDOWS_ASC_URL" \
+    --arg server_windows_asc_file_sha256 "$SERVER_WINDOWS_ASC_FILE_SHA256" \
+    --arg server_windows_minisig_url "$SERVER_WINDOWS_MINISIG_URL" \
+    --arg server_windows_minisig_file_sha256 "$SERVER_WINDOWS_MINISIG_FILE_SHA256" \
+    --arg client_windows_asc_url "$CLIENT_WINDOWS_ASC_URL" \
+    --arg client_windows_asc_file_sha256 "$CLIENT_WINDOWS_ASC_FILE_SHA256" \
+    --arg client_windows_minisig_url "$CLIENT_WINDOWS_MINISIG_URL" \
+    --arg client_windows_minisig_file_sha256 "$CLIENT_WINDOWS_MINISIG_FILE_SHA256" \
+    --arg signature_sidecars_captured "$SIGNATURE_SIDECARS_CAPTURED" \
+    '{
+      schema_version: $schema_version,
+      classification: "OFFICIAL_RELEASE_METADATA_CAPTURE_ONLY",
+      status: $status,
+      capture_status: $capture_status,
+      readiness_status: $readiness_status,
+      readiness_reasons: [
+        "Binary checksums have not been compared with downloaded binaries",
+        "Detached signatures have not been cryptographically verified",
+        "License and permitted-use terms have not been approved",
+        "No software deployment or infrastructure activation is authorized by this preflight"
+      ],
+      result_code: $result_code,
+      retrieved_at_utc: $retrieved_at_utc,
+      commit_sha: $commit_sha,
+      workflow_run_id: $workflow_run_id,
+      server_source_uri: $server_source_uri,
+      server_product: $server_product,
+      server_version: $server_version,
+      server_release_date: $server_release_date,
+      server_metadata_file: $server_metadata_file,
+      server_metadata_sha256: $server_metadata_sha256,
+      server_metadata_bytes: $server_metadata_bytes,
+      server_metadata_top_level_keys: $server_metadata_top_level_keys,
+      server_release_notes_uri: $server_release_notes_uri,
+      server_sbom_cyclonedx_uri: $server_sbom_cyclonedx_uri,
+      server_sbom_spdx_uri: $server_sbom_spdx_uri,
+      client_source_uri: $client_source_uri,
+      client_product: $client_product,
+      client_version: $client_version,
+      client_index_file: $client_index_file,
+      client_index_sha256: $client_index_sha256,
+      client_index_bytes: $client_index_bytes,
+      client_release_notes_uri: $client_release_notes_uri,
+      client_sbom_cyclonedx_uri: $client_sbom_cyclonedx_uri,
+      client_sbom_spdx_uri: $client_sbom_spdx_uri,
+      server_image_ref: $server_image_ref,
+      server_oci_digest: $server_oci_digest,
+      server_oci_digest_linux_amd64: $server_oci_digest_linux_amd64,
+      server_oci_digest_linux_arm64: $server_oci_digest_linux_arm64,
+      server_oci_inspect_sha256: $server_oci_inspect_sha256,
+      server_windows_checksum_url: $server_windows_checksum_url,
+      server_windows_expected_sha256: $server_windows_expected_sha256,
+      server_windows_checksum_file_sha256: $server_windows_checksum_file_sha256,
+      client_windows_checksum_url: $client_windows_checksum_url,
+      client_windows_expected_sha256: $client_windows_expected_sha256,
+      client_windows_checksum_file_sha256: $client_windows_checksum_file_sha256,
+      server_windows_asc_url: $server_windows_asc_url,
+      server_windows_asc_file_sha256: $server_windows_asc_file_sha256,
+      server_windows_minisig_url: $server_windows_minisig_url,
+      server_windows_minisig_file_sha256: $server_windows_minisig_file_sha256,
+      client_windows_asc_url: $client_windows_asc_url,
+      client_windows_asc_file_sha256: $client_windows_asc_file_sha256,
+      client_windows_minisig_url: $client_windows_minisig_url,
+      client_windows_minisig_file_sha256: $client_windows_minisig_file_sha256,
+      signature_sidecars_captured: ($signature_sidecars_captured == "true"),
+      signature_verification_performed: false,
+      checksum_compared_to_binary: false,
+      release_classification: "SERVER_LATEST_STABLE_API_CLIENT_LATEST_PUBLISHED_INDEX",
+      binary_download_performed: false,
+      image_pull_performed: false,
+      software_installation_performed: false,
+      license_requested: false,
+      license_activated: false,
+      external_resources_created: false
+    }' > "$REPORT_FILE"
 }
 
 if ! command -v curl >/dev/null 2>&1 || ! command -v jq >/dev/null 2>&1; then
