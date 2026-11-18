@@ -71,5 +71,8 @@ jobs:
       - name: Run pure migration manifest integrity tests
         run: python -m unittest tests.news_and_events.test_migration_manifest -v
 
+      - name: Run PostgreSQL migration runner integration tests
+        run: python -m unittest tests.news_and_events.test_migration_runner -v
+
       - name: Run PostgreSQL event registry integration tests
         run: python -m unittest tests.news_and_events.test_event_registry -v
