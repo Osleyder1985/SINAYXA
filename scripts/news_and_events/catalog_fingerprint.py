@@ -316,6 +316,8 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             """
             SELECT c.relname, con.conname, con.contype, con.condeferrable,
                    con.condeferred, con.conenforced, con.convalidated, con.conperiod,
+                   supporting_index_schema.nspname AS supporting_index_schema,
+                   supporting_index.relname AS supporting_index_name,
                    pg_get_constraintdef(con.oid, true) AS definition,
                    COALESCE((
                      SELECT jsonb_agg(a.attname ORDER BY k.ordinality)
@@ -333,6 +335,9 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             JOIN pg_namespace n ON n.oid = c.relnamespace
             LEFT JOIN pg_class rc ON rc.oid = con.confrelid
             LEFT JOIN pg_namespace rn ON rn.oid = rc.relnamespace
+             LEFT JOIN pg_class supporting_index ON supporting_index.oid = con.conindid
+             LEFT JOIN pg_namespace supporting_index_schema
+               ON supporting_index_schema.oid = supporting_index.relnamespace
             WHERE n.nspname = %s
             ORDER BY c.relname, con.conname
             """,
@@ -356,6 +361,8 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     referenced_schema=con["referenced_schema"],
                     referenced_relation=con["referenced_relation"],
                     referenced_columns=con["referenced_columns"],
+                    supporting_index_schema=con["supporting_index_schema"],
+                    supporting_index_name=con["supporting_index_name"],
                 )
             )
 
