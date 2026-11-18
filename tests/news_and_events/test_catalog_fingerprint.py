@@ -186,6 +186,82 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_detects_enum_type_changes(self) -> None:
+        self.connection.execute(
+            "CREATE TYPE sinayxa.fp_probe_enum AS ENUM ('alpha')"
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                "ALTER TYPE sinayxa.fp_probe_enum ADD VALUE 'beta'"
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+        finally:
+            self.connection.execute(
+                "DROP TYPE IF EXISTS sinayxa.fp_probe_enum CASCADE"
+            )
+            self.connection.commit()
+
+    def test_fingerprint_detects_function_definition_changes(self) -> None:
+        self.connection.execute(
+            """
+            CREATE FUNCTION sinayxa.fp_probe_function()
+            RETURNS integer LANGUAGE sql IMMUTABLE AS 'SELECT 1'
+            """
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                """
+                CREATE OR REPLACE FUNCTION sinayxa.fp_probe_function()
+                RETURNS integer LANGUAGE sql IMMUTABLE AS 'SELECT 2'
+                """
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+        finally:
+            self.connection.execute(
+                "DROP FUNCTION IF EXISTS sinayxa.fp_probe_function()"
+            )
+            self.connection.commit()
+
+    def test_fingerprint_detects_sequence_semantic_changes(self) -> None:
+        self.connection.execute(
+            "CREATE SEQUENCE sinayxa.fp_probe_sequence START WITH 7 INCREMENT BY 1"
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                "ALTER SEQUENCE sinayxa.fp_probe_sequence INCREMENT BY 3"
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+            before_record = next(
+                item for item in before.records
+                if item["object_type"] == "sequence"
+                and item["identity"] == "sinayxa.fp_probe_sequence"
+            )
+            after_record = next(
+                item for item in after.records
+                if item["object_type"] == "sequence"
+                and item["identity"] == "sinayxa.fp_probe_sequence"
+            )
+            self.assertNotEqual(
+                before_record["increment"], after_record["increment"]
+            )
+        finally:
+            self.connection.execute(
+                "DROP SEQUENCE IF EXISTS sinayxa.fp_probe_sequence"
+            )
+            self.connection.commit()
+
     def test_fingerprint_detects_constraint_changes(self) -> None:
         self.connection.execute(
             "CREATE TABLE sinayxa.fp_probe_constraint (value integer)"
