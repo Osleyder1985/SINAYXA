@@ -106,7 +106,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                        'grantor', CASE WHEN x.grantor = 0 THEN 'PUBLIC' ELSE grantor_role.rolname END,
                        'privilege', x.privilege_type,
                        'grantable', x.is_grantable
-                     ) ORDER BY x.grantee, x.grantor, x.privilege_type, x.is_grantable)
+                     ) ORDER BY COALESCE(grantee_role.rolname, 'PUBLIC'), COALESCE(grantor_role.rolname, 'PUBLIC'), x.privilege_type, x.is_grantable)
                      FROM aclexplode(COALESCE(n.nspacl, acldefault('n'::\"char\", n.nspowner))) x
                      LEFT JOIN pg_roles grantee_role ON grantee_role.oid = x.grantee
                      LEFT JOIN pg_roles grantor_role ON grantor_role.oid = x.grantor
@@ -138,7 +138,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                        'grantor', CASE WHEN x.grantor = 0 THEN 'PUBLIC' ELSE grantor_role.rolname END,
                        'privilege', x.privilege_type,
                        'grantable', x.is_grantable
-                     ) ORDER BY x.grantee, x.grantor, x.privilege_type, x.is_grantable)
+                     ) ORDER BY COALESCE(grantee_role.rolname, 'PUBLIC'), COALESCE(grantor_role.rolname, 'PUBLIC'), x.privilege_type, x.is_grantable)
                      FROM aclexplode(COALESCE(
                        c.relacl,
                        acldefault((CASE WHEN c.relkind = 'S' THEN 'S' ELSE 'r' END)::\"char\", c.relowner)
@@ -146,7 +146,10 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                      LEFT JOIN pg_roles grantee_role ON grantee_role.oid = x.grantee
                      LEFT JOIN pg_roles grantor_role ON grantor_role.oid = x.grantor
                    ), '[]'::jsonb) AS acl,
-                   COALESCE(to_jsonb(c.reloptions), '[]'::jsonb) AS relation_options,
+                   COALESCE((
+                     SELECT jsonb_agg(option ORDER BY option)
+                     FROM unnest(c.reloptions) AS options(option)
+                   ), '[]'::jsonb) AS relation_options,
                    COALESCE(pt.partstrat::text, '') AS partition_strategy,
                    CASE WHEN c.relkind IN ('v', 'm')
                         THEN pg_get_viewdef(c.oid, true) ELSE NULL END AS view_definition
@@ -204,7 +207,20 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                    a.atttypmod, a.attnotnull,
                    cn.nspname AS collation_schema, coll.collname AS collation_name,
                    a.attidentity, a.attgenerated,
-                   pg_get_expr(d.adbin, d.adrelid, true) AS default_expression
+                   pg_get_expr(d.adbin, d.adrelid, true) AS default_expression,
+                   COALESCE((
+                     SELECT jsonb_agg(jsonb_build_object(
+                       'grantee', CASE WHEN x.grantee = 0 THEN 'PUBLIC' ELSE grantee_role.rolname END,
+                       'grantor', CASE WHEN x.grantor = 0 THEN 'PUBLIC' ELSE grantor_role.rolname END,
+                       'privilege', x.privilege_type,
+                       'grantable', x.is_grantable
+                     ) ORDER BY COALESCE(grantee_role.rolname, 'PUBLIC'),
+                                  COALESCE(grantor_role.rolname, 'PUBLIC'),
+                                  x.privilege_type, x.is_grantable)
+                     FROM aclexplode(COALESCE(a.attacl, '{}'::aclitem[])) x
+                     LEFT JOIN pg_roles grantee_role ON grantee_role.oid = x.grantee
+                     LEFT JOIN pg_roles grantor_role ON grantor_role.oid = x.grantor
+                   ), '[]'::jsonb) AS acl
             FROM pg_attribute a
             JOIN pg_class c ON c.oid = a.attrelid
             JOIN pg_namespace n ON n.oid = c.relnamespace
@@ -238,6 +254,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     identity_kind=col["attidentity"],
                     generated=col["attgenerated"],
                     default_expression=col["default_expression"],
+                    acl=col["acl"],
                 )
             )
 
@@ -400,7 +417,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                        'grantor', CASE WHEN x.grantor = 0 THEN 'PUBLIC' ELSE grantor_role.rolname END,
                        'privilege', x.privilege_type,
                        'grantable', x.is_grantable
-                     ) ORDER BY x.grantee, x.grantor, x.privilege_type, x.is_grantable)
+                     ) ORDER BY COALESCE(grantee_role.rolname, 'PUBLIC'), COALESCE(grantor_role.rolname, 'PUBLIC'), x.privilege_type, x.is_grantable)
                      FROM aclexplode(COALESCE(p.proacl, acldefault('f'::\"char\", p.proowner))) x
                      LEFT JOIN pg_roles grantee_role ON grantee_role.oid = x.grantee
                      LEFT JOIN pg_roles grantor_role ON grantor_role.oid = x.grantor
@@ -477,6 +494,20 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             """
             SELECT t.typname, t.typtype, t.typcategory, t.typnotnull, t.typdefault,
                    t.typtypmod, t.typcollation::regcollation::text AS collation,
+                   owner.rolname AS owner,
+                   COALESCE((
+                     SELECT jsonb_agg(jsonb_build_object(
+                       'grantee', CASE WHEN x.grantee = 0 THEN 'PUBLIC' ELSE grantee_role.rolname END,
+                       'grantor', CASE WHEN x.grantor = 0 THEN 'PUBLIC' ELSE grantor_role.rolname END,
+                       'privilege', x.privilege_type,
+                       'grantable', x.is_grantable
+                     ) ORDER BY COALESCE(grantee_role.rolname, 'PUBLIC'),
+                                  COALESCE(grantor_role.rolname, 'PUBLIC'),
+                                  x.privilege_type, x.is_grantable)
+                     FROM aclexplode(COALESCE(t.typacl, acldefault('T'::"char", t.typowner))) x
+                     LEFT JOIN pg_roles grantee_role ON grantee_role.oid = x.grantee
+                     LEFT JOIN pg_roles grantor_role ON grantor_role.oid = x.grantor
+                   ), '[]'::jsonb) AS acl,
                    pg_catalog.format_type(t.typbasetype, t.typtypmod) AS base_type,
                    COALESCE((
                      SELECT jsonb_agg(e.enumlabel ORDER BY e.enumsortorder)
@@ -493,6 +524,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                    ), '[]'::jsonb) AS attributes
             FROM pg_type t
             JOIN pg_namespace n ON n.oid = t.typnamespace
+            JOIN pg_roles owner ON owner.oid = t.typowner
             WHERE n.nspname = %s AND t.typtype <> 'p'
             ORDER BY t.typname
             """,
@@ -510,6 +542,8 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     default_expression=typ["typdefault"],
                     type_modifier=typ["typtypmod"],
                     collation=typ["collation"],
+                    owner=typ["owner"],
+                    acl=typ["acl"],
                     base_type=typ["base_type"],
                     enum_labels=typ["enum_labels"],
                     attributes=typ["attributes"],
@@ -591,9 +625,11 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
         extensions = _rows(
             connection,
             """
-            SELECT e.extname, e.extversion, n.nspname AS schema_name
+            SELECT e.extname, e.extversion, n.nspname AS schema_name,
+                   owner.rolname AS owner
             FROM pg_extension e
             JOIN pg_namespace n ON n.oid = e.extnamespace
+            JOIN pg_roles owner ON owner.oid = e.extowner
             WHERE n.nspname = %s
             ORDER BY e.extname
             """,
@@ -606,6 +642,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     ext["schema_name"],
                     ext["extname"],
                     version=ext["extversion"],
+                    owner=ext["owner"],
                 )
             )
 
@@ -613,7 +650,19 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             connection,
             """
             SELECT owner.rolname AS owner, d.defaclobjtype,
-                   COALESCE(d.defaclacl::text, '{}') AS acl
+                   COALESCE((
+                     SELECT jsonb_agg(jsonb_build_object(
+                       'grantee', CASE WHEN x.grantee = 0 THEN 'PUBLIC' ELSE grantee_role.rolname END,
+                       'grantor', CASE WHEN x.grantor = 0 THEN 'PUBLIC' ELSE grantor_role.rolname END,
+                       'privilege', x.privilege_type,
+                       'grantable', x.is_grantable
+                     ) ORDER BY COALESCE(grantee_role.rolname, 'PUBLIC'),
+                                  COALESCE(grantor_role.rolname, 'PUBLIC'),
+                                  x.privilege_type, x.is_grantable)
+                     FROM aclexplode(d.defaclacl) x
+                     LEFT JOIN pg_roles grantee_role ON grantee_role.oid = x.grantee
+                     LEFT JOIN pg_roles grantor_role ON grantor_role.oid = x.grantor
+                   ), '[]'::jsonb) AS acl
             FROM pg_default_acl d
             JOIN pg_namespace n ON n.oid = d.defaclnamespace
             JOIN pg_roles owner ON owner.oid = d.defaclrole
