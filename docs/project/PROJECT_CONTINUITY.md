@@ -164,3 +164,52 @@ The following was retrieved from GitHub's commit check-runs API for each current
 
 Issue tracking this continuity work: [#118](https://github.com/Osleyder1985/SINAYXA/issues/118).
 
+
+
+## 11. Issue audit — current scope and preserved decisions
+
+The bodies and current metadata of all 29 Issues in the initial snapshot were fetched. This is a content inventory, not yet a complete audit of every comment thread. Comment histories were inspected for the principal dependency cluster (#78, #88, #89, #97, #98, #113, #116); other Issue comment histories remain to be reviewed.
+
+### 11.1 Decisions and blockers that must survive chat deletion
+
+- **#78 — logical contract 0.2.1:** the owner explicitly approved the contract version and continuation of formal review. This is not closure of #78, approval of PR #85, or closure of areas A–E. The PR review is COMMENT, not APPROVE.
+- **#88 — five-area verification matrix:** remains OPEN and blocks final acceptance of #85. Its latest update records 125 corrective tests passing on the current PR #85 code HEAD, including a regression that rejects AMBAS when there are independent secondary sources but no primary direct support. The exact-head Security Quality Gate still fails npm audit due to five HIGH picomatch findings. Areas A–E remain OPEN; automated synthetic coverage does not replace human semantic review or operational evidence.
+- **#89 — external operational evidence:** remains OPEN. It requires real-scope deletion/reconciliation, object/version-specific WORM/Object Lock or equivalent evidence, and representative productive migration. Its only retrieved comment reiterates that no physical deletion, immutable-storage test, or productive migration has been executed. Do not use synthetic tests as substitutes.
+- **#97/#98 — RET-09 audit minimization:** the owner approved the hardened alternative B: versioned closed catalogs for actor roles and reasons, opaque random non-semantic identifiers, and prohibition of free text/URLs/content hashes/identifying data in minimum audit events. PR #99 implements the first contract 0.2.2 delivery, remains DRAFT, and depends on #85. It does not prove full anonymization or external retention/deletion.
+- **#93/#95 and #94/#96:** the filesystem lab and PostgreSQL lab are separate scopes. #94 supports only synthetic filesystem export/restore/reconciliation. #96 supports synthetic PostgreSQL backup/restore and passes its lab, but its npm dependency gate fails on the current head. Neither establishes external backup durability, physical deletion, WORM/Object Lock, PITR, or production migration.
+- **#113/#115:** the adversarial synthetic test rejects an unknown deletion reference even when row counts happen to match. The specific PostgreSQL workflow passes on #115's HEAD, but no complete security/dependency workflow was returned for that stacked PR. It remains DRAFT on #96.
+- **#116/#117:** the security issue is addressed on PR #117's branch, not in main. Exact current PR #117 check-runs show npm audit, Markdown lint/self-test, Gitleaks, OSV PR, PowerShell and event-registry checks passing; OSV full is skipped by design. The PR still needs review/integration before the base branch is considered remediated.
+- **#46:** governs PowerShell analyzer/security quality; it remains open and its comments/closure evidence must be reviewed as part of the complete governance audit.
+- **#3–#27:** remain the requirements/decision layer for the News and Events module. The initial inventory includes leak/early-indicia detection (#3), source credibility (#4), impact direction/intensity/horizon (#5/#14), monitoring (#7/#18), alerts (#8/#17), expectations (#9/#24), observed reaction (#10/#20), catalyst lifecycle (#11/#25), combined events (#12/#26), historical comparability (#19), and the requirements/scope index (#27). Their decision gates must not be inferred as approved merely because documents or implementation PRs exist.
+
+### 11.2 Issue audit completion status
+
+- [x] Current title, state, update timestamp, comment count, and body retrieved for all 29 Issues in the initial snapshot.
+- [x] Core decision and blocker bodies inspected for #78, #88, #89, #97, #98, #113, and #116.
+- [x] Recent comment history inspected for #78, #88, #89, #97, #98, #113, and #116 where available.
+- [ ] Fetch and review the remaining comment histories for all other open Issues, including the full decision history of #3–#27 and #46.
+- [ ] Reconcile references to historical PRs, including closed/merged duplicates and the exact merge commits that established current policy.
+- [ ] Confirm no conversation-only decision contradicts the canonical Issue/document state.
+
+## 12. Continuity PR #119 — validation status
+
+Tracking Issue: [#118](https://github.com/Osleyder1985/SINAYXA/issues/118). Draft PR: [#119](https://github.com/Osleyder1985/SINAYXA/pull/119).
+
+- PR #119 was opened as DRAFT against main; it changes one documentation file only. Main remains unchanged.
+- Initial head `83feed40364e871c19aff70fb39f276d858685a7` failed the Security/dependency workflow at Markdown lint. The exact report identified 21 MD060/MD032/MD012 violations in the new document. npm ci completed; the job stopped at lint, so npm audit was not executed in that run.
+- The table separator spacing, list spacing, and repeated blank lines were corrected.
+- Updated head: `6ee8566e4359e6771367ccfa4435824095495972`.
+- New Security/dependency workflow: [run #44205865609](https://github.com/Osleyder1985/SINAYXA/actions/runs/44205865609), in progress at the time of this record update. Gitleaks and OSV PR checks had started; npm lint/audit was queued.
+- PowerShell quality workflow [run #44205865077](https://github.com/Osleyder1985/SINAYXA/actions/runs/44205865077) was pending at the time of this record update.
+
+Do not mark the documentation lint as passed until the rerun completes successfully on the corrected HEAD. If lint reports additional errors, correct them and rerun. The continuity PR remains DRAFT and unmerged.
+
+## 13. Updated chat deletion gate
+
+**DO NOT DELETE PROJECT CHATS.** The continuity package now has a draft PR and a substantially improved inventory, but acceptance remains incomplete because:
+- the corrected documentation HEAD has not yet passed all applicable quality gates;
+- the full comment history of every open Issue has not been reviewed;
+- the full diff-level audit of all seven original PRs is not complete (the #117 diff has received the first focused review);
+- merged/closed historical decisions have not been comprehensively reconciled;
+- local Windows worktrees and uncommitted changes remain unverified;
+- the fresh-session recovery test has not been executed.
