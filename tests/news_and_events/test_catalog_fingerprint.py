@@ -152,6 +152,21 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
 
             self.assertEqual(fingerprints[0].algorithm_version, fingerprints[1].algorithm_version)
             self.assertEqual(fingerprints[0].record_count, fingerprints[1].record_count)
+            for index, (left, right) in enumerate(
+                zip(fingerprints[0].records, fingerprints[1].records, strict=True)
+            ):
+                if left != right:
+                    differences = {
+                        key: (left.get(key), right.get(key))
+                        for key in sorted(set(left) | set(right))
+                        if left.get(key) != right.get(key)
+                    }
+                    self.fail(
+                        "independent catalog record mismatch at "
+                        f"{index} ({left['object_type']} "
+                        f"{left['qualified_name']} {left['identity']}): "
+                        f"{differences}"
+                    )
             self.assertEqual(fingerprints[0].canonical_json, fingerprints[1].canonical_json)
             self.assertEqual(fingerprints[0].sha256, fingerprints[1].sha256)
         finally:
