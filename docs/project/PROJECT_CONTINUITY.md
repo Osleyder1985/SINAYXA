@@ -301,7 +301,6 @@ Existing issue evidence still leaves checksum-to-binary comparison, cryptographi
 
 No merge is performed by this audit. The continuity deletion gate in Section 13 remains in force.
 
-
 ### 14.5 Continuity PR validation after the 14.3 table — HEAD `0422d0103d380f703170cbcc03aa174b44f25866`
 
 The first run on the expanded audit section found 13 Markdown lint errors (MD012, MD032 and MD060). These were corrected in the next commit. On the corrected HEAD:
