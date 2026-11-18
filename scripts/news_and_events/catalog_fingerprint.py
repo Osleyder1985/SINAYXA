@@ -71,19 +71,38 @@ def _record(object_type: str, qualified_name: str, identity: str, **fields: Any)
 
 
 def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> CatalogFingerprint:
-    """Read and fingerprint supported catalog metadata under READ ONLY isolation.
+    """Read and fingerprint catalog metadata in one stable read-only snapshot.
 
-    The caller must provide an idle connection. Only PostgreSQL 18.x is
-    supported. Any foreign relation, custom pseudo-type, or unsupported
-    catalog state causes a fail-closed error.
+    An idle connection gets an owned REPEATABLE READ, READ ONLY transaction.
+    A caller-owned transaction is accepted only when it already has those
+    isolation and access-mode guarantees; this lets callers combine ledger
+    and catalog checks in exactly the same MVCC snapshot.
     """
     if schema_name != "sinayxa":
         raise CatalogFingerprintError("preview verifier is restricted to schema 'sinayxa'")
-    if connection.info.transaction_status != 0:
-        raise CatalogFingerprintError("fingerprinting requires an idle connection")
 
-    with connection.transaction():
-        connection.execute("SET TRANSACTION READ ONLY")
+    if connection.info.transaction_status == 0:
+        with connection.transaction():
+            connection.execute(
+                "SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY"
+            )
+            return _fingerprint_schema_in_transaction(connection, schema_name)
+
+    isolation, read_only = connection.execute(
+        "SELECT current_setting('transaction_isolation'), "
+        "current_setting('transaction_read_only')"
+    ).fetchone()
+    if isolation != "repeatable read" or read_only != "on":
+        raise CatalogFingerprintError(
+            "caller-owned transaction must be REPEATABLE READ and READ ONLY"
+        )
+    return _fingerprint_schema_in_transaction(connection, schema_name)
+
+
+def _fingerprint_schema_in_transaction(
+    connection: Any, schema_name: str
+) -> CatalogFingerprint:
+    """Inspect the catalog inside an already configured transaction."""
         connection.execute("SET LOCAL search_path = pg_catalog, pg_temp")
         server_version_num, read_only = connection.execute(
             "SELECT current_setting('server_version_num')::integer, "
@@ -95,6 +114,13 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             )
         if read_only != "on":
             raise CatalogFingerprintError("catalog inspection transaction is not read-only")
+        isolation = connection.execute(
+            "SELECT current_setting('transaction_isolation')"
+        ).fetchone()[0]
+        if isolation != "repeatable read":
+            raise CatalogFingerprintError(
+                "catalog inspection transaction is not REPEATABLE READ"
+            )
 
         schema_rows = _rows(
             connection,
