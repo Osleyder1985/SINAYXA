@@ -130,6 +130,40 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             self.assertEqual("on", read_only)
             self.assertEqual("sinayxa", result.schema_name)
 
+    def test_fingerprint_uses_one_snapshot_during_concurrent_ddl(self) -> None:
+        table_name = f"fp_probe_snapshot_{uuid4().hex}"
+        writer = psycopg.connect(DATABASE_URL, autocommit=True)
+        try:
+            with self.connection.transaction():
+                self.connection.execute(
+                    "SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY"
+                )
+                self.connection.execute("SELECT count(*) FROM pg_class").fetchone()
+                writer.execute(
+                    f'CREATE TABLE sinayxa."{table_name}" (value integer)'
+                )
+
+                snapshot_fingerprint = fingerprint_schema(self.connection)
+                self.assertFalse(
+                    any(
+                        item["object_type"] == "relation"
+                        and item["identity"] == f"sinayxa.{table_name}"
+                        for item in snapshot_fingerprint.records
+                    )
+                )
+
+            fresh_fingerprint = fingerprint_schema(self.connection)
+            self.assertTrue(
+                any(
+                    item["object_type"] == "relation"
+                    and item["identity"] == f"sinayxa.{table_name}"
+                    for item in fresh_fingerprint.records
+                )
+            )
+        finally:
+            writer.execute(f'DROP TABLE IF EXISTS sinayxa."{table_name}"')
+            writer.close()
+
     def test_fingerprint_does_not_create_or_change_application_objects(self) -> None:
         before = self.connection.execute(
             """
