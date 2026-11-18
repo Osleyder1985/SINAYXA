@@ -164,6 +164,28 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             admin.close()
 
 
+    def test_fingerprint_rejects_partitioned_relations(self) -> None:
+        self.connection.execute(
+            "CREATE TABLE sinayxa.fp_probe_partitioned "
+            "(value integer) PARTITION BY RANGE (value)"
+        )
+        self.connection.execute(
+            "CREATE TABLE sinayxa.fp_probe_partitioned_0 "
+            "PARTITION OF sinayxa.fp_probe_partitioned "
+            "FOR VALUES FROM (0) TO (100)"
+        )
+        self.connection.commit()
+        try:
+            with self.assertRaisesRegex(
+                CatalogFingerprintError, "unsupported partitioned relations"
+            ):
+                fingerprint_schema(self.connection)
+        finally:
+            self.connection.execute(
+                "DROP TABLE IF EXISTS sinayxa.fp_probe_partitioned CASCADE"
+            )
+            self.connection.commit()
+
     def test_fingerprint_detects_constraint_changes(self) -> None:
         self.connection.execute(
             "CREATE TABLE sinayxa.fp_probe_constraint (value integer)"
