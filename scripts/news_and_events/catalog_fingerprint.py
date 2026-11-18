@@ -827,9 +827,44 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             JOIN pg_type typ ON typ.oid = t.trftype
             JOIN pg_namespace n ON n.oid = typ.typnamespace
             WHERE n.nspname = %s
+            UNION ALL
+            SELECT 'text_search_parser', p.prsname
+            FROM pg_ts_parser p
+            JOIN pg_namespace n ON n.oid = p.prsnamespace
+            WHERE n.nspname = %s
+            UNION ALL
+            SELECT 'text_search_template', t.tmplname
+            FROM pg_ts_template t
+            JOIN pg_namespace n ON n.oid = t.tmplnamespace
+            WHERE n.nspname = %s
+            UNION ALL
+            SELECT 'range_type', range_type.typname
+            FROM pg_range r
+            JOIN pg_type range_type ON range_type.oid = r.rngtypid
+            JOIN pg_namespace n ON n.oid = range_type.typnamespace
+            WHERE n.nspname = %s
+               OR EXISTS (
+                   SELECT 1
+                   FROM pg_type multirange_type
+                   JOIN pg_namespace mn ON mn.oid = multirange_type.typnamespace
+                   WHERE multirange_type.oid = r.rngmultitypid
+                     AND mn.nspname = %s
+               )
+            UNION ALL
+            SELECT 'cast', format(
+                '%s -> %s',
+                source_type.oid::regtype::text,
+                target_type.oid::regtype::text
+            )
+            FROM pg_cast c
+            JOIN pg_type source_type ON source_type.oid = c.castsource
+            JOIN pg_type target_type ON target_type.oid = c.casttarget
+            LEFT JOIN pg_namespace source_schema ON source_schema.oid = source_type.typnamespace
+            LEFT JOIN pg_namespace target_schema ON target_schema.oid = target_type.typnamespace
+            WHERE source_schema.nspname = %s OR target_schema.nspname = %s
             ORDER BY object_type, object_name
             """,
-            (schema_name,) * 8,
+            (schema_name,) * 13,
         )
         if unsupported_schema_objects:
             raise CatalogFingerprintError(
