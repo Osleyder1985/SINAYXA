@@ -1,7 +1,8 @@
 """Fail-closed PostgreSQL migration runner for fresh databases only.
 
 Legacy installations are intentionally rejected. Their read-only fingerprint
-and adoption flow is a separate, not-yet-implemented operation.
+and adoption flow is a separate, not-yet-implemented operation. This runner is
+restricted to the local PostgreSQL 18.7 validation laboratory.
 """
 from __future__ import annotations
 
