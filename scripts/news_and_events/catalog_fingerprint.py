@@ -766,6 +766,59 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                 )
             )
 
+        unsupported_schema_objects = _rows(
+            connection,
+            """
+            SELECT 'operator' AS object_type, o.oprname AS object_name
+            FROM pg_operator o
+            JOIN pg_namespace n ON n.oid = o.oprnamespace
+            WHERE n.nspname = %s
+            UNION ALL
+            SELECT 'operator_class', c.opcname
+            FROM pg_opclass c
+            JOIN pg_namespace n ON n.oid = c.opcnamespace
+            WHERE n.nspname = %s
+            UNION ALL
+            SELECT 'operator_family', f.opfname
+            FROM pg_opfamily f
+            JOIN pg_namespace n ON n.oid = f.opfnamespace
+            WHERE n.nspname = %s
+            UNION ALL
+            SELECT 'text_search_configuration', c.cfgname
+            FROM pg_ts_config c
+            JOIN pg_namespace n ON n.oid = c.cfgnamespace
+            WHERE n.nspname = %s
+            UNION ALL
+            SELECT 'text_search_dictionary', d.dictname
+            FROM pg_ts_dict d
+            JOIN pg_namespace n ON n.oid = d.dictnamespace
+            WHERE n.nspname = %s
+            UNION ALL
+            SELECT 'conversion', c.conname
+            FROM pg_conversion c
+            JOIN pg_namespace n ON n.oid = c.connamespace
+            WHERE n.nspname = %s
+            UNION ALL
+            SELECT 'extended_statistics', st.stxname
+            FROM pg_statistic_ext st
+            JOIN pg_namespace n ON n.oid = st.stxnamespace
+            WHERE n.nspname = %s
+            UNION ALL
+            SELECT 'transform', t.trftype::regtype::text
+            FROM pg_transform t
+            JOIN pg_type typ ON typ.oid = t.trftype
+            JOIN pg_namespace n ON n.oid = typ.typnamespace
+            WHERE n.nspname = %s
+            ORDER BY object_type, object_name
+            """,
+            (schema_name,) * 8,
+        )
+        if unsupported_schema_objects:
+            raise CatalogFingerprintError(
+                "unsupported schema objects in "
+                f"{schema_name}: {unsupported_schema_objects}"
+            )
+
     canonical = canonicalize_records(records)
     return CatalogFingerprint(
         algorithm_version=ALGORITHM_VERSION,
