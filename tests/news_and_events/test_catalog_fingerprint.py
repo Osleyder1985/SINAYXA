@@ -70,6 +70,8 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         types = [r for r in first.records if r["object_type"] == "type"]
         self.assertEqual(10, len(relations))
         self.assertEqual(2, len(functions))
+        self.assertTrue(all("kind" in item for item in functions))
+        self.assertTrue(all("support_function" in item for item in functions))
         self.assertEqual(18, len(triggers))
         self.assertTrue(all("acl" in item for item in columns))
         self.assertTrue(all("owner" in item and "acl" in item for item in types))
@@ -351,6 +353,34 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         finally:
             self.connection.execute(
                 "DROP TYPE IF EXISTS sinayxa.fp_probe_enum CASCADE"
+            )
+            self.connection.commit()
+
+    def test_fingerprint_distinguishes_procedures_from_functions(self) -> None:
+        self.connection.execute(
+            """
+            CREATE PROCEDURE sinayxa.fp_probe_procedure()
+            LANGUAGE plpgsql
+            AS $procedure$
+            BEGIN
+                NULL;
+            END;
+            $procedure$
+            """
+        )
+        self.connection.commit()
+        try:
+            result = fingerprint_schema(self.connection)
+            procedure = next(
+                item for item in result.records
+                if item["object_type"] == "function"
+                and item["qualified_name"] == "sinayxa.fp_probe_procedure"
+            )
+            self.assertEqual("p", procedure["kind"])
+            self.assertIsNone(procedure["support_function"])
+        finally:
+            self.connection.execute(
+                "DROP PROCEDURE IF EXISTS sinayxa.fp_probe_procedure()"
             )
             self.connection.commit()
 

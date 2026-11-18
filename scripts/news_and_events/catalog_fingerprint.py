@@ -455,10 +455,19 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
         functions = _rows(
             connection,
             """
-            SELECT p.proname, pg_get_function_identity_arguments(p.oid) AS identity_arguments,
+            SELECT p.proname, p.prokind,
+                   pg_get_function_identity_arguments(p.oid) AS identity_arguments,
                    pg_get_function_result(p.oid) AS result_type, l.lanname AS language,
                    pg_get_functiondef(p.oid) AS definition, p.provolatile, p.proisstrict,
                    p.prosecdef, p.proleakproof, p.proparallel, p.procost,
+                   CASE WHEN support.oid IS NULL THEN NULL ELSE
+                     format(
+                       '%%I.%%I(%%s)',
+                       support_schema.nspname,
+                       support.proname,
+                       pg_get_function_identity_arguments(support.oid)
+                     )
+                   END AS support_function,
                    COALESCE((
                      SELECT jsonb_agg(setting ORDER BY setting)
                      FROM unnest(p.proconfig) AS config(setting)
@@ -479,6 +488,9 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             JOIN pg_namespace n ON n.oid = p.pronamespace
             JOIN pg_language l ON l.oid = p.prolang
             JOIN pg_roles owner ON owner.oid = p.proowner
+            LEFT JOIN pg_proc support ON support.oid = p.prosupport
+            LEFT JOIN pg_namespace support_schema
+              ON support_schema.oid = support.pronamespace
             WHERE n.nspname = %s
             ORDER BY p.proname, identity_arguments
             """,
@@ -491,8 +503,10 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     "function",
                     f"{schema_name}.{fn['proname']}",
                     identity,
+                    kind=fn["prokind"],
                     identity_arguments=fn["identity_arguments"],
                     result_type=fn["result_type"],
+                    support_function=fn["support_function"],
                     language=fn["language"],
                     definition=fn["definition"],
                     volatility=fn["provolatile"],
