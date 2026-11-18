@@ -711,7 +711,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                    COALESCE((
                      SELECT jsonb_agg(
                        jsonb_build_object(
-                         'relation', format('%I.%I', config_schema.nspname, config_relation.relname),
+                         'relation', quote_ident(config_schema.nspname) || '.' || quote_ident(config_relation.relname),
                          'condition', e.extcondition[config_item.ordinality::integer]
                        )
                        ORDER BY config_item.ordinality
@@ -851,11 +851,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                      AND mn.nspname = %s
                )
             UNION ALL
-            SELECT 'cast', format(
-                '%s -> %s',
-                source_type.oid::regtype::text,
-                target_type.oid::regtype::text
-            )
+            SELECT 'cast', source_type.oid::regtype::text || ' -> ' || target_type.oid::regtype::text
             FROM pg_cast c
             JOIN pg_type source_type ON source_type.oid = c.castsource
             JOIN pg_type target_type ON target_type.oid = c.casttarget
