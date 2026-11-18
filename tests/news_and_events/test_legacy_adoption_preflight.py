@@ -25,9 +25,6 @@ class LegacyAdoptionPreflightUnitTests(unittest.TestCase):
             preflight_legacy_adoption(None, approved_baseline_sha256="")
 
     def test_preflight_rejects_non_idle_connections_before_queries(self) -> None:
-        class TransactionState:
-            transaction_status = 1
-
         class ConnectionInfo:
             transaction_status = 1
 
@@ -83,7 +80,7 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
         self.assertEqual("PREFLIGHT_MATCH", result.status)
         self.assertEqual((), result.reasons)
         self.assertEqual(180007, result.server_version_num)
-        self.assertEqual(LEGACY_MIGRATION_IDS, result.legacy_migration_ids)
+        self.assertEqual(tuple(sorted(LEGACY_MIGRATION_IDS)), result.legacy_migration_ids)
         self.assertEqual(self.approved_digest, result.computed_fingerprint)
         self.assertEqual(
             before,
