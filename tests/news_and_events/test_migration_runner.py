@@ -236,11 +236,11 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             )
 
         self.assertEqual(
-            ["fixture-0001"],
+            ["fixture-0001", "fixture-0002"],
             [
                 row[0]
                 for row in self.connection.execute(
-                    "SELECT migration_id FROM sinayxa_control.migration_integrity"
+                    "SELECT migration_id FROM sinayxa_control.migration_integrity ORDER BY version"
                 ).fetchall()
             ],
         )
