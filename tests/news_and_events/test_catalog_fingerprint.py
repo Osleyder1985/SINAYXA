@@ -43,6 +43,7 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         self.connection = psycopg.connect(DATABASE_URL)
         from scripts.news_and_events.migration_runner import apply_migrations
         apply_migrations(self.connection)
+        self.connection.commit()
 
     def tearDown(self) -> None:
         self.connection.close()
@@ -76,6 +77,7 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             WHERE n.nspname = 'sinayxa'
             """
         ).fetchone()[0]
+        self.connection.commit()
         fingerprint_schema(self.connection)
         after = self.connection.execute(
             """
