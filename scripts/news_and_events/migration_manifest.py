@@ -1,0 +1,187 @@
+"""Pure validation for the reviewed PostgreSQL migration manifest.
+
+This module performs filesystem and digest checks only. It never connects to
+PostgreSQL, executes SQL, or changes migration files.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+from dataclasses import dataclass
+from pathlib import Path, PurePosixPath
+from typing import Any
+
+
+class MigrationManifestError(ValueError):
+    """Raised when the migration manifest or its SQL inventory is invalid."""
+
+
+@dataclass(frozen=True)
+class MigrationRecord:
+    version: int
+    migration_id: str
+    path: str
+    sha256: str
+    execution_mode: str
+
+
+def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise MigrationManifestError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def _require_exact_keys(value: dict[str, Any], expected: set[str], label: str) -> None:
+    actual = set(value)
+    if actual != expected:
+        missing = sorted(expected - actual)
+        unexpected = sorted(actual - expected)
+        raise MigrationManifestError(
+            f"{label} keys mismatch; missing={missing}, unexpected={unexpected}"
+        )
+
+
+def load_and_verify_manifest(
+    manifest_path: Path, migrations_dir: Path
+) -> tuple[MigrationRecord, ...]:
+    """Load, structurally validate, and SHA-256 verify the complete SQL inventory."""
+    manifest_path = Path(manifest_path)
+    migrations_dir = Path(migrations_dir).resolve()
+
+    try:
+        raw_manifest = manifest_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as exc:
+        raise MigrationManifestError(f"cannot read UTF-8 manifest: {exc}") from exc
+
+    try:
+        document = json.loads(raw_manifest, object_pairs_hook=_reject_duplicate_keys)
+    except MigrationManifestError:
+        raise
+    except (json.JSONDecodeError, TypeError) as exc:
+        raise MigrationManifestError(f"invalid manifest JSON: {exc}") from exc
+
+    if not isinstance(document, dict):
+        raise MigrationManifestError("manifest root must be an object")
+    _require_exact_keys(
+        document, {"manifest_version", "baseline_revision", "migrations"}, "manifest"
+    )
+    if type(document["manifest_version"]) is not int or document["manifest_version"] != 1:
+        raise MigrationManifestError("manifest_version must be integer 1")
+
+    baseline = document["baseline_revision"]
+    if not isinstance(baseline, str) or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", baseline):
+        raise MigrationManifestError("baseline_revision must be a lowercase Git commit SHA")
+
+    entries = document["migrations"]
+    if not isinstance(entries, list) or not entries:
+        raise MigrationManifestError("migrations must be a non-empty array")
+
+    records: list[MigrationRecord] = []
+    seen_versions: set[int] = set()
+    seen_ids: set[str] = set()
+    seen_paths: set[str] = set()
+
+    for index, entry in enumerate(entries):
+        label = f"migrations[{index}]"
+        if not isinstance(entry, dict):
+            raise MigrationManifestError(f"{label} must be an object")
+        _require_exact_keys(
+            entry,
+            {"version", "migration_id", "path", "sha256", "execution_mode"},
+            label,
+        )
+
+        version = entry["version"]
+        if type(version) is not int or version < 1:
+            raise MigrationManifestError(f"{label}.version must be a positive integer")
+        if version in seen_versions:
+            raise MigrationManifestError(f"duplicate migration version: {version}")
+        if records and version <= records[-1].version:
+            raise MigrationManifestError("migration versions must be strictly increasing")
+        seen_versions.add(version)
+
+        migration_id = entry["migration_id"]
+        if not isinstance(migration_id, str) or not re.fullmatch(
+            r"[a-z0-9][a-z0-9._-]*", migration_id
+        ):
+            raise MigrationManifestError(f"{label}.migration_id is invalid")
+        if migration_id in seen_ids:
+            raise MigrationManifestError(f"duplicate migration ID: {migration_id}")
+        seen_ids.add(migration_id)
+
+        relative_path = entry["path"]
+        if not isinstance(relative_path, str) or not relative_path:
+            raise MigrationManifestError(f"{label}.path must be a non-empty string")
+        posix_path = PurePosixPath(relative_path)
+        if (
+            posix_path.is_absolute()
+            or "\\" in relative_path
+            or relative_path != posix_path.as_posix()
+            or any(part in {".", ".."} for part in posix_path.parts)
+        ):
+            raise MigrationManifestError(f"{label}.path must be a canonical relative POSIX path")
+        if relative_path in seen_paths:
+            raise MigrationManifestError(f"duplicate migration path: {relative_path}")
+        seen_paths.add(relative_path)
+
+        expected_digest = entry["sha256"]
+        if not isinstance(expected_digest, str) or not re.fullmatch(
+            r"[0-9a-f]{64}", expected_digest
+        ):
+            raise MigrationManifestError(f"{label}.sha256 must be 64 lowercase hexadecimal characters")
+
+        execution_mode = entry["execution_mode"]
+        if execution_mode != "transactional":
+            raise MigrationManifestError(
+                f"{label}.execution_mode is unsupported; only transactional is allowed"
+            )
+
+        candidate = (migrations_dir / Path(*posix_path.parts)).resolve()
+        try:
+            candidate.relative_to(migrations_dir)
+        except ValueError as exc:
+            raise MigrationManifestError(f"{label}.path escapes the migrations directory") from exc
+        if not candidate.is_file():
+            raise MigrationManifestError(f"migration file does not exist: {relative_path}")
+
+        try:
+            sql_bytes = candidate.read_bytes()
+            sql_bytes.decode("utf-8")
+        except (OSError, UnicodeError) as exc:
+            raise MigrationManifestError(
+                f"migration is not readable UTF-8: {relative_path}"
+            ) from exc
+
+        actual_digest = hashlib.sha256(sql_bytes).hexdigest()
+        if actual_digest != expected_digest:
+            raise MigrationManifestError(
+                f"SHA-256 mismatch for {relative_path}: expected {expected_digest}, got {actual_digest}"
+            )
+
+        records.append(
+            MigrationRecord(
+                version=version,
+                migration_id=migration_id,
+                path=relative_path,
+                sha256=actual_digest,
+                execution_mode=execution_mode,
+            )
+        )
+
+    actual_sql_paths = {
+        path.relative_to(migrations_dir).as_posix()
+        for path in migrations_dir.rglob("*.sql")
+        if path.is_file()
+    }
+    unlisted = sorted(actual_sql_paths - seen_paths)
+    missing = sorted(seen_paths - actual_sql_paths)
+    if unlisted or missing:
+        raise MigrationManifestError(
+            f"SQL inventory mismatch; unlisted={unlisted}, missing={missing}"
+        )
+
+    return tuple(records)
