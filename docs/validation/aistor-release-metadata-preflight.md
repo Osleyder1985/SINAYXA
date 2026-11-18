@@ -49,3 +49,13 @@ Para las versiones registradas en la captura actual, los directorios oficiales p
 - Client `RELEASE.2026-09-19T15-24-59Z`: checksum publicado `e3852ee80498034460bb9904e1c483d19172e8db10fa3a67141af131f9f1414b`, más archivos `.asc` y `.minisig`.
 
 El preflight captura estos sidecars desde las rutas oficiales y conserva hashes de los propios sidecars. No afirma que esos hashes publicados hayan sido contrastados con los binarios. La verificación de firma requiere un artefacto binario y una clave pública/fingerprint confiable; queda fuera de esta captura metadata-only.
+
+## Endurecimiento de reporte y sidecars — schema 1.3.0
+
+La versión 1.3.0 corrige tres riesgos del preflight:
+
+- El reporte JSON se construye mediante jq -n y argumentos tipados; no concatena directamente valores remotos en JSON. Esto evita que comillas, barras invertidas o saltos de línea en metadata invaliden el reporte.
+- Los sidecars deben existir y no estar vacíos. Los checksum sidecars deben contener un SHA-256 de 64 caracteres hexadecimales y un nombre de archivo; los .asc deben tener delimitadores OpenPGP y los .minisig deben contener la estructura de comentarios esperada. Una respuesta HTTP 200 vacía o malformada no se considera capturada.
+- El reporte separa capture_status de readiness_status. Aunque la captura sea CAPTURED, readiness_status permanece BLOCKED mientras no se comparen checksums con binarios descargados, no se verifiquen criptográficamente las firmas y no se aprueben las condiciones de licencia/uso.
+
+El preflight sigue siendo metadata-only: no descarga binarios, no hace pull de imágenes, no verifica firmas y no habilita instalación o despliegue. La validación estructural de sidecars no equivale a verificación criptográfica.
