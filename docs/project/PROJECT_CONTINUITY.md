@@ -213,7 +213,6 @@ Do not mark the documentation lint as passed until the rerun completes successfu
 - local Windows worktrees and uncommitted changes remain unverified;
 - the fresh-session recovery test has not been executed.
 
-
 ### 12.1 Corrected Markdown and dependency-gate result — HEAD `af2068898a4fc26adc51719ddecf29392f015296`
 
 Exact-head evidence retrieved for the continuity PR:
@@ -231,8 +230,6 @@ Runs: [Security/dependency #44206108625](https://github.com/Osleyder1985/SINAYXA
 
 After opening #118/#119, the repository currently has one additional open Issue and one additional open PR compared with the initial snapshot: 30 open Issues (including #118) and 8 open PRs (including #119). The original inventory in Sections 2–3 remains explicitly historical.
 
-
-
 ## 14. Continued PR audit — review of #117 and #100; exact-head status of remaining stack
 
 Audit snapshot: 2026-11-17. No PR was merged, closed, retargeted, or rebased in this phase.
@@ -242,6 +239,7 @@ Audit snapshot: 2026-11-17. No PR was merged, closed, retargeted, or rebased in 
 Current PR head: `67b1db9e9b31f4a2bd36bb9eeadece2d8ce8b85a`, base `main` at `75583efab8be33a3739e3409ae54690ebc02d62b`.
 
 Exact-head checks:
+
 - PowerShell 7.6.6 / Windows: SUCCESS.
 - PowerShell 7.7.0 / Windows: SUCCESS.
 - PostgreSQL 18.7 event registry integration: SUCCESS.
@@ -251,6 +249,7 @@ Exact-head checks:
 - OSV full: SKIPPED by workflow design; not a PASS.
 
 Diff-level findings:
+
 - Replaces markdownlint-cli2 with markdownlint@0.42.1 and a direct API runner.
 - Removes picomatch/globby/fast-glob/micromatch from the lockfile.
 - Preserves MD013=false and includes an MD018 canary self-test.
@@ -263,6 +262,7 @@ A formal COMMENT review was submitted on the exact current HEAD (review ID 59488
 ### 14.2 PR #100 — AIStor metadata-only preflight
 
 Current head: `f78ed629ce3e007aa68a0062c5dc2f9cf6a4fee0`; exact-head checks:
+
 - AIStor metadata preflight: SUCCESS.
 - PowerShell 7.6.6 / 7.7.0: SUCCESS.
 - Gitleaks: SUCCESS.
@@ -273,6 +273,7 @@ Current head: `f78ed629ce3e007aa68a0062c5dc2f9cf6a4fee0`; exact-head checks:
 The branch's effective diff against current main is limited to the three intended files: the AIStor preflight workflow, shell capture script, and Spanish documentation. It preserves Server/Client metadata, OCI index and platform digests, checksums and detached signature sidecars, while explicitly not downloading binaries/images or verifying signatures/checksums against executable bytes.
 
 New robustness findings submitted as COMMENT review ID 5948864410:
+
 1. JSON report values from the remote metadata endpoint are interpolated into a hand-built JSON heredoc without general JSON escaping or strict validation of version/date/key strings.
 2. HTTP 200 zero-byte sidecars can be hashed and counted as captured because file non-emptiness is not checked.
 3. The machine-readable report should distinguish metadata `capture_status` from overall `readiness_status`; CAPTURED metadata must not be interpreted as authorization or readiness when artifact verification and license review remain pending.
@@ -282,7 +283,7 @@ Existing issue evidence still leaves checksum-to-binary comparison, cryptographi
 ### 14.3 Remaining open PRs — latest exact-head checks and dependencies
 
 | PR | Current exact-head checks / state | Current technical disposition |
-|---|---|---|
+| --- | --- | --- |
 | #85 | PowerShell 7.6.6/7.7.0 SUCCESS; PostgreSQL event registry SUCCESS; Gitleaks SUCCESS; OSV PR SUCCESS; npm audit FAILURE (five HIGH picomatch); OSV full SKIPPED. 125 corrective tests PASS. | Contract 0.2.1 implementation has strong synthetic coverage, but npm audit blocks integration until #117 is integrated/revalidated. All five areas A–E remain OPEN; human semantic and external operational evidence are not closed. |
 | #94 | PowerShell 7.6.6/7.7.0 SUCCESS; event registry SUCCESS; Gitleaks SUCCESS; npm audit SUCCESS; OSV PR SUCCESS; OSV full SKIPPED. | 9.3/10 for its explicitly synthetic filesystem lab. Does not prove physical deletion, external copies, WORM/Object Lock, PostgreSQL backup/restore, or production migration. Existing reviews are COMMENT, not APPROVE. |
 | #96 | PostgreSQL 18.7 / Docker 29.10.0 lab SUCCESS; PowerShell 7.6.6/7.7.0 SUCCESS; Gitleaks SUCCESS; OSV PR SUCCESS; npm audit FAILURE (five HIGH picomatch); OSV full SKIPPED. | Lab passes in its synthetic PostgreSQL scope. Security gate blocks merge pending #117 integration and exact-head rerun. Does not prove PITR, external backups, WORM/Object Lock, physical deletion, or production migration. |
