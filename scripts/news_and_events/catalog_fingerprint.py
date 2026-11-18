@@ -864,7 +864,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             WHERE source_schema.nspname = %s OR target_schema.nspname = %s
             ORDER BY object_type, object_name
             """,
-            (schema_name,) * 13,
+            (schema_name,) * 14,
         )
         if unsupported_schema_objects:
             raise CatalogFingerprintError(
