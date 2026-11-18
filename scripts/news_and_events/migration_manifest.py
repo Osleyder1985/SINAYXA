@@ -132,6 +132,16 @@ def _verify_git_provenance(
                 f"{record.source_revision} -> {git_path}"
             )
 
+        source_bytes = _git_output(
+            repository_root, "show", f"{record.source_revision}:{git_path}"
+        )
+        source_digest = hashlib.sha256(source_bytes).hexdigest()
+        if source_digest != record.sha256:
+            raise MigrationManifestError(
+                f"source revision SHA-256 mismatch for {record.path}: "
+                f"manifest={record.sha256}, source={source_digest}"
+            )
+
 
 def load_and_verify_manifest(
     manifest_path: Path, migrations_dir: Path
