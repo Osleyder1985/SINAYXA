@@ -1,0 +1,41 @@
+{
+  "manifest_version": 1,
+  "baseline_revision": "73de7b25c79ca4b65d91903606b704554959d286",
+  "migrations": [
+    {
+      "version": 1,
+      "migration_id": "issue-2-event-registry-0001",
+      "path": "0001_event_registry.sql",
+      "sha256": "f37c8a553fa8ae68ea2dcacc2e414e9a33836d88c4bc2622d2185bede02ec0d8",
+      "execution_mode": "transactional"
+    },
+    {
+      "version": 2,
+      "migration_id": "issue-2-temporal-conflicts-0002",
+      "path": "0002_temporal_conflicts.sql",
+      "sha256": "d40e71f905b6f745d983789572f9cb1465ff9624d740e96865c105acb21ec9da",
+      "execution_mode": "transactional"
+    },
+    {
+      "version": 3,
+      "migration_id": "issue-2-temporal-assessments-manifests-0003",
+      "path": "0003_temporal_assessments_manifests.sql",
+      "sha256": "9bcae03bbd4830f03524d0c6d5b8257df93d9673f1fbd2129813cb2a321398f4",
+      "execution_mode": "transactional"
+    },
+    {
+      "version": 4,
+      "migration_id": "issue-2-source-evidence-artifacts-0004",
+      "path": "0004_source_evidence_artifacts.sql",
+      "sha256": "5020a226df132e962b06239bb94f302b7cbbccc799c0a05ffc4bac676d535a97",
+      "execution_mode": "transactional"
+    },
+    {
+      "version": 5,
+      "migration_id": "issue-2-append-only-truncate-guard-0005",
+      "path": "0005_append_only_truncate_guard.sql",
+      "sha256": "f20691eed9fea875cc387c2a6f36ced5a52f3974188f335117ecc3ad2a422755",
+      "execution_mode": "transactional"
+    }
+  ]
+}
