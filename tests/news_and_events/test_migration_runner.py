@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
@@ -16,6 +17,7 @@ import psycopg
 from psycopg import sql
 from psycopg.conninfo import conninfo_to_dict, make_conninfo
 
+from scripts.news_and_events import migration_runner
 from scripts.news_and_events.migration_runner import (
     BOOTSTRAP_SHA256,
     MigrationRunnerError,
@@ -54,6 +56,16 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         )
         self.admin.close()
 
+    def test_runner_rejects_caller_owned_transaction(self) -> None:
+        with self.connection.transaction():
+            with self.assertRaisesRegex(MigrationRunnerError, "requires an idle connection"):
+                apply_migrations(self.connection)
+            self.assertIsNone(
+                self.connection.execute(
+                    "SELECT to_regnamespace('sinayxa_control')"
+                ).fetchone()[0]
+            )
+
     def test_fresh_database_applies_exact_manifest_once(self) -> None:
         first = apply_migrations(self.connection)
         second = apply_migrations(self.connection)
@@ -77,6 +89,103 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             self.connection.execute(
                 "SELECT bootstrap_sha256::text FROM sinayxa_control.bootstrap_state"
             ).fetchone()[0].strip(),
+        )
+
+    def test_modified_applied_sql_artifact_fails_before_database_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            migrations = Path(temporary) / "migrations"
+            shutil.copytree(migration_runner.MIGRATIONS_DIR, migrations)
+            manifest = migrations / "manifest.json"
+            apply_migrations(
+                self.connection,
+                manifest_path=manifest,
+                migrations_dir=migrations,
+            )
+
+            historical_sql = migrations / "0001_event_registry.sql"
+            historical_sql.write_bytes(
+                historical_sql.read_bytes()
+                + b"\nCREATE TABLE sinayxa.must_not_execute (id integer);\n"
+            )
+            with self.assertRaisesRegex(
+                MigrationRunnerError, "migration manifest verification failed"
+            ):
+                apply_migrations(
+                    self.connection,
+                    manifest_path=manifest,
+                    migrations_dir=migrations,
+                )
+
+        self.assertIsNone(
+            self.connection.execute(
+                "SELECT to_regclass('sinayxa.must_not_execute')"
+            ).fetchone()[0]
+        )
+        self.assertEqual(
+            5,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa_control.migration_integrity"
+            ).fetchone()[0],
+        )
+
+    def test_new_migration_applies_only_pending_manifest_entry(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            migrations = Path(temporary) / "migrations"
+            shutil.copytree(migration_runner.MIGRATIONS_DIR, migrations)
+            manifest = migrations / "manifest.json"
+            first_run = apply_migrations(
+                self.connection,
+                manifest_path=manifest,
+                migrations_dir=migrations,
+            )
+            self.assertEqual(5, len(first_run))
+
+            document = json.loads(manifest.read_text(encoding="utf-8"))
+            new_sql = (
+                "CREATE TABLE sinayxa.runner_extension_marker (id integer PRIMARY KEY);\n"
+                "INSERT INTO sinayxa.schema_migrations (migration_id) "
+                "VALUES ('issue-121-runner-extension-0006');\n"
+            )
+            filename = "0006_runner_extension.sql"
+            (migrations / filename).write_text(new_sql, encoding="utf-8")
+            document["migrations"].append(
+                {
+                    "version": 6,
+                    "migration_id": "issue-121-runner-extension-0006",
+                    "path": filename,
+                    "sha256": hashlib.sha256(new_sql.encode("utf-8")).hexdigest(),
+                    "execution_mode": "transactional",
+                    "source_revision": "a" * 40,
+                }
+            )
+            manifest.write_text(
+                json.dumps(document, indent=2) + "\n",
+                encoding="utf-8",
+            )
+
+            second_run = apply_migrations(
+                self.connection,
+                manifest_path=manifest,
+                migrations_dir=migrations,
+            )
+
+        self.assertEqual(("issue-121-runner-extension-0006",), second_run)
+        self.assertIsNotNone(
+            self.connection.execute(
+                "SELECT to_regclass('sinayxa.runner_extension_marker')"
+            ).fetchone()[0]
+        )
+        self.assertEqual(
+            6,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa_control.migration_integrity"
+            ).fetchone()[0],
+        )
+        self.assertEqual(
+            6,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.schema_migrations"
+            ).fetchone()[0],
         )
 
     def test_modified_bootstrap_artifact_fails_before_database_changes(self) -> None:
@@ -265,6 +374,9 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                 }),
                 encoding="utf-8",
             )
+            # The verification SELECTs above opened an implicit transaction.
+            # End it before retrying the runner, which deliberately requires IDLE.
+            self.connection.commit()
             resumed = apply_migrations(
                 self.connection,
                 manifest_path=manifest,

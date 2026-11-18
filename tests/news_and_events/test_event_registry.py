@@ -251,6 +251,9 @@ class EventRegistryIntegrationTests(unittest.TestCase):
 
 
     def test_migration_is_idempotent(self) -> None:
+        # Earlier integration tests may leave implicit read transactions open
+        # on this shared connection. The migration runner requires IDLE.
+        self.connection.commit()
         initialize_database(self.connection)
         initialize_database(self.connection)
         migration_count = self.connection.execute(
