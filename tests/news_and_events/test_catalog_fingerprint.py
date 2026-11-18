@@ -801,6 +801,46 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_detects_domain_check_constraint_changes(self) -> None:
+        self.connection.execute(
+            "CREATE DOMAIN sinayxa.fp_probe_positive_domain AS integer "
+            "CONSTRAINT fp_probe_domain_positive CHECK (VALUE > 0)"
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            before_constraint = next(
+                item for item in before.records
+                if item["object_type"] == "constraint"
+                and item["identity"] == "fp_probe_domain_positive"
+            )
+            self.assertEqual("domain", before_constraint["constraint_scope"])
+            self.assertIn("VALUE > 0", before_constraint["definition"])
+
+            self.connection.execute(
+                "ALTER DOMAIN sinayxa.fp_probe_positive_domain "
+                "DROP CONSTRAINT fp_probe_domain_positive"
+            )
+            self.connection.execute(
+                "ALTER DOMAIN sinayxa.fp_probe_positive_domain "
+                "ADD CONSTRAINT fp_probe_domain_positive CHECK (VALUE > 10)"
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+            after_constraint = next(
+                item for item in after.records
+                if item["object_type"] == "constraint"
+                and item["identity"] == "fp_probe_domain_positive"
+            )
+            self.assertIn("VALUE > 10", after_constraint["definition"])
+        finally:
+            self.connection.execute(
+                "DROP DOMAIN IF EXISTS sinayxa.fp_probe_positive_domain CASCADE"
+            )
+            self.connection.commit()
+
+
     def test_fingerprint_detects_index_changes(self) -> None:
         self.connection.execute(
             "CREATE TABLE sinayxa.fp_probe_index (value integer)"
