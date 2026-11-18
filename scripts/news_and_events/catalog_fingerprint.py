@@ -362,7 +362,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             """
             SELECT tbl.relname AS table_name, idx.relname AS index_name,
                    am.amname AS access_method, i.indisunique, i.indisprimary,
-                   i.indisexclusion, i.indisvalid, i.indisready, i.indnkeyatts,
+                   i.indisexclusion, i.indisvalid, i.indisready, i.indisreplident, i.indnkeyatts,
                    pg_get_indexdef(i.indexrelid) AS definition,
                    pg_get_expr(i.indexprs, i.indrelid, true) AS expressions,
                    pg_get_expr(i.indpred, i.indrelid, true) AS predicate
@@ -388,6 +388,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     exclusion=idx["indisexclusion"],
                     valid=idx["indisvalid"],
                     ready=idx["indisready"],
+                    replica_identity=idx["indisreplident"],
                     key_attribute_count=idx["indnkeyatts"],
                     definition=idx["definition"],
                     expressions=idx["expressions"],
