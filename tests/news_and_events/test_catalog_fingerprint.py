@@ -197,6 +197,26 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_rejects_unrepresented_range_types(self) -> None:
+        self.connection.execute(
+            """
+            CREATE TYPE sinayxa.fp_probe_range AS RANGE (
+                subtype = integer
+            )
+            """
+        )
+        self.connection.commit()
+        try:
+            with self.assertRaisesRegex(
+                CatalogFingerprintError, "unsupported schema objects"
+            ):
+                fingerprint_schema(self.connection)
+        finally:
+            self.connection.execute(
+                "DROP TYPE IF EXISTS sinayxa.fp_probe_range CASCADE"
+            )
+            self.connection.commit()
+
     def test_fingerprint_rejects_partitioned_relations(self) -> None:
         self.connection.execute(
             "CREATE TABLE sinayxa.fp_probe_partitioned "
