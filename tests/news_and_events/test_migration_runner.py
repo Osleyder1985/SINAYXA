@@ -119,6 +119,9 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                     "to_regnamespace('sinayxa_control')"
                 ).fetchone(),
             )
+            # The inspection SELECT opened an implicit transaction; the
+            # migration runner deliberately requires an idle connection.
+            self.connection.commit()
             source_migrations = migration_runner.MIGRATIONS_DIR
             complete_manifest = json.loads(
                 (source_migrations / "manifest.json").read_text(encoding="utf-8")
