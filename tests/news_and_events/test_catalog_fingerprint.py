@@ -202,7 +202,7 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         self.connection.commit()
         try:
             with self.assertRaisesRegex(
-                CatalogFingerprintError, "unsupported schema objects"
+                CatalogFingerprintError, "unsupported pseudo or undefined shell types"
             ):
                 fingerprint_schema(self.connection)
         finally:
