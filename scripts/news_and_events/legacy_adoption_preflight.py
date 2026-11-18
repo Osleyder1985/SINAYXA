@@ -120,7 +120,6 @@ def preflight_legacy_adoption(
                     f"missing={missing}, unknown={unknown}, count={len(legacy_ids)}"
                 )
 
-        computed_fingerprint: str | None = None
         if not reasons:
             try:
                 fingerprint = fingerprint_schema(connection, "sinayxa")
