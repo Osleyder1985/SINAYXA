@@ -164,5 +164,84 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             admin.close()
 
 
+    def test_fingerprint_detects_constraint_changes(self) -> None:
+        self.connection.execute(
+            "CREATE TABLE sinayxa.fp_probe_constraint (value integer)"
+        )
+        self.connection.commit()
+        before = fingerprint_schema(self.connection)
+        self.connection.execute(
+            "ALTER TABLE sinayxa.fp_probe_constraint "
+            "ADD CONSTRAINT fp_probe_constraint_positive CHECK (value > 0)"
+        )
+        self.connection.commit()
+        after = fingerprint_schema(self.connection)
+        self.assertNotEqual(before.sha256, after.sha256)
+        self.connection.execute("DROP TABLE sinayxa.fp_probe_constraint")
+        self.connection.commit()
+
+    def test_fingerprint_detects_index_changes(self) -> None:
+        self.connection.execute(
+            "CREATE TABLE sinayxa.fp_probe_index (value integer)"
+        )
+        self.connection.commit()
+        before = fingerprint_schema(self.connection)
+        self.connection.execute(
+            "CREATE INDEX fp_probe_index_value_idx "
+            "ON sinayxa.fp_probe_index (value)"
+        )
+        self.connection.commit()
+        after = fingerprint_schema(self.connection)
+        self.assertNotEqual(before.sha256, after.sha256)
+        self.connection.execute("DROP TABLE sinayxa.fp_probe_index")
+        self.connection.commit()
+
+    def test_fingerprint_detects_trigger_changes(self) -> None:
+        self.connection.execute(
+            "CREATE TABLE sinayxa.fp_probe_trigger (value integer)"
+        )
+        self.connection.execute(
+            """
+            CREATE FUNCTION sinayxa.fp_probe_trigger_fn()
+            RETURNS trigger LANGUAGE plpgsql AS $
+            BEGIN
+                RETURN NEW;
+            END;
+            $
+            """
+        )
+        self.connection.commit()
+        before = fingerprint_schema(self.connection)
+        self.connection.execute(
+            """
+            CREATE TRIGGER fp_probe_trigger
+            BEFORE INSERT ON sinayxa.fp_probe_trigger
+            FOR EACH ROW EXECUTE FUNCTION sinayxa.fp_probe_trigger_fn()
+            """
+        )
+        self.connection.commit()
+        after = fingerprint_schema(self.connection)
+        self.assertNotEqual(before.sha256, after.sha256)
+        self.connection.execute("DROP TABLE sinayxa.fp_probe_trigger")
+        self.connection.execute("DROP FUNCTION sinayxa.fp_probe_trigger_fn()")
+        self.connection.commit()
+
+    def test_fingerprint_detects_relation_acl_changes(self) -> None:
+        self.connection.execute(
+            "CREATE TABLE sinayxa.fp_probe_acl (value integer)"
+        )
+        self.connection.commit()
+        before = fingerprint_schema(self.connection)
+        self.connection.execute(
+            "GRANT SELECT ON sinayxa.fp_probe_acl TO PUBLIC"
+        )
+        self.connection.commit()
+        after = fingerprint_schema(self.connection)
+        self.assertNotEqual(before.sha256, after.sha256)
+        self.connection.execute("REVOKE SELECT ON sinayxa.fp_probe_acl FROM PUBLIC")
+        self.connection.execute("DROP TABLE sinayxa.fp_probe_acl")
+        self.connection.commit()
+
+
 if __name__ == "__main__":
     unittest.main()
