@@ -243,5 +243,50 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         self.connection.commit()
 
 
+    def test_fingerprint_detects_view_definition_changes(self) -> None:
+        self.connection.execute(
+            "CREATE TABLE sinayxa.fp_probe_view_source (value integer)"
+        )
+        self.connection.execute(
+            "CREATE VIEW sinayxa.fp_probe_view AS "
+            "SELECT value FROM sinayxa.fp_probe_view_source"
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                "CREATE OR REPLACE VIEW sinayxa.fp_probe_view AS "
+                "SELECT value + 1 AS value FROM sinayxa.fp_probe_view_source"
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+        finally:
+            self.connection.execute("DROP VIEW IF EXISTS sinayxa.fp_probe_view")
+            self.connection.execute("DROP TABLE IF EXISTS sinayxa.fp_probe_view_source")
+            self.connection.commit()
+
+    def test_fingerprint_detects_row_level_security_policy_changes(self) -> None:
+        self.connection.execute(
+            "CREATE TABLE sinayxa.fp_probe_policy (value integer)"
+        )
+        self.connection.execute(
+            "ALTER TABLE sinayxa.fp_probe_policy ENABLE ROW LEVEL SECURITY"
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                "CREATE POLICY fp_probe_policy ON sinayxa.fp_probe_policy "
+                "USING (value > 0)"
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+        finally:
+            self.connection.execute("DROP TABLE IF EXISTS sinayxa.fp_probe_policy")
+            self.connection.commit()
+
+
 if __name__ == "__main__":
     unittest.main()
