@@ -4,11 +4,14 @@ from __future__ import annotations
 import hashlib
 import json
 import tempfile
+import subprocess
 import unittest
 from pathlib import Path
 
 from scripts.news_and_events.migration_manifest import (
     MigrationManifestError,
+    MigrationRecord,
+    _verify_git_provenance,
     load_and_verify_manifest,
 )
 
@@ -153,6 +156,76 @@ class MigrationManifestTests(unittest.TestCase):
         )
         self.assertEqual([1, 2, 3, 4, 5], [record.version for record in records])
         self.assertEqual(5, len(records))
+
+
+    def _git_repository(self) -> tuple[Path, str, str]:
+        root = self.root / "git-repository"
+        migrations = root / "database" / "migrations"
+        migrations.mkdir(parents=True)
+        (migrations / "manifest.json").write_text("{}", encoding="utf-8")
+        sql = migrations / "0001_example.sql"
+        sql.write_bytes(b"CREATE TABLE example (id integer);\\n")
+
+        def git(*args: str) -> str:
+            return subprocess.run(
+                ["git", "-C", str(root), *args],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            ).stdout.strip()
+
+        git("init", "-q")
+        git("config", "user.name", "SINAYXA tests")
+        git("config", "user.email", "sinayxa-tests@example.invalid")
+        git("add", ".")
+        git("commit", "-q", "-m", "add migration")
+        source_revision = git("rev-parse", "HEAD")
+        baseline_revision = source_revision
+        return root, baseline_revision, source_revision
+
+    def test_git_provenance_rejects_digest_not_matching_baseline_blob(self) -> None:
+        root, baseline, source = self._git_repository()
+        record = MigrationRecord(
+            version=1,
+            migration_id="example-0001",
+            path="0001_example.sql",
+            sha256="0" * 64,
+            source_revision=source,
+            execution_mode="transactional",
+        )
+        with self.assertRaisesRegex(MigrationManifestError, "baseline SHA-256 mismatch"):
+            _verify_git_provenance(
+                (record,), baseline, root / "database/migrations/manifest.json",
+                root / "database/migrations",
+            )
+
+    def test_git_provenance_rejects_source_commit_that_did_not_add_path(self) -> None:
+        root, baseline, _ = self._git_repository()
+        subprocess.run(
+            ["git", "-C", str(root), "commit", "--allow-empty", "-m", "unrelated change"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        source = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            check=True, stdout=subprocess.PIPE, text=True,
+        ).stdout.strip()
+        sql_bytes = (root / "database/migrations/0001_example.sql").read_bytes()
+        record = MigrationRecord(
+            version=1,
+            migration_id="example-0001",
+            path="0001_example.sql",
+            sha256=hashlib.sha256(sql_bytes).hexdigest(),
+            source_revision=source,
+            execution_mode="transactional",
+        )
+        with self.assertRaisesRegex(MigrationManifestError, "source_revision did not add"):
+            _verify_git_provenance(
+                (record,), baseline, root / "database/migrations/manifest.json",
+                root / "database/migrations",
+            )
 
 
 if __name__ == "__main__":
