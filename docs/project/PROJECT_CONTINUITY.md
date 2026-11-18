@@ -595,3 +595,32 @@ HEAD verificado antes de esta actualización: `200980640e2f2e76738d237e653928ce6
 3. Inspeccionar el equipo Windows cuando esté disponible y reconciliar worktrees, ramas, HEADs locales y cambios sin commit/no publicados. GitHub no puede demostrar el estado de esos archivos locales.
 
 La aprobación de CI no equivale a completar la continuidad. **No eliminar conversaciones del proyecto** hasta que las tres puertas anteriores estén verificadas y registradas, y la prueba de recuperación sea satisfactoria.
+
+
+### 14.13 Revalidación de Markdown y quality gates — HEAD 94a04ee — 2026-11-18
+
+#### Corrección del fallo inicial
+
+El HEAD anterior `a8f46c9a528bd995d8a1e9e02f27fb6e21ec2b00` falló en Security/dependency [run #44239747432](https://github.com/Osleyder1985/SINAYXA/actions/runs/44239747432). La causa exacta fue Markdown lint en `docs/project/PROJECT_CONTINUITY.md`:
+
+- Línea 554: MD012/no-multiple-blanks (dos líneas vacías consecutivas).
+- Línea 583: MD024/no-duplicate-heading (duplicación de `#### PR #119 — continuidad documental`, que ya aparecía en la sección 14.6).
+
+Se corrigieron ambas infracciones en el commit `94a04ee530e776da4668fc545a2393dc8d84831a`: se dejó una sola línea vacía y se renombró el encabezado duplicado como `#### PR #119 — continuidad documental: verificación previa`.
+
+#### Resultado de CI sobre el HEAD exacto 94a04ee
+
+- Security/dependency [run #44240188144](https://github.com/Osleyder1985/SINAYXA/actions/runs/44240188144): **SUCCESS**. Gitleaks full-history SUCCESS; Markdown lint SUCCESS; npm audit SUCCESS; OSV PR scan SUCCESS. OSV full quedó **SKIPPED** por diseño en pull_request; no se cuenta como PASS.
+- PowerShell [run #44240187749](https://github.com/Osleyder1985/SINAYXA/actions/runs/44240187749): **SUCCESS**. PowerShell 7.7.0 SUCCESS; contexto requerido 7.6.6 SUCCESS; instalación de PSScriptAnalyzer, inventario/parser, análisis estático, detección de regla de seguridad, fixture sintético, pruebas positivas/negativas/robustez, validaciones de Issues y registro de procedencia SUCCESS.
+
+Estos resultados validan únicamente el HEAD `94a04ee...`; cualquier cambio posterior exige nuevos checks.
+
+#### Reconciliación de la vista de diff de PR #119
+
+La comparación explícita de `main` (base de comparación `73de7b25c79ca4b65d91903606b704554959d286`) contra HEAD `94a04ee...` devuelve 27 commits ahead, 0 behind y un único archivo en el diff: `docs/project/PROJECT_CONTINUITY.md`.
+
+Sin embargo, el payload de PR #119 todavía informa `base_sha=75583efab8be33a3739e3409ae54690ebc02d62b` y `changed_files=15`; la lista de archivos de la PR devuelve 15 rutas. Esos datos no concuerdan con la comparación contra la referencia actual `main`. No se debe ocultar ni asumir resuelta esta discrepancia: antes de considerar #119 merge-ready hay que reconciliar la base efectiva y el diff mostrado por GitHub, y confirmar que los 14 archivos restantes son historial/base ya integrado y no cambios exclusivos de la PR. No se autoriza merge por el mero hecho de que `mergeable=true`.
+
+#### Estado
+
+PR #119 continúa OPEN / DRAFT / NOT MERGED. Los dos quality gates aplicables pasan en el HEAD 94a04ee, pero quedan pendientes: reconciliación del diff/base, recuperación real desde conversación nueva, revisión completa de decisiones/historiales de Issues y verificación local de worktrees/cambios Windows. No borrar conversaciones del proyecto.
