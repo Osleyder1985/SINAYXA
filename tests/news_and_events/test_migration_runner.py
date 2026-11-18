@@ -306,6 +306,9 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                         ),
                     )
 
+                # Commit each synthetic snapshot before the next runner invocation.
+                self.connection.commit()
+
             complete_dir = Path(temporary) / "complete-manifest"
             shutil.copytree(source_migrations, complete_dir)
             complete_manifest_path = complete_dir / "manifest.json"
