@@ -656,14 +656,14 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             """
             SELECT t.typname
             FROM pg_type t JOIN pg_namespace n ON n.oid = t.typnamespace
-            WHERE n.nspname = %s AND t.typtype = 'p'
+            WHERE n.nspname = %s AND (t.typtype = 'p' OR NOT t.typisdefined)
             ORDER BY t.typname
             """,
             (schema_name,),
         )
         if pseudo_types:
             raise CatalogFingerprintError(
-                f"unsupported pseudo-types in {schema_name}: {pseudo_types}"
+                f"unsupported pseudo or undefined shell types in {schema_name}: {pseudo_types}"
             )
 
         policies = _rows(
@@ -891,14 +891,9 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             LEFT JOIN pg_namespace source_schema ON source_schema.oid = source_type.typnamespace
             LEFT JOIN pg_namespace target_schema ON target_schema.oid = target_type.typnamespace
             WHERE source_schema.nspname = %s OR target_schema.nspname = %s
-            UNION ALL
-            SELECT 'pseudo_or_shell_type', t.typname
-            FROM pg_type t
-            JOIN pg_namespace n ON n.oid = t.typnamespace
-            WHERE n.nspname = %s AND (t.typtype = 'p' OR NOT t.typisdefined)
             ORDER BY object_type, object_name
             """,
-            (schema_name,) * 15,
+            (schema_name,) * 14,
         )
         if unsupported_schema_objects:
             raise CatalogFingerprintError(
