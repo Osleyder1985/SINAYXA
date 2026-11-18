@@ -337,6 +337,40 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_detects_not_enforced_constraint_state(self) -> None:
+        self.connection.execute(
+            """
+            CREATE TABLE sinayxa.fp_probe_constraint_enforcement (
+                value integer
+            )
+            """
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                """
+                ALTER TABLE sinayxa.fp_probe_constraint_enforcement
+                ADD CONSTRAINT fp_probe_not_enforced
+                CHECK (value > 0) NOT ENFORCED
+                """
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+            constraint = next(
+                item for item in after.records
+                if item["object_type"] == "constraint"
+                and item["identity"] == "fp_probe_not_enforced"
+            )
+            self.assertFalse(constraint["enforced"])
+            self.assertFalse(constraint["validated"])
+        finally:
+            self.connection.execute(
+                "DROP TABLE IF EXISTS sinayxa.fp_probe_constraint_enforcement CASCADE"
+            )
+            self.connection.commit()
+
     def test_fingerprint_detects_composite_attribute_collation_changes(self) -> None:
         self.connection.execute(
             """
