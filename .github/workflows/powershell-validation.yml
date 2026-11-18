@@ -280,6 +280,14 @@ jobs:
           python -m unittest scripts.validation.test_temporal_event_contract -v
           if ($LASTEXITCODE -ne 0) { throw 'Issue #2 temporal contract tests failed.' }
 
+      - name: Run Issue #93 isolated synthetic validation lab
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/Invoke-SyntheticValidationLab.ps1'
+          if ($LASTEXITCODE -ne 0) { throw 'Issue #93 synthetic validation lab failed.' }
+
       - name: Record source and fixture provenance
         shell: pwsh
         working-directory: source
