@@ -423,9 +423,9 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         target_parameters["dbname"] = target_database
         target_url = make_conninfo(**target_parameters)
         restored = None
+        backup_temporary = tempfile.TemporaryDirectory()
         try:
-            backup_dir = Path(temporary) / "logical-backup"
-            backup_dir.mkdir()
+            backup_dir = Path(backup_temporary.name)
             backup_digests: dict[str, str] = {}
             for table in tables:
                 chunks: list[bytes] = []
@@ -476,8 +476,9 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             self.admin.execute(
                 sql.SQL("DROP DATABASE {}").format(sql.Identifier(target_database))
             )
+            backup_temporary.cleanup()
 
-    def test_modified_applied_sql_artifact_fails_before_database_changes(self) -> None:
+    def test_modified_applied_sql_artifact_fails_before_database_changes(self) -> None
         with tempfile.TemporaryDirectory() as temporary:
             migrations = Path(temporary) / "migrations"
             shutil.copytree(migration_runner.MIGRATIONS_DIR, migrations)
