@@ -304,6 +304,56 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_detects_rewrite_rule_changes(self) -> None:
+        self.connection.execute(
+            "CREATE TABLE sinayxa.fp_probe_rule_table (value integer)"
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                """
+                CREATE RULE fp_probe_rule AS
+                ON INSERT TO sinayxa.fp_probe_rule_table
+                DO INSTEAD NOTHING
+                """
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+            self.assertTrue(
+                any(
+                    item["object_type"] == "rule"
+                    and item["identity"] == "fp_probe_rule"
+                    for item in after.records
+                )
+            )
+        finally:
+            self.connection.execute(
+                "DROP TABLE IF EXISTS sinayxa.fp_probe_rule_table CASCADE"
+            )
+            self.connection.commit()
+
+    def test_fingerprint_detects_materialized_view_population_state(self) -> None:
+        self.connection.execute(
+            "CREATE MATERIALIZED VIEW sinayxa.fp_probe_matview AS "
+            "SELECT 1 AS value"
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                "REFRESH MATERIALIZED VIEW sinayxa.fp_probe_matview WITH NO DATA"
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+        finally:
+            self.connection.execute(
+                "DROP MATERIALIZED VIEW IF EXISTS sinayxa.fp_probe_matview"
+            )
+            self.connection.commit()
+
     def test_fingerprint_detects_constraint_changes(self) -> None:
         self.connection.execute(
             "CREATE TABLE sinayxa.fp_probe_constraint (value integer)"
