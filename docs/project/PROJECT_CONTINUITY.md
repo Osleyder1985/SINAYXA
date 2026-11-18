@@ -212,3 +212,22 @@ Do not mark the documentation lint as passed until the rerun completes successfu
 - merged/closed historical decisions have not been comprehensively reconciled;
 - local Windows worktrees and uncommitted changes remain unverified;
 - the fresh-session recovery test has not been executed.
+
+
+### 12.1 Corrected Markdown and dependency-gate result — HEAD `af2068898a4fc26adc51719ddecf29392f015296`
+
+Exact-head evidence retrieved for the continuity PR:
+
+- Markdown lint: **PASS**, 24 Markdown files, 0 issues. The earlier MD060/MD012/MD032 failures were corrected.
+- Gitleaks: **PASS**.
+- OSV PR scan: still running when this update was inspected.
+- OSV full: **SKIPPED** by workflow design; not a PASS.
+- npm audit: **FAIL**, five HIGH findings from the still-unfixed main-branch dependency chain `markdownlint-cli2 → globby/fast-glob/micromatch → picomatch`. The lint step itself passed; the job proceeded to npm audit and failed there.
+- PowerShell 7.7.0 / Windows: still running when this update was inspected.
+
+Runs: [Security/dependency #44206108625](https://github.com/Osleyder1985/SINAYXA/actions/runs/44206108625) and [PowerShell #44206108054](https://github.com/Osleyder1985/SINAYXA/actions/runs/44206108054).
+
+**Interpretation:** the continuity document now passes Markdown lint. The remaining Security Quality Gate failure is inherited from main and is expected to be addressed by PR #117. PR #119 should remain DRAFT until #117 is reviewed/integrated, then #119 must be updated/rebased and all required gates rerun on the new exact HEAD.
+
+After opening #118/#119, the repository currently has one additional open Issue and one additional open PR compared with the initial snapshot: 30 open Issues (including #118) and 8 open PRs (including #119). The original inventory in Sections 2–3 remains explicitly historical.
+
