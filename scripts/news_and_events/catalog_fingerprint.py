@@ -315,7 +315,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             connection,
             """
             SELECT c.relname, con.conname, con.contype, con.condeferrable,
-                   con.condeferred, con.convalidated,
+                   con.condeferred, con.conenforced, con.convalidated, con.conperiod,
                    pg_get_constraintdef(con.oid, true) AS definition,
                    COALESCE((
                      SELECT jsonb_agg(a.attname ORDER BY k.ordinality)
@@ -348,7 +348,9 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     constraint_type=con["contype"],
                     deferrable=con["condeferrable"],
                     initially_deferred=con["condeferred"],
+                    enforced=con["conenforced"],
                     validated=con["convalidated"],
+                    period=con["conperiod"],
                     definition=con["definition"],
                     local_columns=con["local_columns"],
                     referenced_schema=con["referenced_schema"],
