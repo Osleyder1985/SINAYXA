@@ -23,6 +23,7 @@ class MigrationRecord:
     migration_id: str
     path: str
     sha256: str
+    source_revision: str
     execution_mode: str
 
 
@@ -91,7 +92,7 @@ def load_and_verify_manifest(
             raise MigrationManifestError(f"{label} must be an object")
         _require_exact_keys(
             entry,
-            {"version", "migration_id", "path", "sha256", "execution_mode"},
+            {"version", "migration_id", "path", "sha256", "source_revision", "execution_mode"},
             label,
         )
 
@@ -134,6 +135,12 @@ def load_and_verify_manifest(
         ):
             raise MigrationManifestError(f"{label}.sha256 must be 64 lowercase hexadecimal characters")
 
+        source_revision = entry["source_revision"]
+        if not isinstance(source_revision, str) or not re.fullmatch(
+            r"[0-9a-f]{40}|[0-9a-f]{64}", source_revision
+        ):
+            raise MigrationManifestError(f"{label}.source_revision must be a lowercase Git commit SHA")
+
         execution_mode = entry["execution_mode"]
         if execution_mode != "transactional":
             raise MigrationManifestError(
@@ -168,6 +175,7 @@ def load_and_verify_manifest(
                 migration_id=migration_id,
                 path=relative_path,
                 sha256=actual_digest,
+                source_revision=source_revision,
                 execution_mode=execution_mode,
             )
         )
