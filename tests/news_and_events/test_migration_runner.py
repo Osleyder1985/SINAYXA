@@ -111,15 +111,20 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         now = "2026-01-02T03:04:05+00:00"
 
         with tempfile.TemporaryDirectory() as temporary:
-            migrations = Path(temporary) / "migrations"
-            shutil.copytree(migration_runner.MIGRATIONS_DIR, migrations)
-            manifest_path = migrations / "manifest.json"
-            complete_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            source_migrations = migration_runner.MIGRATIONS_DIR
+            complete_manifest = json.loads(
+                (source_migrations / "manifest.json").read_text(encoding="utf-8")
+            )
 
-            # Each prefix is a synthetic historical snapshot boundary.
+            # Each prefix is a separate, inventory-consistent synthetic snapshot.
             for boundary in range(1, 6):
+                snapshot_dir = Path(temporary) / f"snapshot-{boundary}"
+                snapshot_dir.mkdir()
                 snapshot_manifest = dict(complete_manifest)
                 snapshot_manifest["migrations"] = complete_manifest["migrations"][:boundary]
+                for record in snapshot_manifest["migrations"]:
+                    shutil.copy2(source_migrations / record["path"], snapshot_dir / record["path"])
+                manifest_path = snapshot_dir / "manifest.json"
                 manifest_path.write_text(
                     json.dumps(snapshot_manifest, indent=2) + "\n",
                     encoding="utf-8",
@@ -127,7 +132,7 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                 apply_migrations(
                     self.connection,
                     manifest_path=manifest_path,
-                    migrations_dir=migrations,
+                    migrations_dir=snapshot_dir,
                 )
 
                 if boundary == 1:
@@ -301,16 +306,15 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                         ),
                     )
 
-            manifest_path.write_text(
-                json.dumps(complete_manifest, indent=2) + "\n",
-                encoding="utf-8",
-            )
+            complete_dir = Path(temporary) / "complete-manifest"
+            shutil.copytree(source_migrations, complete_dir)
+            complete_manifest_path = complete_dir / "manifest.json"
             self.assertEqual(
                 (),
                 apply_migrations(
                     self.connection,
-                    manifest_path=manifest_path,
-                    migrations_dir=migrations,
+                    manifest_path=complete_manifest_path,
+                    migrations_dir=complete_dir,
                 ),
             )
 
