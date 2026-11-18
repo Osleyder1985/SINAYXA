@@ -74,5 +74,8 @@ jobs:
       - name: Run PostgreSQL migration runner integration tests
         run: python -m unittest tests.news_and_events.test_migration_runner -v
 
+      - name: Run read-only catalog fingerprint tests
+        run: python -m unittest tests.news_and_events.test_catalog_fingerprint -v
+
       - name: Run PostgreSQL event registry integration tests
         run: python -m unittest tests.news_and_events.test_event_registry -v
