@@ -275,6 +275,9 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                 }),
                 encoding="utf-8",
             )
+            # The verification SELECTs above opened an implicit transaction.
+            # End it before retrying the runner, which deliberately requires IDLE.
+            self.connection.commit()
             resumed = apply_migrations(
                 self.connection,
                 manifest_path=manifest,
