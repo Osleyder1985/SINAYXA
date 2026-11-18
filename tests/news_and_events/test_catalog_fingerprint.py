@@ -73,6 +73,18 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         self.assertTrue(all("kind" in item for item in functions))
         self.assertTrue(all("support_function" in item for item in functions))
         self.assertEqual(18, len(triggers))
+        foreign_keys = [
+            item for item in result.records
+            if item["object_type"] == "constraint"
+            and item["constraint_type"] == "f"
+        ]
+        self.assertTrue(foreign_keys)
+        self.assertTrue(
+            all(item["supporting_index_schema"] for item in foreign_keys)
+        )
+        self.assertTrue(
+            all(item["supporting_index_name"] for item in foreign_keys)
+        )
         self.assertTrue(all("acl" in item for item in columns))
         self.assertTrue(all("owner" in item and "acl" in item for item in types))
         self.assertEqual(0, self.connection.info.transaction_status)
