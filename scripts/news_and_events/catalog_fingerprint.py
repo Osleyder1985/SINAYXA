@@ -165,7 +165,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             """
             SELECT c.relname, c.relkind
             FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
-            WHERE n.nspname = %s AND c.relkind NOT IN ('r', 'p', 'v', 'm', 'S', 'i', 'I', 't')
+            WHERE n.nspname = %s AND c.relkind NOT IN ('r', 'p', 'v', 'm', 'S', 'i', 'I', 't', 'c')
             """,
             (schema_name,),
         )
@@ -365,6 +365,21 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     owner=seq["owner"],
                     owned_by=seq["owned_by"],
                 )
+            )
+
+        unsupported_procedures = _rows(
+            connection,
+            """
+            SELECT p.proname, p.prokind
+            FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+            WHERE n.nspname = %s AND p.prokind NOT IN ('f', 'p')
+            ORDER BY p.proname
+            """,
+            (schema_name,),
+        )
+        if unsupported_procedures:
+            raise CatalogFingerprintError(
+                f"unsupported procedure kinds in {schema_name}: {unsupported_procedures}"
             )
 
         functions = _rows(
