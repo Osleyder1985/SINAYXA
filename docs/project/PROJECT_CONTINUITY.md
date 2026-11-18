@@ -315,3 +315,24 @@ The first run on the expanded audit section found 13 Markdown lint errors (MD012
 Runs: [Security/dependency #44207128924](https://github.com/Osleyder1985/SINAYXA/actions/runs/44207128924) and [PowerShell #44207128530](https://github.com/Osleyder1985/SINAYXA/actions/runs/44207128530).
 
 Do not mark PR #119 fully validated until the PowerShell run completes and the npm audit gate passes on a rebased HEAD after the #117 dependency correction is integrated.
+
+### 14.6 Revisión de seguimiento — 2026-11-17/18
+
+#### PR #117 — remediación GHSA-fc5q-39xc-vjpf
+
+HEAD verificado: `d933dc6849fedca4e74fe1c2f6b0221d13f4d9b4`.
+
+- Se restauró en `.github/workflows/powershell-validation.yml` el filtro `pull_request.paths` original de `main`; se elimina la ampliación innecesaria a todos los PR.
+- Revisión adicional del runner `scripts/validation/lint-markdown.mjs`: enumera archivos con `git ls-files -z`, conserva la configuración `MD013: false` y prueba MD018 con un canary antes del lint completo.
+- Security/dependency run [#44207589168](https://github.com/Osleyder1985/SINAYXA/actions/runs/44207589168): workflow **SUCCESS**. Gitleaks **SUCCESS**, OSV PR scan **SUCCESS**, npm audit **SUCCESS**; OSV full **SKIPPED** y no se cuenta como PASS.
+- Review de seguimiento registrada como COMMENT, no APPROVE (review ID `5948913667`).
+- PR #117 está OPEN, READY FOR REVIEW y NOT MERGED. La remediación está validada en su rama, pero todavía no está integrada en `main`; Issue #116 permanece abierto hasta integración y verificación en la línea base.
+
+#### PR #119 — continuidad documental
+
+- HEAD actual: `40d6487d8e0cb5751c186b510a7434c38d6703ea`.
+- Se corrigió el único error de lint identificado en el HEAD anterior `c86d76dfc7c7509833f0e9c9a82e8a51614cff8f`: MD012 por dos líneas en blanco consecutivas en `docs/project/PROJECT_CONTINUITY.md`.
+- Para el nuevo HEAD, la consulta de workflow runs y el combined commit status no devolvieron ejecuciones ni estados. Esto se registra como **PENDING / NO EVIDENCE**, no como PASS ni FAIL.
+- PR #119 continúa DRAFT / OPEN / NOT MERGED. Requiere ejecutar los quality gates sobre el HEAD exacto y completar la revisión documental.
+
+No se fusionó ningún PR en esta actualización. La prueba de recuperación desde una conversación nueva y la verificación del estado local de Windows continúan pendientes. La prohibición de eliminar chats del proyecto sigue vigente.
