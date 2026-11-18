@@ -461,7 +461,7 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
                 if item["object_type"] == "collation"
                 and item["identity"] == "fp_probe_collation"
             )
-            self.assertEqual("libc", collation["provider"])
+            self.assertEqual("c", collation["provider"])
             self.assertEqual("C", collation["locale"])
             self.assertTrue(collation["owner"])
         finally:
