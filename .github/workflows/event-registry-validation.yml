@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feat/issue-121-fresh-database-migration-runner
+      - feat/issue-121-catalog-fingerprint-readonly
       - test/issue-121-migration-manifest-integrity
     paths:
       - "database/migrations/**"
