@@ -702,6 +702,9 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
                 and item["name"] == "value"
             )
             self.assertEqual("e", column["storage_strategy"])
+            self.assertFalse(
+                any(option.startswith("pg_attver=") for option in column["column_options"])
+            )
         finally:
             self.connection.execute(
                 "DROP TABLE IF EXISTS sinayxa.fp_probe_column_storage"
