@@ -300,3 +300,19 @@ Existing issue evidence still leaves checksum-to-binary comparison, cryptographi
 6. Review #94 independently for its narrow synthetic filesystem scope; do not overstate its evidence.
 
 No merge is performed by this audit. The continuity deletion gate in Section 13 remains in force.
+
+
+### 14.5 Continuity PR validation after the 14.3 table — HEAD `0422d0103d380f703170cbcc03aa174b44f25866`
+
+The first run on the expanded audit section found 13 Markdown lint errors (MD012, MD032 and MD060). These were corrected in the next commit. On the corrected HEAD:
+
+- Markdown lint: **PASS**, 24 files, 0 issues.
+- Gitleaks: **PASS**.
+- OSV PR scan: **SUCCESS**.
+- OSV full: **SKIPPED**, not a PASS.
+- npm audit: **FAIL** due to the five HIGH findings in the base dependency tree (`markdownlint-cli2 → globby/fast-glob/micromatch → picomatch)); this is the known #117 dependency blocker, not a Markdown lint failure.
+- PowerShell 7.7.0 / Windows: still running at the time of this record.
+
+Runs: [Security/dependency #44207128924](https://github.com/Osleyder1985/SINAYXA/actions/runs/44207128924) and [PowerShell #44207128530](https://github.com/Osleyder1985/SINAYXA/actions/runs/44207128530).
+
+Do not mark PR #119 fully validated until the PowerShell run completes and the npm audit gate passes on a rebased HEAD after the #117 dependency correction is integrated.
