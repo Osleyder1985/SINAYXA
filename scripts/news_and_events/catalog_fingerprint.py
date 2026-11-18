@@ -707,6 +707,22 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             connection,
             """
             SELECT e.extname, e.extversion, n.nspname AS schema_name,
+                   e.extrelocatable,
+                   COALESCE((
+                     SELECT jsonb_agg(
+                       jsonb_build_object(
+                         'relation', format('%I.%I', config_schema.nspname, config_relation.relname),
+                         'condition', e.extcondition[config_item.ordinality::integer]
+                       )
+                       ORDER BY config_item.ordinality
+                     )
+                     FROM unnest(e.extconfig) WITH ORDINALITY
+                          AS config_item(relation_oid, ordinality)
+                     JOIN pg_class config_relation
+                       ON config_relation.oid = config_item.relation_oid
+                     JOIN pg_namespace config_schema
+                       ON config_schema.oid = config_relation.relnamespace
+                   ), '[]'::jsonb) AS configuration_tables,
                    owner.rolname AS owner
             FROM pg_extension e
             JOIN pg_namespace n ON n.oid = e.extnamespace
@@ -723,6 +739,8 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     ext["schema_name"],
                     ext["extname"],
                     version=ext["extversion"],
+                    relocatable=ext["extrelocatable"],
+                    configuration_tables=ext["configuration_tables"],
                     owner=ext["owner"],
                 )
             )
