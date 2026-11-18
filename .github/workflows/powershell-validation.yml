@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feat/issue-121-fresh-database-migration-runner
       - quality/powershell-analyzer-hardening
   pull_request:
     branches:
