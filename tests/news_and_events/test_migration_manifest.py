@@ -184,6 +184,37 @@ class MigrationManifestTests(unittest.TestCase):
         baseline_revision = source_revision
         return root, baseline_revision, source_revision
 
+    def test_git_provenance_rejects_unlisted_sql_in_baseline_inventory(self) -> None:
+        root, _, source = self._git_repository()
+        extra = root / "database/migrations/0002_unlisted.sql"
+        extra.write_bytes(b"SELECT 2;\\n")
+        subprocess.run(
+            ["git", "-C", str(root), "add", "."], check=True,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        )
+        subprocess.run(
+            ["git", "-C", str(root), "commit", "-q", "-m", "add unlisted migration"],
+            check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        )
+        baseline = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            check=True, stdout=subprocess.PIPE, text=True,
+        ).stdout.strip()
+        sql_bytes = (root / "database/migrations/0001_example.sql").read_bytes()
+        record = MigrationRecord(
+            version=1,
+            migration_id="example-0001",
+            path="0001_example.sql",
+            sha256=hashlib.sha256(sql_bytes).hexdigest(),
+            source_revision=source,
+            execution_mode="transactional",
+        )
+        with self.assertRaisesRegex(MigrationManifestError, "baseline SQL inventory mismatch"):
+            _verify_git_provenance(
+                (record,), baseline, root / "database/migrations/manifest.json",
+                root / "database/migrations",
+            )
+
     def test_git_provenance_rejects_digest_not_matching_baseline_blob(self) -> None:
         root, baseline, source = self._git_repository()
         record = MigrationRecord(
