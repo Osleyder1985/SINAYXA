@@ -177,6 +177,24 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                 f"unsupported relation kinds in {schema_name}: {unsupported_relations}"
             )
 
+        partitioned_relations = _rows(
+            connection,
+            """
+            SELECT c.relname, c.relkind, c.relispartition
+            FROM pg_class c
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            WHERE n.nspname = %s
+              AND (c.relkind = 'p' OR c.relispartition)
+            ORDER BY c.relname
+            """,
+            (schema_name,),
+        )
+        if partitioned_relations:
+            raise CatalogFingerprintError(
+                "unsupported partitioned relations in "
+                f"{schema_name}: {partitioned_relations}"
+            )
+
         for rel in relation_rows:
             name = f"{schema_name}.{rel['relname']}"
             records.append(
