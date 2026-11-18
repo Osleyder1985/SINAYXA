@@ -402,6 +402,81 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             ).fetchone()[0],
         )
 
+        # Logical data backup: schema is recreated from the approved migrations.
+        tables = (
+            "events",
+            "event_sources",
+            "temporal_assertions",
+            "temporal_conflicts",
+            "conflict_decisions",
+            "temporal_assessments",
+            "reproducibility_manifests",
+            "source_artifacts",
+            "evidence_artifacts",
+        )
+        self.connection.commit()
+        target_database = f"sinayxa_restore_{uuid4().hex}"
+        self.admin.execute(
+            sql.SQL("CREATE DATABASE {}").format(sql.Identifier(target_database))
+        )
+        target_parameters = conninfo_to_dict(DATABASE_URL)
+        target_parameters["dbname"] = target_database
+        target_url = make_conninfo(**target_parameters)
+        restored = None
+        try:
+            backup_dir = Path(temporary) / "logical-backup"
+            backup_dir.mkdir()
+            backup_digests: dict[str, str] = {}
+            for table in tables:
+                chunks: list[bytes] = []
+                with self.connection.cursor().copy(
+                    f"COPY (SELECT * FROM sinayxa.{table} ORDER BY 1, 2) "
+                    "TO STDOUT (FORMAT BINARY)"
+                ) as copy:
+                    while chunk := copy.read():
+                        chunks.append(chunk)
+                backup_bytes = b"".join(chunks)
+                (backup_dir / f"{table}.copy").write_bytes(backup_bytes)
+                backup_digests[table] = hashlib.sha256(backup_bytes).hexdigest()
+            self.connection.commit()
+
+            restored = psycopg.connect(target_url)
+            self.assertEqual(5, len(apply_migrations(restored)))
+            for table in tables:
+                backup_bytes = (backup_dir / f"{table}.copy").read_bytes()
+                with restored.cursor().copy(
+                    f"COPY sinayxa.{table} FROM STDIN (FORMAT BINARY)"
+                ) as copy:
+                    copy.write(backup_bytes)
+            restored.commit()
+
+            for table in tables:
+                restored_chunks: list[bytes] = []
+                with restored.cursor().copy(
+                    f"COPY (SELECT * FROM sinayxa.{table} ORDER BY 1, 2) "
+                    "TO STDOUT (FORMAT BINARY)"
+                ) as copy:
+                    while chunk := copy.read():
+                        restored_chunks.append(chunk)
+                restored_bytes = b"".join(restored_chunks)
+                self.assertEqual(
+                    backup_digests[table],
+                    hashlib.sha256(restored_bytes).hexdigest(),
+                    f"logical backup restore differs for sinayxa.{table}",
+                )
+            restored.commit()
+        finally:
+            if restored is not None:
+                restored.close()
+            self.admin.execute(
+                "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+                "WHERE datname = %s AND pid <> pg_backend_pid()",
+                (target_database,),
+            )
+            self.admin.execute(
+                sql.SQL("DROP DATABASE {}").format(sql.Identifier(target_database))
+            )
+
     def test_modified_applied_sql_artifact_fails_before_database_changes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             migrations = Path(temporary) / "migrations"
