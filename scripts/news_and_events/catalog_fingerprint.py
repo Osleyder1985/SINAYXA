@@ -130,7 +130,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
             connection,
             """
             SELECT c.relname, c.relkind, c.relpersistence, c.relispartition,
-                   c.relrowsecurity, c.relforcerowsecurity, c.relreplident,
+                   c.relrowsecurity, c.relforcerowsecurity, c.relreplident, c.relispopulated,
                    owner.rolname AS owner,
                    COALESCE((
                      SELECT jsonb_agg(jsonb_build_object(
@@ -208,6 +208,7 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     row_security=rel["relrowsecurity"],
                     force_row_security=rel["relforcerowsecurity"],
                     replica_identity=rel["relreplident"],
+                    is_populated=rel["relispopulated"],
                     owner=rel["owner"],
                     acl=rel["acl"],
                     partition_strategy=rel["partition_strategy"],
@@ -469,6 +470,31 @@ def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> Catalog
                     configuration=fn["configuration"],
                     owner=fn["owner"],
                     acl=fn["acl"],
+                )
+            )
+
+        rules = _rows(
+            connection,
+            """
+            SELECT c.relname AS relation_name, r.rulename, r.ev_type,
+                   r.ev_enabled, pg_get_ruledef(r.oid, true) AS definition
+            FROM pg_rewrite r
+            JOIN pg_class c ON c.oid = r.ev_class
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            WHERE n.nspname = %s
+            ORDER BY c.relname, r.rulename
+            """,
+            (schema_name,),
+        )
+        for rule in rules:
+            records.append(
+                _record(
+                    "rule",
+                    f"{schema_name}.{rule['relation_name']}",
+                    rule["rulename"],
+                    event_type=rule["ev_type"],
+                    enabled=rule["ev_enabled"],
+                    definition=rule["definition"],
                 )
             )
 
