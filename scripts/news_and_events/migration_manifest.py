@@ -46,6 +46,93 @@ def _require_exact_keys(value: dict[str, Any], expected: set[str], label: str) -
         )
 
 
+def _git_output(repository_root: Path, *arguments: str) -> bytes:
+    """Run a read-only Git command and fail closed on missing history or objects."""
+    import subprocess
+
+    try:
+        completed = subprocess.run(
+            ["git", "-C", str(repository_root), *arguments],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        detail = getattr(exc, "stderr", b"") or b""
+        if isinstance(detail, bytes):
+            detail = detail.decode("utf-8", errors="replace").strip()
+        raise MigrationManifestError(
+            f"Git provenance verification failed for {' '.join(arguments)}: {detail or exc}"
+        ) from exc
+    return completed.stdout
+
+
+def _verify_git_provenance(
+    records: tuple[MigrationRecord, ...],
+    baseline_revision: str,
+    manifest_path: Path,
+    migrations_dir: Path,
+) -> None:
+    """Verify manifest digests against baseline blobs and source commits against Git history."""
+    import subprocess
+
+    manifest_path = manifest_path.resolve()
+    migrations_dir = migrations_dir.resolve()
+    try:
+        repository_root_text = subprocess.run(
+            ["git", "-C", str(manifest_path.parent), "rev-parse", "--show-toplevel"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        # Pure temporary-directory tests can validate structure without a Git checkout.
+        # The CI workflow explicitly checks out full history, so this is not skipped there.
+        return
+
+    repository_root = Path(repository_root_text).resolve()
+    try:
+        migrations_relative = migrations_dir.relative_to(repository_root)
+    except ValueError as exc:
+        raise MigrationManifestError(
+            "migrations directory must be inside the Git repository"
+        ) from exc
+
+    _git_output(repository_root, "cat-file", "-e", f"{baseline_revision}^{{commit}}")
+
+    for record in records:
+        git_path = (migrations_relative / PurePosixPath(record.path)).as_posix()
+        baseline_bytes = _git_output(
+            repository_root, "show", f"{baseline_revision}:{git_path}"
+        )
+        baseline_digest = hashlib.sha256(baseline_bytes).hexdigest()
+        if baseline_digest != record.sha256:
+            raise MigrationManifestError(
+                f"baseline SHA-256 mismatch for {record.path}: "
+                f"manifest={record.sha256}, baseline={baseline_digest}"
+            )
+
+        _git_output(repository_root, "cat-file", "-e", f"{record.source_revision}^{{commit}}")
+        change_output = _git_output(
+            repository_root,
+            "diff-tree",
+            "--root",
+            "--no-commit-id",
+            "--name-status",
+            "-r",
+            record.source_revision,
+            "--",
+            git_path,
+        ).decode("utf-8", errors="strict")
+        changes = [line.split("\\t", 1) for line in change_output.splitlines() if line]
+        if not any(len(parts) == 2 and parts[0] == "A" and parts[1] == git_path for parts in changes):
+            raise MigrationManifestError(
+                f"source_revision did not add declared migration path: "
+                f"{record.source_revision} -> {git_path}"
+            )
+
+
 def load_and_verify_manifest(
     manifest_path: Path, migrations_dir: Path
 ) -> tuple[MigrationRecord, ...]:
@@ -192,4 +279,8 @@ def load_and_verify_manifest(
             f"SQL inventory mismatch; unlisted={unlisted}, missing={missing}"
         )
 
-    return tuple(records)
+    verified_records = tuple(records)
+    _verify_git_provenance(
+        verified_records, baseline, manifest_path, migrations_dir
+    )
+    return verified_records
