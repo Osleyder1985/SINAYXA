@@ -9,6 +9,7 @@ import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from threading import Barrier
+from unittest.mock import patch
 from uuid import uuid4
 
 import psycopg
@@ -77,6 +78,47 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                 "SELECT bootstrap_sha256::text FROM sinayxa_control.bootstrap_state"
             ).fetchone()[0].strip(),
         )
+
+    def test_modified_bootstrap_artifact_fails_before_database_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            altered = Path(temporary) / "bootstrap.sql"
+            altered.write_text("CREATE SCHEMA should_not_be_created;\\n", encoding="utf-8")
+            with patch(
+                "scripts.news_and_events.migration_runner.BOOTSTRAP_PATH", altered
+            ):
+                with self.assertRaisesRegex(MigrationRunnerError, "bootstrap SHA-256 mismatch"):
+                    apply_migrations(self.connection)
+
+        self.assertIsNone(
+            self.connection.execute(
+                "SELECT to_regnamespace('sinayxa_control')"
+            ).fetchone()[0]
+        )
+
+    def test_unknown_integrity_ledger_entry_fails_closed(self) -> None:
+        apply_migrations(self.connection)
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa_control.migration_integrity
+                (migration_id, version, sha256, source_revision, runner_version)
+            VALUES ('unrecognized-migration', 99, repeat('0', 64), repeat('a', 40), 'test')
+            """
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(MigrationRunnerError, "unknown migration ID"):
+            apply_migrations(self.connection)
+
+    def test_legacy_compatibility_ledger_disagreement_fails_closed(self) -> None:
+        apply_migrations(self.connection)
+        self.connection.execute(
+            "DELETE FROM sinayxa.schema_migrations "
+            "WHERE migration_id = 'issue-2-event-registry-0001'"
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(MigrationRunnerError, "ledger disagreement"):
+            apply_migrations(self.connection)
 
     def test_applied_migration_digest_drift_fails_closed(self) -> None:
         apply_migrations(self.connection)
