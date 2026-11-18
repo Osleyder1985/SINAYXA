@@ -37,6 +37,13 @@ RESULT_restore=NOT_RUN
 RESULT_integrity=NOT_RUN
 RESULT_corrupt_dump_rejection=NOT_RUN
 RESULT_repeat_restore=NOT_RUN
+RESULT_restore_gate=NOT_RUN
+RESULT_restore_reconciliation=NOT_RUN
+RESULT_missing_ledger_fail_closed=NOT_RUN
+RESULT_invalid_ledger_fail_closed=NOT_RUN
+RESULT_unknown_reference_fail_closed=NOT_RUN
+RESULT_reconciliation_gate_function=NOT_RUN
+RESULT_preserve_unaffected_records=NOT_RUN
 RESULT_container_cleanup=NOT_RUN
 RESULT_volume_cleanup=NOT_RUN
 RESULT_cleanup=NOT_RUN
@@ -49,7 +56,7 @@ write_report() {
   end_epoch="$(date +%s)"
   cat > "$REPORT" <<EOF
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.3.0",
   "classification": "LAB_SYNTHETIC",
   "status": "$status",
   "postgres_image": "$IMAGE",
@@ -79,6 +86,13 @@ write_report() {
     "integrity": "$RESULT_integrity",
     "corrupt_dump_rejection": "$RESULT_corrupt_dump_rejection",
     "repeat_restore": "$RESULT_repeat_restore",
+    "restore_gate_before_reconciliation": "$RESULT_restore_gate",
+    "restore_reconciliation": "$RESULT_restore_reconciliation",
+    "missing_ledger_fail_closed": "$RESULT_missing_ledger_fail_closed",
+    "invalid_ledger_fail_closed": "$RESULT_invalid_ledger_fail_closed",
+    "unknown_reference_fail_closed": "$RESULT_unknown_reference_fail_closed",
+    "reconciliation_gate_function": "$RESULT_reconciliation_gate_function",
+    "preserve_unaffected_records": "$RESULT_preserve_unaffected_records",
     "container_cleanup": "$RESULT_container_cleanup",
     "volume_cleanup": "$RESULT_volume_cleanup",
     "cleanup": "$RESULT_cleanup"
@@ -94,6 +108,13 @@ cleanup() {
   local rc=$?
   trap - EXIT
   set +e
+
+  if [[ "$rc" -ne 0 && "$CONTAINER_CREATED" == true ]]; then
+    echo "::group::PostgreSQL container failure diagnostics"
+    docker inspect --format 'state={{.State.Status}} exit_code={{.State.ExitCode}} error={{.State.Error}}' "$CONTAINER" 2>&1 || true
+    docker logs "$CONTAINER" 2>&1 || true
+    echo "::endgroup::"
+  fi
 
   if [[ "$CONTAINER_CREATED" == true ]]; then
     docker rm -fv "$CONTAINER" >/dev/null 2>&1 || true
@@ -209,7 +230,9 @@ if [[ "$SERVER_VERSION" != "$EXPECTED_VERSION"* || "$CLIENT_VERSION" != "$EXPECT
 fi
 RESULT_container=PASS
 
-for db in sinayxa_source sinayxa_restored sinayxa_repeated; do
+docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d postgres -c "CREATE ROLE sinayxa_consumer LOGIN PASSWORD 'synthetic-consumer-only'"
+
+for db in sinayxa_source sinayxa_restored sinayxa_repeated sinayxa_missing_ledger sinayxa_invalid_ledger sinayxa_unknown_reference; do
   docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -c "CREATE DATABASE $db"
 done
 
@@ -309,4 +332,199 @@ if ! cmp -s "$WORK_DIR/sinayxa_source-data.sql" "$WORK_DIR/sinayxa_repeated-data
 fi
 RESULT_repeat_restore=PASS
 
-echo "PostgreSQL synthetic backup/restore laboratory completed."
+for db in sinayxa_missing_ledger sinayxa_invalid_ledger sinayxa_unknown_reference; do
+  docker exec -i "$CONTAINER" pg_restore --exit-on-error --no-owner --no-acl -U postgres -d "$db" < "$WORK_DIR/backup.dump"
+done
+
+# Restore-gating test: this backup predates the disposition. The synthetic
+# ledger is separate from the backup; restored copies remain inaccessible
+# until the ledger is validated and reconciled.
+for db in sinayxa_restored sinayxa_missing_ledger sinayxa_invalid_ledger sinayxa_unknown_reference; do
+  docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "REVOKE CONNECT ON DATABASE $db FROM PUBLIC"
+  docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "REVOKE ALL ON SCHEMA research FROM PUBLIC"
+  docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "CREATE SCHEMA reconciliation; REVOKE ALL ON SCHEMA reconciliation FROM PUBLIC; CREATE TABLE reconciliation.applied_dispositions (disposition_id BIGINT PRIMARY KEY, action TEXT NOT NULL CHECK (action = 'DELETE'), applied_at TIMESTAMPTZ NOT NULL DEFAULT now())"
+done
+
+consumer_query() {
+  docker exec -e PGPASSWORD=synthetic-consumer-only "$CONTAINER" psql -h 127.0.0.1 -U sinayxa_consumer -d "$1" -Atc "SELECT 1"
+}
+
+consumer_asset_count() {
+  docker exec -e PGPASSWORD=synthetic-consumer-only "$CONTAINER" psql -h 127.0.0.1 -U sinayxa_consumer -d "$1" -Atc "SELECT (SELECT count(*) FROM research.assets)::text || ':' || (SELECT count(*) FROM research.observations)::text || ':' || (SELECT string_agg(symbol, ',' ORDER BY symbol) FROM research.assets)"
+}
+
+if consumer_query sinayxa_restored >"$WORK_DIR/gate.out" 2>"$WORK_DIR/gate.err"; then
+  echo "Restored database was readable before reconciliation." >&2
+  exit 1
+fi
+RESULT_restore_gate=PASS
+
+# This single gate function is exercised for every scenario. It must not grant
+# consumer access until the ledger is present, structurally valid, references
+# the expected restored record, and the reconciliation result is verified.
+# A transactionally written receipt distinguishes a valid replay from an
+# unrelated missing reference with coincidentally matching row counts.
+reconcile_and_open() {
+  local db="$1"
+  local ledger="$2"
+  local disposition_id
+  local reference_exists
+  local final_state
+  local target_count
+
+  if [[ ! -f "$ledger" ]]; then
+    echo "Disposition ledger is missing for $db." >&2
+    return 1
+  fi
+  if ! awk -F '\t' 'NF == 2 && $1 == "DELETE" && $2 ~ /^[1-9][0-9]*$/ { valid++ } END { exit !(NR == 1 && valid == 1) }' "$ledger"; then
+    echo "Disposition ledger is malformed for $db." >&2
+    return 1
+  fi
+
+  disposition_id="$(cut -f2 "$ledger")"
+  if ! reference_exists="$(docker exec "$CONTAINER" psql -U postgres -d "$db" -Atc "SELECT EXISTS (SELECT 1 FROM research.assets WHERE asset_id = $disposition_id)")"; then
+    echo "Could not resolve disposition reference for $db." >&2
+    return 1
+  fi
+
+  if [[ "$reference_exists" == t ]]; then
+    if ! docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "BEGIN; DELETE FROM research.observations WHERE asset_id = $disposition_id; DELETE FROM research.assets WHERE asset_id = $disposition_id; INSERT INTO reconciliation.applied_dispositions(disposition_id, action) VALUES ($disposition_id, 'DELETE'); COMMIT;"; then
+      echo "Disposition reconciliation failed for $db." >&2
+      return 1
+    fi
+  elif [[ "$reference_exists" == f ]]; then
+    # A replay is accepted only when this exact disposition has a committed
+    # receipt from the first successful reconciliation; cardinality alone is
+    # not proof that an arbitrary unknown reference was previously applied.
+    local receipt_exists
+    if ! receipt_exists="$(docker exec "$CONTAINER" psql -U postgres -d "$db" -Atc "SELECT EXISTS (SELECT 1 FROM reconciliation.applied_dispositions WHERE disposition_id = $disposition_id AND action = 'DELETE')")"; then
+      return 1
+    fi
+    if [[ "$receipt_exists" != t ]]; then
+      echo "Disposition reference is unknown or has no reconciliation receipt for $db." >&2
+      return 1
+    fi
+  else
+    echo "Disposition reference check returned an invalid result for $db." >&2
+    return 1
+  fi
+
+  if ! final_state="$(docker exec "$CONTAINER" psql -U postgres -d "$db" -Atc "SELECT (SELECT count(*) FROM research.assets)::text || ':' || (SELECT count(*) FROM research.observations)::text")"; then
+    return 1
+  fi
+  if [[ "$final_state" != "2:3" ]]; then
+    echo "Unexpected reconciled state for $db: $final_state" >&2
+    return 1
+  fi
+
+  if ! target_count="$(docker exec "$CONTAINER" psql -U postgres -d "$db" -Atc "SELECT count(*) FROM research.assets WHERE asset_id = $disposition_id")"; then
+    return 1
+  fi
+  if [[ "$target_count" != 0 ]]; then
+    echo "Disposed asset remains present for $db." >&2
+    return 1
+  fi
+
+  # Access is granted only after all ledger and postcondition checks pass.
+  if ! docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "GRANT USAGE ON SCHEMA research TO sinayxa_consumer; GRANT SELECT ON ALL TABLES IN SCHEMA research TO sinayxa_consumer"; then
+    return 1
+  fi
+  # CONNECT is granted last so any earlier privilege failure leaves the
+  # restored database inaccessible to the consumer.
+  if ! docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "GRANT CONNECT ON DATABASE $db TO sinayxa_consumer"; then
+    return 1
+  fi
+}
+
+printf 'DELETE\t3\n' > "$WORK_DIR/disposition-ledger.tsv"
+if ! reconcile_and_open sinayxa_restored "$WORK_DIR/disposition-ledger.tsv"; then
+  echo "Valid synthetic ledger was rejected." >&2
+  exit 1
+fi
+FIRST_RECONCILED_STATE="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_restored -Atc "SELECT (SELECT count(*) FROM research.assets)::text || ':' || (SELECT count(*) FROM research.observations)::text")"
+
+# Reapply the same ledger through the same gate function. It must be a no-op.
+if ! reconcile_and_open sinayxa_restored "$WORK_DIR/disposition-ledger.tsv"; then
+  echo "Repeated reconciliation was not idempotent." >&2
+  exit 1
+fi
+SECOND_RECONCILED_STATE="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_restored -Atc "SELECT (SELECT count(*) FROM research.assets)::text || ':' || (SELECT count(*) FROM research.observations)::text")"
+if [[ "$FIRST_RECONCILED_STATE" != "$SECOND_RECONCILED_STATE" ]]; then
+  echo "Repeated disposition changed the reconciled state." >&2
+  exit 1
+fi
+
+VISIBLE_GATE="$(consumer_query sinayxa_restored)"
+if [[ "$VISIBLE_GATE" != 1 ]]; then
+  echo "Consumer connection gate did not open after reconciliation." >&2
+  exit 1
+fi
+VISIBLE_COUNTS="$(consumer_asset_count sinayxa_restored)"
+if [[ "$VISIBLE_COUNTS" != "2:3:BTCUSDT,ETHUSDT" ]]; then
+  echo "Unexpected consumer-visible asset count after reconciliation: $VISIBLE_COUNTS" >&2
+  exit 1
+fi
+VISIBLE_TARGET="$(docker exec -e PGPASSWORD=synthetic-consumer-only "$CONTAINER" psql -h 127.0.0.1 -U sinayxa_consumer -d sinayxa_restored -Atc "SELECT count(*) FROM research.assets WHERE asset_id = 3")"
+if [[ "$VISIBLE_TARGET" != 0 ]]; then
+  echo "Disposed synthetic asset became visible after reconciliation." >&2
+  exit 1
+fi
+VISIBLE_ASSETS="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_restored -Atc "SELECT string_agg(asset_id::text || ':' || symbol || ':' || active::text || ':' || to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS'), '|' ORDER BY asset_id) FROM research.assets")"
+if [[ "$VISIBLE_ASSETS" != "1:BTCUSDT:true:2026-01-01 00:00:00|2:ETHUSDT:true:2026-01-02 00:00:00" ]]; then
+  echo "Unaffected asset records changed during reconciliation: $VISIBLE_ASSETS" >&2
+  exit 1
+fi
+VISIBLE_OBSERVATIONS="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_restored -Atc "SELECT string_agg(observation_id::text || ':' || asset_id::text || ':' || price::text || ':' || source_label, '|' ORDER BY observation_id) FROM research.observations")"
+if [[ "$VISIBLE_OBSERVATIONS" != "1:1:65000.12500000:synthetic-a|2:1:66100.50000000:synthetic-a|3:2:3200.75000000:synthetic-b" ]]; then
+  echo "Unaffected observation records changed during reconciliation: $VISIBLE_OBSERVATIONS" >&2
+  exit 1
+fi
+RESULT_preserve_unaffected_records=PASS
+RESULT_restore_reconciliation=PASS
+
+# Exercise the same gate function with missing, malformed, and unknown ledgers.
+# Each failure must happen before GRANT CONNECT, and consumer access must remain denied.
+if reconcile_and_open sinayxa_missing_ledger "$WORK_DIR/missing-ledger.tsv"; then
+  echo "Missing ledger was unexpectedly accepted." >&2
+  exit 1
+fi
+if consumer_query sinayxa_missing_ledger >"$WORK_DIR/missing.out" 2>"$WORK_DIR/missing.err"; then
+  echo "Consumer access opened despite a missing ledger." >&2
+  exit 1
+fi
+RESULT_missing_ledger_fail_closed=PASS
+
+printf 'DELETE\tthree\n' > "$WORK_DIR/invalid-ledger.tsv"
+if reconcile_and_open sinayxa_invalid_ledger "$WORK_DIR/invalid-ledger.tsv"; then
+  echo "Malformed ledger was unexpectedly accepted." >&2
+  exit 1
+fi
+if consumer_query sinayxa_invalid_ledger >"$WORK_DIR/invalid.out" 2>"$WORK_DIR/invalid.err"; then
+  echo "Consumer access opened despite a malformed ledger." >&2
+  exit 1
+fi
+RESULT_invalid_ledger_fail_closed=PASS
+
+# Reproduce the former false-positive shape deliberately: this database has
+# the expected 2:3 row counts, but no receipt exists for disposition 9999.
+# Matching cardinalities must never authorize an unrelated missing reference.
+docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -U postgres -d sinayxa_unknown_reference -c "DELETE FROM research.observations WHERE asset_id = 3; DELETE FROM research.assets WHERE asset_id = 3"
+UNKNOWN_REFERENCE_STATE="$(docker exec "$CONTAINER" psql -U postgres -d sinayxa_unknown_reference -Atc "SELECT (SELECT count(*) FROM research.assets)::text || ':' || (SELECT count(*) FROM research.observations)::text")"
+if [[ "$UNKNOWN_REFERENCE_STATE" != "2:3" ]]; then
+  echo "Unknown-reference collision fixture was not prepared: $UNKNOWN_REFERENCE_STATE" >&2
+  exit 1
+fi
+
+printf 'DELETE\t9999\n' > "$WORK_DIR/unknown-ledger.tsv"
+if reconcile_and_open sinayxa_unknown_reference "$WORK_DIR/unknown-ledger.tsv"; then
+  echo "Unknown disposition reference was unexpectedly accepted." >&2
+  exit 1
+fi
+if consumer_query sinayxa_unknown_reference >"$WORK_DIR/unknown.out" 2>"$WORK_DIR/unknown.err"; then
+  echo "Consumer access opened despite an unknown disposition reference." >&2
+  exit 1
+fi
+RESULT_unknown_reference_fail_closed=PASS
+RESULT_reconciliation_gate_function=PASS
+
+echo "PostgreSQL synthetic backup/restore/reconciliation laboratory completed."
