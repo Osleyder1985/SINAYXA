@@ -1,0 +1,1131 @@
+{
+  "contract_version": "0.2.2",
+  "package_id": "synthetic-contract-78-v020",
+  "created_at": "2026-11-15T22:00:00Z",
+  "claims": [
+    {
+      "claim_id": "claim-btc-purchase",
+      "claim_version": 1,
+      "proposition": "Una entidad X aprobó una compra de BTC por un importe determinado.",
+      "scope": "Caso sintético; no describe un hecho real.",
+      "valid_time_start": null,
+      "valid_time_end": null,
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "supersedes_claim_version_id": null,
+      "claim_version_id": "claim-btc-purchase-v1"
+    }
+  ],
+  "claim_components": [
+    {
+      "claim_component_id": "component-entity",
+      "claim_id": "claim-btc-purchase",
+      "component_key": "entity",
+      "proposition_fragment": "La entidad X realizó la acción.",
+      "scope": "Identidad de la entidad; caso sintético.",
+      "version": 1,
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "claim_component_version_id": "component-entity-v1",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "supersedes_component_version_id": null
+    },
+    {
+      "claim_component_id": "component-amount",
+      "claim_id": "claim-btc-purchase",
+      "component_key": "amount",
+      "proposition_fragment": "El importe fue el indicado.",
+      "scope": "Importe; caso sintético.",
+      "version": 1,
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "claim_component_version_id": "component-amount-v1",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "supersedes_component_version_id": null
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "src_01234567-89ab-4cde-8fab-0123456789ab",
+      "created_at": "2026-11-15T22:00:00Z",
+      "recorded_at": "2026-11-15T22:00:00Z"
+    },
+    {
+      "source_id": "src_fedcba98-7654-4321-8abc-fedcba987654",
+      "created_at": "2026-11-15T22:00:00Z",
+      "recorded_at": "2026-11-15T22:00:00Z"
+    }
+  ],
+  "source_versions": [
+    {
+      "source_version_id": "version-a1",
+      "source_id": "src_01234567-89ab-4cde-8fab-0123456789ab",
+      "version_label": "v1",
+      "version_sequence": 1,
+      "published_at": "2026-11-15T20:00:00Z",
+      "first_detected_at": "2026-11-15T20:05:00Z",
+      "retrieved_at": "2026-11-15T20:10:00Z",
+      "canonical_reference": "https://example.invalid/a",
+      "content_reference": null,
+      "content_hash": null,
+      "hash_algorithm": null,
+      "supersedes_source_version_id": null,
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "first_publicly_observed_at": null,
+      "original_timestamps": [
+        {
+          "field": "PUBLICATION_TIME",
+          "original_value": "2026-11-15T20",
+          "original_zone": "UTC",
+          "precision": "HOUR",
+          "basis": "SOURCE_STATED"
+        }
+      ]
+    },
+    {
+      "source_version_id": "version-b1",
+      "source_id": "src_fedcba98-7654-4321-8abc-fedcba987654",
+      "version_label": "v1",
+      "published_at": null,
+      "first_detected_at": "2026-11-15T20:06:00Z",
+      "retrieved_at": "2026-11-15T20:11:00Z",
+      "canonical_reference": "https://example.invalid/b",
+      "content_reference": null,
+      "content_hash": null,
+      "hash_algorithm": null,
+      "supersedes_source_version_id": null,
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "first_publicly_observed_at": null,
+      "original_timestamps": [],
+      "version_sequence": 1
+    }
+  ],
+  "identity_assessments": [
+    {
+      "identity_assessment_id": "identity-a",
+      "source_id": "src_01234567-89ab-4cde-8fab-0123456789ab",
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "identity": "IDENTIFICADA",
+      "anonymous_to_public": false,
+      "anonymous_to_publisher": false,
+      "anonymous_to_sinayxa": false,
+      "identity_verified_by_publisher": false,
+      "identity_verified_by_sinayxa": false,
+      "verification_evidence_refs": [],
+      "limitations": [
+        "Caso sintético; identidad no verificada."
+      ],
+      "recorded_at": "2026-11-15T22:00:00Z"
+    }
+  ],
+  "evaluation_units": [
+    {
+      "assessment_unit_id": "unit-a-entity",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "source_id": "src_01234567-89ab-4cde-8fab-0123456789ab",
+      "source_version_id": "version-a1",
+      "access_path": "PUBLIC_URL",
+      "access_status": "PÚBLICO_LEGÍTIMO",
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "source_type": "SECUNDARIA",
+      "source_subtype": "REPRODUCCION",
+      "knowledge_basis": "REPRODUCCIÓN_SIN_VERIFICACIÓN_PROPIA",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "dissemination": "REPUBLICADA",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1"
+    },
+    {
+      "assessment_unit_id": "unit-b-entity",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "source_id": "src_fedcba98-7654-4321-8abc-fedcba987654",
+      "source_version_id": "version-b1",
+      "access_path": "PUBLIC_URL",
+      "access_status": "PÚBLICO_LEGÍTIMO",
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "source_type": "DESCONOCIDA",
+      "source_subtype": "REPRODUCCION",
+      "knowledge_basis": "DESCONOCIDA",
+      "institutional_character": "DESCONOCIDO",
+      "dissemination": "DESCONOCIDA",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1"
+    },
+    {
+      "assessment_unit_id": "unit-a-amount",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-amount",
+      "source_id": "src_01234567-89ab-4cde-8fab-0123456789ab",
+      "source_version_id": "version-a1",
+      "access_path": "PUBLIC_URL",
+      "access_status": "PÚBLICO_LEGÍTIMO",
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "source_type": "SECUNDARIA",
+      "source_subtype": "REPRODUCCION",
+      "knowledge_basis": "REPRODUCCIÓN_SIN_VERIFICACIÓN_PROPIA",
+      "institutional_character": "NO_INSTITUCIONAL",
+      "dissemination": "REPUBLICADA",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-amount-v1"
+    },
+    {
+      "assessment_unit_id": "unit-b-amount",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-amount",
+      "source_id": "src_fedcba98-7654-4321-8abc-fedcba987654",
+      "source_version_id": "version-b1",
+      "access_path": "PUBLIC_URL",
+      "access_status": "PÚBLICO_LEGÍTIMO",
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "source_type": "DESCONOCIDA",
+      "source_subtype": "REPRODUCCION",
+      "knowledge_basis": "DESCONOCIDA",
+      "institutional_character": "DESCONOCIDO",
+      "dissemination": "DESCONOCIDA",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-amount-v1"
+    }
+  ],
+  "evidence_items": [
+    {
+      "evidence_id": "evidence-a",
+      "source_version_id": "version-a1",
+      "evidence_kind": "DECLARACIÓN",
+      "information_nature": "AFIRMACIÓN",
+      "factor_dimensions": [],
+      "content_reference": "https://example.invalid/a",
+      "integrity_check": {
+        "algorithm": "DESCONOCIDO",
+        "expected_digest": null,
+        "observed_digest": null,
+        "checked_at": null,
+        "result": "NOT_CHECKED"
+      },
+      "authenticity_status": "NO_APLICA",
+      "access_status": "PÚBLICO_LEGÍTIMO",
+      "recorded_at": "2026-11-15T22:00:00Z"
+    },
+    {
+      "evidence_id": "evidence-b",
+      "source_version_id": "version-b1",
+      "evidence_kind": "DOCUMENTO",
+      "information_nature": "POSIBLE_FILTRACIÓN",
+      "factor_dimensions": [],
+      "content_reference": "https://example.invalid/b",
+      "integrity_check": {
+        "algorithm": "DESCONOCIDO",
+        "expected_digest": null,
+        "observed_digest": null,
+        "checked_at": null,
+        "result": "NOT_CHECKED"
+      },
+      "authenticity_status": "NO_VERIFICADA",
+      "access_status": "PÚBLICO_LEGÍTIMO",
+      "recorded_at": "2026-11-15T22:00:00Z"
+    }
+  ],
+  "evidence_availability": [
+    {
+      "availability_id": "availability-evidence-a-entity",
+      "evidence_id": "evidence-a",
+      "assessment_unit_id": "unit-a-entity",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1",
+      "available_at": "2026-11-15T20:05:00Z",
+      "availability_basis": "SINAYXA_OBSERVATION",
+      "availability_reference": "synthetic-observation://evidence-a",
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "archive_attestation_id": null
+    },
+    {
+      "availability_id": "availability-evidence-b-entity",
+      "evidence_id": "evidence-b",
+      "assessment_unit_id": "unit-b-entity",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1",
+      "available_at": "2026-11-15T20:06:00Z",
+      "availability_basis": "SINAYXA_OBSERVATION",
+      "availability_reference": "synthetic-observation://evidence-b",
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "archive_attestation_id": null
+    }
+  ],
+  "claim_evidence_links": [
+    {
+      "link_id": "link-a",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "evidence_id": "evidence-a",
+      "evidence_role": "SUPPORTING",
+      "scope_note": "Solo atribución de la declaración.",
+      "limitations": [
+        "No demuestra el hecho subyacente."
+      ],
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1"
+    },
+    {
+      "link_id": "link-b",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "evidence_id": "evidence-b",
+      "evidence_role": "CONTEXTUAL",
+      "scope_note": "Pieza no autenticada.",
+      "limitations": [
+        "No puede sustentar contradicción por sí sola."
+      ],
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1"
+    }
+  ],
+  "provenance_nodes": [
+    {
+      "node_id": "node-version-a",
+      "node_type": "SOURCE_VERSION",
+      "entity_ref": "version-a1"
+    },
+    {
+      "node_id": "node-version-b",
+      "node_type": "SOURCE_VERSION",
+      "entity_ref": "version-b1"
+    },
+    {
+      "node_id": "node-unknown-origin",
+      "node_type": "UNKNOWN_ORIGIN",
+      "entity_ref": null
+    }
+  ],
+  "provenance_edges": [
+    {
+      "edge_id": "edge-a-unknown",
+      "dependent_node_id": "node-version-a",
+      "origin_node_id": "node-unknown-origin",
+      "relation_type": "ORIGEN_NO_DETERMINADO",
+      "claim_component_id": "component-entity",
+      "evidence_refs": [],
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "valid_from": null,
+      "valid_to": null,
+      "claim_component_version_id": "component-entity-v1"
+    }
+  ],
+  "factor_assessments": [
+    {
+      "factor_assessment_id": "factor-unit-a-entity-relation_with_fact",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "RELATION_WITH_FACT",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-access_and_proximity",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "ACCESS_AND_PROXIMITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-subject_competence",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "SUBJECT_COMPETENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-transparency_traceability",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "TRANSPARENCY_TRACEABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-relevant_accuracy_history",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "RELEVANT_ACCURACY_HISTORY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-corrections_accountability",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "CORRECTIONS_ACCOUNTABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-incentives_conflicts",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "INCENTIVES_CONFLICTS",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-internal_consistency",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "INTERNAL_CONSISTENCY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-contrary_evidence",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "CONTRARY_EVIDENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-entity-temporal_adequacy",
+      "assessment_unit_id": "unit-a-entity",
+      "dimension": "TEMPORAL_ADEQUACY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-relation_with_fact",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "RELATION_WITH_FACT",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-access_and_proximity",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "ACCESS_AND_PROXIMITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-subject_competence",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "SUBJECT_COMPETENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-transparency_traceability",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "TRANSPARENCY_TRACEABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-relevant_accuracy_history",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "RELEVANT_ACCURACY_HISTORY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-corrections_accountability",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "CORRECTIONS_ACCOUNTABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-incentives_conflicts",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "INCENTIVES_CONFLICTS",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-internal_consistency",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "INTERNAL_CONSISTENCY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-contrary_evidence",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "CONTRARY_EVIDENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-entity-temporal_adequacy",
+      "assessment_unit_id": "unit-b-entity",
+      "dimension": "TEMPORAL_ADEQUACY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-relation_with_fact",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "RELATION_WITH_FACT",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-access_and_proximity",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "ACCESS_AND_PROXIMITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-subject_competence",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "SUBJECT_COMPETENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-transparency_traceability",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "TRANSPARENCY_TRACEABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-relevant_accuracy_history",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "RELEVANT_ACCURACY_HISTORY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-corrections_accountability",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "CORRECTIONS_ACCOUNTABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-incentives_conflicts",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "INCENTIVES_CONFLICTS",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-internal_consistency",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "INTERNAL_CONSISTENCY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-contrary_evidence",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "CONTRARY_EVIDENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-a-amount-temporal_adequacy",
+      "assessment_unit_id": "unit-a-amount",
+      "dimension": "TEMPORAL_ADEQUACY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-relation_with_fact",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "RELATION_WITH_FACT",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-access_and_proximity",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "ACCESS_AND_PROXIMITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-subject_competence",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "SUBJECT_COMPETENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-transparency_traceability",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "TRANSPARENCY_TRACEABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-relevant_accuracy_history",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "RELEVANT_ACCURACY_HISTORY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-corrections_accountability",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "CORRECTIONS_ACCOUNTABILITY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-incentives_conflicts",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "INCENTIVES_CONFLICTS",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-internal_consistency",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "INTERNAL_CONSISTENCY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-contrary_evidence",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "CONTRARY_EVIDENCE",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    },
+    {
+      "factor_assessment_id": "factor-unit-b-amount-temporal_adequacy",
+      "assessment_unit_id": "unit-b-amount",
+      "dimension": "TEMPORAL_ADEQUACY",
+      "status": "DESCONOCIDA",
+      "justification": "El fixture sintético no aporta evidencia suficiente para evaluar esta dimensión.",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "limitations": [
+        "No se aportan datos suficientes en este escenario sintético."
+      ],
+      "assessed_at": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null
+    }
+  ],
+  "independence_assessments": [
+    {
+      "independence_assessment_id": "independence-entity",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "assessment_unit_ids": [
+        "unit-a-entity",
+        "unit-b-entity"
+      ],
+      "status": "DESCONOCIDA",
+      "supporting_evidence_refs": [],
+      "dependency_edge_refs": [],
+      "rationale": "No hay evidencia positiva de vías separadas ni de dependencia material.",
+      "limitations": [
+        "Origen no reconstruido."
+      ],
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null,
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1",
+      "independent_path_edge_refs": []
+    },
+    {
+      "independence_assessment_id": "independence-amount",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-amount",
+      "assessment_unit_ids": [
+        "unit-a-amount",
+        "unit-b-amount"
+      ],
+      "status": "DESCONOCIDA",
+      "supporting_evidence_refs": [],
+      "dependency_edge_refs": [],
+      "rationale": "No existe evidencia suficiente para establecer independencia o dependencia respecto al importe.",
+      "limitations": [
+        "Origen del dato del importe no reconstruido."
+      ],
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "16-approved",
+      "human_review_status": "PENDING",
+      "reviewed_at": null,
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-amount-v1",
+      "independent_path_edge_refs": []
+    }
+  ],
+  "claim_assessments": [
+    {
+      "claim_assessment_id": "assessment-entity-v1",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-entity",
+      "evidentiary_status": "NO_RESUELTA",
+      "attribution_status": "ATRIBUIDA",
+      "supporting_evidence_refs": [
+        "evidence-a"
+      ],
+      "contrary_evidence_refs": [],
+      "alternatives": [
+        "La declaración puede describir intención y no ejecución."
+      ],
+      "uncertainty": "No se ha verificado el hecho subyacente.",
+      "limitations": [
+        "No extrapolar al importe."
+      ],
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "15-approved",
+      "human_review_status": "PENDING",
+      "supersedes_assessment_id": null,
+      "independence_assessment_refs": [
+        "independence-entity"
+      ],
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-entity-v1",
+      "reviewed_at": null,
+      "rationale": "La pieza acredita que existe una declaración atribuida, pero no demuestra la ejecución del hecho subyacente.",
+      "supported_scope": null,
+      "unsupported_scope": null,
+      "corroboration_basis": "NO_APLICA",
+      "assessed_at": "2026-11-15T22:05:00Z"
+    },
+    {
+      "claim_assessment_id": "assessment-amount-v1",
+      "claim_id": "claim-btc-purchase",
+      "claim_component_id": "component-amount",
+      "evidentiary_status": "NO_RESUELTA",
+      "attribution_status": "NO_DETERMINADA",
+      "supporting_evidence_refs": [],
+      "contrary_evidence_refs": [],
+      "independence_assessment_refs": [
+        "independence-amount"
+      ],
+      "alternatives": [
+        "El importe puede ser diferente o no existir."
+      ],
+      "uncertainty": "No existe evidencia verificable suficiente sobre el importe.",
+      "limitations": [
+        "La evaluación de la entidad no se transfiere al importe."
+      ],
+      "assessment_cutoff": "2026-11-15T22:00:00Z",
+      "methodology_version": "15-approved",
+      "human_review_status": "PENDING",
+      "supersedes_assessment_id": null,
+      "claim_version_id": "claim-btc-purchase-v1",
+      "claim_component_version_id": "component-amount-v1",
+      "reviewed_at": null,
+      "rationale": "No existe evidencia verificable suficiente para determinar el importe.",
+      "supported_scope": null,
+      "unsupported_scope": null,
+      "corroboration_basis": "NO_APLICA",
+      "assessed_at": "2026-11-15T22:05:00Z"
+    }
+  ],
+  "retention_records": [
+    {
+      "retention_id": "00000000-0000-4000-8000-000000000100",
+      "subject_ref": "00000000-0000-4000-8000-000000000101",
+      "content_retained": false,
+      "legal_basis_status": "NOT_REQUIRED",
+      "purpose": "Referencia mínima de caso sintético.",
+      "responsible_role": "SYSTEM_OWNER",
+      "review_at": "2026-11-15T22:00:00Z",
+      "expires_at": null,
+      "disposition": "REFERENCE_ONLY",
+      "previous_disposition": null,
+      "authorization_reference": null,
+      "recorded_at": "2026-11-15T22:00:00Z",
+      "copy_scope_ids": []
+    }
+  ],
+  "audit_events": [
+    {
+      "audit_event_id": "00000000-0000-4000-8000-000000000200",
+      "subject_ref": "00000000-0000-4000-8000-000000000102",
+      "action": "CREATED",
+      "occurred_at": "2026-11-15T22:00:00Z",
+      "copy_id": null,
+      "from_copy_state": null,
+      "to_copy_state": null,
+      "actor_role_code": "SYSTEM",
+      "reason_code": "RECORD_CREATED",
+      "actor_role_catalog_version": "1.0.0",
+      "reason_catalog_version": "1.0.0"
+    },
+    {
+      "audit_event_id": "00000000-0000-4000-8000-000000000201",
+      "subject_ref": "00000000-0000-4000-8000-000000000101",
+      "action": "REFERENCE_ONLY",
+      "occurred_at": "2026-11-15T22:00:00Z",
+      "retention_id": "00000000-0000-4000-8000-000000000100",
+      "from_disposition": null,
+      "to_disposition": "REFERENCE_ONLY",
+      "copy_id": null,
+      "from_copy_state": null,
+      "to_copy_state": null,
+      "actor_role_code": "SYSTEM",
+      "reason_code": "REFERENCE_ONLY_SELECTED",
+      "actor_role_catalog_version": "1.0.0",
+      "reason_catalog_version": "1.0.0"
+    }
+  ],
+  "archive_attestations": [],
+  "retention_copy_records": [],
+  "migration_records": [],
+  "analysis_processes": [],
+  "audit_subject_tokens": [
+    "00000000-0000-4000-8000-000000000101",
+    "00000000-0000-4000-8000-000000000102"
+  ]
+}
