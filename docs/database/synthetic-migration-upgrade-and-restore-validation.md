@@ -7,7 +7,7 @@
 
 ## Upgrade experiment
 
-The test creates an isolated disposable database and constructs five inventory-consistent migration prefixes:
+The test starts by asserting the explicit **pre-0001** snapshot: the disposable database has neither the application schema nor the migration control-plane schema. It then constructs five inventory-consistent migration prefixes:
 
 1. After `0001_event_registry.sql`: one synthetic event, its source link, and two temporal assertions.
 2. After `0002_temporal_conflicts.sql`: a conflict linked to both assertions and a decision linked to that conflict.
@@ -30,6 +30,10 @@ The test then:
 5. Compares the SHA-256 digest of every restored table stream with its backup stream.
 
 The test passed on PostgreSQL 18.7 in CI. This demonstrates exact logical row-stream restoration for the synthetic records covered by the test.
+
+## Migration failure and retry semantics
+
+A separate integration test commits migration 0001, forces migration 0002 to fail, and verifies that migration 0002's DDL and integrity-ledger row are absent while migration 0001 remains committed. It then corrects the still-unapplied migration 0002 artifact, updates its SHA-256 **and** its synthetic `source_revision`, and retries. The corrected migration is applied once and the ledger records the corrected provenance. This does not weaken drift protection: changing bytes for an already-applied migration remains a fail-closed error.
 
 ## Explicit limitations
 

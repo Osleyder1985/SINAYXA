@@ -111,6 +111,14 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         now = "2026-01-02T03:04:05+00:00"
 
         with tempfile.TemporaryDirectory() as temporary:
+            # Explicit pre-0001 snapshot: a genuinely empty disposable database.
+            self.assertEqual(
+                (None, None),
+                self.connection.execute(
+                    "SELECT to_regnamespace('sinayxa'), "
+                    "to_regnamespace('sinayxa_control')"
+                ).fetchone(),
+            )
             source_migrations = migration_runner.MIGRATIONS_DIR
             complete_manifest = json.loads(
                 (source_migrations / "manifest.json").read_text(encoding="utf-8")
@@ -760,6 +768,10 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             )
             (migrations / "0002_fixture.sql").write_text(recovered_sql, encoding="utf-8")
             entries[1]["sha256"] = hashlib.sha256(recovered_sql.encode()).hexdigest()
+            # This is a corrected, still-unapplied migration artifact. Its
+            # provenance must advance with the bytes; the failed attempt did
+            # not persist a digest or claim that the old source was applied.
+            entries[1]["source_revision"] = "b" * 40
             manifest.write_text(
                 json.dumps({
                     "manifest_version": 1,
