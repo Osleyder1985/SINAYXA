@@ -336,3 +336,33 @@ HEAD verificado: `d933dc6849fedca4e74fe1c2f6b0221d13f4d9b4`.
 - PR #119 continúa DRAFT / OPEN / NOT MERGED. Requiere ejecutar los quality gates sobre el HEAD exacto y completar la revisión documental.
 
 No se fusionó ningún PR en esta actualización. La prueba de recuperación desde una conversación nueva y la verificación del estado local de Windows continúan pendientes. La prohibición de eliminar chats del proyecto sigue vigente.
+
+### 14.7 Integración de la remediación de seguridad y revalidación de continuidad — 2026-11-18
+
+#### PR #117 / Issue #116 — integración confirmada
+
+- PR #117 fue fusionada mediante squash en `main`: commit `fcfc85925e823a00e8ee57ebf4d445f55d5a1d3c`.
+- Issue #116 fue cerrado como COMPLETED después de verificar la línea base.
+- En `main`, Security/dependency gate [run #44208391474](https://github.com/Osleyder1985/SINAYXA/actions/runs/44208391474): **SUCCESS**; npm audit **SUCCESS**, Gitleaks **SUCCESS**, OSV full **SUCCESS** en el evento push; OSV PR scan quedó SKIPPED en ese evento y no se cuenta como PASS.
+- En `main`, PowerShell quality gate [run #44208391001](https://github.com/Osleyder1985/SINAYXA/actions/runs/44208391001): **SUCCESS**, incluidos los contextos PowerShell 7.7.0 y 7.6.6.
+
+#### PR #119 — HEAD actualizado y gates aplicables
+
+Para incorporar la corrección de seguridad sin alterar el contenido documental, la rama `docs/project-continuity-baseline` se actualizó con un merge commit que tiene como primer padre el nuevo `main` y como segundo padre el HEAD documental anterior. El diff funcional respecto de `main` continúa limitado a `docs/project/PROJECT_CONTINUITY.md`.
+
+- HEAD: `b64c9cb830ad0197aed9dce6fe5f517875f6b064`.
+- Security/dependency run [#44208527319](https://github.com/Osleyder1985/SINAYXA/actions/runs/44208527319): **SUCCESS**; npm audit, Gitleaks y OSV PR scan **SUCCESS**; OSV full **SKIPPED** por diseño para pull_request, no contado como PASS.
+- PowerShell quality gate [run #44208526966](https://github.com/Osleyder1985/SINAYXA/actions/runs/44208526966): **SUCCESS**; PowerShell 7.7.0 y contexto requerido 7.6.6 **SUCCESS**.
+- La ejecución anterior sobre el HEAD `96e6321...` falló en npm audit por el baseline previo a #117; esa evidencia histórica no representa el HEAD actualizado.
+
+PR #119 permanece DRAFT / OPEN / NOT MERGED. Los gates del HEAD actual pasan, pero aún falta completar la auditoría de historiales de Issues/decisiones, la revisión documental integral y la prueba de recuperación desde una conversación nueva. La verificación de worktrees locales de Windows tampoco está disponible mientras el propietario no esté en el PC. No eliminar conversaciones todavía.
+
+#### Actualización de ramas dependientes
+
+- PR #96 se actualizó incorporando `main` en un merge commit: HEAD `9a6eaf06e2efa2e110e825f96640f78f56689da8`. Sus cambios funcionales permanecen en los tres archivos del laboratorio PostgreSQL.
+- PR #100 se actualizó incorporando `main` en un merge commit: HEAD `8207bd60a841bf7e328ce6006e20e7c9a2825280`. Sus cambios funcionales permanecen en los tres archivos del preflight AIStor.
+- PR #115 se actualizó para incorporar la nueva base de PR #96, preservando sus cambios en documentación y script de reconciliación: HEAD `a0c798bdb9ef31c558434b8d025527ab6857524c`.
+- Los nuevos quality gates de #96 y #100 están ejecutándose; #115 requiere comprobar que el evento de sincronización y sus gates se hayan generado. No se transfieren resultados CI de HEAD anteriores a estos nuevos commits.
+- PR #85 y #94 modifican workflows que también fueron cambiados por la remediación #117; sus ramas requieren reconciliación manual de esos archivos antes de revalidación. PR #99 depende de #85 y debe esperar esa reconciliación.
+
+No se fusionaron #85, #94, #96, #99, #100, #115 ni #119. La única integración de esta etapa fue #117, validada en su HEAD exacto y posteriormente en `main`.
