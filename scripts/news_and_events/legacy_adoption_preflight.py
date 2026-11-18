@@ -68,9 +68,12 @@ def preflight_legacy_adoption(
     reasons: list[str] = []
     server_version_num: int | None = None
     legacy_ids: tuple[str, ...] = ()
+    computed_fingerprint: str | None = None
 
     with connection.transaction():
-        connection.execute("SET TRANSACTION READ ONLY")
+        connection.execute(
+            "SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY"
+        )
         server_version_num = connection.execute(
             "SELECT current_setting('server_version_num')::integer"
         ).fetchone()[0]
@@ -117,22 +120,22 @@ def preflight_legacy_adoption(
                     f"missing={missing}, unknown={unknown}, count={len(legacy_ids)}"
                 )
 
-    computed_fingerprint: str | None = None
-    if not reasons:
-        try:
-            fingerprint = fingerprint_schema(connection, "sinayxa")
-        except CatalogFingerprintError as exc:
-            reasons.append(f"catalog fingerprint failed closed: {exc}")
-        else:
-            computed_fingerprint = fingerprint.sha256
-            if computed_fingerprint != approved_baseline_sha256:
-                reasons.append(
-                    "application catalog does not match the approved baseline fingerprint"
-                )
-            if ALGORITHM_VERSION.endswith("-preview"):
-                reasons.append(
-                    "catalog fingerprint algorithm is still a preview and cannot authorize legacy adoption"
-                )
+        computed_fingerprint: str | None = None
+        if not reasons:
+            try:
+                fingerprint = fingerprint_schema(connection, "sinayxa")
+            except CatalogFingerprintError as exc:
+                reasons.append(f"catalog fingerprint failed closed: {exc}")
+            else:
+                computed_fingerprint = fingerprint.sha256
+                if computed_fingerprint != approved_baseline_sha256:
+                    reasons.append(
+                        "application catalog does not match the approved baseline fingerprint"
+                    )
+                if ALGORITHM_VERSION.endswith("-preview"):
+                    reasons.append(
+                        "catalog fingerprint algorithm is still a preview and cannot authorize legacy adoption"
+                    )
 
     return LegacyAdoptionPreflight(
         status="PREFLIGHT_MATCH" if not reasons else "LEGACY_UNVERIFIED",
