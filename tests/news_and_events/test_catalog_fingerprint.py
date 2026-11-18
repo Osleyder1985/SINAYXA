@@ -446,6 +446,30 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_detects_collation_changes(self) -> None:
+        self.connection.execute(
+            """
+            CREATE COLLATION sinayxa.fp_probe_collation
+            (provider = libc, locale = 'C')
+            """
+        )
+        self.connection.commit()
+        try:
+            after = fingerprint_schema(self.connection)
+            collation = next(
+                item for item in after.records
+                if item["object_type"] == "collation"
+                and item["identity"] == "fp_probe_collation"
+            )
+            self.assertEqual("libc", collation["provider"])
+            self.assertEqual("C", collation["locale"])
+            self.assertTrue(collation["owner"])
+        finally:
+            self.connection.execute(
+                "DROP COLLATION IF EXISTS sinayxa.fp_probe_collation"
+            )
+            self.connection.commit()
+
     def test_fingerprint_detects_constraint_changes(self) -> None:
         self.connection.execute(
             "CREATE TABLE sinayxa.fp_probe_constraint (value integer)"
