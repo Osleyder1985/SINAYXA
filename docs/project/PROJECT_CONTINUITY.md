@@ -509,3 +509,42 @@ Los Issues #3–#12 son requisitos funcionales pendientes, no funcionalidades di
 - Issues abiertas: 25.
 - Issues cerradas en esta secuencia: #46, #93, #95, #113 y #116. Issue #100 permanece abierto por sus verificaciones posteriores.
 - La prohibición de eliminar conversaciones sigue vigente: falta verificar worktrees/cambios locales en Windows y ejecutar la prueba real de recuperación desde una conversación nueva.
+
+### 14.11 Corrección de HEADs y revalidación de las PR abiertas — 2026-11-18
+
+#### PR #119 — resultado CI corregido
+
+La actualización documental anterior produjo el HEAD 891ae7e4babeedd6cea950977b41d721539f1622. Sobre ese HEAD exacto:
+- Security/dependency [run #44212240381](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212240381): SUCCESS; npm audit, Gitleaks y OSV PR scan SUCCESS; OSV full SKIPPED en pull_request.
+- PowerShell [run #44212240105](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212240105): SUCCESS en 7.7.0 y 7.6.6.
+- La corrección de MD024 se verificó; Markdown lint pasó.
+- El HEAD 891ae es el último HEAD documental con CI verificado antes de esta nueva anotación. La anotación genera otro HEAD y requiere revalidación exacta.
+
+#### PR #85 — resultado de revalidación
+
+HEAD b229a17176e8b9bb1259311e4ccfb9e8c8849ee0:
+- Security/dependency [run #44212018919](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212018919): SUCCESS.
+- PowerShell [run #44212018393](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212018393): SUCCESS en 7.7.0 y 7.6.6.
+- Workflow Issue/integración [run #44212018449](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212018449): SUCCESS.
+- Revisión COMMENT #5949240236: 9.2/10 para el contrato 0.2.1. No merge por brechas A–E de #88, evidencia operacional de #89 y dependencia #99.
+
+#### PR #99 — rebase de la entrega 0.2.2
+
+- Se actualizó la rama apilada sobre el HEAD actual de #85, sin arrastrar el diff de la antigua base ni duplicar el workflow del registro de eventos ya integrado.
+- Se combinaron los pasos de contrato 0.2.1, laboratorio #93 y pruebas 0.2.2; se habilitó el security gate para PR dirigidas a la rama base #85.
+- HEAD actual: 54c0edc3a62e9d90ed8c5a44463ea5cc8b1e4c87.
+- Security/dependency [run #44212493747](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212493747): SUCCESS; Gitleaks, npm audit y OSV PR SUCCESS; OSV full SKIPPED.
+- PowerShell [run #44212493216](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212493216) seguía in progress al registrar esta nota. No se transfiere el PASS histórico del HEAD ec3d3923.
+- PR #99 continúa DRAFT / OPEN / NOT MERGED. Debe permanecer apilada y bloqueada hasta que #85 sea aceptada e integrada; además se mantiene la revisión semántica de mappings y de opacidad.
+
+#### PR #100 / Issue #100
+
+PR #100 ya está MERGED (commit 73de7b25c79ca4b65d91903606b704554959d286). Issue #100 sigue OPEN por verificación de binario, firma y licencia/uso. El estado de captura CAPTURED no cambia readiness BLOCKED.
+
+#### Inventario y continuidad
+
+- Issues abiertas: 25. PR abiertas: 3 (#85, #99, #119).
+- Issue #46 está CLOSED tras el primer scan programado en main [run #43870638585](https://github.com/Osleyder1985/SINAYXA/actions/runs/43870638585), SUCCESS.
+- Historiales recuperados y revisados: #3–#27, #46, #78, #88 (41 comentarios), #89, #97 y #98. Se registraron las decisiones explícitas y las dependencias; los duplicados #21–#23 no se cuentan como decisiones resueltas.
+- La prueba de recuperación desde conversación nueva y la verificación de worktrees/cambios locales de Windows siguen pendientes. La documentación no demuestra que no existan cambios locales sin subir.
+- No borrar conversaciones hasta completar esas verificaciones.
