@@ -109,10 +109,26 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         with self.assertRaisesRegex(CatalogFingerprintError, "restricted to schema"):
             fingerprint_schema(self.connection, "public")
 
-    def test_fingerprint_requires_idle_connection(self) -> None:
+    def test_fingerprint_rejects_caller_transaction_without_stable_snapshot(self) -> None:
         with self.connection.transaction():
-            with self.assertRaisesRegex(CatalogFingerprintError, "idle connection"):
+            with self.assertRaisesRegex(
+                CatalogFingerprintError, "REPEATABLE READ and READ ONLY"
+            ):
                 fingerprint_schema(self.connection)
+
+    def test_fingerprint_uses_caller_owned_repeatable_read_snapshot(self) -> None:
+        with self.connection.transaction():
+            self.connection.execute(
+                "SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY"
+            )
+            result = fingerprint_schema(self.connection)
+            isolation, read_only = self.connection.execute(
+                "SELECT current_setting('transaction_isolation'), "
+                "current_setting('transaction_read_only')"
+            ).fetchone()
+            self.assertEqual("repeatable read", isolation)
+            self.assertEqual("on", read_only)
+            self.assertEqual("sinayxa", result.schema_name)
 
     def test_fingerprint_does_not_create_or_change_application_objects(self) -> None:
         before = self.connection.execute(
