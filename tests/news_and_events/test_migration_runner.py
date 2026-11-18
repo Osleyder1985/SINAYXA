@@ -92,6 +92,30 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         with self.assertRaisesRegex(MigrationRunnerError, "migration drift detected"):
             apply_migrations(self.connection)
 
+    def test_partial_control_plane_fails_closed_without_repair(self) -> None:
+        self.connection.execute("CREATE SCHEMA sinayxa_control")
+        self.connection.commit()
+
+        with self.assertRaisesRegex(MigrationRunnerError, "partial or unsupported control plane"):
+            apply_migrations(self.connection)
+
+        self.assertIsNone(
+            self.connection.execute(
+                "SELECT to_regclass('sinayxa_control.migration_integrity')"
+            ).fetchone()[0]
+        )
+
+    def test_ledger_version_collision_fails_closed(self) -> None:
+        apply_migrations(self.connection)
+        self.connection.execute(
+            "UPDATE sinayxa_control.migration_integrity SET version = 99 "
+            "WHERE migration_id = 'issue-2-event-registry-0001'"
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(MigrationRunnerError, "version collision or drift"):
+            apply_migrations(self.connection)
+
     def test_legacy_database_is_not_bootstrapped_or_adopted(self) -> None:
         self.connection.execute("CREATE SCHEMA sinayxa")
         self.connection.execute(
@@ -171,6 +195,45 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                     manifest_path=manifest,
                     migrations_dir=migrations,
                 )
+
+            self.assertEqual(
+                ["fixture-0001"],
+                [row[0] for row in self.connection.execute(
+                    "SELECT migration_id FROM sinayxa_control.migration_integrity"
+                ).fetchall()],
+            )
+            self.assertIsNone(
+                self.connection.execute(
+                    "SELECT to_regclass('sinayxa.must_rollback')"
+                ).fetchone()[0]
+            )
+
+            recovered_sql = (
+                "CREATE TABLE sinayxa.recovered (id integer);\\n"
+                "INSERT INTO sinayxa.schema_migrations (migration_id) "
+                "VALUES ('fixture-0002');\\n"
+            )
+            (migrations / "0002_fixture.sql").write_text(recovered_sql, encoding="utf-8")
+            entries[1]["sha256"] = hashlib.sha256(recovered_sql.encode()).hexdigest()
+            manifest.write_text(
+                json.dumps({
+                    "manifest_version": 1,
+                    "baseline_revision": "a" * 40,
+                    "migrations": entries,
+                }),
+                encoding="utf-8",
+            )
+            resumed = apply_migrations(
+                self.connection,
+                manifest_path=manifest,
+                migrations_dir=migrations,
+            )
+            self.assertEqual(("fixture-0002",), resumed)
+            self.assertIsNotNone(
+                self.connection.execute(
+                    "SELECT to_regclass('sinayxa.recovered')"
+                ).fetchone()[0]
+            )
 
         self.assertEqual(
             ["fixture-0001"],
