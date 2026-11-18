@@ -59,16 +59,41 @@ For a new database, each migration's DDL, legacy-compatible ID row (if retained)
 
 For an existing database with old IDs and no digests, classify those rows as `LEGACY_UNVERIFIED`. Never fill in the current SQL digest and label it as the historical executed digest.
 
+
+### 3.2.1 Control-plane bootstrap
+
+The integrity ledger must exist before the first application migration can be recorded. Avoid a circular dependency by separating migration-control metadata from the application schema:
+
+- Store control metadata in a dedicated `sinayxa_control` schema, separate from the application schema `sinayxa`.
+- Define a small, versioned bootstrap SQL artifact with a fixed SHA-256 pinned in the runner package. It creates the control schema, bootstrap record, migration-integrity ledger, and legacy-adoption attestation table in one transaction.
+- On a fresh database, verify the pinned bootstrap artifact, create the control plane, record its bootstrap version/digest atomically, and only then begin application migrations.
+- If any control-plane object exists without a matching bootstrap record, or the record differs from the pinned bootstrap contract, fail closed. Do not use broad `CREATE TABLE IF NOT EXISTS` statements to silently repair a partially initialized control plane.
+- On a legacy database, run the read-only adoption preflight first. Only after it matches may a separately invoked adoption operation create the control plane and persist the attestation. That operation may create objects only in `sinayxa_control`; it must not alter the application schema or business data in `sinayxa`.
+- Fingerprint the application schema `sinayxa` independently. Verify `sinayxa_control` against its own bootstrap contract; do not mix control-plane objects into the legacy application baseline.
+
+The bootstrap SQL is a trust anchor and must be reviewed, hashed, tested for atomic creation and partial-state refusal, and changed only through an explicit bootstrap-version upgrade. It is not generated from the current working tree at runtime.
+
+
 ### 3.3 Legacy adoption is a separate operation
 
-A legacy database may be adopted only through an explicit, read-only preflight followed by a separately recorded adoption attestation. The attestation must include:
+A legacy database may be adopted only through an explicit, read-only preflight followed by a separately recorded adoption attestation. The preflight must verify all of the following before any DDL or DML is performed:
+
+- The legacy ledger contains exactly the five known IDs from migrations 0001–0005: `issue-2-event-registry-0001`, `issue-2-temporal-conflicts-0002`, `issue-2-temporal-assessments-manifests-0003`, `issue-2-source-evidence-artifacts-0004`, and `issue-2-append-only-truncate-guard-0005`.
+- No legacy ID is missing, duplicated, or unknown. A partial or unfamiliar set remains `LEGACY_UNVERIFIED`; do not infer which SQL ran and do not replay historical migrations automatically.
+- The PostgreSQL version, required roles, and catalog features are supported by the selected fingerprint verifier.
+- The current `sinayxa` application catalog exactly matches the independently reviewed baseline fingerprint.
+
+Only after that read-only preflight succeeds may the separate adoption operation bootstrap `sinayxa_control` and persist an attestation. The attestation must include:
 
 - exact verifier version and source commit;
 - normalized catalog fingerprint algorithm/version;
-- computed fingerprint;
-- expected approved baseline fingerprint;
+- computed fingerprint and expected approved baseline fingerprint;
+- PostgreSQL server version and relevant role/environment identity;
 - verification timestamp and result;
-- list of legacy migration IDs found.
+- exact legacy migration ID set found;
+- explicit status `LEGACY_ADOPTED_CATALOG_MATCH` and the limitation that historical SQL bytes remain unverified.
+
+The adoption operation must not create migration-integrity rows containing guessed SHA-256 values for migrations 0001–0005. It records a catalog-equivalence attestation only. Future migrations are recorded normally by the new runner with their own verified hashes. If any preflight check fails, no bootstrap or adoption write occurs.
 
 The fingerprint must be derived from a deterministic, documented set of PostgreSQL catalog objects: schemas, relations, columns and types, constraints, indexes, functions, triggers, and relevant defaults. Volatile OIDs, physical storage details, row estimates, and timestamps must be excluded. The expected baseline must be produced by a clean database built from the approved migration set and independently reviewed.
 
