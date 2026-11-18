@@ -18,6 +18,7 @@ from scripts.validation.validate_temporal_event_contract import (
     derive_temporal_state,
     validate_semantics,
 )
+from scripts.news_and_events.migration_runner import apply_migrations
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "schemas" / "temporal-event-contract-1.0.0.schema.json"
@@ -81,11 +82,8 @@ def connect(database_url: str | None = None) -> psycopg.Connection:
 
 
 def initialize_database(connection: psycopg.Connection) -> None:
-    """Apply all numbered local registry migrations; no remote services are contacted."""
-    for migration_path in sorted(MIGRATION_DIR.glob("*.sql")):
-        migration = migration_path.read_text(encoding="utf-8")
-        with connection.transaction():
-            connection.execute(migration, prepare=False)
+    """Apply verified pending migrations; legacy databases fail closed for separate adoption."""
+    apply_migrations(connection)
 
 
 def create_event(connection: psycopg.Connection, event: dict[str, Any]) -> None:
