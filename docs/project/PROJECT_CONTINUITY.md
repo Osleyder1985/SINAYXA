@@ -22,7 +22,7 @@
 The following list is the exact open-PR inventory returned by GitHub at snapshot time. “Base” is the target branch. Stacked PRs are explicitly identified; their dependencies must be resolved before integration.
 
 | PR | Purpose | State | Head branch / SHA | Base |
-|---|---|---|---|---|
+| --- |---| --- |---| --- |
 | [#117](https://github.com/Osleyder1985/SINAYXA/pull/117) | Remove vulnerable picomatch from Markdown lint dependency tree without weakening npm audit | OPEN, ready | `fix/issue-116-markdownlint-without-globbing-dependency` / `67b1db9e9b31f4a2bd36bb9eeadece2d8ce8b85a` | `main` |
 | [#115](https://github.com/Osleyder1985/SINAYXA/pull/115) | Reconcile deletion dispositions before exposing restored PostgreSQL backups | OPEN, DRAFT | `feature/issue-113-postgresql-restore-reconciliation-v2` / `e61257a37d355818f093a5ccea605e1b02e7de34` | #96 branch |
 | [#100](https://github.com/Osleyder1985/SINAYXA/pull/100) | Capture and verify official AIStor metadata without deploying software | OPEN, ready | `feature/issue-100-aistor-metadata-preflight` / `f78ed629ce3e007aa68a0062c5dc2f9cf6a4fee0` | `main` |
@@ -118,6 +118,7 @@ The baseline is not yet a “safe to delete chats” certificate. Complete these
 **Current decision: DO NOT DELETE PROJECT CHATS YET.**
 
 Chats may be considered safe to delete only after:
+
 - all material decisions and constraints have canonical repository references;
 - all active PR and Issue states/dependencies are current;
 - local-only work and uncommitted changes have been reconciled;
@@ -129,13 +130,12 @@ Chats may be considered safe to delete only after:
 
 Continue the full audit of the seven open PRs, starting with #85 because #99 depends on it, then #96 because #115 depends on it. In parallel, audit the mainline PRs #117, #94, and #100. Preserve all current branches and do not merge or close anything during the audit.
 
-
 ## 10. PR audit — exact HEAD check-runs and review state
 
 The following was retrieved from GitHub's commit check-runs API for each currently observed PR head. A skipped job is not a pass. Review states are comments unless explicitly stated otherwise.
 
 | PR | Exact-head CI result | Review state | Audit conclusion |
-|---|---|---|---|
+| --- |---| --- |---|
 | #85 | PowerShell 7.6.6 PASS; PowerShell 7.7.0 PASS; PostgreSQL event registry PASS; Gitleaks PASS; OSV PR PASS; npm audit FAIL; OSV full SKIPPED. Run [#44202513299](https://github.com/Osleyder1985/SINAYXA/actions/runs/44202513299). | 3 COMMENT reviews; no APPROVE; no inline threads returned. | Blocked by the same picomatch advisory tracked in #116. Its five areas A–E also remain open in #88/#89. |
 | #94 | PowerShell 7.6.6 PASS; PowerShell 7.7.0 PASS; event registry PASS; Gitleaks PASS; npm audit PASS; OSV PR PASS; OSV full SKIPPED. Runs [#44013758761](https://github.com/Osleyder1985/SINAYXA/actions/runs/44013758761) and [run #44013759030](https://github.com/Osleyder1985/SINAYXA/actions/runs/44013759030). | 4 COMMENT reviews; no APPROVE; no inline threads returned. | CI supports the filesystem-only synthetic lab. It does not prove PostgreSQL, physical erasure, external copies, WORM/Object Lock, or production migration. |
 | #96 | PowerShell 7.6.6 PASS; PowerShell 7.7.0 PASS; PostgreSQL 18.7 lab PASS; Gitleaks PASS; OSV PR PASS; npm audit FAIL; OSV full SKIPPED. Run [#44188987821](https://github.com/Osleyder1985/SINAYXA/actions/runs/44188987821). | 3 COMMENT reviews; no APPROVE; no inline threads returned. | Lab scope passes, but security gate fails due to five HIGH picomatch findings. Must be revalidated after #117 is integrated. |
