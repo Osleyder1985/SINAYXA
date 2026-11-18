@@ -478,7 +478,7 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             )
             backup_temporary.cleanup()
 
-    def test_modified_applied_sql_artifact_fails_before_database_changes(self) -> None
+    def test_modified_applied_sql_artifact_fails_before_database_changes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             migrations = Path(temporary) / "migrations"
             shutil.copytree(migration_runner.MIGRATIONS_DIR, migrations)
