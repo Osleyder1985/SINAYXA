@@ -209,9 +209,9 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             )
 
             recovered_sql = (
-                "CREATE TABLE sinayxa.recovered (id integer);\\n"
+                "CREATE TABLE sinayxa.recovered (id integer);\n"
                 "INSERT INTO sinayxa.schema_migrations (migration_id) "
-                "VALUES ('fixture-0002');\\n"
+                "VALUES ('fixture-0002');\n"
             )
             (migrations / "0002_fixture.sql").write_text(recovered_sql, encoding="utf-8")
             entries[1]["sha256"] = hashlib.sha256(recovered_sql.encode()).hexdigest()
