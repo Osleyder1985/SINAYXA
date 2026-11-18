@@ -120,5 +120,49 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         self.assertEqual(before, after)
 
 
+    def test_independent_fresh_databases_produce_identical_fingerprints(self) -> None:
+        """Build the same manifest in two isolated databases and compare exact records."""
+        from psycopg import sql
+        from psycopg.conninfo import conninfo_to_dict, make_conninfo
+        from scripts.news_and_events.migration_runner import apply_migrations
+
+        database_names = [
+            f"sinayxa_fp_{uuid4().hex[:16]}",
+            f"sinayxa_fp_{uuid4().hex[:16]}",
+        ]
+        created: list[str] = []
+        admin = psycopg.connect(DATABASE_URL, autocommit=True)
+        try:
+            for database_name in database_names:
+                admin.execute(
+                    sql.SQL("CREATE DATABASE {}").format(sql.Identifier(database_name))
+                )
+                created.append(database_name)
+
+            fingerprints = []
+            base_parameters = conninfo_to_dict(DATABASE_URL)
+            for database_name in database_names:
+                parameters = dict(base_parameters)
+                parameters["dbname"] = database_name
+                isolated_url = make_conninfo(**parameters)
+                with psycopg.connect(isolated_url) as isolated:
+                    apply_migrations(isolated)
+                    isolated.commit()
+                    fingerprints.append(fingerprint_schema(isolated))
+
+            self.assertEqual(fingerprints[0].algorithm_version, fingerprints[1].algorithm_version)
+            self.assertEqual(fingerprints[0].record_count, fingerprints[1].record_count)
+            self.assertEqual(fingerprints[0].canonical_json, fingerprints[1].canonical_json)
+            self.assertEqual(fingerprints[0].sha256, fingerprints[1].sha256)
+        finally:
+            for database_name in created:
+                admin.execute(
+                    sql.SQL("DROP DATABASE IF EXISTS {} WITH (FORCE)").format(
+                        sql.Identifier(database_name)
+                    )
+                )
+            admin.close()
+
+
 if __name__ == "__main__":
     unittest.main()
