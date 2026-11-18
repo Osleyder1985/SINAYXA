@@ -54,6 +54,16 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         )
         self.admin.close()
 
+    def test_runner_rejects_caller_owned_transaction(self) -> None:
+        with self.connection.transaction():
+            with self.assertRaisesRegex(MigrationRunnerError, "requires an idle connection"):
+                apply_migrations(self.connection)
+            self.assertIsNone(
+                self.connection.execute(
+                    "SELECT to_regnamespace('sinayxa_control')"
+                ).fetchone()[0]
+            )
+
     def test_fresh_database_applies_exact_manifest_once(self) -> None:
         first = apply_migrations(self.connection)
         second = apply_migrations(self.connection)
