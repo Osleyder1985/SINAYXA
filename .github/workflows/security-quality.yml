@@ -141,6 +141,13 @@ jobs:
             exit "$audit_status"
           fi
           echo "npm audit: no high or critical vulnerabilities."
+      - name: Validate Issue #78 JSON Schema Draft 2020-12
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv "${RUNNER_TEMP}/contract-schema-venv"
+          "${RUNNER_TEMP}/contract-schema-venv/bin/python" -m pip install --disable-pip-version-check --no-input -r requirements-contract-validation.txt
+          "${RUNNER_TEMP}/contract-schema-venv/bin/python" scripts/validation/validate_source_evidence_contract_schema.py
       # Retain dependency audit results for traceability and later review.
       - name: Upload dependency audit evidence
         if: always()
