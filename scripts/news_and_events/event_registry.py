@@ -23,7 +23,6 @@ from scripts.news_and_events.migration_runner import apply_migrations
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = ROOT / "schemas" / "temporal-event-contract-1.0.0.schema.json"
 RULES_PATH = ROOT / "scripts" / "validation" / "validate_temporal_event_contract.py"
-MIGRATION_DIR = ROOT / "database" / "migrations"
 class EventRegistryError(ValueError):
     """Raised when a registry operation violates the temporal contract."""
 
