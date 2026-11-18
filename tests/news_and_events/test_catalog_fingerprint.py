@@ -186,6 +186,54 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_detects_global_default_privilege_changes(self) -> None:
+        from psycopg import sql
+
+        role_name = f"fp_default_acl_{uuid4().hex[:16]}"
+        can_create_role = self.connection.execute(
+            """
+            SELECT rolsuper OR rolcreaterole
+            FROM pg_roles
+            WHERE rolname = current_user
+            """
+        ).fetchone()[0]
+        self.connection.commit()
+        if not can_create_role:
+            self.skipTest("integration role cannot create an isolated test role")
+
+        role = sql.Identifier(role_name)
+        try:
+            self.connection.execute(
+                sql.SQL("CREATE ROLE {}").format(role)
+            )
+            self.connection.commit()
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                sql.SQL(
+                    "ALTER DEFAULT PRIVILEGES FOR ROLE {} "
+                    "GRANT SELECT ON TABLES TO PUBLIC"
+                ).format(role)
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+            self.assertTrue(
+                any(
+                    item["object_type"] == "default_privileges"
+                    and item["scope"] == "GLOBAL"
+                    and item["owner"] == role_name
+                    for item in after.records
+                )
+            )
+        finally:
+            self.connection.execute(
+                sql.SQL("DROP OWNED BY {}").format(role)
+            )
+            self.connection.execute(
+                sql.SQL("DROP ROLE IF EXISTS {}").format(role)
+            )
+            self.connection.commit()
+
     def test_fingerprint_detects_enum_type_changes(self) -> None:
         self.connection.execute(
             "CREATE TYPE sinayxa.fp_probe_enum AS ENUM ('alpha')"
