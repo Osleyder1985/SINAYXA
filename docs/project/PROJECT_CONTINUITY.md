@@ -515,6 +515,7 @@ Los Issues #3–#12 son requisitos funcionales pendientes, no funcionalidades di
 #### PR #119 — resultado CI corregido
 
 La actualización documental anterior produjo el HEAD 891ae7e4babeedd6cea950977b41d721539f1622. Sobre ese HEAD exacto:
+
 - Security/dependency [run #44212240381](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212240381): SUCCESS; npm audit, Gitleaks y OSV PR scan SUCCESS; OSV full SKIPPED en pull_request.
 - PowerShell [run #44212240105](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212240105): SUCCESS en 7.7.0 y 7.6.6.
 - La corrección de MD024 se verificó; Markdown lint pasó.
@@ -523,6 +524,7 @@ La actualización documental anterior produjo el HEAD 891ae7e4babeedd6cea950977b
 #### PR #85 — resultado de revalidación
 
 HEAD b229a17176e8b9bb1259311e4ccfb9e8c8849ee0:
+
 - Security/dependency [run #44212018919](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212018919): SUCCESS.
 - PowerShell [run #44212018393](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212018393): SUCCESS en 7.7.0 y 7.6.6.
 - Workflow Issue/integración [run #44212018449](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212018449): SUCCESS.
@@ -537,7 +539,7 @@ HEAD b229a17176e8b9bb1259311e4ccfb9e8c8849ee0:
 - PowerShell [run #44212493216](https://github.com/Osleyder1985/SINAYXA/actions/runs/44212493216) seguía in progress al registrar esta nota. No se transfiere el PASS histórico del HEAD ec3d3923.
 - PR #99 continúa DRAFT / OPEN / NOT MERGED. Debe permanecer apilada y bloqueada hasta que #85 sea aceptada e integrada; además se mantiene la revisión semántica de mappings y de opacidad.
 
-#### PR #100 / Issue #100
+#### PR #100 — estado de integración y pendientes
 
 PR #100 ya está MERGED (commit 73de7b25c79ca4b65d91903606b704554959d286). Issue #100 sigue OPEN por verificación de binario, firma y licencia/uso. El estado de captura CAPTURED no cambia readiness BLOCKED.
 
