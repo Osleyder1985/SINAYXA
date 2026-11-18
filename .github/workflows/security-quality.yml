@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - feat/issue-121-fresh-database-migration-runner
     paths:
       - "**"
       - ".github/workflows/security-quality.yml"
