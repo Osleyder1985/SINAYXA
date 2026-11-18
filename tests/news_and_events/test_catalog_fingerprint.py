@@ -664,6 +664,35 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             self.connection.execute(f'DROP ROLE IF EXISTS "{role_name}"')
             self.connection.commit()
 
+    def test_fingerprint_detects_column_storage_changes(self) -> None:
+        self.connection.execute(
+            "CREATE TABLE sinayxa.fp_probe_column_storage (value text)"
+        )
+        self.connection.commit()
+        try:
+            before = fingerprint_schema(self.connection)
+            self.connection.execute(
+                """
+                ALTER TABLE sinayxa.fp_probe_column_storage
+                ALTER COLUMN value SET STORAGE EXTERNAL
+                """
+            )
+            self.connection.commit()
+            after = fingerprint_schema(self.connection)
+            self.assertNotEqual(before.sha256, after.sha256)
+            column = next(
+                item for item in after.records
+                if item["object_type"] == "column"
+                and item["qualified_name"] == "sinayxa.fp_probe_column_storage"
+                and item["name"] == "value"
+            )
+            self.assertEqual("e", column["storage_strategy"])
+        finally:
+            self.connection.execute(
+                "DROP TABLE IF EXISTS sinayxa.fp_probe_column_storage"
+            )
+            self.connection.commit()
+
     def test_fingerprint_detects_relation_acl_changes(self) -> None:
         self.connection.execute(
             "CREATE TABLE sinayxa.fp_probe_acl (value integer)"
