@@ -65,8 +65,8 @@ def execute_persisted_migration(
     *,
     inject_failure_before_publish: bool = False,
 ) -> dict[str, Any]:
-    if root.exists() and any(root.iterdir()):
-        raise MigrationLabError("migration root must be empty; refusing to overwrite prior evidence")
+    if root.exists() and any(child.name != "source" for child in root.iterdir()):
+        raise MigrationLabError("migration root contains prior target evidence; refusing to overwrite it")
     root.mkdir(parents=True, exist_ok=True)
     migrator, validator = load_contract_modules(contract_source)
 
@@ -83,9 +83,13 @@ def execute_persisted_migration(
     target_schema = json.loads(target_schema_path.read_text(encoding="utf-8"))
 
     source_dir = root / "source"
-    source_dir.mkdir()
+    source_dir.mkdir(exist_ok=True)
     persisted_source = source_dir / "source-0.2.0.json"
-    persisted_source.write_bytes(source_bytes)
+    if persisted_source.exists():
+        if persisted_source.read_bytes() != source_bytes:
+            raise MigrationLabError("existing source snapshot differs from the pinned fixture")
+    else:
+        persisted_source.write_bytes(source_bytes)
     source_file_digest = sha256(persisted_source.read_bytes())
 
     migrated, snapshots = migrator.migrate_package(
