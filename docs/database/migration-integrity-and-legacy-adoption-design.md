@@ -97,6 +97,47 @@ The fingerprint must be derived from a deterministic, documented set of PostgreS
 
 If the catalog cannot be normalized, differs from the approved baseline, contains unexpected objects, or lacks required objects, adoption fails closed. The adoption attestation must say that it verifies present catalog equivalence only; it does not prove which historical SQL bytes were executed.
 
+### 3.3.1 Role and privilege contract by execution phase
+
+The initial implementation must not infer PostgreSQL role names from convention or from the current operator. Each environment must supply a versioned, reviewed allowlist of the login identity, effective identity, expected membership edges, and required privileges for each phase. If that configuration is absent, stale, or cannot be checked, the operation fails closed.
+
+For the first supported contract, the authenticated and effective identities must be identical: `session_user = current_user = current_role`. A `SET ROLE` transition or an unexpected effective identity is rejected. A later version may permit an explicit login-to-execution-role mapping, but only after the mapping and its privilege envelope are separately specified and tested.
+
+Every phase must inspect:
+- `session_user`, `current_user`, and `current_role`;
+- direct and transitive role memberships from `pg_auth_members`, including the per-membership `inherit_option`, `set_option`, and `admin_option` fields available in PostgreSQL 18;
+- role attributes from `pg_roles`, including `rolsuper`, `rolcreatedb`, `rolcreaterole`, `rolinherit`, and `rolbypassrls`;
+- effective database, schema, table, sequence, and function privileges relevant to the phase;
+- ownership of the control-plane and application objects where ownership is part of the contract.
+
+Memberships must be traversed transitively. The verifier must account for privileges inherited through memberships and roles reachable through `SET ROLE`; checking only the directly authenticated role is insufficient. Any unexpected membership edge, membership option, effective role, elevated capability, ownership, or privilege is a mismatch. An unqueryable or unsupported membership/privilege state is not treated as an empty set.
+
+| Phase | Permitted identity and capabilities | Explicitly prohibited | Required outcome on mismatch |
+| --- | --- | --- | --- |
+| Read-only legacy preflight | One explicitly allowlisted login/effective identity; CONNECT to the target database; USAGE on `sinayxa`; SELECT on `sinayxa.schema_migrations`; only the catalog reads required by the pinned fingerprint verifier. No database CREATE privilege. | SUPERUSER, CREATEDB, CREATEROLE, BYPASSRLS; unexpected memberships or SET ROLE paths; CREATE on the database/schema; INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER, or ownership capabilities over application objects. | `LEGACY_UNVERIFIED`; no DDL/DML, no bootstrap, no attestation. |
+| Fresh-database migration runner | One explicitly allowlisted runner identity; CONNECT and CREATE on the target database (CREATE privilege, not the CREATEDB role attribute); ownership of the schemas and objects it creates; ability to execute the approved transactional migrations and write the compatibility and integrity-ledger rows. | SUPERUSER, CREATEDB, CREATEROLE, BYPASSRLS; unexpected role memberships/SET ROLE paths; privileges outside the approved target database and managed schemas. | Abort before the affected migration SQL; preserve existing objects and ledgers unchanged. |
+| Legacy adoption attestation writer | A separately allowlisted identity, invoked only after a successful read-only preflight; ownership/CREATE rights limited to `sinayxa_control`; INSERT of the approved attestation record. If the control schema must be provisioned, that bootstrap step must be separately authorized and completed before invoking this writer. | Any write, DDL, ownership, or elevated capability over `sinayxa` business objects; SUPERUSER, CREATEDB, CREATEROLE, BYPASSRLS; unapproved memberships or SET ROLE paths. | No attestation or application-schema mutation; remain `LEGACY_UNVERIFIED`. |
+
+The role names are intentionally environment-configured, not hard-coded in this design. The allowlist must identify each permitted role by exact name and record the intended phase, direct memberships, transitive memberships, membership options, role flags, object ownership, and privilege grants. A role must not be accepted merely because it has a familiar name such as `postgres`, `admin`, or `migrator`.
+
+The preflight must prove the absence of write capabilities, not merely the presence of SELECT. The runner must prove the exact write envelope needed for its migration set, not merely that a connection succeeds. The adoption writer must be a distinct phase identity and must not inherit application-schema write capabilities from a shared group role.
+
+#### Required PostgreSQL 18.7 role tests
+
+Integration tests must create disposable roles and exercise real PostgreSQL authorization behavior, including:
+1. exact allowed identity with minimum privileges;
+2. missing CONNECT, schema USAGE, or ledger SELECT;
+3. unexpected INSERT/UPDATE/DELETE/TRUNCATE or schema CREATE privilege for preflight;
+4. direct and transitive memberships with INHERIT enabled and disabled;
+5. SET ROLE paths, including a path to a role with elevated attributes;
+6. unexpected ADMIN OPTION and membership-option changes;
+7. SUPERUSER, CREATEDB, CREATEROLE, and BYPASSRLS identities or reachable SET ROLE targets;
+8. runner ownership/DDL/write envelope and rejection of privileges outside the managed schemas;
+9. adoption writer isolation from all application-schema writes;
+10. inability to inspect any required role, membership, flag, or effective privilege.
+
+Each negative test must assert the returned state/error and verify that application catalog, business rows, schema_migrations, integrity ledger, and attestation table remain unchanged. Tests use only disposable PostgreSQL 18.7 databases and roles; no production DDL/DML is authorized.
+
 ### 3.3.1 Catalog fingerprint contract v1
 
 The first fingerprint implementation is deliberately scoped to the application schema `sinayxa` on PostgreSQL 18.7. It is a schema-equivalence check, not a data-integrity check and not proof of historical SQL execution. The fingerprint algorithm must have an explicit version (for example, `sinayxa-catalog-v1`) and must fail closed when it encounters a catalog feature that the version does not understand.
