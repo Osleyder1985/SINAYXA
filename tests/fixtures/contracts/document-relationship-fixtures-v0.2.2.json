@@ -1,0 +1,162 @@
+{
+  "fixture_set": "document-relationship-fixtures-v0.2.2",
+  "status": "DESIGN_FIXTURES_NOT_SCHEMA_VALIDATED",
+  "contract_candidate": "0.2.2",
+  "issue": 146,
+  "description": "Synthetic expected outcomes for typed relationships between distinct document versions. Identifiers are illustrative; factual summaries are limited to the cited public filings.",
+  "cases": [
+    {
+      "case_id": "DR-RTI-01",
+      "kind": "positive",
+      "documents": [
+        {"id": "rti_original_2012", "kind": "issuer_annual_filing"},
+        {"id": "rti_amendment_1", "kind": "issuer_amended_filing"},
+        {"id": "rti_8k_non_reliance", "kind": "issuer_current_report"},
+        {"id": "rti_later_10ka", "kind": "issuer_amended_annual_filing"}
+      ],
+      "relationships": [
+        {"declaring": "rti_8k_non_reliance", "target": "rti_original_2012", "type": "DECLARES_NON_RELIANCE_ON", "attribution": "ISSUER_STATEMENT", "scope": "2012 financial statements identified in the 8-K; do not infer unrelated periods or documents"},
+        {"declaring": "rti_8k_non_reliance", "target": "rti_amendment_1", "type": "DECLARES_NON_RELIANCE_ON", "attribution": "ISSUER_STATEMENT", "scope": "only the statements expressly identified by the filing"},
+        {"declaring": "rti_later_10ka", "target": "rti_original_2012", "type": "AMENDS", "attribution": "ISSUER_STATEMENT", "scope": "items and financial statement presentation actually amended in the later filing"}
+      ],
+      "expected": "PASS_WITH_LIMITED_SCOPE",
+      "assertions": [
+        "All filings remain distinct document identities.",
+        "A later amended filing does not erase the original or the intervening non-reliance declaration.",
+        "Non-reliance is not treated as proof that every later reported value is independently true.",
+        "The exact affected statements/notes must be extracted from the filings before scope is accepted."
+      ],
+      "sources": [
+        "https://www.sec.gov/Archives/edgar/data/1068717/000119312513412581/d618235d8k.htm",
+        "https://www.sec.gov/Archives/edgar/data/1068717/000119312513436550/d616897d10ka.htm"
+      ]
+    },
+    {
+      "case_id": "DR-YAK-01",
+      "kind": "positive",
+      "documents": [
+        {"id": "yak_original_10q", "kind": "issuer_quarterly_filing"},
+        {"id": "yak_amended_10qa", "kind": "issuer_amended_quarterly_filing"}
+      ],
+      "relationships": [
+        {"declaring": "yak_amended_10qa", "target": "yak_original_10q", "type": "AMENDS", "attribution": "ISSUER_STATEMENT", "scope": "only statements, notes, MD&A and controls expressly identified as amended"}
+      ],
+      "expected": "PASS_PARTIAL_SCOPE",
+      "assertions": [
+        "The amended filing and original filing remain distinct documents.",
+        "Do not mark the entire original filing as replaced when the amendment identifies limited sections.",
+        "Preserve the filing's own limitation that other information is not amended and that the amendment speaks as of the original filing except as stated.",
+        "The exact section-level scope must be checked against the filing before implementation acceptance."
+      ],
+      "sources": [
+        "https://www.sec.gov/Archives/edgar/data/1084544/000119312506085760/d10qa.htm"
+      ]
+    },
+    {
+      "case_id": "DR-CHAIN-01",
+      "kind": "positive",
+      "documents": [{"id":"doc_A"},{"id":"doc_B"},{"id":"doc_C"}],
+      "relationships": [
+        {"declaring":"doc_B","target":"doc_A","type":"CORRECTS","attribution":"ISSUER_STATEMENT","scope":"section_A"},
+        {"declaring":"doc_C","target":"doc_B","type":"REPLACES","attribution":"ISSUER_STATEMENT","scope":"section_A"}
+      ],
+      "expected": "PASS_PRESERVE_NON_TRANSITIVE_CHAIN",
+      "assertions": ["Preserve both directed edges.", "Do not infer that C corrects all of A unless C explicitly declares that relationship."]
+    },
+    {
+      "case_id": "DR-THIRD-PARTY-01",
+      "kind": "positive",
+      "documents": [{"id":"doc_original"},{"id":"doc_report"}],
+      "relationships": [
+        {"declaring":"doc_report","target":"doc_original","type":"CORRECTS","attribution":"THIRD_PARTY_REPORT","scope":"reported_section"}
+      ],
+      "expected": "PASS_ATTRIBUTION_REMAINS_THIRD_PARTY",
+      "assertions": ["Do not attribute the correction to the issuer without evidence.", "Review status is independent of attribution."]
+    },
+    {
+      "case_id": "DR-DISPUTED-01",
+      "kind": "boundary",
+      "documents": [{"id":"doc_A"},{"id":"doc_B"},{"id":"doc_C"}],
+      "relationships": [
+        {"declaring":"doc_B","target":"doc_A","type":"CORRECTS","attribution":"ISSUER_STATEMENT","scope":"section_1"},
+        {"declaring":"doc_C","target":"doc_A","type":"CLARIFIES","attribution":"THIRD_PARTY_REPORT","scope":"section_1"}
+      ],
+      "expected": "PRESERVE_BOTH_REVIEW_CONFLICT",
+      "assertions": ["Do not silently choose one interpretation.", "Contrary evidence and review rationale remain available."]
+    },
+    {
+      "case_id": "DR-ASOF-01",
+      "kind": "temporal",
+      "documents": [{"id":"doc_A"},{"id":"doc_B"}],
+      "relationships": [
+        {"declaring":"doc_B","target":"doc_A","type":"CORRECTS","attribution":"ISSUER_STATEMENT","recorded_at":"2026-02-10T12:00:00Z","asserted_effective_from":"2026-02-01T00:00:00Z"}
+      ],
+      "queries": [
+        {"knowledge_cutoff":"2026-02-05T00:00:00Z","expected_relationship_count":0},
+        {"knowledge_cutoff":"2026-02-11T00:00:00Z","expected_relationship_count":1}
+      ],
+      "expected": "PASS_NO_RETROACTIVE_KNOWLEDGE",
+      "assertions": ["The asserted effective date does not move recorded_at backwards.", "The earlier historical view cannot include a relationship recorded later."]
+    },
+    {
+      "case_id": "DR-NEG-01",
+      "kind": "negative",
+      "mutation": "declaring_document_version_id references a missing document",
+      "expected": "REJECT_UNKNOWN_ENDPOINT"
+    },
+    {
+      "case_id": "DR-NEG-02",
+      "kind": "negative",
+      "mutation": "declaring_document_version_id equals target_document_version_id",
+      "expected": "REJECT_SELF_RELATION"
+    },
+    {
+      "case_id": "DR-NEG-03",
+      "kind": "negative",
+      "mutation": "CORRECTS A->B and CORRECTS B->A for same scope",
+      "expected": "REJECT_DIRECTED_CORRECTION_CYCLE"
+    },
+    {
+      "case_id": "DR-NEG-04",
+      "kind": "negative",
+      "mutation": "duplicate relationship_assertion_id",
+      "expected": "REJECT_DUPLICATE_ID"
+    },
+    {
+      "case_id": "DR-NEG-05",
+      "kind": "negative",
+      "mutation": "third-party report attribution silently changed to ISSUER_STATEMENT",
+      "expected": "REJECT_ATTRIBUTION_MISMATCH_OR_REQUIRE_EVIDENCE"
+    },
+    {
+      "case_id": "DR-NEG-06",
+      "kind": "negative",
+      "mutation": "affected_scope omitted or silently expanded from partial section to whole document",
+      "expected": "REJECT_MISSING_OR_UNJUSTIFIED_SCOPE"
+    },
+    {
+      "case_id": "DR-NEG-07",
+      "kind": "negative",
+      "mutation": "relationship recorded after knowledge_cutoff appears in earlier as-of query",
+      "expected": "REJECT_TEMPORAL_LEAKAGE"
+    },
+    {
+      "case_id": "DR-NEG-08",
+      "kind": "negative",
+      "mutation": "relationship supersedes itself or points to a later recorded assertion",
+      "expected": "REJECT_INVALID_ASSERTION_HISTORY"
+    },
+    {
+      "case_id": "DR-NEG-09",
+      "kind": "negative",
+      "mutation": "chronology or textual similarity alone creates a relationship",
+      "expected": "REJECT_UNSUPPORTED_INFERENCE"
+    },
+    {
+      "case_id": "DR-NEG-10",
+      "kind": "negative",
+      "mutation": "provenance edge or same-source supersedes pointer is reused as a document correction relation",
+      "expected": "REJECT_SEMANTIC_TYPE_CONFUSION"
+    }
+  ]
+}
