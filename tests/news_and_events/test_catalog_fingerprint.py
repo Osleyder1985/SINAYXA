@@ -9,10 +9,10 @@ from uuid import uuid4
 import psycopg
 
 from scripts.news_and_events.catalog_fingerprint import (
+    _reject_unsupported_security_labels,
     CatalogFingerprintError,
     canonicalize_records,
     fingerprint_schema,
-    _reject_unsupported_security_labels,
 )
 
 
@@ -35,10 +35,6 @@ class CatalogCanonicalizationTests(unittest.TestCase):
     def test_non_json_values_fail_closed(self) -> None:
         with self.assertRaises(CatalogFingerprintError):
             canonicalize_records([{"object_type": "invalid", "payload": object()}])
-
-
-
-
 
 class CatalogSecurityLabelGuardTests(unittest.TestCase):
     @patch("scripts.news_and_events.catalog_fingerprint._rows")
