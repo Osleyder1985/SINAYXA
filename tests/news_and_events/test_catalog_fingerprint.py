@@ -290,6 +290,28 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_accepts_generated_array_types_for_composite_types(self) -> None:
+        generated_arrays = self.connection.execute(
+            """
+            SELECT array_type.typname
+            FROM pg_type element_type
+            JOIN pg_namespace element_namespace
+              ON element_namespace.oid = element_type.typnamespace
+            JOIN pg_type array_type
+              ON array_type.oid = element_type.typarray
+            JOIN pg_namespace array_namespace
+              ON array_namespace.oid = array_type.typnamespace
+            WHERE element_namespace.nspname = 'sinayxa'
+              AND element_type.typtype = 'c'
+              AND array_namespace.nspname = 'sinayxa'
+            ORDER BY array_type.typname
+            """
+        ).fetchall()
+        self.assertTrue(generated_arrays, "fixture schema must expose generated composite arrays")
+
+        fingerprint = fingerprint_schema(self.connection)
+        self.assertGreater(fingerprint.record_count, 0)
+
     def test_fingerprint_rejects_user_defined_base_types_until_fully_modeled(self) -> None:
         self.connection.execute("CREATE TYPE sinayxa.fp_probe_base_type")
         self.connection.execute(
