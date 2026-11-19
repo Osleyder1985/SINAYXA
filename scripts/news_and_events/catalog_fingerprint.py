@@ -743,6 +743,7 @@ def _fingerprint_schema_in_transaction(
         FROM pg_type t
         JOIN pg_namespace n ON n.oid = t.typnamespace
         WHERE n.nspname = %s AND t.typtype = 'b' AND t.typisdefined
+          AND t.typelem = 0
         ORDER BY t.typname
         """,
         (schema_name,),
