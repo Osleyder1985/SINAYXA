@@ -115,93 +115,60 @@ def _bootstrap_or_verify(connection: psycopg.Connection, bootstrap_sql: str) -> 
 
 
 def _verify_relation_contract(
-    connection: psycopg.Connection,
-    schema: str,
-    table: str,
+    connection: psycopg.Connection, schema: str, table: str,
     expected_columns: dict[str, tuple[str, bool, str | None]],
-    expected_constraints: set[str],
-    *,
-    label: str,
+    expected_constraints: set[str], label: str,
 ) -> None:
-    """Fail closed unless a table matches its pinned structural contract."""
     rows = connection.execute(
         """
         SELECT a.attname, format_type(a.atttypid, a.atttypmod), a.attnotnull,
                pg_get_expr(d.adbin, d.adrelid)
-        FROM pg_class c
-        JOIN pg_namespace n ON n.oid = c.relnamespace
+        FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
         JOIN pg_attribute a ON a.attrelid = c.oid
         LEFT JOIN pg_attrdef d ON d.adrelid = c.oid AND d.adnum = a.attnum
         WHERE n.nspname = %s AND c.relname = %s AND c.relkind = 'r'
           AND c.relpersistence = 'p' AND a.attnum > 0 AND NOT a.attisdropped
         ORDER BY a.attnum
-        """,
-        (schema, table),
+        """, (schema, table),
     ).fetchall()
-    actual_columns = {
-        name: (data_type, not_null, default_expr)
-        for name, data_type, not_null, default_expr in rows
-    }
+    actual_columns = {name: (typ, nn, default) for name, typ, nn, default in rows}
     if actual_columns != expected_columns:
         raise MigrationRunnerError(
             f"{label} structural drift detected in columns: "
             f"expected={expected_columns}, actual={actual_columns}"
         )
-
-    constraint_rows = connection.execute(
+    rows = connection.execute(
         """
         SELECT pg_get_constraintdef(con.oid, true)
-        FROM pg_constraint con
-        JOIN pg_class c ON c.oid = con.conrelid
+        FROM pg_constraint con JOIN pg_class c ON c.oid = con.conrelid
         JOIN pg_namespace n ON n.oid = c.relnamespace
         WHERE n.nspname = %s AND c.relname = %s
-        ORDER BY con.contype, con.conname
-        """,
-        (schema, table),
+        """, (schema, table),
     ).fetchall()
-    actual_constraints = {
-        " ".join(definition.lower().split())
-        for (definition,) in constraint_rows
-    }
-    normalized_expected = {
-        " ".join(definition.lower().split())
-        for definition in expected_constraints
-    }
-    if actual_constraints != normalized_expected:
+    actual = {" ".join(value.lower().split()) for (value,) in rows}
+    expected = {" ".join(value.lower().split()) for value in expected_constraints}
+    if actual != expected:
         raise MigrationRunnerError(
             f"{label} structural drift detected in constraints: "
-            f"expected={sorted(normalized_expected)}, actual={sorted(actual_constraints)}"
+            f"expected={sorted(expected)}, actual={sorted(actual)}"
         )
 
 
 def _verify_control_plane_structure(connection: psycopg.Connection) -> None:
-    """Verify live control-plane columns, defaults, and constraints without repair."""
     contracts = (
-        (
-            "bootstrap_state",
-            {
-                "singleton": ("boolean", True, "true"),
-                "bootstrap_version": ("integer", True, None),
-                "bootstrap_sha256": ("character(64)", True, None),
-                "installed_at": ("timestamp with time zone", True, "clock_timestamp()"),
-            },
-            {"PRIMARY KEY (singleton)", "CHECK (singleton)"},
-        ),
-        (
-            "migration_integrity",
-            {
-                "migration_id": ("text", True, None),
-                "version": ("integer", True, None),
-                "sha256": ("character(64)", True, None),
-                "source_revision": ("text", True, None),
-                "applied_at": ("timestamp with time zone", True, "clock_timestamp()"),
-                "runner_version": ("text", True, None),
-            },
-            {
-                "PRIMARY KEY (migration_id)",
-                "UNIQUE (version)",
-                "CHECK ((version > 0))",
-                "CHECK ((sha256 ~ '^[0-9a-f]{64}    rows = connection.execute(
+        ("bootstrap_state",
+         {"singleton": ("boolean", True, "true"),
+          "bootstrap_version": ("integer", True, None),
+          "bootstrap_sha256": ("character(64)", True, None),
+          "installed_at": ("timestamp with time zone", True, "clock_timestamp()")},
+         {"PRIMARY KEY (singleton)", "CHECK (singleton)"}),
+        ("migration_integrity",
+         {"migration_id": ("text", True, None), "version": ("integer", True, None),
+          "sha256": ("character(64)", True, None), "source_revision": ("text", True, None),
+          "applied_at": ("timestamp with time zone", True, "clock_timestamp()"),
+          "runner_version": ("text", True, None)},
+         {"PRIMARY KEY (migration_id)", "UNIQUE (version)", "CHECK ((version > 0))",
+          "CHECK ((sha256 ~ '^[0-9a-f]{64}    rows = connection.execute(
         """
         SELECT migration_id, version, sha256, source_revision
         FROM sinayxa_control.migration_integrity
@@ -228,7 +195,6 @@ def _verify_legacy_compatibility(
                 "integrity ledger contains migrations but application schema is absent"
             )
         return
-
     legacy_table_exists = connection.execute(
         "SELECT to_regclass('sinayxa.schema_migrations') IS NOT NULL"
     ).fetchone()[0]
@@ -236,7 +202,6 @@ def _verify_legacy_compatibility(
         raise MigrationRunnerError(
             "application schema exists without the legacy migration ledger"
         )
-
     _verify_legacy_ledger_structure(connection)
     legacy_ids = _load_legacy_ids(connection)
     expected_ids = set(ledger)
@@ -245,16 +210,13 @@ def _verify_legacy_compatibility(
         missing_legacy = sorted(expected_ids - legacy_ids)
         raise MigrationRunnerError(
             "legacy/integrity ledger disagreement; "
-            f"legacy_without_integrity={missing_integrity}, "
-            f"integrity_without_legacy={missing_legacy}"
+            f"legacy_without_integrity={missing_integrity}, integrity_without_legacy={missing_legacy}"
         )
-
     if not ledger:
         raise MigrationRunnerError(
             "legacy application migration IDs have no integrity hashes; "
             "state remains LEGACY_UNVERIFIED"
         )
-
     known = {record.migration_id for record in records}
     unknown = sorted(legacy_ids - known)
     if unknown:
@@ -279,18 +241,13 @@ def _validate_ledger(
                 f"migration drift detected for {migration_id}: recorded SHA-256 differs from manifest"
             )
         if source_revision != record.source_revision:
-            raise MigrationRunnerError(
-                f"migration provenance drift detected for {migration_id}"
-            )
-
-    applied_in_manifest_order = tuple(
-        record.migration_id for record in records if record.migration_id in ledger
-    )
-    expected_prefix = tuple(record.migration_id for record in records[: len(ledger)])
-    if applied_in_manifest_order != expected_prefix:
+            raise MigrationRunnerError(f"migration provenance drift detected for {migration_id}")
+    applied = tuple(record.migration_id for record in records if record.migration_id in ledger)
+    expected_prefix = tuple(record.migration_id for record in records[:len(ledger)])
+    if applied != expected_prefix:
         raise MigrationRunnerError(
             "applied migration ledger is not a continuous manifest prefix; "
-            f"applied={applied_in_manifest_order}, expected_prefix={expected_prefix}"
+            f"applied={applied}, expected_prefix={expected_prefix}"
         )
 
 
@@ -396,7 +353,7 @@ def apply_migrations(
 
     return tuple(applied_now)
 ::text))",
-                "CHECK ((source_revision ~ '^([0-9a-f]{40}|[0-9a-f]{64})    rows = connection.execute(
+          "CHECK ((source_revision ~ '^([0-9a-f]{40}|[0-9a-f]{64})    rows = connection.execute(
         """
         SELECT migration_id, version, sha256, source_revision
         FROM sinayxa_control.migration_integrity
@@ -584,45 +541,28 @@ def apply_migrations(
             )
 
     return tuple(applied_now)
-::text))",
-            },
-        ),
-        (
-            "legacy_adoption_attestations",
-            {
-                "attestation_id": ("text", True, None),
-                "status": ("text", True, None),
-                "verifier_version": ("text", True, None),
-                "algorithm_version": ("text", True, None),
-                "computed_fingerprint": ("character(64)", True, None),
-                "expected_fingerprint": ("character(64)", True, None),
-                "payload": ("jsonb", True, None),
-                "created_at": ("timestamp with time zone", True, "clock_timestamp()"),
-            },
-            {
-                "PRIMARY KEY (attestation_id)",
-                "CHECK ((status = 'LEGACY_ADOPTED_CATALOG_MATCH'::text))",
-            },
-        ),
+::text))"}),
+        ("legacy_adoption_attestations",
+         {"attestation_id": ("text", True, None), "status": ("text", True, None),
+          "verifier_version": ("text", True, None), "algorithm_version": ("text", True, None),
+          "computed_fingerprint": ("character(64)", True, None),
+          "expected_fingerprint": ("character(64)", True, None), "payload": ("jsonb", True, None),
+          "created_at": ("timestamp with time zone", True, "clock_timestamp()")},
+         {"PRIMARY KEY (attestation_id)",
+          "CHECK ((status = 'LEGACY_ADOPTED_CATALOG_MATCH'::text))"}),
     )
     for table, columns, constraints in contracts:
         _verify_relation_contract(
-            connection, "sinayxa_control", table, columns, constraints,
-            label="control-plane",
+            connection, "sinayxa_control", table, columns, constraints, "control-plane"
         )
 
 
 def _verify_legacy_ledger_structure(connection: psycopg.Connection) -> None:
     _verify_relation_contract(
-        connection,
-        "sinayxa",
-        "schema_migrations",
-        {
-            "migration_id": ("text", True, None),
-            "applied_at": ("timestamp with time zone", True, "clock_timestamp()"),
-        },
-        {"PRIMARY KEY (migration_id)"},
-        label="legacy migration ledger",
+        connection, "sinayxa", "schema_migrations",
+        {"migration_id": ("text", True, None),
+         "applied_at": ("timestamp with time zone", True, "clock_timestamp()")},
+        {"PRIMARY KEY (migration_id)"}, "legacy migration ledger",
     )
 
 
@@ -649,22 +589,14 @@ def _load_ledger(connection: psycopg.Connection) -> dict[str, tuple[int, str, st
     ledger: dict[str, tuple[int, str, str]] = {}
     seen_versions: set[int] = set()
     for migration_id, version, digest, source_revision in rows:
-        if (
-            not isinstance(migration_id, str) or not migration_id
-            or type(version) is not int
-            or not isinstance(digest, str) or not isinstance(source_revision, str)
-        ):
-            raise MigrationRunnerError(
-                "integrity ledger contains NULL or invalid migration fields"
-            )
+        if (not isinstance(migration_id, str) or not migration_id
+                or type(version) is not int
+                or not isinstance(digest, str) or not isinstance(source_revision, str)):
+            raise MigrationRunnerError("integrity ledger contains NULL or invalid migration fields")
         if migration_id in ledger:
-            raise MigrationRunnerError(
-                f"integrity ledger contains duplicate migration ID: {migration_id}"
-            )
+            raise MigrationRunnerError(f"integrity ledger contains duplicate migration ID: {migration_id}")
         if version in seen_versions:
-            raise MigrationRunnerError(
-                f"integrity ledger contains duplicate migration version: {version}"
-            )
+            raise MigrationRunnerError(f"integrity ledger contains duplicate migration version: {version}")
         ledger[migration_id] = (version, digest.strip(), source_revision.strip())
         seen_versions.add(version)
     return ledger
