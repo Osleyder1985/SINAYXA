@@ -98,7 +98,7 @@ fail() {
   exit 1
 }
 
-for tool in curl jq sha256sum; do
+for tool in curl jq; do
   command -v "$tool" >/dev/null 2>&1 || fail "REQUIRED_TOOL_UNAVAILABLE_$tool"
 done
 
