@@ -588,4 +588,4 @@ Pruebas añadidas:
 - `test_021_unresolved_provenance_edge_rejects_future_validity`;
 - `test_021_independent_assessment_cannot_reference_unresolved_provenance`.
 
-El fixture 0.2.1 ahora vincula `edge-a-unknown` con la evaluación DESCONOCIDA del componente exacto. La prueba es sintética: no demuestra que la procedencia real de C-01 esté reconstruida. A/B permanecen abiertas hasta revisión humana y CI sobre el mismo HEAD.
+La prueba positiva vincula `edge-a-unknown` con la evaluación DESCONOCIDA del componente exacto a partir del fixture base. La prueba es sintética: no demuestra que la procedencia real de C-01 esté reconstruida. A/B permanecen abiertas hasta revisión humana y CI sobre el mismo HEAD.
