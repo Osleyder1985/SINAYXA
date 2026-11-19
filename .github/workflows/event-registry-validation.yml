@@ -9,6 +9,8 @@ on:
       - "database/migrations/**"
       - "database/control-plane/**"
       - "scripts/news_and_events/**"
+      - "scripts/validation/retention_copy_reconciliation_lab.py"
+      - "tests/validation/test_retention_copy_reconciliation_lab.py"
       - "docs/news-and-events/event-registry.md"
       - "scripts/validation/validate_temporal_event_contract.py"
       - "schemas/temporal-event-contract-1.0.0.schema.json"
@@ -67,6 +69,12 @@ jobs:
 
       - name: Verify the local CLI entry point
         run: python -m scripts.news_and_events.register_event --help
+
+      - name: Run Issue #137 local synthetic retention copy reconciliation tests
+        run: python -m unittest tests.validation.test_retention_copy_reconciliation_lab -v
+
+      - name: Execute Issue #137 local synthetic retention copy laboratory
+        run: python -m scripts.validation.retention_copy_reconciliation_lab --report artifacts/retention-copy-lab/retention-copy-lab-report.json
 
       - name: Run pure migration manifest integrity tests
         run: python -m unittest tests.news_and_events.test_migration_manifest -v
