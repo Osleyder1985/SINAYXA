@@ -87,6 +87,7 @@ def reconcile_deletion(
     root: Path,
     inventory: list[dict[str, Any]],
     ledger: dict[str, Any] | None,
+    deletion_receipts: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     locations = validate_inventory(root, inventory)
     if not isinstance(ledger, dict):
@@ -111,24 +112,37 @@ def reconcile_deletion(
         )
         for copy_id, item in ((entry["copy_id"], entry) for entry in inventory)
     }
-    present = {copy_id: path.exists() for copy_id, path in targets.items()}
-    if any(present.values()) and not all(present.values()):
-        raise RetentionLabError("partial copy inventory is present; refusing to report deletion")
+    receipts = dict(deletion_receipts or {})
+    if not set(receipts).issubset(expected_ids):
+        raise RetentionLabError("deletion receipt references an unknown copy")
+    if any(
+        not isinstance(digest, str) or len(digest) != 64
+        or any(character not in "0123456789abcdef" for character in digest.lower())
+        for digest in receipts.values()
+    ):
+        raise RetentionLabError("deletion receipt contains an invalid SHA-256 digest")
+
     removed: list[dict[str, str]] = []
-    if all(present.values()):
-        for copy_id, target in targets.items():
+    for copy_id, target in targets.items():
+        if target.exists():
+            if copy_id in receipts:
+                raise RetentionLabError("copy exists despite a prior deletion receipt")
             if not target.is_file():
                 raise RetentionLabError("managed object is not a regular file")
             digest = hashlib.sha256(target.read_bytes()).hexdigest()
             target.unlink()
+            receipts[copy_id] = digest
             removed.append({"copy_id": copy_id, "sha256_before_delete": digest})
+        elif copy_id not in receipts:
+            raise RetentionLabError("missing copy has no verified deletion receipt")
     remaining = [copy_id for copy_id, target in targets.items() if target.exists()]
-    if remaining:
-        raise RetentionLabError("one or more managed copies remain after reconciliation")
+    if remaining or set(receipts) != expected_ids:
+        raise RetentionLabError("one or more managed copies lack verified deletion evidence")
     return {
         "status": "DELETED",
         "object_id": object_id,
         "removed": removed,
+        "deletion_receipts": receipts,
         "remaining_copy_ids": remaining,
         "idempotent": not bool(removed),
     }
@@ -181,7 +195,7 @@ def run_lab() -> dict[str, Any]:
         checks["all_five_copies_reconciled"] = (
             "PASS" if result["status"] == "DELETED" and len(result["removed"]) == 5 else "FAIL"
         )
-        second = reconcile_deletion(root, inventory, ledger)
+        second = reconcile_deletion(root, inventory, ledger, result["deletion_receipts"])
         checks["idempotent_repeat"] = (
             "PASS" if second["status"] == "DELETED" and not second["removed"] else "FAIL"
         )
