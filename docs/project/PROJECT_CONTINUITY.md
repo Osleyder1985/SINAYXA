@@ -791,7 +791,6 @@ Los cambios se registraron también en el comentario de PR 6997628686. El CI del
 4. Actualizar este documento desde los resultados finales, no desde ejecuciones históricas ni estados PENDING/IN_PROGRESS.
 5. No modificar main, no usar force-push, no ejecutar adopción legacy ni DDL/DML productivo.
 
-
 ## 14.17 Rectificación de revisión y CI posterior — 2026-11-19 UTC
 
 Esta sección corrige expresamente el hallazgo sobre arrays registrado en 14.16. La revisión inicial 5968332955 de PR #126 se retira como defecto del algoritmo.
@@ -801,6 +800,7 @@ Esta sección corrige expresamente el hallazgo sobre arrays registrado en 14.16.
 La condición NOT EXISTS (SELECT 1 FROM pg_type element_type WHERE element_type.typarray = t.oid) sí excluye los tipos array generados: el tipo elemento referencia el OID de su array mediante su campo typarray. La interpretación anterior confundió el sentido de esa relación. No se requiere reemplazarla por typelem = 0 a causa de ese hallazgo.
 
 El HEAD 2ace99daafbb4bbef1c95470cdbe9e4d686fe9d0 ya contiene las pruebas:
+
 - test_fingerprint_accepts_generated_array_types_for_composite_types.
 - test_fingerprint_rejects_user_defined_base_types_until_fully_modeled.
 
@@ -809,6 +809,7 @@ PostgreSQL 18.7 [run 44439914345](https://github.com/Osleyder1985/SINAYXA/action
 ### CI posterior de PR #127
 
 En HEAD 4264fa2f77db516922780fe34a514768c964330b:
+
 - PostgreSQL / Issue [44443047619](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443047619): SUCCESS.
 - Security [44443048108](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443048108): SUCCESS; OSV full SKIPPED.
 - PowerShell [44443047590](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443047590): seguía IN_PROGRESS en la última consulta; no declarar el gate completo.
@@ -820,7 +821,6 @@ El HEAD dfcbf57 falló Markdown lint por MD012 y MD032. Se corrigieron ambas inc
 ### Decisión actual
 
 El hallazgo de arrays no bloquea #126. Permanecen los bloqueos independientes: algoritmo etiquetado preview, revisión integral de clases de objetos/cobertura de catálogo, baseline independiente aprobado y controles de adopción legacy. #127 continúa DRAFT y LEGACY_UNVERIFIED hasta completar PowerShell y la revisión funcional. #119 continúa DRAFT hasta completar sus nuevos gates y la prueba de recuperación de continuidad.
-
 
 ## 14.18 Confirmación de gates #127 y estado documental — 2026-11-19 UTC
 
@@ -836,6 +836,7 @@ Las tres pruebas de memberships y la corrección de typing están en un HEAD con
 ### PR #119 — CI del documento actualizado
 
 HEAD actual 354317a1c44517056abf81636c4eb162758dece3:
+
 - PowerShell [44443370659](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443370659): PENDING.
 - Security [44443371153](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443371153): IN_PROGRESS en el último sondeo.
 
@@ -844,3 +845,46 @@ El HEAD anterior dfcbf57 falló Markdown lint por MD012 y MD032. Se corrigieron 
 ### Estado de la revisión de #126
 
 El hallazgo 5968332955 sobre typarray fue retirado como falso positivo mediante comentario 6997663073. No se requiere ese cambio de código. Se mantienen los límites del algoritmo preview y la necesidad de revisión completa de cobertura del catálogo y baseline independiente.
+
+## 14.19 Revalidación exacta del HEAD documental y matriz de CI — 2026-11-19 UTC
+
+Este apartado prevalece sobre cualquier estado anterior de CI cuando el HEAD citado haya cambiado.
+
+### PR #119 — HEAD `1d261531ee4f910a02286d047c04b0d7238c7595`
+
+- PowerShell quality gate [44443439183](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443439183): **SUCCESS**.
+- Security/dependency quality gate [44443439448](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443439448): **FAILURE**.
+- Gitleaks: SUCCESS.
+- OSV PR scan: SUCCESS.
+- OSV full: SKIPPED; no se contabiliza como PASS.
+- El fallo se produjo en `npm run lint:markdown`, antes de ejecutar `npm audit`. El log identificó seis infracciones en este mismo documento:
+  - MD012 en las líneas 794 y 824 (líneas del archivo inspeccionado por ese run).
+  - MD032 en las líneas 804, 812, 830 y 839.
+- Por tanto, el gate de seguridad no está aprobado y el resultado de npm audit no se obtuvo en esa ejecución. No se debe describir como un fallo de vulnerabilidades ni como un PASS de dependencias.
+
+Se corrige únicamente el formato Markdown de las listas y separaciones de las secciones 14.17–14.18. El siguiente commit deberá ejecutar ambos workflows sobre el nuevo HEAD exacto. #119 permanece OPEN / DRAFT. La recuperación desde una conversación nueva y la reconciliación de los worktrees locales continúan pendientes.
+
+### PR #126 — HEAD `2ace99daafbb4bbef1c95470cdbe9e4d686fe9d0`
+
+- PowerShell [44439914633](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439914633): SUCCESS.
+- PostgreSQL / Issue [44439914345](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439914345): SUCCESS.
+- Security [44439914777](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439914777): SUCCESS; OSV full SKIPPED.
+- La revisión 5968332955 sobre `pg_type.typarray` fue retirada como falso positivo mediante el comentario 6997663073. No se cambia el SQL por ese motivo.
+- La aprobación de baseline y el uso del algoritmo como contrato estable siguen bloqueados: el identificador continúa siendo `sinayxa-catalog-v1-preview`; falta completar la revisión semántica de cobertura y un baseline independiente aprobado.
+
+### PR #127 — HEAD `4264fa2f77db516922780fe34a514768c964330b`
+
+- PostgreSQL / Issue [44443047619](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443047619): SUCCESS.
+- PowerShell [44443047590](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443047590): SUCCESS.
+- Security [44443048108](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443048108): SUCCESS; OSV full SKIPPED.
+- Las pruebas de memberships allowlisted, SET ROLE y ADMIN OPTION están presentes. La revisión de código y CI de esta PR no constituyen autorización para adoptar una base: el estado operativo permanece `LEGACY_UNVERIFIED`.
+
+### PR #85 y #99
+
+- #85 HEAD `d2a08ea8d104f2a4756e3cd970f5159a270cba25`: PowerShell [44439012103](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439012103), PostgreSQL/Issue [44439012421](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439012421) y Security [44439012589](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439012589) SUCCESS; OSV full SKIPPED. A–E y las evidencias operacionales de #88/#89 siguen abiertas.
+- #99 HEAD `d1da9ba3f9c89a27e36d5d4297b1bf755870030d`: PowerShell [44439159091](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439159091) y Security [44439159479](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439159479) SUCCESS; OSV full SKIPPED. Sigue DRAFT y depende de #85.
+
+### Decisión
+
+No se fusiona ninguna PR en este corte. No se modifica `main`, no se usa force-push, no se ejecuta DDL/DML productivo y no se activa adopción legacy. Los checks SUCCESS se atribuyen exclusivamente a los HEAD indicados; los checks SKIPPED no se cuentan como PASS.
+
