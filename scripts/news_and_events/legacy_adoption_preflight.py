@@ -35,6 +35,10 @@ class LegacyAdoptionPreflight:
     status: str
     reasons: tuple[str, ...]
     server_version_num: int | None
+    session_user: str | None
+    current_user: str | None
+    current_role: str | None
+    role_memberships: tuple[tuple[str, str, bool, bool, bool], ...]
     algorithm_version: str
     computed_fingerprint: str | None
     expected_fingerprint: str
@@ -45,6 +49,8 @@ def preflight_legacy_adoption(
     connection,
     *,
     approved_baseline_sha256: str,
+    approved_identity: str,
+    approved_memberships: tuple[tuple[str, str, bool, bool, bool], ...] = (),
 ) -> LegacyAdoptionPreflight:
     """Compare a legacy schema with an externally approved clean baseline.
 
@@ -60,6 +66,10 @@ def preflight_legacy_adoption(
         raise LegacyAdoptionPreflightError(
             "an explicitly approved lowercase SHA-256 baseline is required"
         )
+    if not isinstance(approved_identity, str) or not approved_identity.strip():
+        raise LegacyAdoptionPreflightError(
+            "an explicitly allowlisted PostgreSQL login identity is required"
+        )
     if connection.info.transaction_status != 0:
         raise LegacyAdoptionPreflightError(
             "legacy adoption preflight requires an idle connection"
@@ -67,6 +77,10 @@ def preflight_legacy_adoption(
 
     reasons: list[str] = []
     server_version_num: int | None = None
+    session_user: str | None = None
+    current_user: str | None = None
+    current_role: str | None = None
+    role_memberships: tuple[tuple[str, str, bool, bool, bool], ...] = ()
     legacy_ids: tuple[str, ...] = ()
     computed_fingerprint: str | None = None
 
@@ -81,6 +95,80 @@ def preflight_legacy_adoption(
             reasons.append(
                 "unsupported PostgreSQL server version: "
                 f"{server_version_num}; expected {SUPPORTED_SERVER_VERSION_NUM}"
+            )
+
+        session_user, current_user, current_role, database_name = connection.execute(
+            "SELECT session_user, current_user, current_role, current_database()"
+        ).fetchone()
+        if (session_user, current_user, current_role) != (
+            approved_identity, approved_identity, approved_identity
+        ):
+            reasons.append(
+                "authenticated/effective PostgreSQL identity mismatch; "
+                f"session_user={session_user}, current_user={current_user}, "
+                f"current_role={current_role}, approved={approved_identity}"
+            )
+
+        membership_rows = connection.execute(
+            """
+            WITH RECURSIVE membership_edges AS (
+                SELECT m.member, m.roleid, m.inherit_option, m.set_option,
+                       m.admin_option, ARRAY[m.member, m.roleid] AS path
+                FROM pg_auth_members m
+                JOIN pg_roles login_role ON login_role.oid = m.member
+                WHERE login_role.rolname = %s
+                UNION ALL
+                SELECT m.member, m.roleid, m.inherit_option, m.set_option,
+                       m.admin_option, edge.path || m.roleid
+                FROM pg_auth_members m
+                JOIN membership_edges edge ON m.member = edge.roleid
+                WHERE NOT m.roleid = ANY(edge.path)
+            )
+            SELECT DISTINCT member_role.rolname, granted_role.rolname,
+                   edge.inherit_option, edge.set_option, edge.admin_option
+            FROM membership_edges edge
+            JOIN pg_roles member_role ON member_role.oid = edge.member
+            JOIN pg_roles granted_role ON granted_role.oid = edge.roleid
+            ORDER BY member_role.rolname, granted_role.rolname
+            """,
+            (approved_identity,),
+        ).fetchall()
+        role_memberships = tuple(
+            (member, granted, inherit_option, set_option, admin_option)
+            for member, granted, inherit_option, set_option, admin_option in membership_rows
+        )
+        if role_memberships != tuple(sorted(approved_memberships)):
+            reasons.append(
+                "PostgreSQL role membership graph differs from the approved allowlist; "
+                f"actual={role_memberships}, approved={tuple(sorted(approved_memberships)}"
+            )
+        if any(set_option or admin_option for _, _, _, set_option, admin_option in role_memberships):
+            reasons.append(
+                "preflight identity has an unapproved SET ROLE or ADMIN OPTION capability"
+            )
+
+        reachable_roles = sorted(
+            {approved_identity} | {granted for _, granted, _, _, _ in role_memberships}
+        )
+        role_flags = connection.execute(
+            """
+            SELECT rolname, rolsuper, rolcreatedb, rolcreaterole, rolbypassrls
+            FROM pg_roles
+            WHERE rolname = ANY(%s)
+            ORDER BY rolname
+            """,
+            (reachable_roles,),
+        ).fetchall()
+        if len(role_flags) != len(reachable_roles):
+            reasons.append("one or more allowlisted PostgreSQL roles could not be inspected")
+        elevated_roles = [
+            name for name, superuser, createdb, createrole, bypassrls in role_flags
+            if superuser or createdb or createrole or bypassrls
+        ]
+        if elevated_roles:
+            reasons.append(
+                "preflight identity or reachable memberships have elevated role attributes: "
+                f"{elevated_roles}"
             )
 
         app_schema_exists, control_schema_exists, legacy_ledger_exists = connection.execute(
@@ -101,7 +189,95 @@ def preflight_legacy_adoption(
         if not legacy_ledger_exists:
             reasons.append("legacy migration ledger sinayxa.schema_migrations is missing")
 
-        if app_schema_exists and legacy_ledger_exists:
+        can_read_legacy_ledger = False
+        database_connect, database_create = connection.execute(
+            """
+            SELECT has_database_privilege(current_user, current_database(), 'CONNECT'),
+                   has_database_privilege(current_user, current_database(), 'CREATE')
+            """
+        ).fetchone()
+        if not database_connect:
+            reasons.append("preflight identity lacks CONNECT on the target database")
+        if database_create:
+            reasons.append("read-only preflight identity has CREATE privilege on the database")
+
+        if app_schema_exists:
+            schema_usage, schema_create = connection.execute(
+                """
+                SELECT has_schema_privilege(current_user, 'sinayxa', 'USAGE'),
+                       has_schema_privilege(current_user, 'sinayxa', 'CREATE')
+                """
+            ).fetchone()
+            if not schema_usage:
+                reasons.append("preflight identity lacks USAGE on schema sinayxa")
+            if schema_create:
+                reasons.append("read-only preflight identity has CREATE on schema sinayxa")
+
+        if legacy_ledger_exists:
+            can_read_legacy_ledger, ledger_write = connection.execute(
+                """
+                SELECT has_table_privilege(
+                           current_user, 'sinayxa.schema_migrations', 'SELECT'
+                       ),
+                       has_table_privilege(
+                           current_user, 'sinayxa.schema_migrations', 'INSERT'
+                       )
+                       OR has_table_privilege(
+                           current_user, 'sinayxa.schema_migrations', 'UPDATE'
+                       )
+                       OR has_table_privilege(
+                           current_user, 'sinayxa.schema_migrations', 'DELETE'
+                       )
+                       OR has_table_privilege(
+                           current_user, 'sinayxa.schema_migrations', 'TRUNCATE'
+                       )
+                       OR has_table_privilege(
+                           current_user, 'sinayxa.schema_migrations', 'REFERENCES'
+                       )
+                       OR has_table_privilege(
+                           current_user, 'sinayxa.schema_migrations', 'TRIGGER'
+                       )
+                """
+            ).fetchone()
+            if not can_read_legacy_ledger:
+                reasons.append("preflight identity lacks SELECT on the legacy migration ledger")
+            if ledger_write:
+                reasons.append("preflight identity has write privileges on the legacy migration ledger")
+
+        if app_schema_exists:
+            table_write = connection.execute(
+                """
+                SELECT COALESCE(bool_or(
+                    has_table_privilege(current_user, c.oid, 'INSERT')
+                    OR has_table_privilege(current_user, c.oid, 'UPDATE')
+                    OR has_table_privilege(current_user, c.oid, 'DELETE')
+                    OR has_table_privilege(current_user, c.oid, 'TRUNCATE')
+                    OR has_table_privilege(current_user, c.oid, 'REFERENCES')
+                    OR has_table_privilege(current_user, c.oid, 'TRIGGER')
+                ), false)
+                FROM pg_class c
+                JOIN pg_namespace n ON n.oid = c.relnamespace
+                WHERE n.nspname = 'sinayxa'
+                  AND c.relkind IN ('r', 'p', 'v', 'm', 'f')
+                """
+            ).fetchone()[0]
+            sequence_write = connection.execute(
+                """
+                SELECT COALESCE(bool_or(
+                    has_sequence_privilege(current_user, c.oid, 'USAGE')
+                    OR has_sequence_privilege(current_user, c.oid, 'UPDATE')
+                ), false)
+                FROM pg_class c
+                JOIN pg_namespace n ON n.oid = c.relnamespace
+                WHERE n.nspname = 'sinayxa' AND c.relkind = 'S'
+                """
+            ).fetchone()[0]
+            if table_write or sequence_write:
+                reasons.append(
+                    "read-only preflight identity has write privileges on application objects"
+                )
+
+        if app_schema_exists and legacy_ledger_exists and can_read_legacy_ledger:
             rows = connection.execute(
                 """
                 SELECT migration_id
@@ -140,6 +316,10 @@ def preflight_legacy_adoption(
         status="PREFLIGHT_MATCH" if not reasons else "LEGACY_UNVERIFIED",
         reasons=tuple(reasons),
         server_version_num=server_version_num,
+        session_user=session_user,
+        current_user=current_user,
+        current_role=current_role,
+        role_memberships=role_memberships,
         algorithm_version=ALGORITHM_VERSION,
         computed_fingerprint=computed_fingerprint,
         expected_fingerprint=approved_baseline_sha256,
