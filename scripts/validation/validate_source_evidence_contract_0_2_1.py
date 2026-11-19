@@ -19,6 +19,7 @@ from contract_0_2_1_extensions import (
     validate_migration,
     validate_retention_scope,
     validate_backup_expiration_policy,
+    utc_instant,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -51,7 +52,7 @@ def _available_at(package: dict[str, Any], evidence_id: str, unit: dict[str, Any
     require(item["available_at"] is not None
             and item["availability_basis"] in {"SINAYXA_OBSERVATION", "INDEPENDENT_ARCHIVE"},
             "evidence is not verifiably available for the evaluated unit")
-    require(item["available_at"] <= unit["assessment_cutoff"],
+    require(utc_instant(item["available_at"]) <= utc_instant(unit["assessment_cutoff"]),
             "evidence availability is later than the unit assessment cutoff")
     return item["available_at"]
 
@@ -87,10 +88,10 @@ def _validate_analysis_processes(package: dict[str, Any]) -> None:
         }
         require(process["available_at"] in observed_times,
                 "analytic process availability must match a verified evidence-availability record")
-        require(output["recorded_at"] >= process["available_at"]
-                and process["recorded_at"] >= process["available_at"],
+        require(utc_instant(output["recorded_at"]) >= utc_instant(process["available_at"])
+                and utc_instant(process["recorded_at"]) >= utc_instant(process["available_at"]),
                 "analytic output evidence or process cannot be recorded before its declared availability")
-        require(process["available_at"] <= process["assessment_cutoff"],
+        require(utc_instant(process["available_at"]) <= utc_instant(process["assessment_cutoff"]),
                 "analytic output was not available at its declared assessment cutoff")
         key = (process["dataset_origin_id"], process["claim_component_version_id"], process["assessment_cutoff"])
         groups.setdefault(key, []).append(process)
@@ -114,10 +115,10 @@ def _validate_source_version_chains(package: dict[str, Any]) -> None:
             detected_at = version["first_detected_at"]
             retrieved_at = version["retrieved_at"]
             if detected_at is not None and retrieved_at is not None:
-                require(detected_at <= retrieved_at,
+                require(utc_instant(detected_at) <= utc_instant(retrieved_at),
                         "source version cannot be retrieved before its first detection")
             if retrieved_at is not None:
-                require(retrieved_at <= version["recorded_at"],
+                require(utc_instant(retrieved_at) <= utc_instant(version["recorded_at"]),
                         "source version retrieval cannot postdate its record timestamp")
         for index, version in enumerate(ordered):
             predecessor_id = version["supersedes_source_version_id"]
@@ -340,12 +341,12 @@ def _validate_claim_assessment_chains(package: dict[str, Any]) -> None:
                 )),
                 "superseded assessment must belong to the exact same claim and component version",
             )
-            require(predecessor["assessment_cutoff"] < assessment["assessment_cutoff"],
+            require(utc_instant(predecessor["assessment_cutoff"]) < utc_instant(assessment["assessment_cutoff"]),
                     "a superseding assessment must have a strictly later evidence cutoff")
             previous_assessed_at = predecessor.get("assessed_at")
             current_assessed_at = assessment.get("assessed_at")
             if previous_assessed_at is not None and current_assessed_at is not None:
-                require(previous_assessed_at <= current_assessed_at,
+                require(utc_instant(previous_assessed_at) <= utc_instant(current_assessed_at),
                         "assessment execution time cannot move backwards along the history chain")
             successors.setdefault(predecessor_id, []).append(assessment_id)
 
@@ -354,7 +355,7 @@ def _validate_claim_assessment_chains(package: dict[str, Any]) -> None:
         require(all(len(items) == 1 for items in successors.values()),
                 "assessment history cannot fork: an assessment may have at most one direct successor")
         root = by_id[roots[0]]
-        require(all(root["assessment_cutoff"] < item["assessment_cutoff"] for item in group if item["claim_assessment_id"] != roots[0]),
+        require(all(utc_instant(root["assessment_cutoff"]) < utc_instant(item["assessment_cutoff"]) for item in group if item["claim_assessment_id"] != roots[0]),
                 "the root assessment must be the earliest assessment in its component history")
         require(len(successors) == len(group) - 1,
                 "every non-root assessment must link to its immediate predecessor")
@@ -587,7 +588,7 @@ def validate_package(
             if availability["available_at"] is not None:
                 require(availability["availability_basis"] == "SINAYXA_OBSERVATION",
                         "a declared source timestamp cannot establish verified historical availability")
-                require(availability["available_at"] <= unit["assessment_cutoff"],
+                require(utc_instant(availability["available_at"]) <= utc_instant(unit["assessment_cutoff"]),
                         "observed evidence is later than the evaluation-unit cutoff")
     referenced_archive_ids = {
         item["archive_attestation_id"] for item in package["evidence_availability"]
@@ -606,7 +607,7 @@ def validate_package(
         # Historical migrated records may have no recoverable execution time.
         # Preserve null; never substitute migration time or assessment cutoff.
         if assessment["assessed_at"] is not None:
-            require(assessment["assessed_at"] >= assessment["assessment_cutoff"],
+            require(utc_instant(assessment["assessed_at"]) >= utc_instant(assessment["assessment_cutoff"]),
                     "claim assessment execution cannot predate its evidence cutoff")
 
     retention_by_id = _index(package["retention_records"], "retention_id", "retention_id")
@@ -632,7 +633,7 @@ def validate_package(
         transition = matching[0]
         require(transition["subject_ref"] == record["subject_ref"]
                 and transition["action"] == disposition_actions[record["disposition"]]
-                and transition["occurred_at"] <= record["recorded_at"]
+                and utc_instant(transition["occurred_at"]) <= utc_instant(record["recorded_at"])
                 and bool(transition["actor_role"]) and bool(transition["reason"]),
                 "retention disposition audit event does not match subject, action, actor, time, or reason")
         require(record["previous_disposition"] != "DELETED",
@@ -677,7 +678,7 @@ def validate_package(
                     used_refs = set(assessment["supporting_evidence_refs"]) | set(assessment["contrary_evidence_refs"])
                     if subject_ref in used_refs:
                         require(assessment["assessed_at"] is not None
-                                and assessment["assessed_at"] <= first_request,
+                                and utc_instant(assessment["assessed_at"]) <= utc_instant(first_request),
                                 "evidence cannot be used after DELETE_PENDING when assessment time is unknown or late")
         else:
             require(not record["content_retained"] and record["disposition"] == "REFERENCE_ONLY",
