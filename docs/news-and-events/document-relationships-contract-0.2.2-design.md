@@ -30,7 +30,7 @@ Ejemplo: si el documento B declara que corrige A, B es el declarante y A el obje
 ## 3. Vocabulario controlado inicial
 
 | Tipo | Significado mínimo | No implica |
-|---|---|---|
+| --- | --- | --- |
 | `AMENDS` | El documento declarante modifica formalmente el objetivo | Que todo el objetivo quede invalidado |
 | `CORRECTS` | El declarante identifica y corrige un error del objetivo | Que el resto del objetivo sea incorrecto |
 | `WITHDRAWS` | El declarante retira el objetivo o una parte identificada | Que exista una versión sustituta correcta |
@@ -45,7 +45,7 @@ La taxonomía es provisional. Una misma pareja de documentos puede tener más de
 Colección: `document_relationship_assertions`.
 
 | Campo | Tipo/obligación | Regla |
-|---|---|---|
+| --- | --- | --- |
 | `relationship_assertion_id` | string, requerido | Identidad estable, única |
 | `declaring_document_version_id` | ref, requerido | Debe existir |
 | `target_document_version_id` | ref, requerido | Debe existir y diferir del declarante |
@@ -80,6 +80,7 @@ Colección: `document_relationship_assertions`.
 ### 4.2 Atribución y revisión
 
 Atribución, tipo de relación y revisión son dimensiones independientes:
+
 - `ISSUER_STATEMENT` no equivale a corroboración independiente.
 - `THIRD_PARTY_REPORT` no se atribuye al emisor salvo evidencia.
 - `ANALYST_INFERENCE` debe declarar método, evidencia favorable/contraria y alternativas; no se presenta como declaración oficial.
@@ -145,8 +146,8 @@ Criterio de salida de esta fase: revisión de la semántica, fixtures trazables 
 
 ## 9. Fuentes públicas de los ejemplos
 
-- RTI International Metals, 8-K: https://www.sec.gov/Archives/edgar/data/1068717/000119312513412581/d618235d8k.htm
-- RTI International Metals, 10-K/A: https://www.sec.gov/Archives/edgar/data/1068717/000119312513436550/d616897d10ka.htm
-- Yak Communications, 10-Q/A: https://www.sec.gov/Archives/edgar/data/1084544/000119312506085760/d10qa.htm
+- RTI International Metals, 8-K: [SEC filing](https://www.sec.gov/Archives/edgar/data/1068717/000119312513412581/d618235d8k.htm)
+- RTI International Metals, 10-K/A: [SEC filing](https://www.sec.gov/Archives/edgar/data/1068717/000119312513436550/d616897d10ka.htm)
+- Yak Communications, 10-Q/A: [SEC filing](https://www.sec.gov/Archives/edgar/data/1084544/000119312506085760/d10qa.htm)
 
 Estos documentos sirven para comprobar qué declaró el emisor y el alcance que el propio documento describe. No se presentan como verificación independiente de la verdad de todos los datos subyacentes.
