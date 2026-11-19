@@ -60,8 +60,6 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
         self.connection.commit()
         self.connection.execute("DROP SCHEMA sinayxa_control CASCADE")
         self.connection.commit()
-        self.approved_digest = fingerprint_schema(self.connection).sha256
-
         self.reader_identity = f"sinayxa_preflight_reader_{uuid4().hex[:10]}"
         self.reader_password = uuid4().hex
         self.admin.execute(
@@ -86,6 +84,9 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
             )
         )
         self.connection.commit()
+        # The fingerprint includes schema/table ACLs, so capture the approved
+        # baseline only after the reader's intended minimum privileges exist.
+        self.approved_digest = fingerprint_schema(self.connection).sha256
         reader_parameters = conninfo_to_dict(self.database_url)
         reader_parameters["user"] = self.reader_identity
         reader_parameters["password"] = self.reader_password
