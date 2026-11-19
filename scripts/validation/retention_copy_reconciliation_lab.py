@@ -11,7 +11,6 @@ import hashlib
 import json
 import os
 import platform
-import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -27,13 +26,15 @@ class RetentionLabError(ValueError):
 
 def _safe_child(root: Path, relative: str) -> Path:
     base = root.resolve(strict=True)
-    candidate = (base / relative).resolve(strict=False)
+    normalized = relative.replace("\\\\", "/")
+    parts = normalized.split("/")
+    if normalized.startswith("/") or any(part in {"", ".", ".."} for part in parts):
+        raise RetentionLabError("copy path contains an unsafe component")
+    candidate = base.joinpath(*parts).resolve(strict=False)
     if candidate == base or base not in candidate.parents:
         raise RetentionLabError("copy path escapes the isolated laboratory root")
     current = base
-    for part in Path(relative).parts:
-        if part in {"", ".", ".."}:
-            raise RetentionLabError("copy path contains an unsafe component")
+    for part in parts:
         current = current / part
         if current.is_symlink():
             raise RetentionLabError("symbolic links are not allowed in managed copy paths")
@@ -57,6 +58,8 @@ def validate_inventory(root: Path, inventory: list[dict[str, Any]]) -> dict[str,
         if not all(isinstance(value, str) and value.strip() for value in
                    (copy_id, kind, object_id, relative_path)):
             raise RetentionLabError("inventory entry has missing identifiers or path")
+        if object_id in {".", ".."} or "/" in object_id or "\\\\" in object_id:
+            raise RetentionLabError("object_id must be a single safe path component")
         if copy_id in resolved:
             raise RetentionLabError("duplicate copy_id in inventory")
         if kind not in COPY_KINDS:
