@@ -127,6 +127,18 @@ class RetentionCopyReconciliationTests(unittest.TestCase):
         with self.assertRaisesRegex(RetentionLabError, "missing copy has no verified deletion receipt"):
             reconcile_deletion(self.root, self.inventory, self.ledger)
 
+    def test_reconciliation_rejects_symlinked_object_file(self) -> None:
+        first = self.inventory[0]
+        target = self.root / first["relative_path"] / f"{self.object_id}.json"
+        target.unlink()
+        outside = self.root.parent / f"{self.object_id}-outside.json"
+        outside.write_text('{"outside":true}', encoding="utf-8")
+        self.addCleanup(lambda: outside.unlink(missing_ok=True))
+        target.symlink_to(outside)
+        with self.assertRaisesRegex(RetentionLabError, "symbolic link"):
+            reconcile_deletion(self.root, self.inventory, self.ledger)
+        self.assertTrue(outside.is_file())
+
     def test_all_missing_copies_without_receipts_fails_closed(self) -> None:
         for item in self.inventory:
             (self.root / item["relative_path"] / f"{self.object_id}.json").unlink()
