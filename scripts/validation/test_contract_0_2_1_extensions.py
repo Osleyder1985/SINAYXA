@@ -2758,6 +2758,13 @@ class ClaimAssessmentChainTests(unittest.TestCase):
         ]}
         _validate_claim_assessment_chains(package)
 
+    def test_chronological_supersession_chain_compares_fractional_seconds(self):
+        package = {"claim_assessments": [
+            self.assessment("assessment-1", "2026-01-01T00:00:00Z"),
+            self.assessment("assessment-2", "2026-01-01T00:00:00.1Z", "assessment-1"),
+        ]}
+        _validate_claim_assessment_chains(package)
+
     def test_supersession_rejects_unknown_predecessor(self):
         package = {"claim_assessments": [
             self.assessment("assessment-1", "2026-01-01T00:00:00Z"),
