@@ -6,7 +6,6 @@ IMAGE_TAG="v21.2.0"
 IMAGE_REFERENCE="quay.io/${IMAGE_REPOSITORY}:${IMAGE_TAG}"
 REGISTRY_BASE="https://quay.io"
 ARTIFACT_DIR="artifacts/ceph-image-metadata"
-TOKEN_FILE="$ARTIFACT_DIR/registry-token-response.json"
 INDEX_FILE="$ARTIFACT_DIR/manifest-index.json"
 INDEX_HEADERS="$ARTIFACT_DIR/manifest-index.headers"
 REPORT_FILE="$ARTIFACT_DIR/ceph-image-metadata-report.json"
@@ -105,13 +104,9 @@ for tool in curl jq sha256sum; do
 done
 
 TOKEN_ENDPOINT="$REGISTRY_BASE/v2/auth?service=quay.io&scope=repository:$IMAGE_REPOSITORY:pull"
-if ! curl --fail --silent --show-error --location --max-time 30 \
-  --output "$TOKEN_FILE" "$TOKEN_ENDPOINT"; then
-  fail "REGISTRY_TOKEN_REQUEST_FAILED"
-fi
-
-TOKEN="$(jq -r '.token // .access_token // empty' "$TOKEN_FILE")"
-rm -f "$TOKEN_FILE"
+TOKEN_RESPONSE="$(curl --fail --silent --show-error --location --max-time 30 "$TOKEN_ENDPOINT")" || fail "REGISTRY_TOKEN_REQUEST_FAILED"
+TOKEN="$(printf '%s' "$TOKEN_RESPONSE" | jq -r '.token // .access_token // empty')"
+unset TOKEN_RESPONSE
 [[ -n "$TOKEN" ]] || fail "REGISTRY_TOKEN_MISSING"
 
 if ! curl --fail --silent --show-error --location --max-time 30 \
