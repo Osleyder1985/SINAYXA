@@ -94,6 +94,8 @@ def _bootstrap_or_verify(connection: psycopg.Connection, bootstrap_sql: str) -> 
                     f"partial or unsupported control plane: missing {table_name}"
                 )
 
+        _verify_control_plane_structure(connection)
+
         bootstrap_rows = connection.execute(
             """
             SELECT bootstrap_version, bootstrap_sha256
@@ -177,6 +179,7 @@ def _verify_legacy_compatibility(
             "application schema exists without the legacy migration ledger"
         )
 
+    _verify_legacy_ledger_structure(connection)
     legacy_ids = _load_legacy_ids(connection)
     expected_ids = set(ledger)
     if legacy_ids != expected_ids:
@@ -332,3 +335,122 @@ def apply_migrations(
             )
 
     return tuple(applied_now)
+
+
+def _verify_relation_structure(
+    connection: psycopg.Connection,
+    schema: str,
+    table: str,
+    expected_columns: dict[str, tuple[str, bool, str | None]],
+    expected_constraints: set[str],
+    label: str,
+) -> None:
+    columns = connection.execute(
+        """
+        SELECT a.attname, format_type(a.atttypid, a.atttypmod), a.attnotnull,
+               pg_get_expr(d.adbin, d.adrelid)
+        FROM pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        JOIN pg_attribute a ON a.attrelid = c.oid
+        LEFT JOIN pg_attrdef d ON d.adrelid = c.oid AND d.adnum = a.attnum
+        WHERE n.nspname = %s AND c.relname = %s AND c.relkind = 'r'
+          AND c.relpersistence = 'p' AND a.attnum > 0 AND NOT a.attisdropped
+        ORDER BY a.attnum
+        """,
+        (schema, table),
+    ).fetchall()
+    actual_columns = {
+        name: (data_type, not_null, default_expr)
+        for name, data_type, not_null, default_expr in columns
+    }
+    if actual_columns != expected_columns:
+        raise MigrationRunnerError(
+            f"{label} structural drift detected in columns: "
+            f"expected={expected_columns}, actual={actual_columns}"
+        )
+
+    rows = connection.execute(
+        """
+        SELECT pg_get_constraintdef(con.oid, true)
+        FROM pg_constraint con
+        JOIN pg_class c ON c.oid = con.conrelid
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        WHERE n.nspname = %s AND c.relname = %s
+        """,
+        (schema, table),
+    ).fetchall()
+    actual_constraints = {" ".join(value.lower().split()) for (value,) in rows}
+    normalized_expected = {" ".join(value.lower().split()) for value in expected_constraints}
+    if actual_constraints != normalized_expected:
+        raise MigrationRunnerError(
+            f"{label} structural drift detected in constraints: "
+            f"expected={sorted(normalized_expected)}, actual={sorted(actual_constraints)}"
+        )
+
+
+def _verify_control_plane_structure(connection: psycopg.Connection) -> None:
+    contracts = (
+        (
+            "bootstrap_state",
+            {
+                "singleton": ("boolean", True, "true"),
+                "bootstrap_version": ("integer", True, None),
+                "bootstrap_sha256": ("character(64)", True, None),
+                "installed_at": ("timestamp with time zone", True, "clock_timestamp()"),
+            },
+            {"PRIMARY KEY (singleton)", "CHECK (singleton)"},
+        ),
+        (
+            "migration_integrity",
+            {
+                "migration_id": ("text", True, None),
+                "version": ("integer", True, None),
+                "sha256": ("character(64)", True, None),
+                "source_revision": ("text", True, None),
+                "applied_at": ("timestamp with time zone", True, "clock_timestamp()"),
+                "runner_version": ("text", True, None),
+            },
+            {
+                "PRIMARY KEY (migration_id)",
+                "UNIQUE (version)",
+                "CHECK ((version > 0))",
+                "CHECK ((sha256 ~ '^[0-9a-f]' + '{64}' + '$'::text))",
+                "CHECK ((source_revision ~ '^([0-9a-f]' + '{40}|[0-9a-f]' + '{64})$'::text))",
+            },
+        ),
+        (
+            "legacy_adoption_attestations",
+            {
+                "attestation_id": ("text", True, None),
+                "status": ("text", True, None),
+                "verifier_version": ("text", True, None),
+                "algorithm_version": ("text", True, None),
+                "computed_fingerprint": ("character(64)", True, None),
+                "expected_fingerprint": ("character(64)", True, None),
+                "payload": ("jsonb", True, None),
+                "created_at": ("timestamp with time zone", True, "clock_timestamp()"),
+            },
+            {
+                "PRIMARY KEY (attestation_id)",
+                "CHECK ((status = 'LEGACY_ADOPTED_CATALOG_MATCH'::text))",
+            },
+        ),
+    )
+    for table, columns, constraints in contracts:
+        _verify_relation_structure(
+            connection, "sinayxa_control", table, columns, constraints, "control-plane"
+        )
+
+
+def _verify_legacy_ledger_structure(connection: psycopg.Connection) -> None:
+    _verify_relation_structure(
+        connection,
+        "sinayxa",
+        "schema_migrations",
+        {
+            "migration_id": ("text", True, None),
+            "applied_at": ("timestamp with time zone", True, "clock_timestamp()"),
+        },
+        {"PRIMARY KEY (migration_id)"},
+        "legacy migration ledger",
+    )
