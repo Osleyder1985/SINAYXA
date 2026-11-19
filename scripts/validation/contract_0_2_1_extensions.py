@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from datetime import datetime, timezone
 from typing import Any
 
 
@@ -17,6 +18,23 @@ class ContractViolation(ValueError):
 def _require(condition: bool, message: str) -> None:
     if not condition:
         raise ContractViolation(message)
+
+
+def utc_instant(value: str) -> datetime:
+    """Parse a schema-validated UTC timestamp before chronological comparison.
+
+    Lexicographic ISO-8601 comparison is unsafe when fractional-second precision
+    differs (for example, ...00.1Z versus ...00Z).
+    """
+    _require(isinstance(value, str) and value.endswith("Z"),
+             "temporal comparisons require a UTC timestamp ending in Z")
+    try:
+        parsed = datetime.fromisoformat(value[:-1] + "+00:00")
+    except ValueError as exc:
+        raise ContractViolation("invalid UTC timestamp for chronological comparison") from exc
+    _require(parsed.utcoffset() == timezone.utc.utcoffset(parsed),
+             "temporal comparisons require UTC timestamps")
+    return parsed
 
 
 def validate_independence(units: list[dict[str, Any]], paths: list[dict[str, Any]], cutoff: str) -> None:
@@ -48,7 +66,7 @@ def validate_independence(units: list[dict[str, Any]], paths: list[dict[str, Any
     _require(all(origins) and len(origins) == len(set(origins)),
              "independent paths must have distinct identified terminal origins")
     _require(all(path["evidence_ref"] for path in paths), "each path needs evidence")
-    _require(all(path["available_at"] <= cutoff for path in paths),
+    _require(all(utc_instant(path["available_at"]) <= utc_instant(cutoff) for path in paths),
              "path evidence must be available at or before the cutoff")
     _require(all(path.get("origin_terminal") is True for path in paths),
              "origin must be terminal; unresolved shared intermediaries are insufficient")
@@ -67,7 +85,7 @@ def validate_analytic_replication(analyses: list[dict[str, Any]], cutoff: str) -
     _require(len(component_versions) == 1, "replication records must target the same component version")
     _require(all(item.get("method_reference") and item.get("output_evidence_ref") for item in analyses),
              "each analytical process requires method and output evidence references")
-    _require(all(item.get("available_at", "") <= cutoff for item in analyses),
+    _require(all(utc_instant(item.get("available_at", "")) <= utc_instant(cutoff) for item in analyses),
              "analytical output evidence must be available at the assessment cutoff")
     _require(all(item.get("assessment_cutoff") == cutoff for item in analyses),
              "replication records must share the exact assessment cutoff")
@@ -112,7 +130,7 @@ def validate_corroboration(
             and item.get("unit_access_status") in {"PÚBLICO_LEGÍTIMO", "PRIVADO_AUTORIZADO"}
             and item.get("knowledge_basis") in {"OBSERVACIÓN_DIRECTA", "REGISTRO_ORIGINAL"}
             and item.get("scope_note")
-            and item.get("available_at", "") <= cutoff
+            and utc_instant(item.get("available_at", "")) <= utc_instant(cutoff)
             and any(unit["source_id"] == item.get("source_id")
                     and unit["source_version_id"] == item.get("source_version_id")
                     for unit in supporting_units)
@@ -194,7 +212,7 @@ def validate_retention_scope(
                      and bool(event.get("occurred_at")),
                      "copy transition audit event lacks actor, time, or reason")
             if previous_time is not None:
-                _require(event["occurred_at"] > previous_time,
+                _require(utc_instant(event["occurred_at"]) > utc_instant(previous_time),
                          "copy lifecycle audit timestamps must be strictly increasing")
             previous_state = next_state
             previous_time = event["occurred_at"]
@@ -203,12 +221,12 @@ def validate_retention_scope(
                  and latest.get("from_copy_state") == copy.get("previous_state")
                  and latest.get("to_copy_state") == copy["state"],
                  "copy record must reference its exact latest audited state transition")
-        _require(copy.get("recorded_at", "") >= latest["occurred_at"],
+        _require(utc_instant(copy.get("recorded_at", "")) >= utc_instant(latest["occurred_at"]),
                  "copy state cannot be recorded before its latest transition event")
         if copy["state"] == "DELETED":
             _require(bool(copy.get("verified_at")) and bool(copy.get("verification_reference")),
                      "DELETED copy requires a verification timestamp and reference")
-            _require(copy["verified_at"] >= latest["occurred_at"],
+            _require(utc_instant(copy["verified_at"]) >= utc_instant(latest["occurred_at"]),
                      "copy deletion verification cannot predate its deletion event")
         else:
             _require(copy.get("verified_at") is None and copy.get("verification_reference") is None,
@@ -259,16 +277,16 @@ def validate_archive_attestation(
              and bool(expected_digest)
              and expected_digest == observed_digest == attestation.get("captured_content_hash"),
              "archive captured content hash must match the expected and observed evidence digests")
-    _require(bool(checked_at) and attestation["captured_at"] <= checked_at <= attestation["recorded_at"],
+    _require(bool(checked_at) and utc_instant(attestation["captured_at"]) <= utc_instant(checked_at) <= utc_instant(attestation["recorded_at"]),
              "evidence digest verification must follow capture and precede attestation recording")
     _require(bool(attestation.get("archive_service")), "archive service must be identified")
     _require(bool(attestation.get("capture_record_reference")), "capture record reference is required")
     _require(bool(attestation.get("captured_at")), "capture timestamp is required")
     _require(attestation.get("integrity_result") == "MATCH",
              "archive capture integrity must be verified for temporal availability")
-    _require(attestation["captured_at"] <= availability["available_at"] <= cutoff,
+    _require(utc_instant(attestation["captured_at"]) <= utc_instant(availability["available_at"]) <= utc_instant(cutoff),
              "archive capture and availability must not exceed the assessment cutoff")
-    _require(attestation.get("recorded_at", "") <= availability.get("recorded_at", ""),
+    _require(utc_instant(attestation.get("recorded_at", "")) <= utc_instant(availability.get("recorded_at", "")),
              "archive capture attestation must be recorded before its availability record")
     _require(attestation.get("capture_record_verified") is True,
              "the specific capture record must be verified")
@@ -277,12 +295,12 @@ def validate_archive_attestation(
                  "INDEPENDENT_RECORD_REVIEW", "OTHER"
              } and bool(attestation.get("verified_by_role")) and bool(attestation.get("verified_at")),
              "capture verification requires method, role, and verification timestamp")
-    _require(attestation["captured_at"] <= attestation["verified_at"] <= attestation.get("recorded_at", ""),
+    _require(utc_instant(attestation["captured_at"]) <= utc_instant(attestation["verified_at"]) <= utc_instant(attestation.get("recorded_at", "")),
              "capture verification must follow capture and precede its record time")
-    _require(attestation.get("recorded_at", "") >= attestation["captured_at"],
+    _require(utc_instant(attestation.get("recorded_at", "")) >= utc_instant(attestation["captured_at"]),
              "archive attestation cannot be recorded before the capture")
     if attestation.get("imported_at") is not None:
-        _require(attestation["captured_at"] <= attestation["imported_at"] <= attestation["recorded_at"],
+        _require(utc_instant(attestation["captured_at"]) <= utc_instant(attestation["imported_at"]) <= utc_instant(attestation["recorded_at"]),
                  "archive import time must follow capture and not exceed its record time")
     _require(attestation.get("content_authenticity") in {"UNKNOWN", "NOT_ASSESSED"},
              "archive attestation cannot promote content authenticity")
