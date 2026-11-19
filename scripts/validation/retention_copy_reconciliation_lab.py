@@ -9,6 +9,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import platform
+import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -124,8 +127,10 @@ def reconcile_deletion(
 def run_lab() -> dict[str, Any]:
     started = datetime.now(timezone.utc).isoformat()
     checks: dict[str, str] = {}
-    with tempfile.TemporaryDirectory(prefix="sinayxa-issue-137-") as temporary:
-        root = Path(temporary)
+    temporary = tempfile.mkdtemp(prefix="sinayxa-issue-137-")
+    root = Path(temporary)
+    with tempfile.TemporaryDirectory(prefix="sinayxa-issue-137-run-") as isolated:
+        root = Path(isolated)
         object_id = "SYN-OBJECT-137"
         payload = json.dumps(
             {"object_id": object_id, "synthetic": True, "value": "retention-lab"},
@@ -180,14 +185,19 @@ def run_lab() -> dict[str, Any]:
         checks["unaffected_objects_preserved"] = "PASS" if unaffected else "FAIL"
         if "FAIL" in checks.values():
             raise RetentionLabError("one or more laboratory checks failed")
+    cleanup_verified = not Path(isolated).exists()
+    checks["temporary_root_cleanup"] = "PASS" if cleanup_verified else "FAIL"
     return {
         "schema_version": REPORT_VERSION,
+        "source_commit": os.environ.get("GITHUB_SHA", "LOCAL_UNPINNED"),
+        "python_version": platform.python_version(),
+        "platform": platform.platform(),
         "classification": "LAB_SYNTHETIC_LOCAL",
         "started_at_utc": started,
         "completed_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": "PASS" if all(value == "PASS" for value in checks.values()) else "FAIL",
         "checks": checks,
-        "cleanup": "PASS",
+        "cleanup": "PASS" if cleanup_verified else "FAIL",
         "cleanup_scope": "single temporary directory created by this run",
         "network_used": False,
         "external_services_used": False,
