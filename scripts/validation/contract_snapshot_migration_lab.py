@@ -131,7 +131,17 @@ def execute_persisted_migration(
     (stage / "migrated-package-0.2.1.json").write_bytes(final_package_bytes)
     manifest = {
         "schema_version": "1.0.0",
-        "classification": "LAB_SYNTHETIC_LOCAL",
+        "classification": (
+            "LAB_SYNTHETIC_EPHEMERAL_CI_RUNNER"
+            if os.environ.get("GITHUB_ACTIONS") == "true"
+            else "LAB_SYNTHETIC_USER_LOCAL"
+        ),
+        "execution_environment": (
+            "GITHUB_HOSTED_RUNNER" if os.environ.get("GITHUB_ACTIONS") == "true"
+            else "USER_LOCAL_HOST"
+        ),
+        "runner_os": os.environ.get("RUNNER_OS", "NOT_APPLICABLE"),
+        "runner_arch": os.environ.get("RUNNER_ARCH", "NOT_APPLICABLE"),
         "migration_id": PLAN["migration_id"],
         "source_contract_version": source.get("contract_version"),
         "target_contract_version": migrated.get("contract_version"),
@@ -272,7 +282,17 @@ def run_lab(contract_source: Path) -> dict[str, Any]:
     checks["temporary_root_cleanup"] = "PASS" if cleanup else "FAIL"
     return {
         "schema_version": "1.0.0",
-        "classification": "LAB_SYNTHETIC_LOCAL",
+        "classification": (
+            "LAB_SYNTHETIC_EPHEMERAL_CI_RUNNER"
+            if os.environ.get("GITHUB_ACTIONS") == "true"
+            else "LAB_SYNTHETIC_USER_LOCAL"
+        ),
+        "execution_environment": (
+            "GITHUB_HOSTED_RUNNER" if os.environ.get("GITHUB_ACTIONS") == "true"
+            else "USER_LOCAL_HOST"
+        ),
+        "runner_os": os.environ.get("RUNNER_OS", "NOT_APPLICABLE"),
+        "runner_arch": os.environ.get("RUNNER_ARCH", "NOT_APPLICABLE"),
         "source_commit": os.environ.get(
             "SINAYXA_SOURCE_COMMIT", os.environ.get("GITHUB_SHA", "LOCAL_UNPINNED")
         ),
