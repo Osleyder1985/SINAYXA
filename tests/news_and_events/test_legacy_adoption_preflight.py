@@ -63,8 +63,12 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
         self.approved_digest = fingerprint_schema(self.connection).sha256
 
         self.reader_identity = f"sinayxa_preflight_reader_{uuid4().hex[:10]}"
+        self.reader_password = uuid4().hex
         self.admin.execute(
-            sql.SQL("CREATE ROLE {} LOGIN").format(sql.Identifier(self.reader_identity))
+            sql.SQL("CREATE ROLE {} LOGIN PASSWORD {}").format(
+                sql.Identifier(self.reader_identity),
+                sql.Literal(self.reader_password),
+            )
         )
         self.admin.execute(
             sql.SQL("GRANT CONNECT ON DATABASE {} TO {}").format(
@@ -83,7 +87,7 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
         )
         reader_parameters = conninfo_to_dict(self.database_url)
         reader_parameters["user"] = self.reader_identity
-        reader_parameters.pop("password", None)
+        reader_parameters["password"] = self.reader_password
         self.reader_connection = psycopg.connect(make_conninfo(**reader_parameters))
 
     def tearDown(self) -> None:
