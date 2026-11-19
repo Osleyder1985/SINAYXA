@@ -242,7 +242,10 @@ def run_lab(contract_source: Path) -> dict[str, Any]:
     return {
         "schema_version": "1.0.0",
         "classification": "LAB_SYNTHETIC_LOCAL",
-        "source_commit": os.environ.get("GITHUB_SHA", "LOCAL_UNPINNED"),
+        "source_commit": os.environ.get(
+            "SINAYXA_SOURCE_COMMIT", os.environ.get("GITHUB_SHA", "LOCAL_UNPINNED")
+        ),
+        "workflow_commit": os.environ.get("GITHUB_SHA", "LOCAL_UNPINNED"),
         "contract_source_commit": os.environ.get("SINAYXA_CONTRACT_SOURCE_COMMIT", "UNPINNED"),
         "python_version": platform.python_version(),
         "platform": platform.platform(),
