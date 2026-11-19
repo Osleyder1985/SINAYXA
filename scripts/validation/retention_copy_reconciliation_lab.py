@@ -89,9 +89,10 @@ def reconcile_deletion(
         raise RetentionLabError("deletion ledger is not a synthetic DELETE_PENDING request")
     object_id = ledger.get("object_id")
     copy_ids = ledger.get("copy_ids")
-    if not isinstance(object_id, str) or not object_id:
-        raise RetentionLabError("deletion ledger object_id is invalid")
-    if not isinstance(copy_ids, list) or len(copy_ids) != len(set(copy_ids)):
+    inventory_object_ids = {item["object_id"] for item in inventory}
+    if not isinstance(object_id, str) or not object_id or inventory_object_ids != {object_id}:
+        raise RetentionLabError("deletion ledger object_id does not match the complete inventory")
+    if not isinstance(copy_ids, list) or any(not isinstance(value, str) for value in copy_ids) or len(copy_ids) != len(set(copy_ids)):
         raise RetentionLabError("deletion ledger copy_ids are malformed or duplicated")
     expected_ids = set(locations)
     if set(copy_ids) != expected_ids:
