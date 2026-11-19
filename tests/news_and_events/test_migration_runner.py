@@ -1033,3 +1033,67 @@ if __name__ == "__main__":
                 """
             ).fetchone()[0]
         )
+
+
+    def test_control_plane_column_default_drift_fails_closed_without_repair(self) -> None:
+        apply_migrations(self.connection)
+        before = self.connection.execute(
+            "SELECT count(*) FROM sinayxa_control.migration_integrity"
+        ).fetchone()[0]
+        self.connection.execute(
+            "ALTER TABLE sinayxa_control.migration_integrity "
+            "ALTER COLUMN applied_at DROP DEFAULT"
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(
+            MigrationRunnerError, "control-plane structural drift detected in columns"
+        ):
+            apply_migrations(self.connection)
+
+        self.assertIsNone(
+            self.connection.execute(
+                """
+                SELECT column_default
+                FROM information_schema.columns
+                WHERE table_schema = 'sinayxa_control'
+                  AND table_name = 'migration_integrity'
+                  AND column_name = 'applied_at'
+                """
+            ).fetchone()[0]
+        )
+        self.assertEqual(
+            before,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa_control.migration_integrity"
+            ).fetchone()[0],
+        )
+
+    def test_control_plane_column_type_drift_fails_closed_without_repair(self) -> None:
+        apply_migrations(self.connection)
+        self.connection.execute(
+            "ALTER TABLE sinayxa_control.migration_integrity "
+            "ALTER COLUMN source_revision TYPE varchar(64)"
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(
+            MigrationRunnerError, "control-plane structural drift detected in columns"
+        ):
+            apply_migrations(self.connection)
+
+        self.assertEqual(
+            "character varying(64)",
+            self.connection.execute(
+                """
+                SELECT format_type(a.atttypid, a.atttypmod)
+                FROM pg_attribute a
+                JOIN pg_class c ON c.oid = a.attrelid
+                JOIN pg_namespace n ON n.oid = c.relnamespace
+                WHERE n.nspname = 'sinayxa_control'
+                  AND c.relname = 'migration_integrity'
+                  AND a.attname = 'source_revision'
+                  AND NOT a.attisdropped
+                """
+            ).fetchone()[0],
+        )
