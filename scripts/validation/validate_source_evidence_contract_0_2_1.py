@@ -166,6 +166,55 @@ def _validate_independence_assessments(package: dict[str, Any]) -> None:
         require(set(assessment["assessment_unit_ids"]) == expected_ids,
                 "independence assessment must cover the exact evaluation-unit set for its component and cutoff")
 
+        unresolved_edge_refs = assessment.get("unresolved_provenance_edge_refs", [])
+        require(
+            assessment["status"] in {"DEPENDIENTE", "DESCONOCIDA"} or not unresolved_edge_refs,
+            "unresolved provenance edges cannot support an INDEPENDIENTE assessment",
+        )
+        evaluated_source_versions = {unit["source_version_id"] for unit in units}
+        for edge_id in unresolved_edge_refs:
+            require(edge_id in edges_by_id,
+                    "independence assessment references an unknown unresolved provenance edge")
+            edge = edges_by_id[edge_id]
+            require(edge["relation_type"] == "ORIGEN_NO_DETERMINADO",
+                    "unresolved provenance reference must use ORIGEN_NO_DETERMINADO")
+            require(
+                edge["claim_component_id"] == assessment["claim_component_id"]
+                and edge["claim_component_version_id"] == assessment["claim_component_version_id"],
+                "unresolved provenance edge belongs to a different claim component or component version",
+            )
+            require(utc_instant(edge["recorded_at"]) <= utc_instant(assessment["assessment_cutoff"]),
+                    "unresolved provenance edge was recorded after the independence assessment cutoff")
+            dependent = nodes_by_id.get(edge["dependent_node_id"])
+            origin = nodes_by_id.get(edge["origin_node_id"])
+            require(dependent is not None and origin is not None,
+                    "unresolved provenance edge references an unknown provenance node")
+            require(
+                dependent["node_type"] == "SOURCE_VERSION"
+                and dependent["entity_ref"] in evaluated_source_versions,
+                "unresolved provenance edge must identify an evaluated dependent source version",
+            )
+            require(
+                origin["node_type"] == "UNKNOWN_ORIGIN" and origin["entity_ref"] is None,
+                "ORIGEN_NO_DETERMINADO must terminate at an UNKNOWN_ORIGIN node",
+            )
+            dependent_unit = next(
+                unit for unit in units if unit["source_version_id"] == dependent["entity_ref"]
+            )
+            for evidence_id in edge["evidence_refs"]:
+                require(evidence_id in evidence_by_id,
+                        "unresolved provenance edge references unknown evidence")
+                require(
+                    evidence_by_id[evidence_id]["source_version_id"] == dependent["entity_ref"],
+                    "unresolved provenance evidence must belong to the evaluated dependent source version",
+                )
+                _available_at(package, evidence_id, dependent_unit)
+            require(
+                edge_id not in assessment["dependency_edge_refs"]
+                and edge_id not in assessment["independent_path_edge_refs"],
+                "unresolved provenance edge cannot be reused as established dependency or independent path evidence",
+            )
+
         if assessment["status"] == "INDEPENDIENTE":
             process_origins: dict[str, set[str]] = {}
             for unit in units:
