@@ -26,13 +26,13 @@ After this change is merged through the repository's normal review process:
 3. Select **Run workflow** on the intended branch.
 4. Download artifact `ceph-image-registry-metadata`.
 
-The workflow is not scheduled and does not run on pushes or pull requests.
+The registry metadata capture runs only on manual `workflow_dispatch`. Pull requests run a separate `bash -n` syntax check only; they do not contact Quay.
 
 ## Upstream release caution
 
 Ceph v21.2.0 Umbrella was released on 2026-10-28. The release announcement identifies release commit `b060042deb05d33e6cc358970cfb8221240bcf3e`.
 
-A Ceph-users discussion dated 2026-11-03 reports tracker issue 82496: Umbrella 21.2.0 shipped with `ceph_release` set to `dev`, causing cephadm to default to the `ceph-ci main` image. The advice in that discussion is to pass the explicit image reference during bootstrap:
+A [Ceph-users discussion dated 2026-11-03](https://lists.ceph.io/hyperkitty/list/ceph-users@ceph.io/thread/HJ5PMOPU3PRX4P63IPDV66RTWSE5VIG5/) reports tracker issue 82496: Umbrella 21.2.0 shipped with `ceph_release` set to `dev`, causing cephadm to default to the `ceph-ci main` image. The advice in that discussion is to pass the explicit image reference during bootstrap:
 
 ```text
 cephadm --image quay.io/ceph/ceph:v21.2.0 bootstrap ...
