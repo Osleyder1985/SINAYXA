@@ -92,6 +92,7 @@ write_report() {
 }
 
 fail() {
+  rm -f "$TOKEN_FILE"
   RESULT_CODE="$1"
   STATUS="BLOCKED"
   write_report
