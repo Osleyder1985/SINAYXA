@@ -790,3 +790,33 @@ Los cambios se registraron también en el comentario de PR 6997628686. El CI del
 3. Mantener #85/#99 sin merge mientras los criterios funcionales y operacionales aplicables de #88/#89 permanezcan abiertos.
 4. Actualizar este documento desde los resultados finales, no desde ejecuciones históricas ni estados PENDING/IN_PROGRESS.
 5. No modificar main, no usar force-push, no ejecutar adopción legacy ni DDL/DML productivo.
+
+
+## 14.17 Rectificación de revisión y CI posterior — 2026-11-19 UTC
+
+Esta sección corrige expresamente el hallazgo sobre arrays registrado en 14.16. La revisión inicial 5968332955 de PR #126 se retira como defecto del algoritmo.
+
+### #126 — interpretación correcta de pg_type.typarray
+
+La condición NOT EXISTS (SELECT 1 FROM pg_type element_type WHERE element_type.typarray = t.oid) sí excluye los tipos array generados: el tipo elemento referencia el OID de su array mediante su campo typarray. La interpretación anterior confundió el sentido de esa relación. No se requiere reemplazarla por typelem = 0 a causa de ese hallazgo.
+
+El HEAD 2ace99daafbb4bbef1c95470cdbe9e4d686fe9d0 ya contiene las pruebas:
+- test_fingerprint_accepts_generated_array_types_for_composite_types.
+- test_fingerprint_rejects_user_defined_base_types_until_fully_modeled.
+
+PostgreSQL 18.7 [run 44439914345](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439914345) terminó SUCCESS en ese HEAD. La rectificación quedó publicada en el comentario de PR #126 6997663073. Mantener las limitaciones generales del algoritmo preview; no afirmar que esta revisión aislada certifica la cobertura completa del catálogo.
+
+### CI posterior de PR #127
+
+En HEAD 4264fa2f77db516922780fe34a514768c964330b:
+- PostgreSQL / Issue [44443047619](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443047619): SUCCESS.
+- Security [44443048108](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443048108): SUCCESS; OSV full SKIPPED.
+- PowerShell [44443047590](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443047590): seguía IN_PROGRESS en la última consulta; no declarar el gate completo.
+
+### CI documental de PR #119
+
+El HEAD dfcbf57 falló Markdown lint por MD012 y MD032. Se corrigieron ambas incidencias en HEAD c1470c388205a36e1eebd72f6ed38818f972d10b. Al último sondeo, PowerShell [44443261198](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443261198) estaba PENDING y Security [44443261594](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443261594) QUEUED. No declarar validada la documentación hasta que ambos finalicen SUCCESS.
+
+### Decisión actual
+
+El hallazgo de arrays no bloquea #126. Permanecen los bloqueos independientes: algoritmo etiquetado preview, revisión integral de clases de objetos/cobertura de catálogo, baseline independiente aprobado y controles de adopción legacy. #127 continúa DRAFT y LEGACY_UNVERIFIED hasta completar PowerShell y la revisión funcional. #119 continúa DRAFT hasta completar sus nuevos gates y la prueba de recuperación de continuidad.
