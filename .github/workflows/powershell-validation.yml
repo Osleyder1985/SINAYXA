@@ -11,6 +11,8 @@ on:
     branches:
       - main
       - test/issue-121-migration-manifest-integrity
+      - feat/issue-121-fresh-database-migration-runner
+      - feat/issue-121-catalog-fingerprint-readonly
     paths:
       - "**.ps1"
       - "**.psm1"
