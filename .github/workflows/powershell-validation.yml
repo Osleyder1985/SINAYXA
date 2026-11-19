@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - main
+      - test/issue-121-migration-manifest-integrity
     paths:
       - "**.ps1"
       - "**.psm1"
@@ -39,6 +40,10 @@ on:
       - "docs/news-and-events/contract-0.2.1-verification-matrix.md"
       - "requirements-contract-validation.txt"
       - "scripts/validation/test_source_evidence_contract.ps1"
+      - "database/migrations/**"
+      - "scripts/news_and_events/**"
+      - "tests/news_and_events/**"
+      - "docs/news-and-events/event-registry.md"
       - "scripts/validation/validate_source_independence_fixture.ps1"
       - "scripts/validation/test_source_independence_fixture.ps1"
       - "scripts/validation/validate_alert_fixture.ps1"

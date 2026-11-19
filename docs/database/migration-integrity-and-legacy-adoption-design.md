@@ -1,0 +1,272 @@
+# PostgreSQL migration integrity and legacy adoption design
+
+**Status:** Proposed; implementation not yet authorized by a reviewed test plan  
+**Issue:** [#121](https://github.com/Osleyder1985/SINAYXA/issues/121)  
+**Scope:** Local PostgreSQL 18.7 validation laboratory only
+
+## 1. Purpose
+
+Replace the current unconditional SQL replay in `initialize_database()` with a deterministic, fail-closed migration runner that:
+
+- applies only migrations not recorded as applied;
+- verifies the exact bytes of every newly managed migration using SHA-256;
+- refuses to run when an already-applied migration's current bytes differ from its recorded digest;
+- serializes concurrent initializers;
+- preserves per-migration transactional atomicity;
+- distinguishes historical installations whose old ledger has no content digest from installations verifiable from first bootstrap.
+
+This design does not authorize production migrations, external database services, provider selection, destructive rollback, or changes to append-only business data.
+
+## 2. Current-state facts
+
+The current initializer reads every `database/migrations/*.sql` file in lexical order and executes each file in its own transaction. It does not consult the ledger before execution.
+
+The current `sinayxa.schema_migrations` table stores only:
+
+- `migration_id text PRIMARY KEY`
+- `applied_at timestamptz NOT NULL`
+
+The five existing migration files insert their IDs with `ON CONFLICT DO NOTHING`. The existing integration test reruns initialization and checks five IDs and 18 triggers. It does not prove content integrity, historical upgrades, concurrency, or recovery across committed migrations.
+
+## 3. Required architecture
+
+### 3.1 Immutable migration manifest
+
+Introduce a reviewed manifest for every migration with:
+
+- monotonically increasing integer version;
+- stable migration ID;
+- repository-relative SQL path;
+- expected SHA-256 of the exact UTF-8 file bytes;
+- introducing commit/release identifier once known;
+- transactional execution mode (transactional only in the first implementation).
+
+The runner must reject duplicate versions, duplicate IDs, path traversal, missing files, malformed digests, and non-increasing versions before opening a database transaction.
+
+The manifest is the approved inventory. It must not silently learn or rewrite a digest from the current working tree. Updating a historical SQL file and its digest together must still be detected against the database's recorded digest.
+
+### 3.2 Separate integrity ledger
+
+Do not pretend the legacy `schema_migrations` rows contain historical hashes. Add a separate integrity/attestation ledger with at least:
+
+- migration ID and version;
+- SHA-256 of exact SQL bytes;
+- source revision;
+- applied timestamp;
+- runner version.
+
+For a new database, each migration's DDL, legacy-compatible ID row (if retained), and integrity-ledger row must commit in the same transaction.
+
+For an existing database with old IDs and no digests, classify those rows as `LEGACY_UNVERIFIED`. Never fill in the current SQL digest and label it as the historical executed digest.
+
+### 3.2.1 Control-plane bootstrap
+
+The integrity ledger must exist before the first application migration can be recorded. Avoid a circular dependency by separating migration-control metadata from the application schema:
+
+- Store control metadata in a dedicated `sinayxa_control` schema, separate from the application schema `sinayxa`.
+- Define a small, versioned bootstrap SQL artifact with a fixed SHA-256 pinned in the runner package. It creates the control schema, bootstrap record, migration-integrity ledger, and legacy-adoption attestation table in one transaction.
+- On a fresh database, verify the pinned bootstrap artifact, create the control plane, record its bootstrap version/digest atomically, and only then begin application migrations.
+- If any control-plane object exists without a matching bootstrap record, or the record differs from the pinned bootstrap contract, fail closed. Do not use broad `CREATE TABLE IF NOT EXISTS` statements to silently repair a partially initialized control plane.
+- On a legacy database, run the read-only adoption preflight first. Only after it matches may a separately invoked adoption operation create the control plane and persist the attestation. That operation may create objects only in `sinayxa_control`; it must not alter the application schema or business data in `sinayxa`.
+- Fingerprint the application schema `sinayxa` independently. Verify `sinayxa_control` against its own bootstrap contract; do not mix control-plane objects into the legacy application baseline.
+
+The bootstrap SQL is a trust anchor and must be reviewed, hashed, tested for atomic creation and partial-state refusal, and changed only through an explicit bootstrap-version upgrade. It is not generated from the current working tree at runtime.
+
+### 3.3 Legacy adoption is a separate operation
+
+A legacy database may be adopted only through an explicit, read-only preflight followed by a separately recorded adoption attestation. The preflight must verify all of the following before any DDL or DML is performed:
+
+- The legacy ledger contains exactly the five known IDs from migrations 0001–0005: `issue-2-event-registry-0001`, `issue-2-temporal-conflicts-0002`, `issue-2-temporal-assessments-manifests-0003`, `issue-2-source-evidence-artifacts-0004`, and `issue-2-append-only-truncate-guard-0005`.
+- No legacy ID is missing, duplicated, or unknown. A partial or unfamiliar set remains `LEGACY_UNVERIFIED`; do not infer which SQL ran and do not replay historical migrations automatically.
+- The PostgreSQL version, required roles, and catalog features are supported by the selected fingerprint verifier.
+- The current `sinayxa` application catalog exactly matches the independently reviewed baseline fingerprint.
+
+Only after that read-only preflight succeeds may the separate adoption operation bootstrap `sinayxa_control` and persist an attestation. The attestation must include:
+
+- exact verifier version and source commit;
+- normalized catalog fingerprint algorithm/version;
+- computed fingerprint and expected approved baseline fingerprint;
+- PostgreSQL server version and relevant role/environment identity;
+- verification timestamp and result;
+- exact legacy migration ID set found;
+- explicit status `LEGACY_ADOPTED_CATALOG_MATCH` and the limitation that historical SQL bytes remain unverified.
+
+The adoption operation must not create migration-integrity rows containing guessed SHA-256 values for migrations 0001–0005. It records a catalog-equivalence attestation only. Future migrations are recorded normally by the new runner with their own verified hashes. If any preflight check fails, no bootstrap or adoption write occurs.
+
+The fingerprint must be derived from a deterministic, documented set of PostgreSQL catalog objects: schemas, relations, columns and types, constraints, indexes, functions, triggers, and relevant defaults. Volatile OIDs, physical storage details, row estimates, and timestamps must be excluded. The expected baseline must be produced by a clean database built from the approved migration set and independently reviewed.
+
+If the catalog cannot be normalized, differs from the approved baseline, contains unexpected objects, or lacks required objects, adoption fails closed. The adoption attestation must say that it verifies present catalog equivalence only; it does not prove which historical SQL bytes were executed.
+
+### 3.3.1 Role and privilege contract by execution phase
+
+The initial implementation must not infer PostgreSQL role names from convention or from the current operator. Each environment must supply a versioned, reviewed allowlist of the login identity, effective identity, expected membership edges, and required privileges for each phase. If that configuration is absent, stale, or cannot be checked, the operation fails closed.
+
+For the first supported contract, the authenticated and effective identities must be identical: `session_user = current_user = current_role`. A `SET ROLE` transition or an unexpected effective identity is rejected. A later version may permit an explicit login-to-execution-role mapping, but only after the mapping and its privilege envelope are separately specified and tested.
+
+Every phase must inspect:
+
+- `session_user`, `current_user`, and `current_role`;
+- direct and transitive role memberships from `pg_auth_members`, including the per-membership `inherit_option`, `set_option`, and `admin_option` fields available in PostgreSQL 18;
+- role attributes from `pg_roles`, including `rolsuper`, `rolcreatedb`, `rolcreaterole`, `rolinherit`, and `rolbypassrls`;
+- effective database, schema, table, sequence, and function privileges relevant to the phase;
+- ownership of the control-plane and application objects where ownership is part of the contract.
+
+Memberships must be traversed transitively. The verifier must account for privileges inherited through memberships and roles reachable through `SET ROLE`; checking only the directly authenticated role is insufficient. Any unexpected membership edge, membership option, effective role, elevated capability, ownership, or privilege is a mismatch. An unqueryable or unsupported membership/privilege state is not treated as an empty set.
+
+| Phase | Permitted identity and capabilities | Explicitly prohibited | Required outcome on mismatch |
+| --- | --- | --- | --- |
+| Read-only legacy preflight | One explicitly allowlisted login/effective identity; CONNECT to the target database; USAGE on `sinayxa`; SELECT on `sinayxa.schema_migrations`; only the catalog reads required by the pinned fingerprint verifier. No database CREATE privilege. | SUPERUSER, CREATEDB, CREATEROLE, BYPASSRLS; unexpected memberships or SET ROLE paths; CREATE on the database/schema; INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER, or ownership capabilities over application objects. | `LEGACY_UNVERIFIED`; no DDL/DML, no bootstrap, no attestation. |
+| Fresh-database migration runner | One explicitly allowlisted runner identity; CONNECT and CREATE on the target database (CREATE privilege, not the CREATEDB role attribute); ownership of the schemas and objects it creates; ability to execute the approved transactional migrations and write the compatibility and integrity-ledger rows. | SUPERUSER, CREATEDB, CREATEROLE, BYPASSRLS; unexpected role memberships/SET ROLE paths; privileges outside the approved target database and managed schemas. | Abort before the affected migration SQL; preserve existing objects and ledgers unchanged. |
+| Legacy adoption attestation writer | A separately allowlisted identity, invoked only after a successful read-only preflight; ownership/CREATE rights limited to `sinayxa_control`; INSERT of the approved attestation record. If the control schema must be provisioned, that bootstrap step must be separately authorized and completed before invoking this writer. | Any write, DDL, ownership, or elevated capability over `sinayxa` business objects; SUPERUSER, CREATEDB, CREATEROLE, BYPASSRLS; unapproved memberships or SET ROLE paths. | No attestation or application-schema mutation; remain `LEGACY_UNVERIFIED`. |
+
+The role names are intentionally environment-configured, not hard-coded in this design. The allowlist must identify each permitted role by exact name and record the intended phase, direct memberships, transitive memberships, membership options, role flags, object ownership, and privilege grants. A role must not be accepted merely because it has a familiar name such as `postgres`, `admin`, or `migrator`.
+
+The preflight must prove the absence of write capabilities, not merely the presence of SELECT. The runner must prove the exact write envelope needed for its migration set, not merely that a connection succeeds. The adoption writer must be a distinct phase identity and must not inherit application-schema write capabilities from a shared group role.
+
+#### Required PostgreSQL 18.7 role tests
+
+Integration tests must create disposable roles and exercise real PostgreSQL authorization behavior, including:
+
+1. exact allowed identity with minimum privileges;
+2. missing CONNECT, schema USAGE, or ledger SELECT;
+3. unexpected INSERT/UPDATE/DELETE/TRUNCATE or schema CREATE privilege for preflight;
+4. direct and transitive memberships with INHERIT enabled and disabled;
+5. SET ROLE paths, including a path to a role with elevated attributes;
+6. unexpected ADMIN OPTION and membership-option changes;
+7. SUPERUSER, CREATEDB, CREATEROLE, and BYPASSRLS identities or reachable SET ROLE targets;
+8. runner ownership/DDL/write envelope and rejection of privileges outside the managed schemas;
+9. adoption writer isolation from all application-schema writes;
+10. inability to inspect any required role, membership, flag, or effective privilege.
+
+Each negative test must assert the returned state/error and verify that application catalog, business rows, schema_migrations, integrity ledger, and attestation table remain unchanged. Tests use only disposable PostgreSQL 18.7 databases and roles; no production DDL/DML is authorized.
+
+### 3.3.2 Catalog fingerprint contract v1
+
+The first fingerprint implementation is deliberately scoped to the application schema `sinayxa` on PostgreSQL 18.7. It is a schema-equivalence check, not a data-integrity check and not proof of historical SQL execution. The fingerprint algorithm must have an explicit version (for example, `sinayxa-catalog-v1`) and must fail closed when it encounters a catalog feature that the version does not understand.
+
+#### Objects and semantic properties included
+
+- **Schema:** qualified name, owner role, schema ACL, and explicitly granted privileges.
+- **Relations:** every relation in `sinayxa`, including relation kind, persistence, partitioning metadata, row-security flags, replica-identity mode, owner, and ACL. The known baseline includes the ten current tables: the nine business tables plus `schema_migrations`.
+- **Columns:** ordinal position, name, fully qualified type identity, type modifier, collation, nullability, identity/generated attributes, and normalized default expression.
+- **Constraints:** name, type, ordered local and referenced column names, referenced relation, deferrability, initially-deferred state, PostgreSQL 18 enforcement state (`conenforced`), validation state, temporal/period semantics (`conperiod`), supporting index identity (`conindid`, represented by schema/name rather than OID), and normalized definition. This includes PK, FK, UNIQUE, CHECK, and exclusion constraints.
+- **Indexes:** name, owning relation, access method, uniqueness, primary/exclusion flags, validity/readiness, replica-identity designation, ordered key and included columns, expressions, predicate, and normalized definition.
+- **Sequences:** name, type, increment, minimum, maximum, start, cache, cycle flag, owner, and ownership/dependency relation. Current sequence values are data state and are excluded from the catalog fingerprint; they require separate migration/restore invariants.
+- **Routines:** qualified name and identity argument types, routine kind (function versus procedure), return type where applicable, language, normalized definition, volatility, strictness, security-definer flag, leakproof flag, parallel-safety, cost, planner support-function identity, configuration (including routine-level `search_path`), owner, and ACL. Function/procedure bodies and planner support bindings are semantic inputs and must not be omitted.
+- **Triggers:** name, owning relation, timing, event set, row-versus-statement orientation, condition, enabled state, and referenced function identity. The normalized definition must distinguish the row-level UPDATE/DELETE guards from statement-level TRUNCATE guards.
+- **Types:** domains, enums, composites, and other user-defined types in the managed schema, including their constraints, labels, base-type identity, and composite attribute names, types/modifiers, nullability, collations, storage, and compression metadata.
+- **Views and materialized views:** definition, output columns, owner, ACL, and relevant refresh/population metadata.
+- **Security and extension metadata:** RLS policies and their command/role/USING/WITH CHECK expressions; extension name, version, and schema; object ownership, explicit ACLs, and default privileges relevant to `sinayxa`.
+
+The expected baseline must explicitly enumerate the current schema objects and their semantic properties. Any additional object in the managed schema that is not represented by the fingerprint algorithm is an unsupported catalog object and causes adoption to fail; it must not be silently ignored. Missing expected objects also cause failure. The initial baseline must account for the two current PL/pgSQL functions (`reject_registry_mutation()` and `reject_registry_truncate()`) and all row-level and statement-level triggers created by migrations 0001–0005.
+
+#### Canonicalization and digest
+
+Catalog queries may use OIDs internally to join PostgreSQL catalogs, but OIDs must never appear in the serialized fingerprint. Resolve references to stable qualified names and ordered column names. Normalize each object into a typed JSON record; sort records by object type, qualified name, and stable identity. Serialize with UTF-8 JSON, lexicographically sorted object keys, no insignificant whitespace, and a documented null/boolean/number representation. Compute SHA-256 over those exact serialized bytes. The attestation stores the algorithm version, PostgreSQL server version, record count, and final digest, plus the normalized record-set artifact or its separately retained digest-addressed artifact.
+
+Role names in owners and ACLs are semantically relevant. Do not discard ACLs or silently remap owners to make two schemas compare equal. If the expected roles are absent or differ, the verifier must return an explicit unsupported-environment/mismatch result. System schemas and volatile physical/statistical fields (OIDs, relfilenodes, relation sizes, row estimates, planner statistics, transaction IDs, and timestamps) are excluded. Excluding these fields must not exclude logical schema properties listed above.
+
+#### Separation from data validation
+
+A matching catalog fingerprint does not prove that table contents, sequence positions, append-only history, or artifact bytes match. Adoption and restore tests must separately compare the approved logical-data invariants: row counts and primary-key sets per table, FK consistency, payload values, temporal ordering, sequence state where used, and content lengths/SHA-256 for source and evidence artifacts. These checks remain synthetic in this laboratory and do not prove production recovery.
+
+No automatic schema repair or DDL is allowed during adoption.
+
+### 3.4 Runner transaction and locking protocol
+
+For each migration:
+
+1. Acquire a transaction-scoped PostgreSQL advisory lock using a documented, stable key for this migration system.
+2. Read the integrity ledger while holding the lock.
+3. If the migration ID exists with the same version and SHA-256, skip it.
+4. If the ID exists with a different version or SHA-256, abort with a dedicated drift error before executing SQL.
+5. If the ID is absent but the version is already occupied by another ID, abort.
+6. Execute the SQL with the same connection and transaction.
+7. Insert the migration integrity row and any compatibility row in that same transaction.
+8. Commit; transaction exit releases the advisory lock.
+
+The runner must also detect unknown ledger entries, gaps/ordering violations, and manifest/database disagreement. It must not treat a missing integrity row for a legacy ID as a new migration.
+
+The first implementation supports transactional SQL only. Non-transactional migrations require a separate explicit design and are out of scope.
+
+### 3.5 Recovery model
+
+Do not generate or run automatic `down` migrations against append-only registry tables.
+
+- Failure inside one migration: its DDL and ledger write roll back together.
+- Failure after earlier migrations committed: those earlier migrations remain applied; a retry verifies and skips them, then resumes at the first unapplied migration.
+- Recovery from data loss or an invalid catalog: restore a verified backup into an isolated target, validate it, then perform an approved roll-forward. Do not claim recovery until restore tests prove it.
+
+A backup is not considered verified merely because a backup command returned success. The lab must restore it to a clean isolated PostgreSQL instance and compare logical invariants and artifact digests.
+
+## 4. Legacy transition states
+
+Use explicit machine-readable states:
+
+- `FRESH_VERIFIED`: all migrations applied by the new runner with matching digests.
+- `LEGACY_UNVERIFIED`: old migration IDs exist but historical SQL digests do not.
+- `LEGACY_ADOPTED_CATALOG_MATCH`: a separate adoption attestation confirms current catalog equivalence; historical SQL execution remains unproven.
+- `DRIFT_DETECTED`: an applied migration ID/version/digest or catalog invariant conflicts with the approved manifest.
+- `INCOMPLETE`: one or more approved migrations are not yet applied.
+
+Never collapse `LEGACY_ADOPTED_CATALOG_MATCH` into `FRESH_VERIFIED`.
+
+## 5. Test matrix and evidence requirements
+
+### Test cases
+
+- **Empty PostgreSQL 18.7 database:** apply all migrations once; verify ledger rows and catalog fingerprint.
+- **Second initialization:** do not replay SQL; verify execution spy and unchanged applied rows.
+- **Same ID and same digest:** skip the migration and return an explicit skip result.
+- **Same ID with changed bytes:** fail before SQL; verify drift exception and absence of sentinel DDL.
+- **Same version with a different ID:** fail closed with a version-collision error.
+- **New migration:** execute only the pending migration; verify per-migration execution log.
+- **SQL fails midway:** both DDL and ledger row are absent after rollback.
+- **Failure after an earlier commit:** retain the earlier applied row; retry resumes at the next migration.
+- **Two concurrent initializers:** verify exactly-once application using parallel connections and catalog/ledger checks.
+- **Legacy IDs without hashes:** remain unverified until adoption; do not backfill synthetic digests.
+- **Legacy catalog exact match:** produce a separate adoption attestation with fingerprint and verifier provenance.
+- **Legacy catalog mismatch:** refuse adoption without DDL; compare catalog state before and after.
+- **Backup restore:** restore logical state to an isolated instance and verify invariants and artifact digests.
+
+Tests must use unique disposable schemas or databases and synthetic records. No production or external provider is involved.
+
+## 6. Upgrade fixtures
+
+Create versioned synthetic snapshots for each historical migration boundary:
+
+- before migration 0001;
+- after 0001;
+- after 0002;
+- after 0003;
+- after 0004;
+- after 0005.
+
+Each fixture must include representative synthetic records where the schema permits them. Upgrade assertions must preserve primary keys, foreign keys, row counts, payload values, temporal ordering, append-only triggers, and source/evidence byte lengths and SHA-256 digests.
+
+The fixtures are test inputs, not claims about real customer databases.
+
+## 7. Implementation sequence
+
+1. Freeze and hash the five current SQL files; review the manifest against the exact main commit.
+2. Implement pure manifest validation and digest verification tests without a database.
+3. Implement the new ledger and runner for fresh databases only.
+4. Add failure, retry, drift, version collision, and concurrency integration tests.
+5. Implement legacy catalog fingerprinting and read-only preflight.
+6. Implement explicit legacy adoption attestation only after an independently reviewed clean-baseline fingerprint exists.
+7. Add historical upgrade fixtures and backup restore test.
+8. Update documentation and Issue #89 evidence; keep Issue #121 open until every criterion has evidence.
+
+## 8. Non-goals and safeguards
+
+- No production database access or migration.
+- No provider selection or external resources.
+- No automatic destructive rollback.
+- No deletion or rewriting of append-only event, assertion, conflict, assessment, manifest, source, or evidence records.
+- No claims of WORM, superuser resistance, offsite backup, or production readiness from PostgreSQL triggers or synthetic tests.
+- No automatic blessing of historical SQL hashes.
+- No modification to the five existing SQL files until the migration manifest and legacy transition tests are reviewed.
+
+## 9. Acceptance decision
+
+The design is acceptable for implementation only when the migration manifest, normalized catalog fingerprint contract, and legacy adoption semantics are reviewed together. CI success alone is not sufficient evidence for historical adoption or recovery.
