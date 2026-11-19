@@ -1,6 +1,6 @@
 # Registro operativo de acontecimientos — Issue #2
 
-**Estado:** registro base (#106), concurrencia/inmutabilidad (#108) y conflictos/decisiones (#109) integrados en `main`; evaluaciones y manifiestos (#110) integrados; almacenamiento de artefactos y endurecimiento TRUNCATE en revisión por PR #111.  
+**Estado:** registro base (#106), concurrencia/inmutabilidad (#108), conflictos/decisiones (#109), evaluaciones/manifiestos (#110) y artefactos de fuentes/evidencias con protección TRUNCATE (#111) integrados en `main`. Las migraciones `database/migrations/0004_source_evidence_artifacts.sql` y `database/migrations/0005_append_only_truncate_guard.sql` forman parte del historial aplicado por el runner.  
 **Persistencia:** PostgreSQL local 18.7.  
 **Uso autorizado:** entrada explícita del operador; datos sintéticos y archivos reales solo cuando el operador disponga de autorización aplicable.  
 **Fuera de alcance:** obtención automática de fuentes reales, crawling, vigilancia, scraping y servicios externos.
