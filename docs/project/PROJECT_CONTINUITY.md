@@ -659,12 +659,12 @@ La integración de #123–#125 no cierra automáticamente los defectos funcional
 
 - #124: la ancestralidad de cada `source_revision` respecto a `baseline_revision` quedó implementada en el cambio integrado; el caso negativo debe seguir formando parte de la suite.
 - #125: permanecen como criterios de cierre la detección de duplicados/NULL antes de transformar filas a `dict`/`set`, el prefijo continuo del ledger y la verificación estructural del control plane y de ambos ledgers. La integración no acredita por sí sola que esos casos estén resueltos.
-- #126: el check PostgreSQL 18.7 del HEAD anterior registró 40 pruebas, con 29 errores y 2 fallos. Los logs mostraron que tipos array generados por PostgreSQL eran clasificados incorrectamente como tipos base personalizados. Se envió el commit `0b9b50e6a465a766afc5fda6b9642c692c813a63`, que añade `t.typelem = 0` al filtro. No se considera validado hasta que PostgreSQL 18.7 se ejecute sobre ese SHA y se demuestren tanto la exclusión de arrays como el rechazo fail-closed de tipos base personalizados reales.
+- #126: el check PostgreSQL 18.7 del HEAD anterior registró 40 pruebas, con 29 errores y 2 fallos porque los arrays generados por PostgreSQL se clasificaban como tipos base personalizados. La corrección `t.typelem = 0` quedó validada en el commit `0b9b50e6a465a766afc5fda6b9642c692c813a63`: el job PostgreSQL 18.7 terminó SUCCESS en [run #44429507363](https://github.com/Osleyder1985/SINAYXA/actions/runs/44429507363), ejecutó 40 pruebas de fingerprint y el test de rechazo fail-closed de tipos base personalizados pasó. La rama sigue pendiente de sincronización con el HEAD actualizado de #125.
 - #127: no se considera listo mientras dependa de una base #126 divergente y falle la validación PostgreSQL. La identidad efectiva, memberships/SET ROLE, flags y privilegios reales siguen siendo requisitos del preflight.
 
 #### Estado de las comprobaciones
 
-En los HEAD consultados de #85, #99 y #119, los checks ejecutados de PowerShell, PostgreSQL (cuando aplicaba), Gitleaks, npm audit y OSV PR aparecen satisfactorios; OSV full aparece SKIPPED. Para #126/#127, los checks PostgreSQL consultados no están satisfactorios. Un check verde de seguridad/dependencias no compensa un check PostgreSQL fallido o ausente.
+En los HEAD consultados de #85 y #99, los checks ejecutados de PowerShell, PostgreSQL (cuando aplicaba), Gitleaks, npm audit y OSV PR aparecen satisfactorios; OSV full aparece SKIPPED. Para #119, en el HEAD `bf5f319483ac0248b2ced4763e587879385812de`, npm audit y Gitleaks están SUCCESS, OSV PR sigue en ejecución y PowerShell sigue en ejecución; el fallo inicial de Markdown lint fue corregido. #126 tiene PostgreSQL 18.7 SUCCESS en el HEAD `0b9b50e6...`; #127 conserva PostgreSQL FAILURE en el HEAD `e080476d...`. Un check verde de seguridad/dependencias no compensa un check PostgreSQL fallido o ausente.
 
 #### Siguiente orden seguro
 
