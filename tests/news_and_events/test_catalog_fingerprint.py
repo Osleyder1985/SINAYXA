@@ -55,7 +55,8 @@ class CatalogSecurityLabelGuardTests(unittest.TestCase):
             _reject_unsupported_security_labels(object(), "sinayxa")
 
         query, params = rows.call_args.args[1:]
-        self.assertIn("pg_seclabels", query)
+        self.assertIn("pg_catalog.pg_seclabels", query)
+        self.assertIn("pg_catalog.pg_namespace", query)
         self.assertEqual(("sinayxa", "sinayxa"), params)
 
     @patch("scripts.news_and_events.catalog_fingerprint._rows")
