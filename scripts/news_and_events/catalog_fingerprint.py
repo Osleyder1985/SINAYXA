@@ -70,6 +70,34 @@ def _record(object_type: str, qualified_name: str, identity: str, **fields: Any)
     }
 
 
+def _reject_unsupported_security_labels(connection: Any, schema_name: str) -> None:
+    """Fail closed when security labels exist on objects in the managed schema.
+
+    Labels are not part of the preview's canonical record contract yet. The
+    pg_seclabels view resolves schema-local objects and column subobjects
+    without persisting catalog OIDs in the fingerprint.
+    """
+    labels = _rows(
+        connection,
+        """
+        SELECT objtype AS object_type, objname AS object_name,
+               objsubid AS object_subid, provider
+        FROM pg_seclabels
+        WHERE objnamespace = (
+            SELECT oid FROM pg_namespace WHERE nspname = %s
+        )
+           OR (objtype = 'schema' AND objname = %s)
+        ORDER BY objtype, objname, objsubid, provider
+        """,
+        (schema_name, schema_name),
+    )
+    if labels:
+        raise CatalogFingerprintError(
+            "security labels in managed schema are not represented by "
+            f"{ALGORITHM_VERSION}: {labels}"
+        )
+
+
 def fingerprint_schema(connection: Any, schema_name: str = "sinayxa") -> CatalogFingerprint:
     """Read and fingerprint catalog metadata in one stable read-only snapshot.
 
@@ -103,6 +131,7 @@ def _fingerprint_schema_in_transaction(
     connection: Any, schema_name: str
 ) -> CatalogFingerprint:
     """Inspect the catalog inside an already configured transaction."""
+    _reject_unsupported_security_labels(connection, schema_name)
     connection.execute("SET LOCAL search_path = pg_catalog, pg_temp")
     server_version_num, read_only = connection.execute(
         "SELECT current_setting('server_version_num')::integer, "
