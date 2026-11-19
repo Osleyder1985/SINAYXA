@@ -8,7 +8,6 @@ on:
       - "docs/validation/ceph-image-metadata-preflight.md"
       - ".github/workflows/ceph-image-metadata-preflight.yml"
   workflow_dispatch:
-  workflow_dispatch:
 
 permissions:
   contents: read
