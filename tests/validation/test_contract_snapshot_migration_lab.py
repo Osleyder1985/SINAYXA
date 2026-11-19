@@ -39,7 +39,7 @@ class ContractSnapshotMigrationLabTests(unittest.TestCase):
             root = Path(temporary) / "migration"
             root.mkdir()
             execute_persisted_migration(root, CONTRACT_SOURCE)
-            with self.assertRaisesRegex(MigrationLabError, "must be empty"):
+            with self.assertRaisesRegex(MigrationLabError, "migration root"):
                 execute_persisted_migration(root, CONTRACT_SOURCE)
 
 
