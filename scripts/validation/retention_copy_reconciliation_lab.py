@@ -104,18 +104,25 @@ def reconcile_deletion(
     if set(copy_ids) != expected_ids:
         raise RetentionLabError("deletion ledger does not cover the complete copy inventory")
 
+    targets = {
+        copy_id: _safe_child(
+            root,
+            f"{item['relative_path']}/{object_id}.json",
+        )
+        for copy_id, item in ((entry["copy_id"], entry) for entry in inventory)
+    }
+    present = {copy_id: path.exists() for copy_id, path in targets.items()}
+    if any(present.values()) and not all(present.values()):
+        raise RetentionLabError("partial copy inventory is present; refusing to report deletion")
     removed: list[dict[str, str]] = []
-    remaining: list[str] = []
-    for copy_id, location in locations.items():
-        target = _safe_child(root, f"{inventory[[x['copy_id'] for x in inventory].index(copy_id)]['relative_path']}/{object_id}.json")
-        if target.exists():
+    if all(present.values()):
+        for copy_id, target in targets.items():
             if not target.is_file():
                 raise RetentionLabError("managed object is not a regular file")
             digest = hashlib.sha256(target.read_bytes()).hexdigest()
             target.unlink()
             removed.append({"copy_id": copy_id, "sha256_before_delete": digest})
-        if target.exists():
-            remaining.append(copy_id)
+    remaining = [copy_id for copy_id, target in targets.items() if target.exists()]
     if remaining:
         raise RetentionLabError("one or more managed copies remain after reconciliation")
     return {
@@ -123,7 +130,7 @@ def reconcile_deletion(
         "object_id": object_id,
         "removed": removed,
         "remaining_copy_ids": remaining,
-        "idempotent": True,
+        "idempotent": not bool(removed),
     }
 
 
@@ -198,6 +205,9 @@ def run_lab() -> dict[str, Any]:
         "completed_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": "PASS" if all(value == "PASS" for value in checks.values()) else "FAIL",
         "checks": checks,
+        "copy_evidence": result["removed"],
+        "reconciliation_idempotent_repeat": second["idempotent"],
+        "backup_restore_reconciliation_reference": "Issue #113 / PR #115 PostgreSQL synthetic lab",
         "cleanup": "PASS" if cleanup_verified else "FAIL",
         "cleanup_scope": "single temporary directory created by this run",
         "network_used": False,
