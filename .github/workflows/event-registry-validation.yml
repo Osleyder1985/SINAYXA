@@ -75,11 +75,13 @@ jobs:
 
       - name: Run Issue #138 persisted contract snapshot migration tests
         env:
+          SINAYXA_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SINAYXA_CONTRACT_SOURCE_COMMIT: 6335771309d55e3cc948ba28b008310c3b1b4d4c
         run: python -m unittest tests.validation.test_contract_snapshot_migration_lab -v
 
       - name: Execute Issue #138 persisted contract migration laboratory
         env:
+          SINAYXA_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           SINAYXA_CONTRACT_SOURCE_COMMIT: 6335771309d55e3cc948ba28b008310c3b1b4d4c
         run: python -m scripts.validation.contract_snapshot_migration_lab --contract-source ./contract-source --report artifacts/contract-migration-lab/report.json
 
