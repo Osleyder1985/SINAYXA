@@ -664,7 +664,7 @@ La integración de #123–#125 no cierra automáticamente los defectos funcional
 
 #### Estado de las comprobaciones
 
-En los HEAD consultados de #85 y #99, los checks ejecutados de PowerShell, PostgreSQL (cuando aplicaba), Gitleaks, npm audit y OSV PR aparecen satisfactorios; OSV full aparece SKIPPED. Para #119, en el HEAD `bf5f319483ac0248b2ced4763e587879385812de`, npm audit y Gitleaks están SUCCESS, OSV PR sigue en ejecución y PowerShell sigue en ejecución; el fallo inicial de Markdown lint fue corregido. #126 tiene PostgreSQL 18.7 SUCCESS en el HEAD `0b9b50e6...`; #127 conserva PostgreSQL FAILURE en el HEAD `e080476d...`. Un check verde de seguridad/dependencias no compensa un check PostgreSQL fallido o ausente.
+En los HEAD consultados de #85 y #99, los checks ejecutados de PowerShell, PostgreSQL (cuando aplicaba), Gitleaks, npm audit y OSV PR aparecen satisfactorios; OSV full aparece SKIPPED. Para #119, en el HEAD `2d039d2c3f0eb0bac2998e8eddcce92c4d6a66c3`, PowerShell 7.6.6/7.7.0 y Security/dependency están SUCCESS; Markdown lint 29 archivos PASS, npm audit 0 vulnerabilidades, Gitleaks y OSV PR SUCCESS; OSV full SKIPPED. El fallo inicial de Markdown lint fue corregido. #126 tiene PostgreSQL 18.7 SUCCESS en el HEAD `0b9b50e6...`; #127 conserva PostgreSQL FAILURE en el HEAD `e080476d...`. Un check verde de seguridad/dependencias no compensa un check PostgreSQL fallido o ausente.
 
 #### Siguiente orden seguro
 
