@@ -82,9 +82,9 @@ def _reject_unsupported_security_labels(connection: Any, schema_name: str) -> No
         """
         SELECT objtype AS object_type, objname AS object_name,
                objsubid AS object_subid, provider
-        FROM pg_seclabels
+        FROM pg_catalog.pg_seclabels
         WHERE objnamespace = (
-            SELECT oid FROM pg_namespace WHERE nspname = %s
+            SELECT oid FROM pg_catalog.pg_namespace WHERE nspname = %s
         )
            OR (objtype = 'schema' AND objname = %s)
         ORDER BY objtype, objname, objsubid, provider
