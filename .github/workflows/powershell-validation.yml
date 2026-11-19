@@ -14,6 +14,7 @@ on:
       - test/issue-121-migration-manifest-integrity
       - feat/issue-121-fresh-database-migration-runner
       - feat/issue-121-catalog-fingerprint-readonly
+      - feat/issue-121-catalog-fingerprint-clean
     paths:
       - "**.ps1"
       - "**.psm1"
