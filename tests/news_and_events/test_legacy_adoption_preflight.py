@@ -75,16 +75,17 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
                 sql.Identifier(self.database_name), sql.Identifier(self.reader_identity)
             )
         )
-        self.admin.execute(
+        self.connection.execute(
             sql.SQL("GRANT USAGE ON SCHEMA sinayxa TO {}").format(
                 sql.Identifier(self.reader_identity)
             )
         )
-        self.admin.execute(
+        self.connection.execute(
             sql.SQL("GRANT SELECT ON sinayxa.schema_migrations TO {}").format(
                 sql.Identifier(self.reader_identity)
             )
         )
+        self.connection.commit()
         reader_parameters = conninfo_to_dict(self.database_url)
         reader_parameters["user"] = self.reader_identity
         reader_parameters["password"] = self.reader_password
@@ -259,11 +260,12 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
             )
 
     def test_preflight_rejects_application_table_write_privileges(self) -> None:
-        self.admin.execute(
+        self.connection.execute(
             sql.SQL("GRANT INSERT ON sinayxa.events TO {}").format(
                 sql.Identifier(self.reader_identity)
             )
         )
+        self.connection.commit()
         try:
             result = preflight_legacy_adoption(
                 self.reader_connection,
@@ -276,18 +278,20 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
             )
             self.assertIsNone(result.computed_fingerprint)
         finally:
-            self.admin.execute(
+            self.connection.execute(
                 sql.SQL("REVOKE INSERT ON sinayxa.events FROM {}").format(
                     sql.Identifier(self.reader_identity)
                 )
             )
+            self.connection.commit()
 
     def test_preflight_requires_select_privilege_on_legacy_ledger(self) -> None:
-        self.admin.execute(
+        self.connection.execute(
             sql.SQL("REVOKE SELECT ON sinayxa.schema_migrations FROM {}").format(
                 sql.Identifier(self.reader_identity)
             )
         )
+        self.connection.commit()
         try:
             result = preflight_legacy_adoption(
                 self.reader_connection,
@@ -301,8 +305,9 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
             self.assertEqual((), result.legacy_migration_ids)
             self.assertIsNone(result.computed_fingerprint)
         finally:
-            self.admin.execute(
+            self.connection.execute(
                 sql.SQL("GRANT SELECT ON sinayxa.schema_migrations TO {}").format(
                     sql.Identifier(self.reader_identity)
                 )
             )
+            self.connection.commit()
