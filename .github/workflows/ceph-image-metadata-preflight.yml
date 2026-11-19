@@ -1,13 +1,35 @@
 name: Ceph image registry metadata preflight
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/validation/Get-CephImageMetadata.sh"
+      - "docs/validation/ceph-image-metadata-preflight.md"
+      - ".github/workflows/ceph-image-metadata-preflight.yml"
+  workflow_dispatch:
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
+  shell-syntax:
+    if: github.event_name == 'pull_request'
+    name: Validate Ceph metadata script syntax
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check Bash syntax
+        shell: bash
+        run: bash -n scripts/validation/Get-CephImageMetadata.sh
+
   ceph-image-metadata:
+    if: github.event_name == 'workflow_dispatch'
     name: Capture Ceph OCI metadata only
     runs-on: ubuntu-24.04
     timeout-minutes: 5
