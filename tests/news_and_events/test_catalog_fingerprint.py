@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import unittest
+from unittest.mock import patch
 from uuid import uuid4
 
 import psycopg
@@ -11,6 +12,7 @@ from scripts.news_and_events.catalog_fingerprint import (
     CatalogFingerprintError,
     canonicalize_records,
     fingerprint_schema,
+    _reject_unsupported_security_labels,
 )
 
 
@@ -35,6 +37,39 @@ class CatalogCanonicalizationTests(unittest.TestCase):
             canonicalize_records([{"object_type": "invalid", "payload": object()}])
 
 
+
+
+
+class CatalogSecurityLabelGuardTests(unittest.TestCase):
+    @patch("scripts.news_and_events.catalog_fingerprint._rows")
+    def test_security_labels_in_managed_schema_fail_closed(self, rows) -> None:
+        rows.return_value = [
+            {
+                "object_type": "table",
+                "object_name": "events",
+                "object_subid": 0,
+                "provider": "test_provider",
+            }
+        ]
+
+        with self.assertRaisesRegex(
+            CatalogFingerprintError, "security labels in managed schema"
+        ):
+            _reject_unsupported_security_labels(object(), "sinayxa")
+
+        query, params = rows.call_args.args[1:]
+        self.assertIn("pg_seclabels", query)
+        self.assertEqual(("sinayxa", "sinayxa"), params)
+
+    @patch("scripts.news_and_events.catalog_fingerprint._rows")
+    def test_empty_security_label_inventory_is_accepted(self, rows) -> None:
+        rows.return_value = []
+
+        _reject_unsupported_security_labels(object(), "sinayxa")
+
+        rows.assert_called_once()
+
+
 DATABASE_URL = os.environ.get("SINAYXA_DATABASE_URL")
 
 
@@ -48,6 +83,11 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
 
     def tearDown(self) -> None:
         self.connection.close()
+
+    def test_security_label_guard_queries_postgres_catalog(self) -> None:
+        # The CI fixture has no provider-applied labels; this verifies the
+        # PostgreSQL 18 catalog view and schema-scoped detection query execute.
+        _reject_unsupported_security_labels(self.connection, "sinayxa")
 
     def test_fingerprint_is_deterministic_and_reports_semantic_inventory(self) -> None:
         first = fingerprint_schema(self.connection)
