@@ -219,7 +219,17 @@ def run_lab() -> dict[str, Any]:
         "workflow_commit": os.environ.get("GITHUB_SHA", "LOCAL_UNPINNED"),
         "python_version": platform.python_version(),
         "platform": platform.platform(),
-        "classification": "LAB_SYNTHETIC_LOCAL",
+        "execution_environment": (
+            "GITHUB_HOSTED_RUNNER" if os.environ.get("GITHUB_ACTIONS") == "true"
+            else "USER_LOCAL_HOST"
+        ),
+        "runner_os": os.environ.get("RUNNER_OS", "NOT_APPLICABLE"),
+        "runner_arch": os.environ.get("RUNNER_ARCH", "NOT_APPLICABLE"),
+        "classification": (
+            "LAB_SYNTHETIC_EPHEMERAL_CI_RUNNER"
+            if os.environ.get("GITHUB_ACTIONS") == "true"
+            else "LAB_SYNTHETIC_USER_LOCAL"
+        ),
         "started_at_utc": started,
         "completed_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": "PASS" if all(value == "PASS" for value in checks.values()) else "FAIL",
