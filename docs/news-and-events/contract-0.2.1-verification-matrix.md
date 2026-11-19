@@ -541,3 +541,28 @@ Esta sección supersede cualquier estado anterior que presente IND-08 como pendi
 ### Decisión de auditoría
 
 El HEAD actual tiene los tres workflows aplicables en SUCCESS. No se justifica duplicar pruebas sintéticas ya ejecutadas sin identificar una brecha concreta. A/B requieren revisión formal de suficiencia y límites semánticos; C/D/E requieren evidencia operacional externa conforme a Issue #89. Las cinco áreas permanecen ABIERTAS. Esta consolidación no cierra Issue #88, no aprueba técnicamente el contrato 0.2.1 y no autoriza fusionar PR #85.
+
+
+## Reconciliación de evidencia sobre HEAD `6335771309d55e3cc948ba28b008310c3b1b4d4c` — 2026-11-19
+
+Esta sección actualiza la evidencia CI del HEAD vigente de PR #85. No modifica criterios de aceptación ni cierra A–E.
+
+### Identidad y ejecuciones
+
+- PR #85: OPEN / NOT MERGED; base `main`; HEAD `6335771309d55e3cc948ba28b008310c3b1b4d4c`.
+- PowerShell quality gate [run #44447846523](https://github.com/Osleyder1985/SINAYXA/actions/runs/44447846523): SUCCESS. Job Windows PowerShell 7.7.0 completado; el job 7.6.6 refleja el resultado del gate. PSScriptAnalyzer 1.24.0, validación de fixtures y pruebas positivas/negativas/robustez: SUCCESS. Suite correctiva del contrato 0.2.1: **125 tests, OK**. JSON Schema Draft 2020-12 y fixture sintético: PASS. Laboratorio #93: PASS con límites indicados abajo.
+- Security/dependency quality gate [run #44447847014](https://github.com/Osleyder1985/SINAYXA/actions/runs/44447847014): SUCCESS. Gitleaks full-history, npm audit (0 vulnerabilidades HIGH/CRITICAL; 0 total), Markdown lint (30 archivos) y OSV PR scan: SUCCESS. OSV full: SKIPPED; no se cuenta como PASS.
+- PostgreSQL 18.7 event registry integration [run #44447846533](https://github.com/Osleyder1985/SINAYXA/actions/runs/44447846533): SUCCESS. Incluye validación del contrato temporal, pruebas de regresión, compilación/CLI, integridad de manifiestos de migración, integración de migraciones PostgreSQL e integración del registro de eventos. Las pruebas negativas observan el rechazo de UPDATE/DELETE en tablas append-only.
+- Artefacto PowerShell: [powershell-validation-evidence-44447846523](https://github.com/Osleyder1985/SINAYXA/actions/runs/44447846523/artifacts/14494550642), SHA-256 ZIP `ee2323dc05b0ccad0d932f0c27b9ca7a8dabf0db29475691f5b784adff66fca3`.
+- Artefacto npm audit: [npm-dependency-audit-44447847014](https://github.com/Osleyder1985/SINAYXA/actions/runs/44447847014/artifacts/14493747858), SHA-256 ZIP `8ad26002eb20d7bd2f61ec5e4c502779d1af2699c0ec7e756bd70d3b161fc67e`.
+
+### Límites que no cambian
+
+- El laboratorio #93 es una simulación de filesystem temporal en runner efímero; no ejecutó export/restore PostgreSQL, no probó WORM/Object Lock físico, no cubrió snapshots/backups externos ni datos productivos. La reconciliación de eliminación solo cubrió tres directorios administrados por ese run.
+- La suite de 125 pruebas acredita los casos sintéticos implementados; no demuestra verdad factual, autenticidad material, descubrimiento exhaustivo de dependencias reales ni suficiencia semántica de cada fragmento/alcance.
+- El éxito del workflow de PostgreSQL demuestra integración de pruebas en PostgreSQL 18.7 efímero de CI; no equivale a durabilidad externa ni operación productiva.
+- El resultado OSV full continúa SKIPPED y no se contabiliza como aprobado.
+
+### Dictamen
+
+Los tres workflows aplicables están SUCCESS sobre el HEAD identificado. Esto actualiza la evidencia técnica y elimina la antigua referencia a los gates fallidos del commit documental anterior como si describieran el estado actual. **A y B permanecen ABIERTAS** por revisión formal de suficiencia y límites semánticos; **C, D y E permanecen ABIERTAS** por evidencia operacional externa y criterios de aceptación pendientes. Issue #88 continúa OPEN y bloquea la integración. PR #85 permanece OPEN / NOT MERGED; no se aprueba merge por inferencia.
