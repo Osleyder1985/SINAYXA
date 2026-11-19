@@ -133,6 +133,7 @@ El validador semántico deberá comprobar:
 ## 8. Fixtures sintéticos y aceptación
 
 Los casos en `document-relationship-fixtures-v0.2.2.json` son fixtures de diseño, no payloads conformes a un schema 0.2.2 aún inexistente. Incluyen:
+
 - RTI: declaración de no confianza y presentación posterior, manteniendo cada documento distinto.
 - Yak: enmienda de alcance parcial; no ampliar la corrección a todas las secciones.
 - cadena de tres documentos;
