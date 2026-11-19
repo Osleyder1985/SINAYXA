@@ -744,3 +744,49 @@ No se fusionó ninguna de las cinco PR abiertas en este corte. Ningún estado SK
 3. Si todos los gates aplicables pasan, actualizar el inventario de #119 con los resultados finales y reevaluar la integración de #126/#127.
 4. Mantener #85/#99 bloqueadas por los criterios abiertos de #88/#89, no por el simple estado de CI.
 5. Verificar recuperación real de continuidad desde una conversación nueva y el estado local de worktrees Windows antes de considerar cerrada #119.
+
+
+## 14.16 Corte de verificación y correcciones — 2026-11-19 UTC
+
+Este apartado registra únicamente los estados consultados en GitHub en este corte. Sustituye los HEAD anteriores de 14.15 cuando exista discrepancia. No declara ninguna PR lista para merge.
+
+### Inventario y CI exact-HEAD
+
+| PR | HEAD actual comprobado | CI observado | Estado y decisión |
+| --- | --- | --- | --- |
+| #85 | d2a08ea8d104f2a4756e3cd970f5159a270cba25 | PowerShell [44439012103](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439012103) SUCCESS; PostgreSQL/Issue [44439012421](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439012421) SUCCESS; Security [44439012589](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439012589) SUCCESS. OSV full SKIPPED. | OPEN, no DRAFT. No fusionar: Issues #88/#89 mantienen brechas A–E y evidencia operacional pendientes. |
+| #99 | d1da9ba3f9c89a27e36d5d4297b1bf755870030d | PowerShell [44439159091](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439159091) SUCCESS; Security [44439159479](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439159479) SUCCESS. OSV full SKIPPED. | OPEN / DRAFT; depende de #85. |
+| #119 | 416351bac1ff887be3f139a89964b36a17248f82 | PowerShell [44442274425](https://github.com/Osleyder1985/SINAYXA/actions/runs/44442274425) SUCCESS; Security [44442274845](https://github.com/Osleyder1985/SINAYXA/actions/runs/44442274845) SUCCESS. | OPEN / DRAFT. El documento conserva snapshots históricos; la recuperación en una conversación nueva y la reconciliación de worktrees locales siguen pendientes. |
+| #126 | 2ace99daafbb4bbef1c95470cdbe9e4d686fe9d0 | PowerShell [44439914633](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439914633) SUCCESS; PostgreSQL/Issue [44439914345](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439914345) SUCCESS; Security [44439914777](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439914777) SUCCESS. OSV full SKIPPED. | OPEN / DRAFT; 0 commits behind main; diff funcional de cinco archivos. No fusionar: revisión estática reciente detectó una posible clasificación incorrecta de arrays generados. |
+| #127 | 4264fa2f77db516922780fe34a514768c964330b | En el momento de este corte: PostgreSQL/Issue [44443047619](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443047619) IN_PROGRESS; PowerShell [44443047590](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443047590) PENDING; Security [44443048108](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443048108) PENDING. | OPEN / DRAFT; dependiente de #126. No contabilizar los estados pendientes como PASS. |
+
+### #126 — nuevo hallazgo de clasificación de tipos
+
+Revisión COMMENT registrada en GitHub, review ID 5968332955, sobre HEAD 2ace99d.
+
+La consulta unsupported_base_types usa un predicado basado en NOT EXISTS (... element_type.typarray = t.oid). Ese predicado no identifica correctamente el tipo array actual; la clasificación debe comprobarse con los metadatos del tipo array, incluyendo typelem, sin volver a clasificar arrays generados como tipos base personalizados.
+
+Corrección requerida y aún no demostrada:
+- Un tipo base personalizado no modelado debe ser rechazado.
+- Su array generado no debe provocar un falso positivo.
+- Arrays generados para tipos compuestos/tablas no deben bloquear por sí solos el fingerprint.
+- Repetir toda la suite PostgreSQL 18.7 y quality gates sobre el HEAD corregido.
+
+Hasta cerrar esta revisión, mantener sinayxa-catalog-v1-preview; no aprobar baseline ni adopción legacy.
+
+### #127 — correcciones de revisión publicadas
+
+Tras la revisión complementaria (review 5968311393), se publicaron dos commits en la rama feat/issue-121-legacy-adoption-preflight:
+
+- eef99924745014dd3e285a6e33a4b86f96d8db26: añade tres pruebas PostgreSQL que separan membresía allowlisted válida, capacidad SET ROLE y ADMIN OPTION.
+- 4264fa2f77db516922780fe34a514768c964330b: corrige la anotación de role_attributes para reflejar los siete campos devueltos por la consulta de pg_roles.
+
+Los cambios se registraron también en el comentario de PR 6997628686. El CI del nuevo HEAD estaba pendiente/en curso al momento de este corte. No se debe declarar resuelta la revisión hasta obtener los tres gates aplicables en SUCCESS y revisar los resultados PostgreSQL. El estado operativo sigue siendo LEGACY_UNVERIFIED.
+
+### Decisión de integración y próxima secuencia
+
+1. Corregir #126 y demostrar los tres escenarios de tipos/arrays anteriores; CI exact-HEAD completo.
+2. Sincronizar #127 únicamente después de que #126 tenga un HEAD corregido y validado; volver a ejecutar CI exact-HEAD y revisar todas las pruebas de roles/permisos.
+3. Mantener #85/#99 sin merge mientras los criterios funcionales y operacionales aplicables de #88/#89 permanezcan abiertos.
+4. Actualizar este documento desde los resultados finales, no desde ejecuciones históricas ni estados PENDING/IN_PROGRESS.
+5. No modificar main, no usar force-push, no ejecutar adopción legacy ni DDL/DML productivo.
