@@ -1,6 +1,7 @@
 """Adversarial tests for the Issue #137 synthetic retention copy lab."""
 from __future__ import annotations
 
+import errno
 import hashlib
 import tempfile
 import unittest
@@ -17,6 +18,24 @@ from scripts.validation.retention_copy_reconciliation_lab import (
 
 
 class RetentionCopyReconciliationTests(unittest.TestCase):
+    def _create_symlink_or_skip(
+        self, link: Path, target: Path, *, target_is_directory: bool = False
+    ) -> None:
+        try:
+            link.symlink_to(target, target_is_directory=target_is_directory)
+        except OSError as exc:
+            # Windows may deny symlink creation without the SeCreateSymbolicLink
+            # privilege (WinError 1314). Skip only known permission failures;
+            # unexpected filesystem errors must still fail the test.
+            if getattr(exc, "winerror", None) == 1314 or exc.errno in {
+                errno.EPERM,
+                errno.EACCES,
+            }:
+                self.skipTest(
+                    f"symbolic-link creation is not permitted on this host: {exc}"
+                )
+            raise
+
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
@@ -86,7 +105,7 @@ class RetentionCopyReconciliationTests(unittest.TestCase):
         location.rmdir()
         outside = self.root / "outside"
         outside.mkdir()
-        location.symlink_to(outside, target_is_directory=True)
+        self._create_symlink_or_skip(location, outside, target_is_directory=True)
         with self.assertRaisesRegex(RetentionLabError, "symbolic links"):
             validate_inventory(self.root, invalid)
 
@@ -134,7 +153,7 @@ class RetentionCopyReconciliationTests(unittest.TestCase):
         outside = self.root.parent / f"{self.object_id}-outside.json"
         outside.write_text('{"outside":true}', encoding="utf-8")
         self.addCleanup(lambda: outside.unlink(missing_ok=True))
-        target.symlink_to(outside)
+        self._create_symlink_or_skip(target, outside)
         with self.assertRaisesRegex(RetentionLabError, "symbolic link"):
             reconcile_deletion(self.root, self.inventory, self.ledger)
         self.assertTrue(outside.is_file())
