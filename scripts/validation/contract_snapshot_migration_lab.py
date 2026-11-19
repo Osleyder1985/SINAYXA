@@ -33,6 +33,42 @@ PLAN = {
     "target_snapshot_ref": "sinayxa-lab://issue-138/target-0.2.1",
 }
 
+HISTORICAL_ID_FIELDS = {
+    "claims": "claim_id",
+    "claim_components": "claim_component_version_id",
+    "sources": "source_id",
+    "source_versions": "source_version_id",
+    "identity_assessments": "identity_assessment_id",
+    "evaluation_units": "assessment_unit_id",
+    "evidence_items": "evidence_id",
+    "evidence_availability": "availability_id",
+    "claim_evidence_links": "link_id",
+    "provenance_nodes": "node_id",
+    "provenance_edges": "edge_id",
+    "factor_assessments": "factor_assessment_id",
+    "independence_assessments": "independence_assessment_id",
+    "claim_assessments": "claim_assessment_id",
+    "retention_records": "retention_id",
+    "audit_events": "audit_event_id",
+}
+
+
+def historical_identifier_sets(package: dict[str, Any]) -> dict[str, list[str]]:
+    """Return exact, validated primary identifiers for every historical collection."""
+    identifiers: dict[str, list[str]] = {}
+    for collection in HISTORICAL_COLLECTIONS:
+        rows = package.get(collection)
+        field = HISTORICAL_ID_FIELDS[collection]
+        if not isinstance(rows, list):
+            raise MigrationLabError(f"historical collection is missing or malformed: {collection}")
+        values = [row.get(field) if isinstance(row, dict) else None for row in rows]
+        if any(not isinstance(value, str) or not value.strip() for value in values):
+            raise MigrationLabError(f"historical identifier missing in {collection}.{field}")
+        if len(values) != len(set(values)):
+            raise MigrationLabError(f"duplicate historical identifier in {collection}.{field}")
+        identifiers[collection] = sorted(values)
+    return identifiers
+
 
 class MigrationLabError(RuntimeError):
     """Raised when persisted migration evidence is incomplete or inconsistent."""
@@ -106,13 +142,12 @@ def execute_persisted_migration(
     target_snapshot_digest = sha256(target_snapshot_bytes)
     final_package_digest = sha256(final_package_bytes)
 
+    source_ids = historical_identifier_sets(source)
+    output_ids = historical_identifier_sets(migrated)
     baseline = {
         collection: {
             "count": len(source[collection]),
-            "ids": sorted(
-                str(item.get(next((key for key in item if key.endswith("_id")), "")))
-                for item in source[collection]
-            ),
+            "ids": source_ids[collection],
         }
         for collection in HISTORICAL_COLLECTIONS
     }
@@ -121,6 +156,14 @@ def execute_persisted_migration(
     }
     if any(baseline[name]["count"] != output_counts[name] for name in HISTORICAL_COLLECTIONS):
         raise MigrationLabError("historical collection cardinality changed")
+    if source_ids != output_ids:
+        changed = [
+            name for name in HISTORICAL_COLLECTIONS
+            if source_ids[name] != output_ids[name]
+        ]
+        raise MigrationLabError(
+            "historical identifiers changed or were lost: " + ", ".join(changed)
+        )
 
     stage = root / ".target.staging"
     published = root / "target"
@@ -156,6 +199,9 @@ def execute_persisted_migration(
         "output_canonical_sha256": migrated["migration_records"][0]["output_sha256"],
         "historical_collection_counts_before": {key: value["count"] for key, value in baseline.items()},
         "historical_collection_counts_after": output_counts,
+        "historical_identifiers_preserved": True,
+        "historical_collection_ids_before": source_ids,
+        "historical_collection_ids_after": output_ids,
         "historical_collection_hashes_before": {
             name: sha256(canonical_json(source[name])) for name in HISTORICAL_COLLECTIONS
         },
@@ -226,6 +272,11 @@ def run_lab(contract_source: Path) -> dict[str, Any]:
         checks["historical_collection_counts_preserved"] = (
             "PASS" if successful["manifest"]["historical_collection_counts_before"]
             == successful["manifest"]["historical_collection_counts_after"] else "FAIL"
+        )
+        checks["historical_identifiers_preserved"] = (
+            "PASS" if successful["manifest"]["historical_identifiers_preserved"]
+            and successful["manifest"]["historical_collection_ids_before"]
+            == successful["manifest"]["historical_collection_ids_after"] else "FAIL"
         )
         source_package = json.loads(successful["source_path"].read_text(encoding="utf-8"))
         target_package = json.loads(
