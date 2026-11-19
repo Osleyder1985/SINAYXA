@@ -1,0 +1,29 @@
+name: Ceph image registry metadata preflight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ceph-image-metadata:
+    name: Capture Ceph OCI metadata only
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Capture registry manifest metadata
+        shell: bash
+        run: bash scripts/validation/Get-CephImageMetadata.sh
+      - name: Upload raw metadata and report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ceph-image-registry-metadata
+          path: artifacts/ceph-image-metadata/
+          if-no-files-found: warn
+          retention-days: 14
