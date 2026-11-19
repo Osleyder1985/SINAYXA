@@ -82,7 +82,7 @@ def preflight_legacy_adoption(
     current_user: str | None = None
     current_role: str | None = None
     role_memberships: tuple[tuple[str, str, bool, bool, bool], ...] = ()
-    role_attributes: tuple[tuple[str, bool, bool, bool, bool, bool], ...] = ()
+    role_attributes: tuple[tuple[str, bool, bool, bool, bool, bool, bool], ...] = ()
     legacy_ids: tuple[str, ...] = ()
     computed_fingerprint: str | None = None
 
