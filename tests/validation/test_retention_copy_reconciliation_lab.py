@@ -115,7 +115,9 @@ class RetentionCopyReconciliationTests(unittest.TestCase):
         first = reconcile_deletion(self.root, self.inventory, self.ledger)
         self.assertEqual("DELETED", first["status"])
         self.assertEqual(5, len(first["removed"]))
-        second = reconcile_deletion(self.root, self.inventory, self.ledger)
+        second = reconcile_deletion(
+            self.root, self.inventory, self.ledger, first["deletion_receipts"]
+        )
         self.assertEqual("DELETED", second["status"])
         self.assertEqual([], second["removed"])
 
