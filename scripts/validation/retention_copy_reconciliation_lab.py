@@ -223,6 +223,7 @@ def run_lab() -> dict[str, Any]:
         "status": "PASS" if all(value == "PASS" for value in checks.values()) else "FAIL",
         "checks": checks,
         "copy_evidence": result["removed"],
+        "deletion_receipts": result["deletion_receipts"],
         "reconciliation_idempotent_repeat": second["idempotent"],
         "backup_restore_reconciliation_reference": "Issue #113 / PR #115 PostgreSQL synthetic lab",
         "cleanup": "PASS" if cleanup_verified else "FAIL",
