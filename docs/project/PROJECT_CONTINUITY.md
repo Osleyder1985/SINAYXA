@@ -745,7 +745,6 @@ No se fusionó ninguna de las cinco PR abiertas en este corte. Ningún estado SK
 4. Mantener #85/#99 bloqueadas por los criterios abiertos de #88/#89, no por el simple estado de CI.
 5. Verificar recuperación real de continuidad desde una conversación nueva y el estado local de worktrees Windows antes de considerar cerrada #119.
 
-
 ## 14.16 Corte de verificación y correcciones — 2026-11-19 UTC
 
 Este apartado registra únicamente los estados consultados en GitHub en este corte. Sustituye los HEAD anteriores de 14.15 cuando exista discrepancia. No declara ninguna PR lista para merge.
@@ -767,6 +766,7 @@ Revisión COMMENT registrada en GitHub, review ID 5968332955, sobre HEAD 2ace99d
 La consulta unsupported_base_types usa un predicado basado en NOT EXISTS (... element_type.typarray = t.oid). Ese predicado no identifica correctamente el tipo array actual; la clasificación debe comprobarse con los metadatos del tipo array, incluyendo typelem, sin volver a clasificar arrays generados como tipos base personalizados.
 
 Corrección requerida y aún no demostrada:
+
 - Un tipo base personalizado no modelado debe ser rechazado.
 - Su array generado no debe provocar un falso positivo.
 - Arrays generados para tipos compuestos/tablas no deben bloquear por sí solos el fingerprint.
