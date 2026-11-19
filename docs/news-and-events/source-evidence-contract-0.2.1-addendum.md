@@ -133,3 +133,19 @@ Esta regla conserva la distinción entre desconocimiento y ausencia accidental d
 - Ninguna área se declara cerrada por documentación solamente.
 
 La conformidad sintética demuestra que los paquetes satisfacen las reglas representadas; no demuestra verdad empírica, legalidad de un acceso real ni cumplimiento legal de una política de retención concreta.
+
+
+## Trazabilidad de relaciones de procedencia no resueltas — corrección #88
+
+La metodología aprobada en #16 ya define `ORIGEN_NO_DETERMINADO`. El contrato 0.2.1 permite registrar la arista y el nodo `UNKNOWN_ORIGIN`, pero la evaluación de independencia necesitaba una referencia explícita para conservar qué arista concreta motivó el estado `DESCONOCIDA`.
+
+Se incorpora la propiedad opcional `independenceAssessment.unresolved_provenance_edge_refs`:
+- solo puede referenciar aristas `ORIGEN_NO_DETERMINADO`;
+- cada arista debe pertenecer al mismo claim component y component version;
+- el nodo dependiente debe ser una versión de fuente incluida en el conjunto exacto de unidades evaluadas;
+- el destino debe ser `UNKNOWN_ORIGIN` sin entidad atribuida;
+- la arista debe estar registrada y ser válida en el corte temporal de la evaluación;
+- cualquier evidencia asociada debe pertenecer a la versión dependiente exacta y estar disponible al corte;
+- una arista no resuelta no puede reutilizarse como dependencia demostrada ni como ruta independiente.
+
+La propiedad es opcional para preservar compatibilidad con paquetes 0.2.1 existentes. Los estados aprobados no cambian: `INDEPENDIENTE`, `DEPENDIENTE` y `DESCONOCIDA`. Un estado `INDEPENDIENTE` no puede contener referencias no resueltas. Un estado `DEPENDIENTE` puede conservarlas adicionalmente cuando otras aristas sí demuestran dependencias concretas; la incertidumbre no se convierte en evidencia positiva. No se añade un estado `DISPUTADA`, score ni inferencia automática.
