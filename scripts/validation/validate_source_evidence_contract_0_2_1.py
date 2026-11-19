@@ -185,6 +185,12 @@ def _validate_independence_assessments(package: dict[str, Any]) -> None:
             )
             require(utc_instant(edge["recorded_at"]) <= utc_instant(assessment["assessment_cutoff"]),
                     "unresolved provenance edge was recorded after the independence assessment cutoff")
+            if edge["valid_from"] is not None:
+                require(utc_instant(edge["valid_from"]) <= utc_instant(assessment["assessment_cutoff"]),
+                        "unresolved provenance edge is not yet valid at the independence assessment cutoff")
+            if edge["valid_to"] is not None:
+                require(utc_instant(edge["valid_to"]) >= utc_instant(assessment["assessment_cutoff"]),
+                        "unresolved provenance edge is no longer valid at the independence assessment cutoff")
             dependent = nodes_by_id.get(edge["dependent_node_id"])
             origin = nodes_by_id.get(edge["origin_node_id"])
             require(dependent is not None and origin is not None,
