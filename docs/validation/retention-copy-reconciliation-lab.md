@@ -49,3 +49,10 @@ The PostgreSQL restore gate from #113 remains a separate synthetic database test
 ## Acceptance boundary
 
 Issue #137 may be considered implemented only after the complete CI run passes on the reviewed PR HEAD and its artifact is inspected. Area C in #89 remains partially verified until external copies, production inventories, backup providers, physical erasure claims, and operational controls are independently evidenced.
+
+
+## Receipt and retry boundary
+
+A missing object is not treated as deleted merely because its path is absent. Reconciliation requires a SHA-256 deletion receipt for every already-missing copy; a copy that exists despite a prior receipt is rejected. The unit tests cover fail-closed behavior for unreceipted missing copies and retry of a partial deletion when matching receipts are supplied.
+
+The current laboratory passes receipts between calls in memory and records them in the report. It does **not** yet simulate a durable receipt journal surviving process termination between filesystem unlink and receipt persistence. That crash-consistency property remains unverified and must not be inferred from the idempotency test.
