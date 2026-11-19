@@ -516,10 +516,9 @@ La cobertura automatizada adicional de IND-08 y del enlace duplicado COR-04 ya n
 
 A y B permanecen ABIERTAS hasta revisión formal de suficiencia normativa, cobertura de todos los límites y aceptación humana de los alcances semánticos. C, D y E mantienen sus brechas operacionales documentadas. No se infiere cierre de #88, aprobación técnica final ni autorización de merge de PR #85.
 
+## Consolidación de verificación A–E — baseline de implementación `d2a08ea` (2026-11-18)
 
-## Consolidación de verificación A–E — HEAD vigente de PR #85 (2026-11-18)
-
-Esta sección supersede cualquier estado anterior que presente IND-08 como pendiente de CI o que atribuya al HEAD actual resultados de ejecuciones de commits previos.
+Esta sección supersede cualquier estado anterior que presente IND-08 como pendiente de CI. El baseline de implementación revisado es `d2a08ea8d104f2a4756e3cd970f5159a270cba25`; el commit que incorpora esta consolidación y los commits documentales posteriores no cambian el código del contrato. Sus propios quality gates deben verificarse por separado.
 
 ### Identidad y evidencia exacta
 
@@ -532,7 +531,7 @@ Esta sección supersede cualquier estado anterior que presente IND-08 como pendi
 ### Dictamen actualizado por área
 
 | Área | Evidencia verificada en el HEAD | Brecha residual / criterio que impide cierre | Estado |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | A — Independencia | IND-01–IND-08 trazados a pruebas; suite completa PASS. IND-08 ya no está pendiente de CI. Se modelan orígenes terminales, citas/dependencias, datasets comunes y estado DESCONOCIDA. | No demuestra descubrimiento exhaustivo de dependencias/citas en fuentes reales ni independencia factual de cada fuente. Requiere revisión humana de casos reales y límites de procedencia. | ABIERTA |
 | B — Corroboración | COR-01–COR-10 trazados a pruebas; suite completa PASS. La base AMBAS exige evidencia primaria directa y corroboración independiente; COR-04 duplicidad y COR-08 parcialidad están cubiertos. | Los tests no prueban verdad ni autenticidad material. La correspondencia semántica entre fragmentos, afirmaciones y alcances, así como suficiencia de evidencia y límites de contradicción, requiere revisión humana. | ABIERTA |
 | C — Retención/eliminación | Estados de ciclo de vida, inventario, backups, expiración y reconciliación sintética están modelados. El laboratorio #93 PASS cubre solo tres directorios temporales administrados por el run. | Falta inventario y reconciliación operativa con proveedor real para primario, réplicas, cachés, exportaciones, backups y restauraciones. RET-09 es detección parcial, no anonimización exhaustiva. | ABIERTA |
