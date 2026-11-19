@@ -820,3 +820,27 @@ El HEAD dfcbf57 falló Markdown lint por MD012 y MD032. Se corrigieron ambas inc
 ### Decisión actual
 
 El hallazgo de arrays no bloquea #126. Permanecen los bloqueos independientes: algoritmo etiquetado preview, revisión integral de clases de objetos/cobertura de catálogo, baseline independiente aprobado y controles de adopción legacy. #127 continúa DRAFT y LEGACY_UNVERIFIED hasta completar PowerShell y la revisión funcional. #119 continúa DRAFT hasta completar sus nuevos gates y la prueba de recuperación de continuidad.
+
+
+## 14.18 Confirmación de gates #127 y estado documental — 2026-11-19 UTC
+
+### PR #127 — gates exact-HEAD completos
+
+HEAD 4264fa2f77db516922780fe34a514768c964330b:
+- PostgreSQL 18.7 / Issue [44443047619](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443047619): SUCCESS.
+- PowerShell [44443047590](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443047590): SUCCESS; perfil 7.7.0 y compatibilidad 7.6.6.
+- Security [44443048108](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443048108): SUCCESS; OSV full SKIPPED.
+
+Las tres pruebas de memberships y la corrección de typing están en un HEAD con todos los gates aplicables ejecutados en SUCCESS. La revisión técnica 5968311393 queda atendida. La PR sigue DRAFT y LEGACY_UNVERIFIED; no autoriza adopción ni merge.
+
+### PR #119 — CI del documento actualizado
+
+HEAD actual 354317a1c44517056abf81636c4eb162758dece3:
+- PowerShell [44443370659](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443370659): PENDING.
+- Security [44443371153](https://github.com/Osleyder1985/SINAYXA/actions/runs/44443371153): IN_PROGRESS en el último sondeo.
+
+El HEAD anterior dfcbf57 falló Markdown lint por MD012 y MD032. Se corrigieron en c1470c3 y luego se añadió la rectificación de #126 en 354317a. La validación del nuevo HEAD queda pendiente hasta que PowerShell y Security terminen SUCCESS.
+
+### Estado de la revisión de #126
+
+El hallazgo 5968332955 sobre typarray fue retirado como falso positivo mediante comentario 6997663073. No se requiere ese cambio de código. Se mantienen los límites del algoritmo preview y la necesidad de revisión completa de cobertura del catálogo y baseline independiente.
