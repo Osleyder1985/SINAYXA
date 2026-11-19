@@ -715,17 +715,15 @@ La corrección de autenticación y grants quedó en `9cb25bc...`. La corrección
 - conserva el rol lector autenticado y las verificaciones de mínimo privilegio;
 - calcula el baseline aprobado después de aplicar los ACL esperados, porque el fingerprint incluye los privilegios de esquema y tabla.
 
-CI exact-HEAD `8eedf02...` al corte:
+CI exact-HEAD `8eedf02...` (validación anterior):
 
 - PowerShell [44441538244](https://github.com/Osleyder1985/SINAYXA/actions/runs/44441538244) — SUCCESS.
 - Security/dependency [44441538832](https://github.com/Osleyder1985/SINAYXA/actions/runs/44441538832) — SUCCESS; OSV full SKIPPED.
 - PostgreSQL / Issue [44441538140](https://github.com/Osleyder1985/SINAYXA/actions/runs/44441538140) — SUCCESS.
 
-
-
 Revisión adicional del contrato detectó dos vías de privilegio que el preflight anterior no evaluaba completamente: grants `INSERT`/`UPDATE`/`REFERENCES` a nivel de columna y el atributo de rol `REPLICATION`. La documentación PostgreSQL distingue `has_table_privilege` de `has_any_column_privilege`, que detecta concesiones por columna; `pg_roles` expone `rolreplication`. Se añadieron ambas comprobaciones y pruebas de regresión en HEAD `672d48a...`. El CI exact-HEAD de este nuevo commit debe terminar antes de considerar cerrada la revisión.
 
-La ejecución anterior `9cb25bc...` pasó 9/10 pruebas; el único fallo fue el baseline calculado antes de los ACL. El HEAD `8eedf02...` pasa los tres gates aplicables. El estado funcional de adopción sigue siendo `LEGACY_UNVERIFIED`; no se habilita adopción, DDL/DML productivo ni modificación de migraciones históricas.
+La ejecución `8eedf02...` pasó los tres gates aplicables. La ejecución más reciente `672d48a...` pasó PostgreSQL/Issue y Security; PowerShell continúa IN_PROGRESS al corte. El cambio añade controles de ACL por columna y atributo REPLICATION. El estado funcional de adopción sigue siendo `LEGACY_UNVERIFIED`; no se habilita adopción, DDL/DML productivo ni modificación de migraciones históricas.
 
 #### Contrato 0.2.1 / 0.2.2
 
