@@ -201,7 +201,7 @@ La siguiente asignación vincula cada escenario de la matriz con pruebas de la s
 | IND-05 | `test_021_package_accepts_unknown_independence_when_provenance_is_incomplete` | Representación positiva de DESCONOCIDA validada contra esquema y semántica, sin afirmar independencia ni dependencia |
 | IND-06 | `test_independence_rejects_shared_terminal_origin` | Rechazo cubierto |
 | IND-07 | `test_independence_rejects_missing_source_path`; `test_021_package_rejects_independent_status_without_integrated_origin_paths`; `test_021_package_accepts_unknown_independence_when_provenance_is_incomplete` | Rechaza INDEPENDIENTE y representa DESCONOCIDA cuando la procedencia no permite decidir |
-| IND-08 | `test_021_package_accepts_evidenced_dependency_for_exact_component`; `test_021_package_rejects_dependency_edge_without_evidence`; `test_021_package_rejects_dependency_edge_from_another_component`; `test_021_dependency_edge_must_connect_two_assessed_source_versions`; `test_021_dependency_edge_cannot_connect_a_source_version_to_itself` | La arista debe conectar dos source versions distintas incluidas en el conjunto exacto evaluado; pruebas nuevas pendientes de CI |
+| IND-08 | `test_021_package_accepts_evidenced_dependency_for_exact_component`; `test_021_package_rejects_dependency_edge_without_evidence`; `test_021_package_rejects_dependency_edge_from_another_component`; `test_021_dependency_edge_must_connect_two_assessed_source_versions`; `test_021_dependency_edge_cannot_connect_a_source_version_to_itself` | La arista debe conectar dos source versions distintas incluidas en el conjunto exacto evaluado; las cinco pruebas ejecutadas y PASS en el HEAD `d2a08ea` (PowerShell run `44439012103`, 125 tests PASS). |
 | COR-01 | `test_primary_statement_scope_passes_only_for_direct_act`; `test_021_package_accepts_primary_corroboration_only_for_directly_observed_act` | Emisión/acto directo cubierto |
 | COR-02 | `test_primary_authenticity_does_not_allow_unsupported_external_claim`; `test_021_package_rejects_primary_corroboration_overclaim` | Sobreafirmación rechazada |
 | COR-03 | `test_021_source_correction_is_a_new_version_and_preserves_prior_version`; `test_021_source_version_chain_rejects_self_or_future_supersession`; `test_021_source_version_chain_rejects_forked_successors`; `test_021_source_correction_creates_new_temporal_contradiction_without_rewriting_prior_assessment`; `test_021_source_correction_unavailable_after_cutoff_cannot_contradict_prior_assessment` | La nueva versión y evaluación posterior preservan la evaluación previa. El escenario positivo diferencia `published_at` declarado antes del corte original de `first_publicly_observed_at`, `first_detected_at` y `retrieved_at` posteriores; el escenario negativo rechaza evidencia disponible después del corte de la reevaluación. CI PASS en run #762 sobre HEAD `19979f5`. Sigue pendiente el juicio humano sobre el alcance sustantivo exacto de una rectificación parcial |
@@ -515,3 +515,30 @@ La prueba cierra el hueco técnico de enlaces duplicados para evidencia/rol/comp
 La cobertura automatizada adicional de IND-08 y del enlace duplicado COR-04 ya no está pendiente de CI: ambos casos pasan en el HEAD citado. La trazabilidad de nombres de pruebas y el resultado del run quedan registrados aquí.
 
 A y B permanecen ABIERTAS hasta revisión formal de suficiencia normativa, cobertura de todos los límites y aceptación humana de los alcances semánticos. C, D y E mantienen sus brechas operacionales documentadas. No se infiere cierre de #88, aprobación técnica final ni autorización de merge de PR #85.
+
+
+## Consolidación de verificación A–E — HEAD vigente de PR #85 (2026-11-18)
+
+Esta sección supersede cualquier estado anterior que presente IND-08 como pendiente de CI o que atribuya al HEAD actual resultados de ejecuciones de commits previos.
+
+### Identidad y evidencia exacta
+
+- PR: #85; rama `feature/issue-78-contract-v0.2.0`; base `main`.
+- HEAD exacto: `d2a08ea8d104f2a4756e3cd970f5159a270cba25`.
+- PowerShell quality gate [run #44439012103](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439012103): SUCCESS; 125 pruebas correctivas ejecutadas y `OK`; PSScriptAnalyzer 1.24.0 con cero findings; schema, fixture y validación semántica PASS.
+- Security/dependency [run #44439012589](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439012589): SUCCESS; npm audit, Markdown lint, Gitleaks full-history y OSV PR scan SUCCESS. OSV full SKIPPED y no contabilizado como PASS.
+- PostgreSQL / Issue [run #44439012421](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439012421): SUCCESS; laboratorio #93 PASS en filesystem sintético temporal. El propio resultado declara que no ejecutó PostgreSQL backup/restore, WORM/Object Lock, copias externas ni datos productivos.
+
+### Dictamen actualizado por área
+
+| Área | Evidencia verificada en el HEAD | Brecha residual / criterio que impide cierre | Estado |
+|---|---|---|---|
+| A — Independencia | IND-01–IND-08 trazados a pruebas; suite completa PASS. IND-08 ya no está pendiente de CI. Se modelan orígenes terminales, citas/dependencias, datasets comunes y estado DESCONOCIDA. | No demuestra descubrimiento exhaustivo de dependencias/citas en fuentes reales ni independencia factual de cada fuente. Requiere revisión humana de casos reales y límites de procedencia. | ABIERTA |
+| B — Corroboración | COR-01–COR-10 trazados a pruebas; suite completa PASS. La base AMBAS exige evidencia primaria directa y corroboración independiente; COR-04 duplicidad y COR-08 parcialidad están cubiertos. | Los tests no prueban verdad ni autenticidad material. La correspondencia semántica entre fragmentos, afirmaciones y alcances, así como suficiencia de evidencia y límites de contradicción, requiere revisión humana. | ABIERTA |
+| C — Retención/eliminación | Estados de ciclo de vida, inventario, backups, expiración y reconciliación sintética están modelados. El laboratorio #93 PASS cubre solo tres directorios temporales administrados por el run. | Falta inventario y reconciliación operativa con proveedor real para primario, réplicas, cachés, exportaciones, backups y restauraciones. RET-09 es detección parcial, no anonimización exhaustiva. | ABIERTA |
+| D — Archivo/procedencia | Atestación enlaza evidencia, versión, digest y timestamps; integridad temporal del contenido capturado se prueba sintéticamente. | Falta evidencia externa de Object Lock/WORM ligada al objeto y versión exactos, con configuración, retención, permisos, verificación independiente y resistencia a modificación/borrado. | ABIERTA |
+| E — Migración | Migrador 0.2.0→0.2.1 determinista y preservación histórica en fixtures; pruebas de mutación recorren más de 700 valores hoja del fixture. | Falta migración en entorno aislado representativo, baseline integral, comparación completa antes/después, rollback/recuperación y repetición en el entorno objetivo. | ABIERTA |
+
+### Decisión de auditoría
+
+El HEAD actual tiene los tres workflows aplicables en SUCCESS. No se justifica duplicar pruebas sintéticas ya ejecutadas sin identificar una brecha concreta. A/B requieren revisión formal de suficiencia y límites semánticos; C/D/E requieren evidencia operacional externa conforme a Issue #89. Las cinco áreas permanecen ABIERTAS. Esta consolidación no cierra Issue #88, no aprueba técnicamente el contrato 0.2.1 y no autoriza fusionar PR #85.
