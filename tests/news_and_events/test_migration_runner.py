@@ -958,3 +958,78 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+    def test_control_plane_structural_drift_fails_closed_without_repair(self) -> None:
+        apply_migrations(self.connection)
+        before = self.connection.execute(
+            "SELECT count(*) FROM sinayxa_control.migration_integrity"
+        ).fetchone()[0]
+        self.connection.execute(
+            "ALTER TABLE sinayxa_control.migration_integrity "
+            "DROP CONSTRAINT migration_integrity_pkey"
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(
+            MigrationRunnerError, "control-plane structural drift detected"
+        ):
+            apply_migrations(self.connection)
+
+        self.assertEqual(
+            before,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa_control.migration_integrity"
+            ).fetchone()[0],
+        )
+        self.assertFalse(
+            self.connection.execute(
+                """
+                SELECT EXISTS (
+                    SELECT 1 FROM pg_constraint con
+                    JOIN pg_class c ON c.oid = con.conrelid
+                    JOIN pg_namespace n ON n.oid = c.relnamespace
+                    WHERE n.nspname = 'sinayxa_control'
+                      AND c.relname = 'migration_integrity'
+                      AND con.contype = 'p'
+                )
+                """
+            ).fetchone()[0]
+        )
+
+    def test_legacy_ledger_structural_drift_fails_closed_without_repair(self) -> None:
+        apply_migrations(self.connection)
+        before = self.connection.execute(
+            "SELECT count(*) FROM sinayxa.schema_migrations"
+        ).fetchone()[0]
+        self.connection.execute(
+            "ALTER TABLE sinayxa.schema_migrations "
+            "DROP CONSTRAINT schema_migrations_pkey"
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(
+            MigrationRunnerError, "legacy migration ledger structural drift detected"
+        ):
+            apply_migrations(self.connection)
+
+        self.assertEqual(
+            before,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.schema_migrations"
+            ).fetchone()[0],
+        )
+        self.assertFalse(
+            self.connection.execute(
+                """
+                SELECT EXISTS (
+                    SELECT 1 FROM pg_constraint con
+                    JOIN pg_class c ON c.oid = con.conrelid
+                    JOIN pg_namespace n ON n.oid = c.relnamespace
+                    WHERE n.nspname = 'sinayxa'
+                      AND c.relname = 'schema_migrations'
+                      AND con.contype = 'p'
+                )
+                """
+            ).fetchone()[0]
+        )
