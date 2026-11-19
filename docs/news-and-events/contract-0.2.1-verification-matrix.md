@@ -566,12 +566,12 @@ Esta sección actualiza la evidencia CI del HEAD vigente de PR #85. No modifica 
 
 Los tres workflows aplicables están SUCCESS sobre el HEAD identificado. Esto actualiza la evidencia técnica y elimina la antigua referencia a los gates fallidos del commit documental anterior como si describieran el estado actual. **A y B permanecen ABIERTAS** por revisión formal de suficiencia y límites semánticos; **C, D y E permanecen ABIERTAS** por evidencia operacional externa y criterios de aceptación pendientes. Issue #88 continúa OPEN y bloquea la integración. PR #85 permanece OPEN / NOT MERGED; no se aprueba merge por inferencia.
 
-
 ## Addendum de trazabilidad A — relaciones de procedencia no resueltas (2026-11-19)
 
 La metodología #16 ya contempla `ORIGEN_NO_DETERMINADO`. La corrección contractual añade la referencia opcional `unresolved_provenance_edge_refs` en `independence_assessments`, sin modificar los enums aprobados ni exigir el campo a paquetes previos.
 
 Controles semánticos:
+
 - referencia únicamente aristas `ORIGEN_NO_DETERMINADO`;
 - coincidencia exacta de componente/versión y de una fuente dependiente dentro del conjunto evaluado;
 - destino `UNKNOWN_ORIGIN`;
@@ -581,6 +581,7 @@ Controles semánticos:
 - prohibición de referencias no resueltas en estado `INDEPENDIENTE`.
 
 Pruebas añadidas:
+
 - `test_021_unknown_independence_can_reference_scoped_unresolved_provenance_edge`;
 - `test_021_unresolved_provenance_edge_rejects_cross_component_reference`;
 - `test_021_unresolved_provenance_edge_rejects_recorded_after_cutoff`;
