@@ -255,6 +255,9 @@ class MigrationManifestTests(unittest.TestCase):
             ["git", "-C", str(root), "rev-parse", "HEAD"],
             check=True, stdout=subprocess.PIPE, text=True,
         ).stdout.strip()
+        # Keep this test focused on the path-addition rule: the empty commit
+        # is the baseline, so the source commit is still its ancestor.
+        baseline = source
         sql_bytes = (root / "database/migrations/0001_example.sql").read_bytes()
         record = MigrationRecord(
             version=1,
