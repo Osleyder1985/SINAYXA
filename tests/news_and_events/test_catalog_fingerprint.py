@@ -290,6 +290,44 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_fingerprint_rejects_user_defined_base_types_until_fully_modeled(self) -> None:
+        self.connection.execute("CREATE TYPE sinayxa.fp_probe_base_type")
+        self.connection.execute(
+            """
+            CREATE FUNCTION sinayxa.fp_probe_base_type_in(cstring)
+            RETURNS sinayxa.fp_probe_base_type
+            AS 'int4in' LANGUAGE internal IMMUTABLE STRICT
+            """
+        )
+        self.connection.execute(
+            """
+            CREATE FUNCTION sinayxa.fp_probe_base_type_out(sinayxa.fp_probe_base_type)
+            RETURNS cstring
+            AS 'int4out' LANGUAGE internal IMMUTABLE STRICT
+            """
+        )
+        self.connection.execute(
+            """
+            CREATE TYPE sinayxa.fp_probe_base_type (
+                INPUT = sinayxa.fp_probe_base_type_in,
+                OUTPUT = sinayxa.fp_probe_base_type_out,
+                INTERNALLENGTH = 4,
+                PASSEDBYVALUE
+            )
+            """
+        )
+        self.connection.commit()
+        try:
+            with self.assertRaisesRegex(
+                CatalogFingerprintError, "unsupported user-defined base types"
+            ):
+                fingerprint_schema(self.connection)
+        finally:
+            self.connection.execute(
+                "DROP TYPE IF EXISTS sinayxa.fp_probe_base_type CASCADE"
+            )
+            self.connection.commit()
+
     def test_fingerprint_rejects_unrepresented_range_types(self) -> None:
         self.connection.execute(
             """
