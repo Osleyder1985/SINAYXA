@@ -370,6 +370,28 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_retention_scope("DELETE_PENDING", copies, [])
 
+    def test_independence_rejects_evidence_after_cutoff_with_fractional_seconds(self):
+        paths = copy.deepcopy(self.paths)
+        paths[0]["available_at"] = "2026-01-02T00:00:00.1Z"
+        with self.assertRaises(ContractViolation):
+            validate_independence(self.units, paths, self.cutoff)
+
+    def test_available_at_rejects_fractional_second_after_cutoff(self):
+        package = {
+            "evidence_availability": [{
+                "evidence_id": "e1", "assessment_unit_id": "u1",
+                "claim_component_version_id": "cv1", "claim_version_id": "claim-v1",
+                "available_at": "2026-01-02T00:00:00.1Z",
+                "availability_basis": "SINAYXA_OBSERVATION",
+            }]
+        }
+        unit = {
+            "assessment_unit_id": "u1", "claim_component_version_id": "cv1",
+            "claim_version_id": "claim-v1", "assessment_cutoff": "2026-01-02T00:00:00Z",
+        }
+        with self.assertRaises(ValueError):
+            _available_at(package, "e1", unit)
+
     def test_archive_capture_verified_for_cutoff_passes_without_authenticating_content(self):
         availability = {"evidence_id": "evidence-a", "availability_basis": "INDEPENDENT_ARCHIVE",
                         "available_at": "2026-01-01T00:00:00Z", "recorded_at": "2026-01-01T00:02:00Z"}
