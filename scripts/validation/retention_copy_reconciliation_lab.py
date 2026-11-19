@@ -30,14 +30,14 @@ def _safe_child(root: Path, relative: str) -> Path:
     parts = normalized.split("/")
     if normalized.startswith("/") or any(part in {"", ".", ".."} for part in parts):
         raise RetentionLabError("copy path contains an unsafe component")
-    candidate = base.joinpath(*parts).resolve(strict=False)
-    if candidate == base or base not in candidate.parents:
-        raise RetentionLabError("copy path escapes the isolated laboratory root")
     current = base
     for part in parts:
         current = current / part
         if current.is_symlink():
             raise RetentionLabError("symbolic links are not allowed in managed copy paths")
+    candidate = base.joinpath(*parts).resolve(strict=False)
+    if candidate == base or base not in candidate.parents:
+        raise RetentionLabError("copy path escapes the isolated laboratory root")
     return candidate
 
 
