@@ -22,7 +22,9 @@ DATABASE_URL = os.environ.get("SINAYXA_DATABASE_URL")
 class LegacyAdoptionPreflightUnitTests(unittest.TestCase):
     def test_preflight_requires_an_explicit_sha256_baseline(self) -> None:
         with self.assertRaisesRegex(LegacyAdoptionPreflightError, "approved lowercase SHA-256"):
-            preflight_legacy_adoption(None, approved_baseline_sha256="")
+            preflight_legacy_adoption(
+                None, approved_baseline_sha256="", approved_identity="test_reader"
+            )
 
     def test_preflight_rejects_non_idle_connections_before_queries(self) -> None:
         class ConnectionInfo:
