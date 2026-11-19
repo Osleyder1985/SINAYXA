@@ -140,7 +140,7 @@ def preflight_legacy_adoption(
         if role_memberships != tuple(sorted(approved_memberships)):
             reasons.append(
                 "PostgreSQL role membership graph differs from the approved allowlist; "
-                f"actual={role_memberships}, approved={tuple(sorted(approved_memberships)}"
+                f"actual={role_memberships}, approved={tuple(sorted(approved_memberships))}"
             )
         if any(set_option or admin_option for _, _, _, set_option, admin_option in role_memberships):
             reasons.append(
