@@ -92,6 +92,11 @@ class RetentionCopyReconciliationTests(unittest.TestCase):
         with self.assertRaisesRegex(RetentionLabError, "complete copy inventory"):
             reconcile_deletion(self.root, self.inventory, invalid)
 
+    def test_ledger_object_must_match_inventory(self) -> None:
+        invalid = dict(self.ledger, object_id="SYN-OTHER-OBJECT")
+        with self.assertRaisesRegex(RetentionLabError, "does not match"):
+            reconcile_deletion(self.root, self.inventory, invalid)
+
     def test_reconciliation_removes_all_managed_copies_and_is_idempotent(self) -> None:
         first = reconcile_deletion(self.root, self.inventory, self.ledger)
         self.assertEqual("DELETED", first["status"])
