@@ -33,7 +33,9 @@ class LegacyAdoptionPreflightUnitTests(unittest.TestCase):
 
         with self.assertRaisesRegex(LegacyAdoptionPreflightError, "idle connection"):
             preflight_legacy_adoption(
-                Connection(), approved_baseline_sha256="a" * 64
+                Connection(),
+                approved_baseline_sha256="a" * 64,
+                approved_identity="test_reader",
             )
 
 
@@ -58,12 +60,40 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
         self.connection.commit()
         self.approved_digest = fingerprint_schema(self.connection).sha256
 
+        self.reader_identity = f"sinayxa_preflight_reader_{uuid4().hex[:10]}"
+        self.admin.execute(
+            sql.SQL("CREATE ROLE {} LOGIN").format(sql.Identifier(self.reader_identity))
+        )
+        self.admin.execute(
+            sql.SQL("GRANT CONNECT ON DATABASE {} TO {}").format(
+                sql.Identifier(self.database_name), sql.Identifier(self.reader_identity)
+            )
+        )
+        self.admin.execute(
+            sql.SQL("GRANT USAGE ON SCHEMA sinayxa TO {}").format(
+                sql.Identifier(self.reader_identity)
+            )
+        )
+        self.admin.execute(
+            sql.SQL("GRANT SELECT ON sinayxa.schema_migrations TO {}").format(
+                sql.Identifier(self.reader_identity)
+            )
+        )
+        reader_parameters = conninfo_to_dict(self.database_url)
+        reader_parameters["user"] = self.reader_identity
+        reader_parameters.pop("password", None)
+        self.reader_connection = psycopg.connect(make_conninfo(**reader_parameters))
+
     def tearDown(self) -> None:
+        self.reader_connection.close()
         self.connection.close()
         self.admin.execute(
             sql.SQL("DROP DATABASE IF EXISTS {} WITH (FORCE)").format(
                 sql.Identifier(self.database_name)
             )
+        )
+        self.admin.execute(
+            sql.SQL("DROP ROLE IF EXISTS {}").format(sql.Identifier(self.reader_identity))
         )
         self.admin.close()
 
@@ -74,7 +104,9 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
         self.connection.commit()
 
         result = preflight_legacy_adoption(
-            self.connection, approved_baseline_sha256=self.approved_digest
+            self.reader_connection,
+            approved_baseline_sha256=self.approved_digest,
+            approved_identity=self.reader_identity,
         )
 
         # The current verifier is explicitly marked preview; matching bytes
@@ -113,7 +145,9 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
         self.connection.commit()
 
         result = preflight_legacy_adoption(
-            self.connection, approved_baseline_sha256=self.approved_digest
+            self.reader_connection,
+            approved_baseline_sha256=self.approved_digest,
+            approved_identity=self.reader_identity,
         )
 
         self.assertEqual("LEGACY_UNVERIFIED", result.status)
@@ -133,7 +167,9 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
         self.connection.commit()
 
         result = preflight_legacy_adoption(
-            self.connection, approved_baseline_sha256=self.approved_digest
+            self.reader_connection,
+            approved_baseline_sha256=self.approved_digest,
+            approved_identity=self.reader_identity,
         )
 
         self.assertEqual("LEGACY_UNVERIFIED", result.status)
@@ -152,7 +188,9 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
         self.connection.commit()
 
         result = preflight_legacy_adoption(
-            self.connection, approved_baseline_sha256=self.approved_digest
+            self.reader_connection,
+            approved_baseline_sha256=self.approved_digest,
+            approved_identity=self.reader_identity,
         )
 
         self.assertEqual("LEGACY_UNVERIFIED", result.status)
