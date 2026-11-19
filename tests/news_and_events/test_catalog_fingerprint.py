@@ -36,6 +36,7 @@ class CatalogCanonicalizationTests(unittest.TestCase):
         with self.assertRaises(CatalogFingerprintError):
             canonicalize_records([{"object_type": "invalid", "payload": object()}])
 
+
 class CatalogSecurityLabelGuardTests(unittest.TestCase):
     @patch("scripts.news_and_events.catalog_fingerprint._rows")
     def test_security_labels_in_managed_schema_fail_closed(self, rows) -> None:
