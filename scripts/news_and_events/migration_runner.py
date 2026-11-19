@@ -390,7 +390,15 @@ def _verify_relation_structure(
 
 
 def _verify_control_plane_structure(connection: psycopg.Connection) -> None:
-    sha_check = "CHECK (sha256 ~ '^[0-9a-f]" + chr(123) + "64" + chr(125) + "    contracts = (
+    sha_check = (
+        "CHECK (sha256 ~ '^[0-9a-f]" + chr(123) + "64" + chr(125)
+        + chr(36) + "'::text)"
+    )
+    revision_check = (
+        "CHECK (source_revision ~ '^([0-9a-f]" + chr(123) + "40" + chr(125)
+        + "|[0-9a-f]" + chr(123) + "64" + chr(125) + ")" + chr(36) + "'::text)"
+    )
+    contracts = (
         (
             "bootstrap_state",
             {
