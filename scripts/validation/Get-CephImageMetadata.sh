@@ -125,7 +125,7 @@ unset TOKEN
 
 jq -e 'type == "object" and (.schemaVersion == 2)' "$INDEX_FILE" >/dev/null 2>&1 || fail "TOP_LEVEL_MANIFEST_INVALID"
 TOP_LEVEL_MEDIA_TYPE="$(jq -r '.mediaType // "NOT_DECLARED"' "$INDEX_FILE")"
-TOP_LEVEL_DIGEST="$(awk 'BEGIN{IGNORECASE=1} /^Docker-Content-Digest:/ {gsub("\r","",$2); print $2; exit}' "$INDEX_HEADERS")"
+TOP_LEVEL_DIGEST="$(awk 'tolower($1) == "docker-content-digest:" {gsub("\\r","",$2); print $2; exit}' "$INDEX_HEADERS")"
 [[ "$TOP_LEVEL_DIGEST" =~ ^sha256:[a-f0-9]{64}$ ]] || fail "TOP_LEVEL_DIGEST_HEADER_MISSING"
 
 fetch_platform_manifest() {
