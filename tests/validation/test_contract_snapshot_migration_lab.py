@@ -9,6 +9,7 @@ from pathlib import Path
 from scripts.validation.contract_snapshot_migration_lab import (
     MigrationLabError,
     execute_persisted_migration,
+    historical_identifier_sets,
     run_lab,
 )
 
@@ -24,6 +25,30 @@ class ContractSnapshotMigrationLabTests(unittest.TestCase):
         self.assertEqual("PASS", report["cleanup"])
         self.assertFalse(report["production_data_used"])
         self.assertFalse(report["external_services_used"])
+
+    def test_historical_identifier_sets_reject_duplicate_ids(self) -> None:
+        package = {collection: [] for collection in (
+            "claims", "claim_components", "sources", "source_versions",
+            "identity_assessments", "evaluation_units", "evidence_items",
+            "evidence_availability", "claim_evidence_links", "provenance_nodes",
+            "provenance_edges", "factor_assessments", "independence_assessments",
+            "claim_assessments", "retention_records", "audit_events",
+        )}
+        package["claims"] = [{"claim_id": "claim-1"}, {"claim_id": "claim-1"}]
+        with self.assertRaisesRegex(MigrationLabError, "duplicate historical identifier"):
+            historical_identifier_sets(package)
+
+    def test_historical_identifier_sets_reject_missing_ids(self) -> None:
+        package = {collection: [] for collection in (
+            "claims", "claim_components", "sources", "source_versions",
+            "identity_assessments", "evaluation_units", "evidence_items",
+            "evidence_availability", "claim_evidence_links", "provenance_nodes",
+            "provenance_edges", "factor_assessments", "independence_assessments",
+            "claim_assessments", "retention_records", "audit_events",
+        )}
+        package["claims"] = [{"claim_id": ""}]
+        with self.assertRaisesRegex(MigrationLabError, "historical identifier missing"):
+            historical_identifier_sets(package)
 
     def test_existing_target_root_is_not_overwritten(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
