@@ -125,6 +125,8 @@ def reconcile_deletion(
     removed: list[dict[str, str]] = []
     for copy_id, target in targets.items():
         if target.exists():
+            if target.is_symlink():
+                raise RetentionLabError("managed object must not be a symbolic link")
             if copy_id in receipts:
                 raise RetentionLabError("copy exists despite a prior deletion receipt")
             if not target.is_file():
