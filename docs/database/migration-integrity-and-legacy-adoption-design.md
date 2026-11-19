@@ -104,6 +104,7 @@ The initial implementation must not infer PostgreSQL role names from convention 
 For the first supported contract, the authenticated and effective identities must be identical: `session_user = current_user = current_role`. A `SET ROLE` transition or an unexpected effective identity is rejected. A later version may permit an explicit login-to-execution-role mapping, but only after the mapping and its privilege envelope are separately specified and tested.
 
 Every phase must inspect:
+
 - `session_user`, `current_user`, and `current_role`;
 - direct and transitive role memberships from `pg_auth_members`, including the per-membership `inherit_option`, `set_option`, and `admin_option` fields available in PostgreSQL 18;
 - role attributes from `pg_roles`, including `rolsuper`, `rolcreatedb`, `rolcreaterole`, `rolinherit`, and `rolbypassrls`;
@@ -125,6 +126,7 @@ The preflight must prove the absence of write capabilities, not merely the prese
 #### Required PostgreSQL 18.7 role tests
 
 Integration tests must create disposable roles and exercise real PostgreSQL authorization behavior, including:
+
 1. exact allowed identity with minimum privileges;
 2. missing CONNECT, schema USAGE, or ledger SELECT;
 3. unexpected INSERT/UPDATE/DELETE/TRUNCATE or schema CREATE privilege for preflight;
