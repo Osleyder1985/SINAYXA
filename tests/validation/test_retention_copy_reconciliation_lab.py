@@ -1,6 +1,7 @@
 """Adversarial tests for the Issue #137 synthetic retention copy lab."""
 from __future__ import annotations
 
+import hashlib
 import tempfile
 import unittest
 from pathlib import Path
@@ -133,7 +134,7 @@ class RetentionCopyReconciliationTests(unittest.TestCase):
     def test_partial_deletion_resumes_only_with_matching_receipt(self) -> None:
         first = self.inventory[0]
         target = self.root / first["relative_path"] / f"{self.object_id}.json"
-        digest = __import__("hashlib").sha256(target.read_bytes()).hexdigest()
+        digest = hashlib.sha256(target.read_bytes()).hexdigest()
         target.unlink()
         resumed = reconcile_deletion(
             self.root, self.inventory, self.ledger,
