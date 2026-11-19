@@ -238,8 +238,8 @@ def run_lab(contract_source: Path) -> dict[str, Any]:
         )
         checks["assessment_cutoffs_preserved"] = (
             "PASS" if all(
-                [item["assessment_cutoff"] for item in target_package[name]]
-                == [item["assessment_cutoff"] for item in source_package[name]]
+                [item.get("assessment_cutoff") for item in target_package[name]]
+                == [item.get("assessment_cutoff") for item in source_package[name]]
                 for name in cutoff_collections
             ) else "FAIL"
         )
