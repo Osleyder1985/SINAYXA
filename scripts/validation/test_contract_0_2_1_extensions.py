@@ -2728,6 +2728,57 @@ class Contract021ExtensionTests(unittest.TestCase):
         with self.assertRaises(ContractViolation):
             validate_retention_scope("DELETED", [primary, backup], events)
 
+    def test_021_unknown_independence_can_reference_scoped_unresolved_provenance_edge(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = next(
+            item for item in package["independence_assessments"]
+            if item["claim_component_id"] == "component-entity"
+        )
+        assessment["unresolved_provenance_edge_refs"] = ["edge-a-unknown"]
+        self.assert_schema_valid(schema, package)
+        validate_package(package)
+
+    def test_021_unresolved_provenance_edge_rejects_cross_component_reference(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = next(
+            item for item in package["independence_assessments"]
+            if item["claim_component_id"] == "component-amount"
+        )
+        assessment["unresolved_provenance_edge_refs"] = ["edge-a-unknown"]
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_unresolved_provenance_edge_rejects_recorded_after_cutoff(self):
+        schema, package = self.load_contract_021_fixture()
+        edge = next(item for item in package["provenance_edges"] if item["edge_id"] == "edge-a-unknown")
+        edge["recorded_at"] = "2026-11-15T22:00:00.1Z"
+        assessment = next(
+            item for item in package["independence_assessments"]
+            if item["claim_component_id"] == "component-entity"
+        )
+        assessment["unresolved_provenance_edge_refs"] = ["edge-a-unknown"]
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
+
+    def test_021_independent_assessment_cannot_reference_unresolved_provenance(self):
+        schema, package = self.load_contract_021_fixture()
+        assessment = next(
+            item for item in package["independence_assessments"]
+            if item["claim_component_id"] == "component-entity"
+        )
+        assessment.update({
+            "status": "INDEPENDIENTE",
+            "unresolved_provenance_edge_refs": ["edge-a-unknown"],
+            "supporting_evidence_refs": ["evidence-a", "evidence-b"],
+            "independent_path_edge_refs": ["edge-a-unknown"],
+            "human_review_status": "REVIEWED",
+            "reviewed_at": "2026-11-15T22:00:00Z",
+        })
+        errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(package))
+        self.assertTrue(errors)
+
 class ClaimAssessmentChainTests(unittest.TestCase):
     @staticmethod
     def assessment(assessment_id, cutoff, predecessor=None, **overrides):
