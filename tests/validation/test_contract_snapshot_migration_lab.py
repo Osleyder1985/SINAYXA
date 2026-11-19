@@ -30,7 +30,7 @@ class ContractSnapshotMigrationLabTests(unittest.TestCase):
             root = Path(temporary) / "migration"
             root.mkdir()
             (root / "keep.txt").write_text("preserve", encoding="utf-8")
-            with self.assertRaisesRegex(MigrationLabError, "must be empty"):
+            with self.assertRaisesRegex(MigrationLabError, "migration root"):
                 execute_persisted_migration(root, CONTRACT_SOURCE)
             self.assertEqual("preserve", (root / "keep.txt").read_text(encoding="utf-8"))
 
