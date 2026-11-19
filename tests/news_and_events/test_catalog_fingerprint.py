@@ -308,6 +308,7 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
             """
         ).fetchall()
         self.assertTrue(generated_arrays, "fixture schema must expose generated composite arrays")
+        self.connection.commit()
 
         fingerprint = fingerprint_schema(self.connection)
         self.assertGreater(fingerprint.record_count, 0)
