@@ -150,6 +150,31 @@ def _verify_git_provenance(
             )
 
         _git_output(repository_root, "cat-file", "-e", f"{record.source_revision}^{{commit}}")
+        try:
+            ancestry_check = subprocess.run(
+                [
+                    "git", "-C", str(repository_root), "merge-base", "--is-ancestor",
+                    record.source_revision, baseline_revision,
+                ],
+                check=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+        except OSError as exc:
+            raise MigrationManifestError(
+                f"cannot verify source revision ancestry for {record.path}: {exc}"
+            ) from exc
+        if ancestry_check.returncode == 1:
+            raise MigrationManifestError(
+                "source_revision is not an ancestor of baseline_revision: "
+                f"{record.source_revision} -> {baseline_revision}"
+            )
+        if ancestry_check.returncode != 0:
+            detail = ancestry_check.stderr.decode("utf-8", errors="replace").strip()
+            raise MigrationManifestError(
+                "Git ancestry verification failed for "
+                f"{record.source_revision} -> {baseline_revision}: {detail or ancestry_check.returncode}"
+            )
         change_output = _git_output(
             repository_root,
             "diff-tree",
