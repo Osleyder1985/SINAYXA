@@ -888,4 +888,3 @@ Se corrige únicamente el formato Markdown de las listas y separaciones de las s
 ### Decisión
 
 No se fusiona ninguna PR en este corte. No se modifica `main`, no se usa force-push, no se ejecuta DDL/DML productivo y no se activa adopción legacy. Los checks SUCCESS se atribuyen exclusivamente a los HEAD indicados; los checks SKIPPED no se cuentan como PASS.
-
