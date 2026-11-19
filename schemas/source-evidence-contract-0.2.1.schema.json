@@ -1294,6 +1294,9 @@
         },
         "independent_path_edge_refs": {
           "$ref": "#/$defs/refs"
+        },
+        "unresolved_provenance_edge_refs": {
+          "$ref": "#/$defs/refs"
         }
       },
       "allOf": [
@@ -1345,6 +1348,25 @@
                 "const": "REVIEWED"
               },
               "independent_path_edge_refs": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "INDEPENDIENTE"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "unresolved_provenance_edge_refs": {
                 "maxItems": 0
               }
             }
