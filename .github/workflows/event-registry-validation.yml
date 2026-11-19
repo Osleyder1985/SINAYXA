@@ -12,6 +12,7 @@ on:
       - "scripts/validation/retention_copy_reconciliation_lab.py"
       - "tests/validation/test_retention_copy_reconciliation_lab.py"
       - "docs/news-and-events/event-registry.md"
+      - "docs/validation/retention-copy-reconciliation-lab.md"
       - "scripts/validation/validate_temporal_event_contract.py"
       - "schemas/temporal-event-contract-1.0.0.schema.json"
       - "tests/**"
