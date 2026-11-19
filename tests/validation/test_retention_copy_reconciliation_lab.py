@@ -121,8 +121,32 @@ class RetentionCopyReconciliationTests(unittest.TestCase):
     def test_partial_copy_presence_fails_closed(self) -> None:
         first = self.inventory[0]
         (self.root / first["relative_path"] / f"{self.object_id}.json").unlink()
-        with self.assertRaisesRegex(RetentionLabError, "partial copy inventory"):
+        with self.assertRaisesRegex(RetentionLabError, "missing copy has no verified deletion receipt"):
             reconcile_deletion(self.root, self.inventory, self.ledger)
+
+    def test_all_missing_copies_without_receipts_fails_closed(self) -> None:
+        for item in self.inventory:
+            (self.root / item["relative_path"] / f"{self.object_id}.json").unlink()
+        with self.assertRaisesRegex(RetentionLabError, "missing copy has no verified deletion receipt"):
+            reconcile_deletion(self.root, self.inventory, self.ledger)
+
+    def test_partial_deletion_resumes_only_with_matching_receipt(self) -> None:
+        first = self.inventory[0]
+        target = self.root / first["relative_path"] / f"{self.object_id}.json"
+        digest = __import__("hashlib").sha256(target.read_bytes()).hexdigest()
+        target.unlink()
+        resumed = reconcile_deletion(
+            self.root, self.inventory, self.ledger,
+            {first["copy_id"]: digest},
+        )
+        self.assertEqual("DELETED", resumed["status"])
+        self.assertEqual(4, len(resumed["removed"]))
+        self.assertEqual(5, len(resumed["deletion_receipts"]))
+        repeated = reconcile_deletion(
+            self.root, self.inventory, self.ledger, resumed["deletion_receipts"]
+        )
+        self.assertTrue(repeated["idempotent"])
+        self.assertEqual([], repeated["removed"])
 
     def test_reconciliation_preserves_unaffected_objects(self) -> None:
         for item in self.inventory:
