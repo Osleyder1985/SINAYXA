@@ -624,7 +624,6 @@ Sin embargo, el payload de PR #119 todavía informa `base_sha=75583efab8be33a373
 
 PR #119 continúa OPEN / DRAFT / NOT MERGED. Los dos quality gates aplicables pasan en el HEAD 94a04ee, pero quedan pendientes: reconciliación del diff/base, recuperación real desde conversación nueva, revisión completa de decisiones/historiales de Issues y verificación local de worktrees/cambios Windows. No borrar conversaciones del proyecto.
 
-
 ### 14.14 Reconciliación de PR de integración — corte 2026-11-19 00:30 UTC
 
 Esta sección actualiza el inventario histórico anterior. Los estados se verificaron directamente en GitHub; no sustituye los requisitos de cada Issue ni convierte checks omitidos en satisfactorios.
@@ -657,6 +656,7 @@ La rama de #85 coincide exactamente con la base de #99: `b229a17176e8b9bb1259311
 #### Cadena de migraciones #121
 
 La integración de #123–#125 no cierra automáticamente los defectos funcionales descubiertos durante la auditoría:
+
 - #124: la ancestralidad de cada `source_revision` respecto a `baseline_revision` quedó implementada en el cambio integrado; el caso negativo debe seguir formando parte de la suite.
 - #125: permanecen como criterios de cierre la detección de duplicados/NULL antes de transformar filas a `dict`/`set`, el prefijo continuo del ledger y la verificación estructural del control plane y de ambos ledgers. La integración no acredita por sí sola que esos casos estén resueltos.
 - #126: el check PostgreSQL 18.7 del HEAD anterior registró 40 pruebas, con 29 errores y 2 fallos. Los logs mostraron que tipos array generados por PostgreSQL eran clasificados incorrectamente como tipos base personalizados. Se envió el commit `0b9b50e6a465a766afc5fda6b9642c692c813a63`, que añade `t.typelem = 0` al filtro. No se considera validado hasta que PostgreSQL 18.7 se ejecute sobre ese SHA y se demuestren tanto la exclusión de arrays como el rechazo fail-closed de tipos base personalizados reales.
