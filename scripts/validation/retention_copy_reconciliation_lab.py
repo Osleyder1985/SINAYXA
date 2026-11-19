@@ -127,9 +127,7 @@ def reconcile_deletion(
 def run_lab() -> dict[str, Any]:
     started = datetime.now(timezone.utc).isoformat()
     checks: dict[str, str] = {}
-    temporary = tempfile.mkdtemp(prefix="sinayxa-issue-137-")
-    root = Path(temporary)
-    with tempfile.TemporaryDirectory(prefix="sinayxa-issue-137-run-") as isolated:
+    with tempfile.TemporaryDirectory(prefix="sinayxa-issue-137-") as isolated:
         root = Path(isolated)
         object_id = "SYN-OBJECT-137"
         payload = json.dumps(
