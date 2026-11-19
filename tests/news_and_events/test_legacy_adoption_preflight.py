@@ -263,6 +263,120 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
                 sql.SQL("DROP ROLE {}").format(sql.Identifier(group_role))
             )
 
+    def test_preflight_accepts_exact_allowlisted_non_settable_membership(self) -> None:
+        group_role = f"sinayxa_preflight_group_{uuid4().hex[:10]}"
+        self.admin.execute(
+            sql.SQL("CREATE ROLE {} NOLOGIN").format(sql.Identifier(group_role))
+        )
+        self.admin.execute(
+            sql.SQL(
+                "GRANT {} TO {} WITH INHERIT TRUE, SET FALSE, ADMIN FALSE"
+            ).format(
+                sql.Identifier(group_role), sql.Identifier(self.reader_identity)
+            )
+        )
+        approved = ((self.reader_identity, group_role, True, False, False),)
+        try:
+            result = preflight_legacy_adoption(
+                self.reader_connection,
+                approved_baseline_sha256=self.approved_digest,
+                approved_identity=self.reader_identity,
+                approved_memberships=approved,
+            )
+            self.assertEqual(approved, result.role_memberships)
+            self.assertFalse(
+                any("membership graph differs" in reason for reason in result.reasons)
+            )
+            self.assertFalse(
+                any("SET ROLE or ADMIN OPTION" in reason for reason in result.reasons)
+            )
+            self.assertTrue(
+                any("still a preview" in reason for reason in result.reasons)
+            )
+        finally:
+            self.admin.execute(
+                sql.SQL("REVOKE {} FROM {}").format(
+                    sql.Identifier(group_role), sql.Identifier(self.reader_identity)
+                )
+            )
+            self.admin.execute(
+                sql.SQL("DROP ROLE {}").format(sql.Identifier(group_role))
+            )
+
+    def test_preflight_rejects_set_role_even_when_membership_is_allowlisted(self) -> None:
+        group_role = f"sinayxa_preflight_group_{uuid4().hex[:10]}"
+        self.admin.execute(
+            sql.SQL("CREATE ROLE {} NOLOGIN").format(sql.Identifier(group_role))
+        )
+        self.admin.execute(
+            sql.SQL(
+                "GRANT {} TO {} WITH INHERIT TRUE, SET TRUE, ADMIN FALSE"
+            ).format(
+                sql.Identifier(group_role), sql.Identifier(self.reader_identity)
+            )
+        )
+        approved = ((self.reader_identity, group_role, True, True, False),)
+        try:
+            result = preflight_legacy_adoption(
+                self.reader_connection,
+                approved_baseline_sha256=self.approved_digest,
+                approved_identity=self.reader_identity,
+                approved_memberships=approved,
+            )
+            self.assertEqual(approved, result.role_memberships)
+            self.assertFalse(
+                any("membership graph differs" in reason for reason in result.reasons)
+            )
+            self.assertTrue(
+                any("SET ROLE or ADMIN OPTION" in reason for reason in result.reasons)
+            )
+        finally:
+            self.admin.execute(
+                sql.SQL("REVOKE {} FROM {}").format(
+                    sql.Identifier(group_role), sql.Identifier(self.reader_identity)
+                )
+            )
+            self.admin.execute(
+                sql.SQL("DROP ROLE {}").format(sql.Identifier(group_role))
+            )
+
+    def test_preflight_rejects_admin_option_even_when_membership_is_allowlisted(self) -> None:
+        group_role = f"sinayxa_preflight_group_{uuid4().hex[:10]}"
+        self.admin.execute(
+            sql.SQL("CREATE ROLE {} NOLOGIN").format(sql.Identifier(group_role))
+        )
+        self.admin.execute(
+            sql.SQL(
+                "GRANT {} TO {} WITH INHERIT TRUE, SET FALSE, ADMIN TRUE"
+            ).format(
+                sql.Identifier(group_role), sql.Identifier(self.reader_identity)
+            )
+        )
+        approved = ((self.reader_identity, group_role, True, False, True),)
+        try:
+            result = preflight_legacy_adoption(
+                self.reader_connection,
+                approved_baseline_sha256=self.approved_digest,
+                approved_identity=self.reader_identity,
+                approved_memberships=approved,
+            )
+            self.assertEqual(approved, result.role_memberships)
+            self.assertFalse(
+                any("membership graph differs" in reason for reason in result.reasons)
+            )
+            self.assertTrue(
+                any("SET ROLE or ADMIN OPTION" in reason for reason in result.reasons)
+            )
+        finally:
+            self.admin.execute(
+                sql.SQL("REVOKE {} FROM {}").format(
+                    sql.Identifier(group_role), sql.Identifier(self.reader_identity)
+                )
+            )
+            self.admin.execute(
+                sql.SQL("DROP ROLE {}").format(sql.Identifier(group_role))
+            )
+
     def test_preflight_rejects_application_table_write_privileges(self) -> None:
         self.connection.execute(
             sql.SQL("GRANT INSERT ON sinayxa.events TO {}").format(
