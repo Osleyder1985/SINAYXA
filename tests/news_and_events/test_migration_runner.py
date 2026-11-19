@@ -623,6 +623,191 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         with self.assertRaisesRegex(MigrationRunnerError, "unknown migration ID"):
             apply_migrations(self.connection)
 
+    def test_applied_ledger_must_be_a_continuous_prefix_before_migration_sql(self) -> None:
+        migration_runner._bootstrap_or_verify(
+            self.connection, migration_runner._read_bootstrap()
+        )
+        self.connection.execute("CREATE SCHEMA sinayxa")
+        self.connection.execute(
+            """
+            CREATE TABLE sinayxa.schema_migrations (
+                migration_id text PRIMARY KEY,
+                applied_at timestamptz NOT NULL DEFAULT clock_timestamp()
+            )
+            """
+        )
+        manifest = json.loads(
+            migration_runner.MANIFEST_PATH.read_text(encoding="utf-8")
+        )
+        second = manifest["migrations"][1]
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa.schema_migrations (migration_id) VALUES (%s)
+            """,
+            (second["migration_id"],),
+        )
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa_control.migration_integrity
+                (migration_id, version, sha256, source_revision, runner_version)
+            VALUES (%s, %s, %s, %s, 'test')
+            """,
+            (
+                second["migration_id"],
+                second["version"],
+                second["sha256"],
+                second["source_revision"],
+            ),
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(
+            MigrationRunnerError, "not a continuous manifest prefix"
+        ):
+            apply_migrations(self.connection)
+
+        self.assertIsNone(
+            self.connection.execute("SELECT to_regclass('sinayxa.events')").fetchone()[0]
+        )
+        self.assertEqual(
+            [(second["migration_id"],)],
+            self.connection.execute(
+                "SELECT migration_id FROM sinayxa_control.migration_integrity"
+            ).fetchall(),
+        )
+        self.assertEqual(
+            [(second["migration_id"],)],
+            self.connection.execute(
+                "SELECT migration_id FROM sinayxa.schema_migrations"
+            ).fetchall(),
+        )
+
+    def test_integrity_ledger_rejects_duplicate_ids_before_dict_conversion(self) -> None:
+        apply_migrations(self.connection)
+        row = self.connection.execute(
+            """
+            SELECT migration_id, version, sha256, source_revision
+            FROM sinayxa_control.migration_integrity
+            WHERE version = 1
+            """
+        ).fetchone()
+        self.connection.execute(
+            "ALTER TABLE sinayxa_control.migration_integrity "
+            "DROP CONSTRAINT migration_integrity_pkey"
+        )
+        self.connection.execute(
+            "ALTER TABLE sinayxa_control.migration_integrity "
+            "DROP CONSTRAINT migration_integrity_version_key"
+        )
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa_control.migration_integrity
+                (migration_id, version, sha256, source_revision, runner_version)
+            VALUES (%s, %s, %s, %s, 'duplicate-test')
+            """,
+            row,
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(
+            MigrationRunnerError, "duplicate migration ID"
+        ):
+            migration_runner._load_ledger(self.connection)
+
+    def test_legacy_ledger_rejects_duplicate_ids_before_set_conversion(self) -> None:
+        apply_migrations(self.connection)
+        migration_id = self.connection.execute(
+            "SELECT migration_id FROM sinayxa.schema_migrations ORDER BY migration_id LIMIT 1"
+        ).fetchone()[0]
+        self.connection.execute(
+            "ALTER TABLE sinayxa.schema_migrations "
+            "DROP CONSTRAINT schema_migrations_pkey"
+        )
+        self.connection.execute(
+            "INSERT INTO sinayxa.schema_migrations (migration_id) VALUES (%s)",
+            (migration_id,),
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(
+            MigrationRunnerError, "duplicate migration IDs"
+        ):
+            migration_runner._load_legacy_ids(self.connection)
+
+    def test_control_plane_structural_drift_fails_closed_without_repair(self) -> None:
+        apply_migrations(self.connection)
+        before = self.connection.execute(
+            "SELECT count(*) FROM sinayxa_control.migration_integrity"
+        ).fetchone()[0]
+        self.connection.execute(
+            "ALTER TABLE sinayxa_control.migration_integrity "
+            "DROP CONSTRAINT migration_integrity_pkey"
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(
+            MigrationRunnerError, "control-plane structural drift detected"
+        ):
+            apply_migrations(self.connection)
+
+        self.assertEqual(
+            before,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa_control.migration_integrity"
+            ).fetchone()[0],
+        )
+        self.assertFalse(
+            self.connection.execute(
+                """
+                SELECT EXISTS (
+                    SELECT 1 FROM pg_constraint con
+                    JOIN pg_class c ON c.oid = con.conrelid
+                    JOIN pg_namespace n ON n.oid = c.relnamespace
+                    WHERE n.nspname = 'sinayxa_control'
+                      AND c.relname = 'migration_integrity'
+                      AND con.contype = 'p'
+                )
+                """
+            ).fetchone()[0]
+        )
+
+    def test_legacy_ledger_structural_drift_fails_closed_without_repair(self) -> None:
+        apply_migrations(self.connection)
+        before = self.connection.execute(
+            "SELECT count(*) FROM sinayxa.schema_migrations"
+        ).fetchone()[0]
+        self.connection.execute(
+            "ALTER TABLE sinayxa.schema_migrations "
+            "DROP CONSTRAINT schema_migrations_pkey"
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(
+            MigrationRunnerError, "legacy migration ledger structural drift detected"
+        ):
+            apply_migrations(self.connection)
+
+        self.assertEqual(
+            before,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.schema_migrations"
+            ).fetchone()[0],
+        )
+        self.assertFalse(
+            self.connection.execute(
+                """
+                SELECT EXISTS (
+                    SELECT 1 FROM pg_constraint con
+                    JOIN pg_class c ON c.oid = con.conrelid
+                    JOIN pg_namespace n ON n.oid = c.relnamespace
+                    WHERE n.nspname = 'sinayxa'
+                      AND c.relname = 'schema_migrations'
+                      AND con.contype = 'p'
+                )
+                """
+            ).fetchone()[0]
+        )
+
     def test_legacy_compatibility_ledger_disagreement_fails_closed(self) -> None:
         apply_migrations(self.connection)
         self.connection.execute(
