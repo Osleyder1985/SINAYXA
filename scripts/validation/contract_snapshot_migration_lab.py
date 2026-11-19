@@ -85,6 +85,8 @@ def execute_persisted_migration(
     source_dir = root / "source"
     source_dir.mkdir(exist_ok=True)
     persisted_source = source_dir / "source-0.2.0.json"
+    if any(child.name != persisted_source.name for child in source_dir.iterdir()):
+        raise MigrationLabError("source directory contains unrecognized files")
     if persisted_source.exists():
         if persisted_source.read_bytes() != source_bytes:
             raise MigrationLabError("existing source snapshot differs from the pinned fixture")
@@ -140,6 +142,12 @@ def execute_persisted_migration(
         "output_canonical_sha256": migrated["migration_records"][0]["output_sha256"],
         "historical_collection_counts_before": {key: value["count"] for key, value in baseline.items()},
         "historical_collection_counts_after": output_counts,
+        "historical_collection_hashes_before": {
+            name: sha256(canonical_json(source[name])) for name in HISTORICAL_COLLECTIONS
+        },
+        "historical_collection_hashes_after": {
+            name: sha256(canonical_json(migrated[name])) for name in HISTORICAL_COLLECTIONS
+        },
         "started_at_utc": datetime.now(timezone.utc).isoformat(),
         "result": "PASS",
     }
@@ -185,7 +193,9 @@ def run_lab(contract_source: Path) -> dict[str, Any]:
         )
         checks["source_preserved_after_failure"] = (
             "PASS" if sha256(source_fixture.read_bytes()) == original_digest
-            and (first / "source" / "source-0.2.0.json").is_file() else "FAIL"
+            and (first / "source" / "source-0.2.0.json").is_file()
+            and sha256((first / "source" / "source-0.2.0.json").read_bytes()) == original_digest
+            else "FAIL"
         )
 
         successful = execute_persisted_migration(first, contract_source)
