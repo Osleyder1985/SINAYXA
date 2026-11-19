@@ -2777,7 +2777,23 @@ class Contract021ExtensionTests(unittest.TestCase):
             "reviewed_at": "2026-11-15T22:00:00Z",
         })
         errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(package))
-        self.assertTrue(errors)
+        self.assertTrue(any(
+            error.path and error.path[-1] == "unresolved_provenance_edge_refs"
+            for error in errors
+        ))
+
+    def test_021_unresolved_provenance_edge_rejects_future_validity(self):
+        schema, package = self.load_contract_021_fixture()
+        edge = next(item for item in package["provenance_edges"] if item["edge_id"] == "edge-a-unknown")
+        edge["valid_from"] = "2026-11-15T22:00:00.1Z"
+        assessment = next(
+            item for item in package["independence_assessments"]
+            if item["claim_component_id"] == "component-entity"
+        )
+        assessment["unresolved_provenance_edge_refs"] = ["edge-a-unknown"]
+        self.assert_schema_valid(schema, package)
+        with self.assertRaises(ContractViolation):
+            validate_package(package)
 
 class ClaimAssessmentChainTests(unittest.TestCase):
     @staticmethod
