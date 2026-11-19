@@ -65,6 +65,7 @@ def execute_persisted_migration(
     *,
     inject_failure_before_publish: bool = False,
 ) -> dict[str, Any]:
+    migration_started_at = datetime.now(timezone.utc).isoformat()
     if root.exists() and any(child.name != "source" for child in root.iterdir()):
         raise MigrationLabError("migration root contains prior target evidence; refusing to overwrite it")
     root.mkdir(parents=True, exist_ok=True)
@@ -132,6 +133,9 @@ def execute_persisted_migration(
         "schema_version": "1.0.0",
         "classification": "LAB_SYNTHETIC_LOCAL",
         "migration_id": PLAN["migration_id"],
+        "source_contract_version": source.get("contract_version"),
+        "target_contract_version": migrated.get("contract_version"),
+        "semantic_validation": "PASS",
         "source_contract_commit": os.environ.get("SINAYXA_CONTRACT_SOURCE_COMMIT", "UNPINNED"),
         "source_snapshot_ref": PLAN["source_snapshot_ref"],
         "target_snapshot_ref": PLAN["target_snapshot_ref"],
@@ -148,7 +152,8 @@ def execute_persisted_migration(
         "historical_collection_hashes_after": {
             name: sha256(canonical_json(migrated[name])) for name in HISTORICAL_COLLECTIONS
         },
-        "started_at_utc": datetime.now(timezone.utc).isoformat(),
+        "started_at_utc": migration_started_at,
+        "completed_at_utc": datetime.now(timezone.utc).isoformat(),
         "result": "PASS",
     }
     (stage / "migration-evidence.json").write_bytes(canonical_json(manifest))
@@ -211,6 +216,32 @@ def run_lab(contract_source: Path) -> dict[str, Any]:
         checks["historical_collection_counts_preserved"] = (
             "PASS" if successful["manifest"]["historical_collection_counts_before"]
             == successful["manifest"]["historical_collection_counts_after"] else "FAIL"
+        )
+        source_package = json.loads(successful["source_path"].read_text(encoding="utf-8"))
+        target_package = json.loads(
+            (successful["published_path"] / "migrated-package-0.2.1.json").read_text(encoding="utf-8")
+        )
+        methodology_collections = (
+            "evaluation_units", "factor_assessments",
+            "independence_assessments", "claim_assessments",
+        )
+        checks["methodology_versions_preserved"] = (
+            "PASS" if all(
+                [item["methodology_version"] for item in target_package[name]]
+                == [item["methodology_version"] for item in source_package[name]]
+                for name in methodology_collections
+            ) else "FAIL"
+        )
+        cutoff_collections = (
+            "identity_assessments", "evaluation_units", "factor_assessments",
+            "independence_assessments", "claim_assessments",
+        )
+        checks["assessment_cutoffs_preserved"] = (
+            "PASS" if all(
+                [item["assessment_cutoff"] for item in target_package[name]]
+                == [item["assessment_cutoff"] for item in source_package[name]]
+                for name in cutoff_collections
+            ) else "FAIL"
         )
         try:
             execute_persisted_migration(first, contract_source)
