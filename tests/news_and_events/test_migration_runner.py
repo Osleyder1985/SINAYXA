@@ -955,11 +955,6 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             ).fetchone()[0],
         )
 
-
-if __name__ == "__main__":
-    unittest.main()
-
-
     def test_control_plane_structural_drift_fails_closed_without_repair(self) -> None:
         apply_migrations(self.connection)
         before = self.connection.execute(
@@ -1097,3 +1092,6 @@ if __name__ == "__main__":
                 """
             ).fetchone()[0],
         )
+
+if __name__ == "__main__":
+    unittest.main()
