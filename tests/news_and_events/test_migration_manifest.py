@@ -255,6 +255,9 @@ class MigrationManifestTests(unittest.TestCase):
             ["git", "-C", str(root), "rev-parse", "HEAD"],
             check=True, stdout=subprocess.PIPE, text=True,
         ).stdout.strip()
+        # Keep this test focused on the path-addition rule: the empty commit
+        # is the baseline, so the source commit is still its ancestor.
+        baseline = source
         sql_bytes = (root / "database/migrations/0001_example.sql").read_bytes()
         record = MigrationRecord(
             version=1,
@@ -270,6 +273,61 @@ class MigrationManifestTests(unittest.TestCase):
                 root / "database/migrations",
             )
 
+
+    def test_git_provenance_rejects_non_ancestor_source_with_same_path_and_bytes(self) -> None:
+        root, baseline, _ = self._git_repository()
+        sql_bytes = (root / "database/migrations/0001_example.sql").read_bytes()
+
+        subprocess.run(
+            ["git", "-C", str(root), "checkout", "--orphan", "lateral-source"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        subprocess.run(
+            ["git", "-C", str(root), "rm", "-rf", "."],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        migrations = root / "database" / "migrations"
+        migrations.mkdir(parents=True, exist_ok=True)
+        (migrations / "manifest.json").write_text("{}", encoding="utf-8")
+        (migrations / "0001_example.sql").write_bytes(sql_bytes)
+        subprocess.run(
+            ["git", "-C", str(root), "add", "."],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        subprocess.run(
+            ["git", "-C", str(root), "commit", "-q", "-m", "add same migration on unrelated history"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        source = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            check=True,
+            stdout=subprocess.PIPE,
+            text=True,
+        ).stdout.strip()
+
+        record = MigrationRecord(
+            version=1,
+            migration_id="example-0001",
+            path="0001_example.sql",
+            sha256=hashlib.sha256(sql_bytes).hexdigest(),
+            source_revision=source,
+            execution_mode="transactional",
+        )
+        with self.assertRaisesRegex(
+            MigrationManifestError, "source_revision is not an ancestor of baseline_revision"
+        ):
+            _verify_git_provenance(
+                (record,), baseline, root / "database/migrations/manifest.json",
+                root / "database/migrations",
+            )
 
     def test_git_provenance_rejects_sql_changed_after_source_commit(self) -> None:
         root, _, source = self._git_repository()

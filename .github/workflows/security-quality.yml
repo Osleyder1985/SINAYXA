@@ -5,8 +5,8 @@ on:
     branches:
       - main
       - test/issue-121-migration-manifest-integrity
-      - feat/issue-121-fresh-database-migration-runner
       - feat/issue-121-catalog-fingerprint-readonly
+      - feat/issue-121-fresh-database-migration-runner
     paths:
       - "**"
       - ".github/workflows/security-quality.yml"

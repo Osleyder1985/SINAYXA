@@ -1,95 +1,95 @@
 # PowerShell runtime and validation standard
 
-**Status:** validation workflow and standard implemented on PR #45; integration into `main` pending  
-**Standard runtime:** PowerShell 7.6.6  
+**Status:** implemented in `main`; this document reflects the repository workflows inspected on 2026-11-18.  
+**PowerShell runtime:** 7.7.0 (downloaded and version-checked by CI)  
 **Static analyzer:** PSScriptAnalyzer 1.24.0  
 **Execution platform:** GitHub-hosted Windows runner
 
 ## 1. Runtime policy
 
-PowerShell 7.6.6 is the pinned runtime for project scripts and automated validation. The workflow installs and verifies the exact runtime instead of trusting the version preinstalled on the runner.
+The current `.github/workflows/powershell-validation.yml` workflow installs PowerShell 7.7.0 from the official GitHub release archive, verifies the archive against its declared SHA-256 value, expands it into the runner's temporary directory, and checks that the executable reports exactly 7.7.0. CI does not rely on the runner's preinstalled PowerShell version.
+
+PSScriptAnalyzer is installed at version 1.24.0 and imported with that required version.
 
 Windows PowerShell 5.1 is not a mandatory parallel target. Add compatibility testing only when a documented requirement or identified consumer needs it.
 
 ## 2. Source selection and provenance
 
-Every validation run must analyze the exact source revision it claims to validate:
+The workflow checks out the workflow revision and the exact source revision separately. For a pull request, the source checkout uses the PR head SHA; for a manual run, it uses the explicitly selected `target_ref`; for a push, it uses the triggering commit.
 
-- `pull_request`: the PR head SHA, not a fixed branch and not an unrelated checkout.
-- `push`: the pushed commit SHA.
-- `workflow_dispatch`: the explicitly selected branch, tag, or commit.
+A successful workflow definition without a completed successful run for the exact source SHA is not evidence. When reporting a result, record the workflow run ID, source SHA, workflow SHA, event, runtime, analyzer version, and the relevant uploaded evidence artifact.
 
-The job records the source SHA, workflow SHA, event, runtime, analyzer version, fixture path, fixture SHA-256, and run ID. A successful workflow definition without a completed successful run is not evidence.
+## 3. Automated PowerShell controls
 
-## 3. Automated controls
+The current workflow:
 
-The workflow:
-
-- Inventories tracked `.ps1` and `.psm1` files using Git, fails if the inventory is empty, and uploads the inventory.
+- Inventories tracked `.ps1` and `.psm1` files using Git and fails if the inventory is empty.
 - Parses every inventoried PowerShell source file with the PowerShell language parser.
-- Runs PSScriptAnalyzer 1.24.0 on every inventoried source file.
-- Fails on any analyzer finding. Findings must be corrected; an exception requires a narrowly scoped written rationale and review, never a global suppression.
-- Validates the versioned synthetic intensity/horizon fixture v1.2.0.
-- Runs a positive control, twelve negative mutation cases, and robustness checks for missing and malformed fixture files.
-- Validates the Issue #15 E01–E18 synthetic evidence-standard fixture and runs its positive/negative mutation harness.
-- Validates the Issue #17 A01–A15 synthetic alert fixture and runs positive, negative, and robustness tests (missing/malformed files); the fixture remains explicitly unapproved and is not an alert engine.
-- Tests selected PSScriptAnalyzer security rules with synthetic snippets.
-- Uploads machine-readable findings and provenance evidence as a GitHub Actions artifact.
+- Runs PSScriptAnalyzer 1.24.0 against every inventoried source file and enforces zero findings.
+- Runs the repository's synthetic methodology fixture validators and their positive, negative, and robustness cases where included in the workflow path filters.
+- Tests selected PSScriptAnalyzer security rules using synthetic snippets.
+- Preserves machine-readable findings and provenance evidence as workflow artifacts.
 
-PSScriptAnalyzer includes useful security-oriented rules, but it is not a complete security audit, dependency scanner, secret scanner, or runtime sandbox. Those controls must be evaluated separately before claiming comprehensive security coverage.
+PSScriptAnalyzer includes useful security-oriented rules, but it is not a complete security audit, dependency scanner, secret scanner, or runtime sandbox. Those controls are separate.
 
 ## 4. Test boundaries
 
-A PASS proves only that the selected tracked PowerShell source passed the listed static checks and that the synthetic fixture validators behaved as expected for the tested inputs under PowerShell 7.6.6 on a GitHub-hosted Windows runner.
+A PASS proves only that the exact selected tracked PowerShell source passed the listed static checks and that the synthetic fixture validators behaved as expected for the tested inputs under PowerShell 7.7.0 on a GitHub-hosted Windows runner.
 
-It does **not** prove that methodological cases T01–T19 were formally executed, that E01–E18 establish real-world truth or legal compliance, that synthetic expectations are empirically valid, or that any causal conclusion has been established.
+It does **not** prove that methodological cases were validated against real-world data, that synthetic expectations are empirically valid, that sources are independent in reality, that evidence establishes factual truth or legal compliance, or that any causal conclusion has been established.
 
-The current repository contains a small PowerShell surface. Coverage is reported as an absolute file inventory and count; no claim of broad application coverage is made where only a few PowerShell files exist.
+The current repository contains a limited PowerShell surface. Coverage must be reported as the actual tracked-file inventory and count; do not imply broad application coverage where only a small number of scripts exist.
 
 ## 5. Security-rule regression tests
 
-In addition to analyzing project scripts, CI runs controlled, synthetic snippets to verify that PSScriptAnalyzer 1.24.0 detects selected security patterns:
+The workflow tests selected PSScriptAnalyzer rules with synthetic snippets, including:
 
 - Plain-text password parameters: `PSAvoidUsingPlainTextForPassword`.
 - Dynamic expression execution: `PSAvoidUsingInvokeExpression`.
 - Plain-text input to `ConvertTo-SecureString`: `PSAvoidUsingConvertToSecureStringWithPlainText`.
 - Hardcoded remote computer names: `PSAvoidUsingComputerNameHardcoded`.
 
-The harness requires every expected rule to fire and verifies temporary test-directory cleanup. These snippets are deliberately synthetic and are analyzed statically, not executed.
-
-This demonstrates that selected security rules are active in the pinned analyzer version. It does not establish complete detection of all credential leaks, malicious code, unsafe dependencies, runtime behavior, or supply-chain compromise. Independent secret scanning and dependency/security review remain separate controls.
+These tests demonstrate that selected rules are active in the pinned analyzer version. They do not establish complete detection of credential leaks, malicious code, unsafe dependencies, runtime behavior, or supply-chain compromise.
 
 ## 6. Independent secret and dependency controls
 
-The separate `.github/workflows/security-quality.yml` workflow adds:
+The current `.github/workflows/security-quality.yml` workflow provides separate controls:
 
-- Gitleaks Action v3.0.0 and CLI 8.24.3, pinned to immutable versions; scans PR history and full repository history on PRs, with scheduled full-history scans after workflow integration into `main`.
-- A synthetic canary matched by a dedicated test rule in a temporary Git repository; CI requires the exact rule and expected leak-detected exit code, then deletes the temporary repository.
-- `npm ci --ignore-scripts` against the committed lockfile.
-- `npm audit --audit-level=high` across the locked dependency graph; high and critical vulnerabilities fail the check.
-- OSV-Scanner v2.7.0 on every pull request, failing when the PR introduces a known vulnerability.
-- Full OSV-Scanner scans on pushes to `main` and weekly schedules.
-- A 90-day JSON audit artifact for traceability.
-- Weekly Dependabot update PRs for npm dependencies and GitHub Actions.
+- Gitleaks CLI 8.30.1 is downloaded from its official release and checked against a pinned SHA-256 digest before execution.
+- A synthetic canary is tested against a dedicated temporary Gitleaks rule; CI requires the expected leak-detected exit code and rule ID.
+- The full Git history is scanned for secrets; redacted scan evidence is uploaded with 90-day retention.
+- `npm ci --ignore-scripts` installs the committed lockfile dependency graph.
+- `npm audit --audit-level=high` checks direct and transitive npm dependencies; high and critical findings fail the job.
+- OSV-Scanner PR scanning uses the reusable workflow pinned to commit `d3c1414ded37de590f207572e37a7d180f1d0ef7` (v2.7.1) and fails on introduced vulnerabilities.
+- Full OSV scanning runs on pushes to `main`, scheduled runs, and manual dispatches; it is intentionally skipped for pull-request events.
 
-The workflow uses read-only repository permissions where possible and disables Gitleaks PR comments. It does not intentionally print or upload secret values.
+A skipped full-history OSV job on a pull request is **not** a PASS. Report the PR OSV scan and the full OSV scan separately.
 
-These controls complement rather than replace GitHub-native secret scanning and Dependabot alerts. The GitHub Dependency Review action was not used because the repository dependency graph is disabled; OSV-Scanner and npm audit inspect the committed lockfile dependency graph without requiring that setting. GitHub-native Dependabot alerts and dependency graph should still be enabled separately if desired.
+The workflow uses read-only repository permissions where possible and disables credential persistence for checkout. These controls complement rather than replace GitHub-native secret scanning and Dependabot alerts.
 
-## 7. Main branch protection
+## 7. Runtime and dependency pinning boundaries
 
-The persisted GitHub ruleset is `protect-main` (ID `27316946`), Active, targeting `refs/heads/main`, with no bypass actors. Its exact required status contexts are:
+- PowerShell is pinned to exact version 7.7.0 and its release archive is verified by SHA-256.
+- PSScriptAnalyzer is pinned to 1.24.0.
+- Gitleaks CLI is pinned to 8.30.1 and its archive digest is verified.
+- Node.js is currently constrained by `package.json` to `>=22`; the security workflow checks only that the major version is at least 22. The npm lockfile pins package dependencies, not the Node.js or npm runtime. Therefore the Node/npm runtime is **not fully pinned**.
+- Python contract validation currently requests Python 3.12, not an exact patch release. The Python package requirements are version-pinned, but the interpreter patch is **not fully pinned**.
+- The PostgreSQL event-registry workflow uses PostgreSQL 18.7 through an immutable image digest. The backup/restore lab separately pins Docker Engine/CLI 29.10.0 and resolves the PostgreSQL image digest before running the container.
 
-- `PowerShell 7.6.6 / Windows`
-- `Secret scanning / Gitleaks`
-- `OSV dependency scan / PR / osv-scan`
+Do not describe a runtime as fully reproducible unless its exact runtime version and relevant artifact identity are recorded for the run.
 
-`Dependency audit / npm` is an additional successful CI check, not a required context in the active ruleset. The ruleset requires strict up-to-date checks, pull requests, linear history, and review-thread resolution; it requires zero approving reviews for the single-human maintainer model. A controlled negative required-check enforcement test remains pending until after workflow integration.
+## 8. Branch protection and integration governance
 
-## 8. Integration governance
+Branch-protection requirements must be read from the currently active GitHub ruleset and compared with the actual status-check names emitted by the workflows. Do not rely on this document as a substitute for a live ruleset inspection, and do not preserve stale required-context names after a workflow job is renamed.
 
-The validation workflows and supporting tests are present on PR #45 and have passed on its current HEAD. They are not yet integrated into `main`; the persisted branch ruleset is already active. Green bootstrap checks do not approve the methodology or authorize a merge. After the owner decides to integrate the PR, the workflows will run from `main`; a disposable negative test must then demonstrate that a failed required context blocks integration.
+A green CI run does not by itself approve methodology, prove operational readiness, or authorize external services, costs, production data, or deployment. PR integration must follow the repository's current review, required-check, and issue-governance rules.
 
 ## 9. Local execution policy
 
-GitHub Actions is the standard validation path. The project owner is not required to install PowerShell or run routine validation commands on a personal computer.
+GitHub Actions is the standard validation path. The project owner is not required to install PowerShell or run routine validation commands on a personal computer. Local execution may be used for diagnosis or development, but its results must identify the local OS, runtime, tool versions, and exact source revision.
+
+## 10. Change history and scope
+
+This document was reconciled against the current PowerShell and security workflow definitions on 2026-11-18. It supersedes older references in this file to PowerShell 7.6.6, Gitleaks 8.24.3, OSV-Scanner v2.7.0, and a pending integration of the validation workflows. Those older statements no longer describe the inspected repository state.
+
+This update documents existing configuration; it does not change runtime versions, branch protection, dependency versions, or security policy.
