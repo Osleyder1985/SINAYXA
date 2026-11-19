@@ -29,7 +29,8 @@ The runner creates a unique temporary directory, writes only deterministic synth
 
 The JSON report records:
 
-- source commit (GitHub Actions provides `GITHUB_SHA`; local runs are marked `LOCAL_UNPINNED`);
+- source branch commit (`SINAYXA_SOURCE_COMMIT`, supplied from the PR head in CI);
+- workflow commit (`GITHUB_SHA`, which may be GitHub's synthetic PR merge commit);
 - Python version and platform;
 - UTC start/completion timestamps;
 - per-control PASS/FAIL states;
@@ -37,7 +38,7 @@ The JSON report records:
 - confirmation of idempotent repeat and temporary-root cleanup;
 - explicit synthetic-only and no-network/no-external-service declarations.
 
-A local run should be tied to a Git commit by running it from a clean checkout and recording `git rev-parse HEAD` alongside the report. The CI artifact is retained for 14 days.
+A local run is marked `LOCAL_UNPINNED` unless `SINAYXA_SOURCE_COMMIT` is explicitly supplied; run it from a clean checkout and record `git rev-parse HEAD` alongside the report. The CI artifact is retained for 14 days.
 
 ## Safety and interpretation
 
