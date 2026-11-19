@@ -252,6 +252,9 @@ def preflight_legacy_adoption(
                        OR has_table_privilege(
                            current_user, 'sinayxa.schema_migrations', 'TRIGGER'
                        )
+                       OR has_table_privilege(
+                           current_user, 'sinayxa.schema_migrations', 'MAINTAIN'
+                       )
                 """
             ).fetchone()
             if not can_read_legacy_ledger:
@@ -272,6 +275,7 @@ def preflight_legacy_adoption(
                     OR has_any_column_privilege(current_user, c.oid, 'UPDATE')
                     OR has_any_column_privilege(current_user, c.oid, 'REFERENCES')
                     OR has_table_privilege(current_user, c.oid, 'TRIGGER')
+                    OR has_table_privilege(current_user, c.oid, 'MAINTAIN')
                 ), false)
                 FROM pg_class c
                 JOIN pg_namespace n ON n.oid = c.relnamespace

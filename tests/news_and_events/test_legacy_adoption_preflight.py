@@ -315,6 +315,32 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
             )
             self.connection.commit()
 
+    def test_preflight_rejects_application_table_maintain_privilege(self) -> None:
+        self.connection.execute(
+            sql.SQL("GRANT MAINTAIN ON TABLE sinayxa.events TO {}").format(
+                sql.Identifier(self.reader_identity)
+            )
+        )
+        self.connection.commit()
+        try:
+            result = preflight_legacy_adoption(
+                self.reader_connection,
+                approved_baseline_sha256=self.approved_digest,
+                approved_identity=self.reader_identity,
+            )
+            self.assertEqual("LEGACY_UNVERIFIED", result.status)
+            self.assertTrue(
+                any("write privileges on application objects" in reason for reason in result.reasons)
+            )
+            self.assertIsNone(result.computed_fingerprint)
+        finally:
+            self.connection.execute(
+                sql.SQL("REVOKE MAINTAIN ON TABLE sinayxa.events FROM {}").format(
+                    sql.Identifier(self.reader_identity)
+                )
+            )
+            self.connection.commit()
+
     def test_preflight_requires_select_privilege_on_legacy_ledger(self) -> None:
         self.connection.execute(
             sql.SQL("REVOKE SELECT ON sinayxa.schema_migrations FROM {}").format(
