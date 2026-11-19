@@ -55,7 +55,8 @@ class CatalogSecurityLabelGuardTests(unittest.TestCase):
             _reject_unsupported_security_labels(object(), "sinayxa")
 
         query, params = rows.call_args.args[1:]
-        self.assertIn("pg_seclabels", query)
+        self.assertIn("pg_catalog.pg_seclabels", query)
+        self.assertIn("pg_catalog.pg_namespace", query)
         self.assertEqual(("sinayxa", "sinayxa"), params)
 
     @patch("scripts.news_and_events.catalog_fingerprint._rows")
@@ -85,6 +86,25 @@ class CatalogFingerprintIntegrationTests(unittest.TestCase):
         # The CI fixture has no provider-applied labels; this verifies the
         # PostgreSQL 18 catalog view and schema-scoped detection query execute.
         _reject_unsupported_security_labels(self.connection, "sinayxa")
+
+    def test_security_label_guard_cannot_be_shadowed_by_search_path(self) -> None:
+        # A caller-controlled temporary relation must not replace the system
+        # catalog view used by the fail-closed guard.
+        with self.connection.cursor() as cursor:
+            cursor.execute(
+                "CREATE TEMP TABLE pg_seclabels ("
+                "objnamespace oid, objtype text, objname text, "
+                "objsubid integer, provider text)"
+            )
+            cursor.execute(
+                "INSERT INTO pg_temp.pg_seclabels "
+                "VALUES (NULL, 'schema', 'sinayxa', 0, 'fake_provider')"
+            )
+        try:
+            _reject_unsupported_security_labels(self.connection, "sinayxa")
+        finally:
+            with self.connection.cursor() as cursor:
+                cursor.execute("DROP TABLE pg_temp.pg_seclabels")
 
     def test_fingerprint_is_deterministic_and_reports_semantic_inventory(self) -> None:
         first = fingerprint_schema(self.connection)
