@@ -137,6 +137,23 @@ def _load_ledger(connection: psycopg.Connection) -> dict[str, tuple[int, str, st
     return ledger
 
 
+
+def _load_legacy_ids(connection: psycopg.Connection) -> set[str]:
+    rows = connection.execute(
+        "SELECT migration_id FROM sinayxa.schema_migrations ORDER BY migration_id"
+    ).fetchall()
+    values = [row[0] for row in rows]
+    if any(not isinstance(value, str) or not value for value in values):
+        raise MigrationRunnerError(
+            "legacy migration ledger contains NULL or invalid migration IDs"
+        )
+    if len(values) != len(set(values)):
+        raise MigrationRunnerError(
+            "legacy migration ledger contains duplicate migration IDs"
+        )
+    return set(values)
+
+
 def _verify_legacy_compatibility(
     connection: psycopg.Connection,
     records: tuple[MigrationRecord, ...],
@@ -160,15 +177,7 @@ def _verify_legacy_compatibility(
             "application schema exists without the legacy migration ledger"
         )
 
-    legacy_rows = connection.execute(
-        "SELECT migration_id FROM sinayxa.schema_migrations ORDER BY migration_id"
-    ).fetchall()
-    legacy_values = [row[0] for row in legacy_rows]
-    if any(not isinstance(value, str) or not value for value in legacy_values):
-        raise MigrationRunnerError("legacy migration ledger contains NULL or invalid migration IDs")
-    if len(legacy_values) != len(set(legacy_values)):
-        raise MigrationRunnerError("legacy migration ledger contains duplicate migration IDs")
-    legacy_ids = set(legacy_values)
+    legacy_ids = _load_legacy_ids(connection)
     expected_ids = set(ledger)
     if legacy_ids != expected_ids:
         missing_integrity = sorted(legacy_ids - expected_ids)
