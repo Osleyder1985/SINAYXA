@@ -39,6 +39,7 @@ class LegacyAdoptionPreflight:
     current_user: str | None
     current_role: str | None
     role_memberships: tuple[tuple[str, str, bool, bool, bool], ...]
+    role_attributes: tuple[tuple[str, bool, bool, bool, bool, bool], ...]
     algorithm_version: str
     computed_fingerprint: str | None
     expected_fingerprint: str
@@ -81,6 +82,7 @@ def preflight_legacy_adoption(
     current_user: str | None = None
     current_role: str | None = None
     role_memberships: tuple[tuple[str, str, bool, bool, bool], ...] = ()
+    role_attributes: tuple[tuple[str, bool, bool, bool, bool, bool], ...] = ()
     legacy_ids: tuple[str, ...] = ()
     computed_fingerprint: str | None = None
 
@@ -152,7 +154,7 @@ def preflight_legacy_adoption(
         )
         role_flags = connection.execute(
             """
-            SELECT rolname, rolsuper, rolcreatedb, rolcreaterole, rolbypassrls
+            SELECT rolname, rolsuper, rolcreatedb, rolcreaterole, rolinherit, rolbypassrls
             FROM pg_roles
             WHERE rolname = ANY(%s)
             ORDER BY rolname
@@ -161,8 +163,12 @@ def preflight_legacy_adoption(
         ).fetchall()
         if len(role_flags) != len(reachable_roles):
             reasons.append("one or more allowlisted PostgreSQL roles could not be inspected")
+        role_attributes = tuple(
+            (name, superuser, createdb, createrole, inherit, bypassrls)
+            for name, superuser, createdb, createrole, inherit, bypassrls in role_flags
+        )
         elevated_roles = [
-            name for name, superuser, createdb, createrole, bypassrls in role_flags
+            name for name, superuser, createdb, createrole, _inherit, bypassrls in role_flags
             if superuser or createdb or createrole or bypassrls
         ]
         if elevated_roles:
@@ -320,6 +326,7 @@ def preflight_legacy_adoption(
         current_user=current_user,
         current_role=current_role,
         role_memberships=role_memberships,
+        role_attributes=role_attributes,
         algorithm_version=ALGORITHM_VERSION,
         computed_fingerprint=computed_fingerprint,
         expected_fingerprint=approved_baseline_sha256,
