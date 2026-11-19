@@ -152,3 +152,23 @@ Criterio de salida de esta fase: revisión de la semántica, fixtures trazables 
 - Yak Communications, 10-Q/A: [SEC filing](https://www.sec.gov/Archives/edgar/data/1084544/000119312506085760/d10qa.htm)
 
 Estos documentos sirven para comprobar qué declaró el emisor y el alcance que el propio documento describe. No se presentan como verificación independiente de la verdad de todos los datos subyacentes.
+
+### 9.1 Límites documentales comprobados para RTI
+
+El 8-K de 27-oct-2013 (Item 4.02) informa que Amendment No. 1 al 10-K fue presentado el 24-sep-2013, comunica la conclusión del Comité de Auditoría de que los estados financieros de 2012 previamente presentados ya no debían ser objeto de confianza y anuncia que serían reexpresados mediante Amendment No. 2. El 8-K describe un error computacional adicional en las hojas de cálculo utilizadas para preparar Amendment No. 1 y cuantifica preliminarmente un exceso de USD 1.5 millones en ventas netas e ingreso operativo respecto de Amendment No. 1.
+
+Amendment No. 2 identifica tanto el 10-K original (presentado el 22-feb-2013) como Amendment No. 1 (presentado el 24-sep-2013), y declara que los estados financieros previamente emitidos no debían seguir siendo objeto de confianza. También describe la reexpresión de estados financieros y disclosures relacionados y revisiones a Items 1, 1A, 6, 7, 8, 9A y 15. La propia nota indica que determinados datos intermedios de 2011 permanecen sin cambios respecto a Amendment No. 1.
+
+Implicaciones de modelado:
+- El 8-K es el documento que comunica la conclusión y la intención de presentar Amendment No. 2; no es el filing correctivo anual en sí.
+- Registrar por separado las relaciones de Amendment No. 2 hacia el 10-K original y hacia Amendment No. 1.
+- Conservar los periodos/cifras expresamente no modificados; no ampliar la corrección a todo el historial financiero.
+
+### 9.2 Límites documentales comprobados para Yak
+
+El 10-Q/A Amendment No. 1 declara que modifica estados financieros y notas, revisiones a Item 2 (MD&A) e Item 4 (Controls and Procedures), y que ninguna otra información del Report queda enmendada por ese documento. También declara que el amendment habla desde la fecha original del Report, salvo las certificaciones, y que no actualiza otros eventos posteriores salvo lo indicado.
+
+Implicaciones de modelado:
+- El alcance afectado debe limitarse a estados financieros/notas y Items 2 y 4 identificados en la nota explicativa.
+- La declaración de que «ninguna otra información» queda enmendada puede conservarse como alcance expresamente no afectado, pero no significa que esa información haya sido verificada o sea correcta.
+- La fecha efectiva que el declarante atribuye al amendment no sustituye los tiempos de publicación, detección, recuperación o registro de SINAYXA.
