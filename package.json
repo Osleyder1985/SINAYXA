@@ -6,10 +6,10 @@
     "node": ">=22"
   },
   "scripts": {
-    "lint:markdown": "node scripts/validation/lint-markdown.mjs"
+    "lint:markdown": "markdownlint-cli2"
   },
   "devDependencies": {
-    "markdownlint": "0.42.1"
+    "markdownlint-cli2": "0.24.1"
   },
   "overrides": {
     "katex": "0.18.2"
