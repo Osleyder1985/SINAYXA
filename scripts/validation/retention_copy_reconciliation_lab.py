@@ -197,7 +197,10 @@ def run_lab() -> dict[str, Any]:
     checks["temporary_root_cleanup"] = "PASS" if cleanup_verified else "FAIL"
     return {
         "schema_version": REPORT_VERSION,
-        "source_commit": os.environ.get("GITHUB_SHA", "LOCAL_UNPINNED"),
+        "source_commit": os.environ.get(
+            "SINAYXA_SOURCE_COMMIT", os.environ.get("GITHUB_SHA", "LOCAL_UNPINNED")
+        ),
+        "workflow_commit": os.environ.get("GITHUB_SHA", "LOCAL_UNPINNED"),
         "python_version": platform.python_version(),
         "platform": platform.platform(),
         "classification": "LAB_SYNTHETIC_LOCAL",
