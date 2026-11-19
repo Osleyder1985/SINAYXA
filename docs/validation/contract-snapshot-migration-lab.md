@@ -6,6 +6,10 @@ This laboratory executes the canonical 0.2.0 → 0.2.1 migrator from PR #85. It 
 
 Only the synthetic fixture `source-evidence-contract-v0.2.0.json` is used. No production data, credentials, cloud storage or paid service is involved.
 
+## Execution environments
+
+The GitHub Actions workflow executes this laboratory on an ephemeral GitHub-hosted Ubuntu runner. The temporary directory and atomic rename are local to that runner, not to the user's workstation or a persistent self-hosted machine. The report records `GITHUB_HOSTED_RUNNER` versus `USER_LOCAL_HOST` and the runner OS/architecture. A CI PASS is not a user-local or target-environment validation.
+
 ## Local execution
 
 1. Check out the repository and PR #85 source at the pinned commit into a sibling directory named `contract-source`.
