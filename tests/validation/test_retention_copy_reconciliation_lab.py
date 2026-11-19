@@ -118,6 +118,12 @@ class RetentionCopyReconciliationTests(unittest.TestCase):
         self.assertEqual("DELETED", second["status"])
         self.assertEqual([], second["removed"])
 
+    def test_partial_copy_presence_fails_closed(self) -> None:
+        first = self.inventory[0]
+        (self.root / first["relative_path"] / f"{self.object_id}.json").unlink()
+        with self.assertRaisesRegex(RetentionLabError, "partial copy inventory"):
+            reconcile_deletion(self.root, self.inventory, self.ledger)
+
     def test_reconciliation_preserves_unaffected_objects(self) -> None:
         for item in self.inventory:
             (self.root / item["relative_path"] / "unaffected.json").write_text(
