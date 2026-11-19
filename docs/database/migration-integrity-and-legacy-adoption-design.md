@@ -138,7 +138,7 @@ Integration tests must create disposable roles and exercise real PostgreSQL auth
 
 Each negative test must assert the returned state/error and verify that application catalog, business rows, schema_migrations, integrity ledger, and attestation table remain unchanged. Tests use only disposable PostgreSQL 18.7 databases and roles; no production DDL/DML is authorized.
 
-### 3.3.1 Catalog fingerprint contract v1
+### 3.3.2 Catalog fingerprint contract v1
 
 The first fingerprint implementation is deliberately scoped to the application schema `sinayxa` on PostgreSQL 18.7. It is a schema-equivalence check, not a data-integrity check and not proof of historical SQL execution. The fingerprint algorithm must have an explicit version (for example, `sinayxa-catalog-v1`) and must fail closed when it encounters a catalog feature that the version does not understand.
 
