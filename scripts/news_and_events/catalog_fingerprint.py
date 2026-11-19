@@ -736,6 +736,28 @@ def _fingerprint_schema_in_transaction(
             f"unsupported pseudo or undefined shell types in {schema_name}: {pseudo_types}"
         )
 
+    unsupported_base_types = _rows(
+        connection,
+        """
+        SELECT t.typname
+        FROM pg_type t
+        JOIN pg_namespace n ON n.oid = t.typnamespace
+        WHERE n.nspname = %s AND t.typtype = 'b' AND t.typisdefined
+          AND NOT EXISTS (
+              SELECT 1
+              FROM pg_type element_type
+              WHERE element_type.typarray = t.oid
+          )
+        ORDER BY t.typname
+        """,
+        (schema_name,),
+    )
+    if unsupported_base_types:
+        raise CatalogFingerprintError(
+            "unsupported user-defined base types until their complete I/O and "
+            f"typmod callback contract is fingerprinted: {unsupported_base_types}"
+        )
+
     policies = _rows(
         connection,
         """
