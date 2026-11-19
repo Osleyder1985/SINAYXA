@@ -81,6 +81,7 @@ class RetentionCopyReconciliationTests(unittest.TestCase):
     def test_inventory_rejects_symlink_location(self) -> None:
         invalid = [dict(item) for item in self.inventory]
         location = self.root / invalid[0]["relative_path"]
+        (location / f"{self.object_id}.json").unlink()
         location.rmdir()
         outside = self.root / "outside"
         outside.mkdir()
