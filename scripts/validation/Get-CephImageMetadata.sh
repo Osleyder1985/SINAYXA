@@ -110,6 +110,7 @@ if ! curl --fail --silent --show-error --location --max-time 30 \
 fi
 
 TOKEN="$(jq -r '.token // .access_token // empty' "$TOKEN_FILE")"
+rm -f "$TOKEN_FILE"
 [[ -n "$TOKEN" ]] || fail "REGISTRY_TOKEN_MISSING"
 
 if ! curl --fail --silent --show-error --location --max-time 30 \
