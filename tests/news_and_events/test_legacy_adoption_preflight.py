@@ -195,3 +195,108 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
 
         self.assertEqual("LEGACY_UNVERIFIED", result.status)
         self.assertTrue(any("already exists" in reason for reason in result.reasons))
+
+
+    def test_preflight_rejects_identity_mismatch(self) -> None:
+        result = preflight_legacy_adoption(
+            self.reader_connection,
+            approved_baseline_sha256=self.approved_digest,
+            approved_identity="not_the_authenticated_role",
+        )
+        self.assertEqual("LEGACY_UNVERIFIED", result.status)
+        self.assertTrue(
+            any("identity mismatch" in reason for reason in result.reasons)
+        )
+        self.assertEqual(self.reader_identity, result.session_user)
+        self.assertEqual(self.reader_identity, result.current_user)
+        self.assertEqual(self.reader_identity, result.current_role)
+
+    def test_preflight_rejects_unexpected_membership_and_elevated_reachable_role(self) -> None:
+        group_role = f"sinayxa_preflight_group_{uuid4().hex[:10]}"
+        self.admin.execute(
+            sql.SQL("CREATE ROLE {} NOLOGIN BYPASSRLS").format(sql.Identifier(group_role))
+        )
+        self.admin.execute(
+            sql.SQL("GRANT {} TO {}").format(
+                sql.Identifier(group_role), sql.Identifier(self.reader_identity)
+            )
+        )
+        try:
+            result = preflight_legacy_adoption(
+                self.reader_connection,
+                approved_baseline_sha256=self.approved_digest,
+                approved_identity=self.reader_identity,
+            )
+            self.assertEqual("LEGACY_UNVERIFIED", result.status)
+            self.assertTrue(
+                any("membership graph differs" in reason for reason in result.reasons)
+            )
+            self.assertTrue(
+                any("elevated role attributes" in reason for reason in result.reasons)
+            )
+            self.assertIn(
+                self.reader_identity,
+                {member for member, _, _, _, _ in result.role_memberships},
+            )
+            self.assertIn(
+                group_role,
+                {granted for _, granted, _, _, _ in result.role_memberships},
+            )
+        finally:
+            self.admin.execute(
+                sql.SQL("REVOKE {} FROM {}").format(
+                    sql.Identifier(group_role), sql.Identifier(self.reader_identity)
+                )
+            )
+            self.admin.execute(
+                sql.SQL("DROP ROLE {}").format(sql.Identifier(group_role))
+            )
+
+    def test_preflight_rejects_application_table_write_privileges(self) -> None:
+        self.admin.execute(
+            sql.SQL("GRANT INSERT ON sinayxa.events TO {}").format(
+                sql.Identifier(self.reader_identity)
+            )
+        )
+        try:
+            result = preflight_legacy_adoption(
+                self.reader_connection,
+                approved_baseline_sha256=self.approved_digest,
+                approved_identity=self.reader_identity,
+            )
+            self.assertEqual("LEGACY_UNVERIFIED", result.status)
+            self.assertTrue(
+                any("write privileges on application objects" in reason for reason in result.reasons)
+            )
+            self.assertIsNone(result.computed_fingerprint)
+        finally:
+            self.admin.execute(
+                sql.SQL("REVOKE INSERT ON sinayxa.events FROM {}").format(
+                    sql.Identifier(self.reader_identity)
+                )
+            )
+
+    def test_preflight_requires_select_privilege_on_legacy_ledger(self) -> None:
+        self.admin.execute(
+            sql.SQL("REVOKE SELECT ON sinayxa.schema_migrations FROM {}").format(
+                sql.Identifier(self.reader_identity)
+            )
+        )
+        try:
+            result = preflight_legacy_adoption(
+                self.reader_connection,
+                approved_baseline_sha256=self.approved_digest,
+                approved_identity=self.reader_identity,
+            )
+            self.assertEqual("LEGACY_UNVERIFIED", result.status)
+            self.assertTrue(
+                any("lacks SELECT on the legacy migration ledger" in reason for reason in result.reasons)
+            )
+            self.assertEqual((), result.legacy_migration_ids)
+            self.assertIsNone(result.computed_fingerprint)
+        finally:
+            self.admin.execute(
+                sql.SQL("GRANT SELECT ON sinayxa.schema_migrations TO {}").format(
+                    sql.Identifier(self.reader_identity)
+                )
+            )
