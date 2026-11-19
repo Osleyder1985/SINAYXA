@@ -623,3 +623,56 @@ Sin embargo, el payload de PR #119 todavía informa `base_sha=75583efab8be33a373
 #### Estado
 
 PR #119 continúa OPEN / DRAFT / NOT MERGED. Los dos quality gates aplicables pasan en el HEAD 94a04ee, pero quedan pendientes: reconciliación del diff/base, recuperación real desde conversación nueva, revisión completa de decisiones/historiales de Issues y verificación local de worktrees/cambios Windows. No borrar conversaciones del proyecto.
+
+
+### 14.14 Reconciliación de PR de integración — corte 2026-11-19 00:30 UTC
+
+Esta sección actualiza el inventario histórico anterior. Los estados se verificaron directamente en GitHub; no sustituye los requisitos de cada Issue ni convierte checks omitidos en satisfactorios.
+
+#### Fusiones confirmadas después del snapshot anterior
+
+| PR | Resultado | Evidencia |
+| --- | --- | --- |
+| #120 | MERGED | merge commit `e55600b7e02b9b3e0acde4277fa224928970efbf` |
+| #123 | MERGED | merge commit `be54f026b4e4b821590d397f29191f835cb047d5` |
+| #124 | MERGED | merge commit `c7c0f72fd3af27ac43d44769cfd67f250efc277d` |
+| #125 | MERGED | merge commit `faa30287e222a606bfe88f0012f3f312585ef132` |
+
+El HEAD de `main` observado después de estas integraciones es `faa30287e222a606bfe88f0012f3f312585ef132`.
+
+#### Inventario de PR abiertos
+
+| PR | HEAD observado | Base | Estado / bloqueo |
+| --- | --- | --- | --- |
+| #85 | `b229a17176e8b9bb1259311e4ccfb9e8c8849ee0` | `main` | OPEN, no DRAFT; cuatro commits detrás de `main`. #99 depende de esta rama. |
+| #99 | `54c0edc3a62e9d90ed8c5a44463ea5cc8b1e4c87` | `feature/issue-78-contract-v0.2.0` (#85) | OPEN, DRAFT; 64 commits por delante de su base, sin divergencia respecto a ese HEAD de base. Integrar después de #85 y revalidar. |
+| #119 | `14df2dda7dc2f5c2c12b19ebdacf49d9eb874902` | `main` | OPEN, DRAFT; cuatro commits detrás de `main`. Su rama aún requiere actualización y CI exact-HEAD. |
+| #126 | `0b9b50e6a465a766afc5fda6b9642c692c813a63` | `feat/issue-121-fresh-database-migration-runner` (#125) | OPEN, DRAFT; rama divergente respecto al HEAD actualizado de #125. Corrección de arrays enviada, PostgreSQL 18.7 aún no verificado en ese HEAD. |
+| #127 | `e080476d4d921766cf38af4448a62c42db0dced0` | `feat/issue-121-catalog-fingerprint-readonly` (#126) | OPEN, DRAFT; rama divergente respecto al HEAD de #126 y check PostgreSQL 18.7 fallido en el HEAD consultado. |
+
+#### Contrato 0.2.1 → 0.2.2
+
+La rama de #85 coincide exactamente con la base de #99: `b229a17176e8b9bb1259311e4ccfb9e8c8849ee0`. #99 tiene como merge-base ese mismo commit y aporta 64 commits adicionales. La dependencia es explícita y no se debe retargetear ni fusionar #99 antes de resolver #85.
+
+#### Cadena de migraciones #121
+
+La integración de #123–#125 no cierra automáticamente los defectos funcionales descubiertos durante la auditoría:
+- #124: la ancestralidad de cada `source_revision` respecto a `baseline_revision` quedó implementada en el cambio integrado; el caso negativo debe seguir formando parte de la suite.
+- #125: permanecen como criterios de cierre la detección de duplicados/NULL antes de transformar filas a `dict`/`set`, el prefijo continuo del ledger y la verificación estructural del control plane y de ambos ledgers. La integración no acredita por sí sola que esos casos estén resueltos.
+- #126: el check PostgreSQL 18.7 del HEAD anterior registró 40 pruebas, con 29 errores y 2 fallos. Los logs mostraron que tipos array generados por PostgreSQL eran clasificados incorrectamente como tipos base personalizados. Se envió el commit `0b9b50e6a465a766afc5fda6b9642c692c813a63`, que añade `t.typelem = 0` al filtro. No se considera validado hasta que PostgreSQL 18.7 se ejecute sobre ese SHA y se demuestren tanto la exclusión de arrays como el rechazo fail-closed de tipos base personalizados reales.
+- #127: no se considera listo mientras dependa de una base #126 divergente y falle la validación PostgreSQL. La identidad efectiva, memberships/SET ROLE, flags y privilegios reales siguen siendo requisitos del preflight.
+
+#### Estado de las comprobaciones
+
+En los HEAD consultados de #85, #99 y #119, los checks ejecutados de PowerShell, PostgreSQL (cuando aplicaba), Gitleaks, npm audit y OSV PR aparecen satisfactorios; OSV full aparece SKIPPED. Para #126/#127, los checks PostgreSQL consultados no están satisfactorios. Un check verde de seguridad/dependencias no compensa un check PostgreSQL fallido o ausente.
+
+#### Siguiente orden seguro
+
+1. #126: resolver la divergencia de rama mediante actualización/rebase estándar de GitHub; ejecutar PostgreSQL 18.7 en el HEAD resultante y cerrar los tests de tipos.
+2. #127: actualizar sobre el HEAD ya validado de #126; resolver la divergencia, ejecutar pruebas con roles reales y mantener `LEGACY_UNVERIFIED` ante cualquier identidad o privilegio no verificable.
+3. #85: actualizar contra `main`, inspeccionar el diff posterior a la actualización y repetir CI exact-HEAD; no fusionar solo por tener checks históricos verdes.
+4. #99: mantener su base en #85 hasta que #85 esté integrado; después actualizarlo y revalidar compatibilidad/migración 0.2.1 → 0.2.2.
+5. #119: actualizar contra `main`, revisar el diff de continuidad y ejecutar lint/validaciones en el HEAD resultante.
+6. No hacer DDL/DML productivo, adopción legacy ni modificar las migraciones históricas `0001–0005`.
+
+La herramienta GitHub utilizada en este corte no expone una operación segura de “Update branch” para sincronizar las ramas divergentes. No se han forzado refs, rebases manuales ni commits de merge construidos a ciegas. La actualización de ramas debe realizarse con la operación estándar de GitHub y verificarse después.
