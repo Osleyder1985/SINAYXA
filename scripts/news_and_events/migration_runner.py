@@ -379,16 +379,21 @@ def _verify_relation_structure(
         """,
         (schema, table),
     ).fetchall()
-    actual_constraints = {" ".join(value.lower().split()) for (value,) in rows}
-    normalized_expected = {" ".join(value.lower().split()) for value in expected_constraints}
-    if actual_constraints != normalized_expected:
+    actual = {" ".join(value.lower().split()) for (value,) in rows}
+    expected = {" ".join(value.lower().split()) for value in expected_constraints}
+    if actual != expected:
         raise MigrationRunnerError(
             f"{label} structural drift detected in constraints: "
-            f"expected={sorted(normalized_expected)}, actual={sorted(actual_constraints)}"
+            f"expected={sorted(expected)}, actual={sorted(actual)}"
         )
 
 
 def _verify_control_plane_structure(connection: psycopg.Connection) -> None:
+    sha_check = "CHECK ((sha256 ~ '^[0-9a-f]" + chr(123) + "64" + chr(125) + "$'::text))"
+    revision_check = (
+        "CHECK ((source_revision ~ '^([0-9a-f]" + chr(123) + "40|[0-9a-f]"
+        + chr(123) + "64" + chr(125) + ")$'::text))"
+    )
     contracts = (
         (
             "bootstrap_state",
@@ -414,86 +419,8 @@ def _verify_control_plane_structure(connection: psycopg.Connection) -> None:
                 "PRIMARY KEY (migration_id)",
                 "UNIQUE (version)",
                 "CHECK ((version > 0))",
-                "CHECK ((sha256 ~ '^[0-9a-f]" + "{64}" + "
-            },
-        ),
-        (
-            "legacy_adoption_attestations",
-            {
-                "attestation_id": ("text", True, None),
-                "status": ("text", True, None),
-                "verifier_version": ("text", True, None),
-                "algorithm_version": ("text", True, None),
-                "computed_fingerprint": ("character(64)", True, None),
-                "expected_fingerprint": ("character(64)", True, None),
-                "payload": ("jsonb", True, None),
-                "created_at": ("timestamp with time zone", True, "clock_timestamp()"),
-            },
-            {
-                "PRIMARY KEY (attestation_id)",
-                "CHECK ((status = 'LEGACY_ADOPTED_CATALOG_MATCH'::text))",
-            },
-        ),
-    )
-    for table, columns, constraints in contracts:
-        _verify_relation_structure(
-            connection, "sinayxa_control", table, columns, constraints, "control-plane"
-        )
-
-
-def _verify_legacy_ledger_structure(connection: psycopg.Connection) -> None:
-    _verify_relation_structure(
-        connection,
-        "sinayxa",
-        "schema_migrations",
-        {
-            "migration_id": ("text", True, None),
-            "applied_at": ("timestamp with time zone", True, "clock_timestamp()"),
-        },
-        {"PRIMARY KEY (migration_id)"},
-        "legacy migration ledger",
-    )
-::text))",
-                "CHECK ((source_revision ~ '^([0-9a-f]" + "{40}|[0-9a-f]" + "{64})
-            },
-        ),
-        (
-            "legacy_adoption_attestations",
-            {
-                "attestation_id": ("text", True, None),
-                "status": ("text", True, None),
-                "verifier_version": ("text", True, None),
-                "algorithm_version": ("text", True, None),
-                "computed_fingerprint": ("character(64)", True, None),
-                "expected_fingerprint": ("character(64)", True, None),
-                "payload": ("jsonb", True, None),
-                "created_at": ("timestamp with time zone", True, "clock_timestamp()"),
-            },
-            {
-                "PRIMARY KEY (attestation_id)",
-                "CHECK ((status = 'LEGACY_ADOPTED_CATALOG_MATCH'::text))",
-            },
-        ),
-    )
-    for table, columns, constraints in contracts:
-        _verify_relation_structure(
-            connection, "sinayxa_control", table, columns, constraints, "control-plane"
-        )
-
-
-def _verify_legacy_ledger_structure(connection: psycopg.Connection) -> None:
-    _verify_relation_structure(
-        connection,
-        "sinayxa",
-        "schema_migrations",
-        {
-            "migration_id": ("text", True, None),
-            "applied_at": ("timestamp with time zone", True, "clock_timestamp()"),
-        },
-        {"PRIMARY KEY (migration_id)"},
-        "legacy migration ledger",
-    )
-::text))",
+                sha_check,
+                revision_check,
             },
         ),
         (
