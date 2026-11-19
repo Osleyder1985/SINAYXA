@@ -689,24 +689,26 @@ Este corte sustituye los estados de ramas del inventario 14.14 cuando exista dis
 | #99 | `d1da9ba3f9c89a27e36d5d4297b1bf755870030d` | rama #85 | OPEN / DRAFT; 0 detrás de su base; PowerShell y Security SUCCESS en este HEAD. Depende de #85. |
 | #119 | `15c5bdff04e4d06134ad01fdba9c933d2551c977` | `main` | OPEN / DRAFT; actualización documental en validación; PowerShell SUCCESS y Security falló por Markdown lint, ahora corregido en este cambio. |
 | #126 | `2ace99daafbb4bbef1c95470cdbe9e4d686fe9d0` | `main` | OPEN / DRAFT; 0 detrás; diff de cinco archivos. PowerShell, PostgreSQL y Security exact-HEAD SUCCESS. OSV full SKIPPED, no PASS. |
-| #127 | `8eedf02d4228ef320d753014cdcc617bd4acac54` | rama #126 | OPEN / DRAFT; 0 detrás; PostgreSQL/Issue y Security SUCCESS; PowerShell sigue IN_PROGRESS al corte. |
+| #127 | `8eedf02d4228ef320d753014cdcc617bd4acac54` | rama #126 | OPEN / DRAFT; 0 detrás; PostgreSQL/Issue, PowerShell y Security SUCCESS; OSV full SKIPPED. |
 
 #### #126 — fingerprint del catálogo
 
 La genealogía de la rama histórica de #125 se reconcilió con `main` tras comprobar que ambos snapshots tenían el mismo árbol Git. El HEAD final de #126 se reconstruyó desde el árbol exacto de `main`, aplicando solo los cambios de fingerprint y sus workflows. No se modificó `main` ni se utilizó force-push.
 
 Ejecuciones sobre HEAD `2ace99d...`:
+
 - PowerShell: [44439914633](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439914633) — SUCCESS.
 - PostgreSQL / Issue: [44439914345](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439914345) — SUCCESS.
 - Security/dependency: [44439914777](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439914777) — SUCCESS; OSV full SKIPPED.
 
-#### #127 — preflight legacy: fallos de pruebas y corrección pendiente de CI
+#### #127 — preflight legacy: fallos de pruebas y validación CI
 
 El primer HEAD integrado `a94bad8...` falló porque el rol de prueba se creaba sin contraseña y PostgreSQL exigía autenticación. Se añadió contraseña efímera para el rol lector, sin usar superusuario en la ejecución del preflight.
 
 El siguiente HEAD `2d19ec1...` reveló la causa adicional y real del fallo: los GRANT/REVOKE de esquema y tabla se ejecutaban mediante una conexión a la base de servicio, aunque cada prueba opera en una base aislada creada dinámicamente. Esto provocó `permission denied for schema sinayxa` y errores de cleanup al intentar eliminar roles que aún tenían privilegios.
 
 La corrección de autenticación y grants quedó en `9cb25bc...`. La corrección vigente en HEAD `8eedf02d4228ef320d753014cdcc617bd4acac54`:
+
 - aplica GRANT/REVOKE de esquema y tabla mediante la conexión a la base aislada;
 - confirma las transacciones antes de abrir la conexión del rol lector y después de cada cambio de privilegios;
 - reserva la conexión administrativa para operaciones de ámbito clúster (crear/eliminar roles y bases);
@@ -716,15 +718,16 @@ La corrección de autenticación y grants quedó en `9cb25bc...`. La corrección
 CI exact-HEAD `8eedf02...` al corte:
 
 - 
-PowerShell [44441538244](https://github.com/Osleyder1985/SINAYXA/actions/runs/44441538244) — IN_PROGRESS.
+PowerShell [44441538244](https://github.com/Osleyder1985/SINAYXA/actions/runs/44441538244) — SUCCESS.
 - Security/dependency [44441538832](https://github.com/Osleyder1985/SINAYXA/actions/runs/44441538832) — SUCCESS; OSV full SKIPPED.
 - PostgreSQL / Issue [44441538140](https://github.com/Osleyder1985/SINAYXA/actions/runs/44441538140) — SUCCESS.
 
-La ejecución anterior `9cb25bc...` pasó 9/10 pruebas; el único fallo fue el baseline calculado antes de los ACL. El nuevo HEAD pasa PostgreSQL/Issue y Security; falta PowerShell para completar CI. El estado funcional de adopción sigue siendo `LEGACY_UNVERIFIED`; no se habilita adopción, DDL/DML productivo ni modificación de migraciones históricas.
+La ejecución anterior `9cb25bc...` pasó 9/10 pruebas; el único fallo fue el baseline calculado antes de los ACL. El HEAD `8eedf02...` pasa los tres gates aplicables. El estado funcional de adopción sigue siendo `LEGACY_UNVERIFIED`; no se habilita adopción, DDL/DML productivo ni modificación de migraciones históricas. El estado funcional de adopción sigue siendo `LEGACY_UNVERIFIED`; no se habilita adopción, DDL/DML productivo ni modificación de migraciones históricas.
 
 #### Contrato 0.2.1 / 0.2.2
 
 \#85 y #99 están sincronizadas en sus respectivas relaciones de dependencia y sus gates aplicables finalizaron SUCCESS sobre sus HEAD actuales. Eso no cierra los criterios metodológicos:
+
 - Issue #88 mantiene abiertas brechas de cobertura/revisión en A–E.
 - Issue #89 mantiene pendientes las pruebas externas de eliminación, WORM/Object Lock y migración productiva.
 - #99 no se integra antes de #85 y debe revalidarse tras la integración de su base.
