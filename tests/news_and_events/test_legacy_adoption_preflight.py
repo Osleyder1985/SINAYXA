@@ -222,7 +222,7 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
     def test_preflight_rejects_unexpected_membership_and_elevated_reachable_role(self) -> None:
         group_role = f"sinayxa_preflight_group_{uuid4().hex[:10]}"
         self.admin.execute(
-            sql.SQL("CREATE ROLE {} NOLOGIN BYPASSRLS").format(sql.Identifier(group_role))
+            sql.SQL("CREATE ROLE {} NOLOGIN BYPASSRLS REPLICATION").format(sql.Identifier(group_role))
         )
         self.admin.execute(
             sql.SQL("GRANT {} TO {}").format(
@@ -249,6 +249,9 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
             self.assertIn(
                 group_role,
                 {granted for _, granted, _, _, _ in result.role_memberships},
+            )
+            self.assertTrue(
+                any(name == group_role and replication for name, _, _, _, _, _, replication in result.role_attributes)
             )
         finally:
             self.admin.execute(
@@ -281,6 +284,32 @@ class LegacyAdoptionPreflightIntegrationTests(unittest.TestCase):
         finally:
             self.connection.execute(
                 sql.SQL("REVOKE INSERT ON sinayxa.events FROM {}").format(
+                    sql.Identifier(self.reader_identity)
+                )
+            )
+            self.connection.commit()
+
+    def test_preflight_rejects_column_level_application_write_privileges(self) -> None:
+        self.connection.execute(
+            sql.SQL("GRANT UPDATE (event_id) ON sinayxa.events TO {}").format(
+                sql.Identifier(self.reader_identity)
+            )
+        )
+        self.connection.commit()
+        try:
+            result = preflight_legacy_adoption(
+                self.reader_connection,
+                approved_baseline_sha256=self.approved_digest,
+                approved_identity=self.reader_identity,
+            )
+            self.assertEqual("LEGACY_UNVERIFIED", result.status)
+            self.assertTrue(
+                any("write privileges on application objects" in reason for reason in result.reasons)
+            )
+            self.assertIsNone(result.computed_fingerprint)
+        finally:
+            self.connection.execute(
+                sql.SQL("REVOKE UPDATE (event_id) ON sinayxa.events FROM {}").format(
                     sql.Identifier(self.reader_identity)
                 )
             )

@@ -39,7 +39,7 @@ class LegacyAdoptionPreflight:
     current_user: str | None
     current_role: str | None
     role_memberships: tuple[tuple[str, str, bool, bool, bool], ...]
-    role_attributes: tuple[tuple[str, bool, bool, bool, bool, bool], ...]
+    role_attributes: tuple[tuple[str, bool, bool, bool, bool, bool, bool], ...]
     algorithm_version: str
     computed_fingerprint: str | None
     expected_fingerprint: str
@@ -154,7 +154,7 @@ def preflight_legacy_adoption(
         )
         role_flags = connection.execute(
             """
-            SELECT rolname, rolsuper, rolcreatedb, rolcreaterole, rolinherit, rolbypassrls
+            SELECT rolname, rolsuper, rolcreatedb, rolcreaterole, rolinherit, rolbypassrls, rolreplication
             FROM pg_roles
             WHERE rolname = ANY(%s)
             ORDER BY rolname
@@ -164,12 +164,12 @@ def preflight_legacy_adoption(
         if len(role_flags) != len(reachable_roles):
             reasons.append("one or more allowlisted PostgreSQL roles could not be inspected")
         role_attributes = tuple(
-            (name, superuser, createdb, createrole, inherit, bypassrls)
-            for name, superuser, createdb, createrole, inherit, bypassrls in role_flags
+            (name, superuser, createdb, createrole, inherit, bypassrls, replication)
+            for name, superuser, createdb, createrole, inherit, bypassrls, replication in role_flags
         )
         elevated_roles = [
-            name for name, superuser, createdb, createrole, _inherit, bypassrls in role_flags
-            if superuser or createdb or createrole or bypassrls
+            name for name, superuser, createdb, createrole, _inherit, bypassrls, replication in role_flags
+            if superuser or createdb or createrole or bypassrls or replication
         ]
         if elevated_roles:
             reasons.append(
@@ -240,6 +240,15 @@ def preflight_legacy_adoption(
                        OR has_table_privilege(
                            current_user, 'sinayxa.schema_migrations', 'REFERENCES'
                        )
+                       OR has_any_column_privilege(
+                           current_user, 'sinayxa.schema_migrations', 'INSERT'
+                       )
+                       OR has_any_column_privilege(
+                           current_user, 'sinayxa.schema_migrations', 'UPDATE'
+                       )
+                       OR has_any_column_privilege(
+                           current_user, 'sinayxa.schema_migrations', 'REFERENCES'
+                       )
                        OR has_table_privilege(
                            current_user, 'sinayxa.schema_migrations', 'TRIGGER'
                        )
@@ -259,6 +268,9 @@ def preflight_legacy_adoption(
                     OR has_table_privilege(current_user, c.oid, 'DELETE')
                     OR has_table_privilege(current_user, c.oid, 'TRUNCATE')
                     OR has_table_privilege(current_user, c.oid, 'REFERENCES')
+                    OR has_any_column_privilege(current_user, c.oid, 'INSERT')
+                    OR has_any_column_privilege(current_user, c.oid, 'UPDATE')
+                    OR has_any_column_privilege(current_user, c.oid, 'REFERENCES')
                     OR has_table_privilege(current_user, c.oid, 'TRIGGER')
                 ), false)
                 FROM pg_class c
