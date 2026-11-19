@@ -676,3 +676,65 @@ En los HEAD consultados de #85 y #99, los checks ejecutados de PowerShell, Postg
 6. No hacer DDL/DML productivo, adopción legacy ni modificar las migraciones históricas `0001–0005`.
 
 La herramienta GitHub utilizada en este corte no expone una operación segura de “Update branch” para sincronizar las ramas divergentes. No se han forzado refs, rebases manuales ni commits de merge construidos a ciegas. La actualización de ramas debe realizarse con la operación estándar de GitHub y verificarse después.
+
+
+### 14.15 Revalidación de integración y preflight PostgreSQL — corte 2026-11-19
+
+Este corte sustituye los estados de ramas del inventario 14.14 cuando exista discrepancia. Los HEAD y ejecuciones citados se consultaron directamente en GitHub.
+
+#### Inventario actual de PR abiertas
+
+| PR | HEAD | Base | Estado comprobado |
+| --- | --- | --- | --- |
+| #85 | `d2a08ea8d104f2a4756e3cd970f5159a270cba25` | `main` | OPEN; 0 detrás; PowerShell, Security y Issue workflow SUCCESS en este HEAD. Issue #88 mantiene brechas A–E; Issue #89 mantiene bloqueos operacionales. |
+| #99 | `d1da9ba3f9c89a27e36d5d4297b1bf755870030d` | rama #85 | OPEN / DRAFT; 0 detrás de su base; PowerShell y Security SUCCESS en este HEAD. Depende de #85. |
+| #119 | `d1ef36b900ca0571401ba62304186a2db8cebbf9` | `main` | OPEN / DRAFT; diff actual de un archivo documental. Requiere actualizar este documento y repetir sus gates. |
+| #126 | `2ace99daafbb4bbef1c95470cdbe9e4d686fe9d0` | `main` | OPEN / DRAFT; 0 detrás; diff de cinco archivos. PowerShell, PostgreSQL y Security exact-HEAD SUCCESS. OSV full SKIPPED, no PASS. |
+| #127 | `9cb25bc14178dc6df628297e1e63d9f20ecd6cb0` | rama #126 | OPEN / DRAFT; 0 detrás; diff propio de dos archivos. CI exact-HEAD en ejecución al corte, después de dos iteraciones de corrección de la integración de pruebas. |
+
+#### #126 — fingerprint del catálogo
+
+La genealogía de la rama histórica de #125 se reconcilió con `main` tras comprobar que ambos snapshots tenían el mismo árbol Git. El HEAD final de #126 se reconstruyó desde el árbol exacto de `main`, aplicando solo los cambios de fingerprint y sus workflows. No se modificó `main` ni se utilizó force-push.
+
+Ejecuciones sobre HEAD `2ace99d...`:
+- PowerShell: [44439914633](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439914633) — SUCCESS.
+- PostgreSQL / Issue: [44439914345](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439914345) — SUCCESS.
+- Security/dependency: [44439914777](https://github.com/Osleyder1985/SINAYXA/actions/runs/44439914777) — SUCCESS; OSV full SKIPPED.
+
+#### #127 — preflight legacy: fallos de pruebas y corrección pendiente de CI
+
+El primer HEAD integrado `a94bad8...` falló porque el rol de prueba se creaba sin contraseña y PostgreSQL exigía autenticación. Se añadió contraseña efímera para el rol lector, sin usar superusuario en la ejecución del preflight.
+
+El siguiente HEAD `2d19ec1...` reveló la causa adicional y real del fallo: los GRANT/REVOKE de esquema y tabla se ejecutaban mediante una conexión a la base de servicio, aunque cada prueba opera en una base aislada creada dinámicamente. Esto provocó `permission denied for schema sinayxa` y errores de cleanup al intentar eliminar roles que aún tenían privilegios.
+
+La corrección actual en HEAD `9cb25bc14178dc6df628297e1e63d9f20ecd6cb0`:
+- aplica GRANT/REVOKE de esquema y tabla mediante la conexión a la base aislada;
+- confirma las transacciones antes de abrir la conexión del rol lector y después de cada cambio de privilegios;
+- reserva la conexión administrativa para operaciones de ámbito clúster (crear/eliminar roles y bases);
+- conserva el rol lector autenticado y las verificaciones de mínimo privilegio.
+
+CI exact-HEAD `9cb25bc...` al corte:
+- PowerShell [44441278501](https://github.com/Osleyder1985/SINAYXA/actions/runs/44441278501) — IN_PROGRESS.
+- Security/dependency [44441278747](https://github.com/Osleyder1985/SINAYXA/actions/runs/44441278747) — IN_PROGRESS.
+- PostgreSQL / Issue [44441278499](https://github.com/Osleyder1985/SINAYXA/actions/runs/44441278499) — IN_PROGRESS.
+
+El fallo anterior no se cuenta como PASS y la corrección no se considera verificada hasta que el nuevo run PostgreSQL complete las pruebas de preflight y todo el CI exact-HEAD termine. El estado funcional de adopción sigue siendo `LEGACY_UNVERIFIED`; no se habilita adopción, DDL/DML productivo ni modificación de migraciones históricas.
+
+#### Contrato 0.2.1 / 0.2.2
+
+#85 y #99 están sincronizadas en sus respectivas relaciones de dependencia y sus gates aplicables finalizaron SUCCESS sobre sus HEAD actuales. Eso no cierra los criterios metodológicos:
+- Issue #88 mantiene abiertas brechas de cobertura/revisión en A–E.
+- Issue #89 mantiene pendientes las pruebas externas de eliminación, WORM/Object Lock y migración productiva.
+- #99 no se integra antes de #85 y debe revalidarse tras la integración de su base.
+
+#### Decisión de integración
+
+No se fusionó ninguna de las cinco PR abiertas en este corte. Ningún estado SKIPPED se contabiliza como PASS. No se ha modificado `main` directamente ni se ha usado force-push. Las decisiones y evidencias de reconciliación de #126/#127 están registradas en Issues #129 y #130 y en los comentarios de las PR respectivas.
+
+#### Próxima secuencia verificable
+
+1. Esperar y revisar CI exact-HEAD `9cb25bc...` de #127; inspeccionar logs si falla.
+2. Si PostgreSQL pasa, revisar exhaustivamente el preflight: identidad efectiva, memberships/SET ROLE, atributos elevados, privilegios de lectura/escritura y ausencia de mutación.
+3. Si todos los gates aplicables pasan, actualizar el inventario de #119 con los resultados finales y reevaluar la integración de #126/#127.
+4. Mantener #85/#99 bloqueadas por los criterios abiertos de #88/#89, no por el simple estado de CI.
+5. Verificar recuperación real de continuidad desde una conversación nueva y el estado local de worktrees Windows antes de considerar cerrada #119.
