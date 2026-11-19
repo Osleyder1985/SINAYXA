@@ -590,10 +590,8 @@ Pruebas añadidas:
 
 La prueba positiva vincula `edge-a-unknown` con la evaluación DESCONOCIDA del componente exacto a partir del fixture base. La prueba es sintética: no demuestra que la procedencia real de C-01 esté reconstruida. A/B permanecen abiertas hasta revisión humana y CI sobre el mismo HEAD.
 
-
 ### Ajuste de aislamiento del fixture tras la primera ejecución CI
 
 La primera ejecución de la suite (133 pruebas) reveló tres interacciones entre el nuevo campo y pruebas existentes que transforman temporalmente el estado a `INDEPENDIENTE`. El rechazo del esquema era correcto: el fixture base no debe llevar una relación no resuelta en escenarios que prueban independencia demostrada. Se retiró esa referencia del fixture base; la prueba positiva añade explícitamente `edge-a-unknown` solo en el escenario DESCONOCIDO. No se relajó ninguna regla de validación. La siguiente ejecución debe confirmar que las 133 pruebas pasan sobre un único HEAD.
-
 
 El fixture compartido permanece sin referencias no resueltas por diseño; la prueba positiva añade la referencia de forma local para no contaminar los escenarios que verifican independencia demostrada.
