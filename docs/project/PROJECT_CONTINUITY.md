@@ -689,7 +689,7 @@ Este corte sustituye los estados de ramas del inventario 14.14 cuando exista dis
 | #99 | `d1da9ba3f9c89a27e36d5d4297b1bf755870030d` | rama #85 | OPEN / DRAFT; 0 detrás de su base; PowerShell y Security SUCCESS en este HEAD. Depende de #85. |
 | #119 | `15c5bdff04e4d06134ad01fdba9c933d2551c977` | `main` | OPEN / DRAFT; actualización documental en validación; PowerShell SUCCESS y Security falló por Markdown lint, ahora corregido en este cambio. |
 | #126 | `2ace99daafbb4bbef1c95470cdbe9e4d686fe9d0` | `main` | OPEN / DRAFT; 0 detrás; diff de cinco archivos. PowerShell, PostgreSQL y Security exact-HEAD SUCCESS. OSV full SKIPPED, no PASS. |
-| #127 | `672d48a1eb7e27902a1b5c1eebed97eff7743b74` | rama #126 | OPEN / DRAFT; CI exact-HEAD en ejecución para nueva cobertura de privilegios por columna y atributo REPLICATION. |
+| #127 | `a4ba27663d864ad6ff06b3cc0e77c0717a3c95c6` | rama #126 | OPEN / DRAFT; CI exact-HEAD pendiente para controles de privilegios por columna, REPLICATION y MAINTAIN. |
 
 #### #126 — fingerprint del catálogo
 
@@ -721,9 +721,9 @@ CI exact-HEAD `8eedf02...` (validación anterior):
 - Security/dependency [44441538832](https://github.com/Osleyder1985/SINAYXA/actions/runs/44441538832) — SUCCESS; OSV full SKIPPED.
 - PostgreSQL / Issue [44441538140](https://github.com/Osleyder1985/SINAYXA/actions/runs/44441538140) — SUCCESS.
 
-Revisión adicional del contrato detectó dos vías de privilegio que el preflight anterior no evaluaba completamente: grants `INSERT`/`UPDATE`/`REFERENCES` a nivel de columna y el atributo de rol `REPLICATION`. La documentación PostgreSQL distingue `has_table_privilege` de `has_any_column_privilege`, que detecta concesiones por columna; `pg_roles` expone `rolreplication`. Se añadieron ambas comprobaciones y pruebas de regresión en HEAD `672d48a...`. El CI exact-HEAD de este nuevo commit debe terminar antes de considerar cerrada la revisión.
+Revisión adicional del contrato detectó dos vías de privilegio que el preflight anterior no evaluaba completamente: grants `INSERT`/`UPDATE`/`REFERENCES` a nivel de columna y el atributo de rol `REPLICATION`. La documentación PostgreSQL distingue `has_table_privilege` de `has_any_column_privilege`, que detecta concesiones por columna; `pg_roles` expone `rolreplication`. Se añadieron ambas comprobaciones y pruebas de regresión en HEAD `672d48a...`; posteriormente se detectó también el privilegio de tabla `MAINTAIN`, que quedó cubierto en HEAD `a4ba276...`. El CI exact-HEAD de este último commit debe terminar antes de considerar cerrada la revisión.
 
-La ejecución `8eedf02...` pasó los tres gates aplicables. La ejecución más reciente `672d48a...` pasó PostgreSQL/Issue y Security; PowerShell continúa IN_PROGRESS al corte. El cambio añade controles de ACL por columna y atributo REPLICATION. El estado funcional de adopción sigue siendo `LEGACY_UNVERIFIED`; no se habilita adopción, DDL/DML productivo ni modificación de migraciones históricas.
+La ejecución `8eedf02...` pasó los tres gates aplicables. La ejecución `672d48a...` pasó PostgreSQL/Issue, Security y PowerShell; añadió controles de ACL por columna y atributo REPLICATION. El HEAD posterior `a4ba276...` añade MAINTAIN y aún no tiene resultado de CI. El estado funcional de adopción sigue siendo `LEGACY_UNVERIFIED`; no se habilita adopción, DDL/DML productivo ni modificación de migraciones históricas.
 
 #### Contrato 0.2.1 / 0.2.2
 
