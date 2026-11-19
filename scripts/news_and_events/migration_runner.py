@@ -376,6 +376,7 @@ def _verify_relation_structure(
         JOIN pg_class c ON c.oid = con.conrelid
         JOIN pg_namespace n ON n.oid = c.relnamespace
         WHERE n.nspname = %s AND c.relname = %s
+          AND con.contype <> 'n'
         """,
         (schema, table),
     ).fetchall()
