@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This local, dependency-free laboratory exercises inventory and deletion reconciliation for exactly five synthetic copy classes:
+This dependency-free laboratory exercises inventory and deletion reconciliation for exactly five synthetic copy classes:
 
 - `PRIMARY`
 - `LOGICAL_REPLICA`
@@ -11,6 +11,10 @@ This local, dependency-free laboratory exercises inventory and deletion reconcil
 - `BACKUP`
 
 It is an additional filesystem-level test. The PostgreSQL backup/restore gate and post-backup deletion-ledger reconciliation remain covered separately by Issue #113 / PR #115. This laboratory does not replace those database tests.
+
+## Execution environments
+
+The GitHub Actions workflow executes this laboratory on an ephemeral GitHub-hosted Ubuntu runner. Its temporary filesystem is local to that runner; it is not the user's workstation or a persistent self-hosted machine. Reports distinguish `GITHUB_HOSTED_RUNNER` from `USER_LOCAL_HOST`.
 
 ## Run locally
 
@@ -38,7 +42,7 @@ The JSON report records:
 - confirmation of idempotent repeat and temporary-root cleanup;
 - explicit synthetic-only and no-network/no-external-service declarations.
 
-A local run is marked `LOCAL_UNPINNED` unless `SINAYXA_SOURCE_COMMIT` is explicitly supplied; run it from a clean checkout and record `git rev-parse HEAD` alongside the report. The CI artifact is retained for 14 days.
+A local run is marked `LOCAL_UNPINNED` unless `SINAYXA_SOURCE_COMMIT` is explicitly supplied; run it from a clean checkout and record `git rev-parse HEAD` alongside the report. The CI artifact is retained for 14 days. A CI PASS is evidence from the ephemeral GitHub-hosted runner only; reproduce on the user's local machine separately before describing it as a user-local validation.
 
 ## Safety and interpretation
 
