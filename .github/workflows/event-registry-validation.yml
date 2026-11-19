@@ -4,8 +4,10 @@ on:
   pull_request:
     branches:
       - main
+      - test/issue-121-migration-manifest-integrity
     paths:
       - "database/migrations/**"
+      - "database/control-plane/**"
       - "scripts/news_and_events/**"
       - "docs/news-and-events/event-registry.md"
       - "scripts/validation/validate_temporal_event_contract.py"
@@ -39,8 +41,10 @@ jobs:
     env:
       SINAYXA_DATABASE_URL: postgresql://sinayxa:sinayxa_test_only@localhost:5432/sinayxa_test
     steps:
-      - name: Checkout
+      - name: Checkout full Git history for migration provenance
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
 
       - name: Set up Python 3.12
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
@@ -63,6 +67,12 @@ jobs:
 
       - name: Verify the local CLI entry point
         run: python -m scripts.news_and_events.register_event --help
+
+      - name: Run pure migration manifest integrity tests
+        run: python -m unittest tests.news_and_events.test_migration_manifest -v
+
+      - name: Run PostgreSQL migration runner integration tests
+        run: python -m unittest tests.news_and_events.test_migration_runner -v
 
       - name: Run PostgreSQL event registry integration tests
         run: python -m unittest tests.news_and_events.test_event_registry -v

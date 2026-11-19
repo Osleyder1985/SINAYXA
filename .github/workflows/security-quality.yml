@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - test/issue-121-migration-manifest-integrity
       - feature/issue-78-contract-v0.2.0
     paths:
       - "**"

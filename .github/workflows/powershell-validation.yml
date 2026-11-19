@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - test/issue-121-migration-manifest-integrity
       - quality/powershell-analyzer-hardening
       - feature/issue-98-contract-0.2.2-on-0.2.1
   pull_request:
