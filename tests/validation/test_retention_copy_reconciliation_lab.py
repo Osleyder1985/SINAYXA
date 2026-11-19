@@ -66,6 +66,18 @@ class RetentionCopyReconciliationTests(unittest.TestCase):
         with self.assertRaisesRegex(RetentionLabError, "escapes"):
             validate_inventory(self.root, invalid)
 
+    def test_inventory_rejects_windows_style_path_traversal(self) -> None:
+        invalid = [dict(item) for item in self.inventory]
+        invalid[0]["relative_path"] = r"..\\outside"
+        with self.assertRaisesRegex(RetentionLabError, "unsafe component"):
+            validate_inventory(self.root, invalid)
+
+    def test_inventory_rejects_object_id_path_traversal(self) -> None:
+        invalid = [dict(item) for item in self.inventory]
+        invalid[0]["object_id"] = "../outside"
+        with self.assertRaisesRegex(RetentionLabError, "safe path component"):
+            validate_inventory(self.root, invalid)
+
     def test_inventory_rejects_symlink_location(self) -> None:
         invalid = [dict(item) for item in self.inventory]
         location = self.root / invalid[0]["relative_path"]
