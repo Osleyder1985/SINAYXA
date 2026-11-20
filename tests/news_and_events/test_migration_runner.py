@@ -181,10 +181,74 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             / "source-evidence-contract-v0.2.1.json"
         )
         package = json.loads(fixture.read_text(encoding="utf-8"))
+        registry_source_refs: dict[str, str] = {}
+        artifact_source_refs: dict[str, str] = {}
+        artifact_evidence_refs: dict[str, str] = {}
+        source_artifact_bytes = {
+            "version-a1": b"synthetic source artifact A",
+            "version-b1": b"synthetic source artifact B",
+        }
+        evidence_artifact_bytes = {
+            "evidence-a": b"synthetic evidence artifact A",
+            "evidence-b": b"synthetic evidence artifact B",
+        }
+        source_ref_by_version: dict[str, str] = {}
+        for index, source_version in enumerate(package["source_versions"], start=1):
+            source_id = source_version["source_id"]
+            registry_ref = f"https://registry.example.test/source-{index}"
+            source_ref = f"sha256://source-artifact-{index}"
+            registry_source_refs[source_id] = registry_ref
+            artifact_source_refs[source_version["source_version_id"]] = source_ref
+            source_ref_by_version[source_version["source_version_id"]] = source_ref
+            self.connection.execute(
+                "INSERT INTO sinayxa.event_sources (event_id, source_ref) VALUES (%s, %s)",
+                (event_id, registry_ref),
+            )
+            content = source_artifact_bytes[source_version["source_version_id"]]
+            self.connection.execute(
+                """
+                INSERT INTO sinayxa.source_artifacts
+                    (source_ref, media_type, content_sha256, content_length,
+                     content_bytes, license_ref, usage_status, captured_at,
+                     recorded_at, metadata)
+                VALUES (%s, 'text/plain', %s, %s, %s, 'SYNTHETIC_TEST',
+                        'SYNTHETIC', %s, %s, '{}'::jsonb)
+                """,
+                (
+                    source_ref, hashlib.sha256(content).hexdigest(), len(content),
+                    content, now, now,
+                ),
+            )
+
+        for evidence in package["evidence_items"]:
+            evidence_ref = f"sha256://evidence-artifact-{evidence['evidence_id']}"
+            artifact_evidence_refs[evidence["evidence_id"]] = evidence_ref
+            content = evidence_artifact_bytes[evidence["evidence_id"]]
+            self.connection.execute(
+                """
+                INSERT INTO sinayxa.evidence_artifacts
+                    (evidence_ref, source_ref, evidence_type, media_type,
+                     content_sha256, content_length, content_bytes,
+                     extraction_method, extraction_version, license_ref,
+                     usage_status, captured_at, recorded_at, metadata)
+                VALUES (%s, %s, 'SYNTHETIC_TEST', 'text/plain', %s, %s, %s,
+                        'SYNTHETIC_TEST', '1', 'SYNTHETIC_TEST', 'SYNTHETIC',
+                        %s, %s, '{}'::jsonb)
+                """,
+                (
+                    evidence_ref, source_ref_by_version[evidence["source_version_id"]],
+                    hashlib.sha256(content).hexdigest(), len(content), content,
+                    now, now,
+                ),
+            )
+
         result = persist_contract_package(
             self.connection,
             package,
             event_id=event_id,
+            registry_source_refs=registry_source_refs,
+            artifact_source_refs=artifact_source_refs,
+            artifact_evidence_refs=artifact_evidence_refs,
         )
 
         self.assertEqual(package["package_id"], result["package_id"])
@@ -222,6 +286,38 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(1, result["inserted_counts"]["claims"])
         self.assertEqual(2, result["inserted_counts"]["claim_components"])
+        self.assertEqual(
+            2,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.contract_sources "
+                "WHERE package_id = %s AND registry_source_ref IS NOT NULL",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertEqual(
+            2,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.source_versions "
+                "WHERE package_id = %s AND artifact_source_ref IS NOT NULL",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertEqual(
+            2,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.contract_evidence_items "
+                "WHERE package_id = %s AND artifact_evidence_ref IS NOT NULL",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertEqual(2, self.connection.execute(
+            "SELECT count(*) FROM sinayxa.source_artifacts WHERE source_ref = ANY(%s)",
+            (list(artifact_source_refs.values()),),
+        ).fetchone()[0])
+        self.assertEqual(2, self.connection.execute(
+            "SELECT count(*) FROM sinayxa.evidence_artifacts WHERE evidence_ref = ANY(%s)",
+            (list(artifact_evidence_refs.values()),),
+        ).fetchone()[0])
         self.assertEqual(40, result["inserted_counts"]["factor_assessments"])
         self.assertEqual(
             1,
