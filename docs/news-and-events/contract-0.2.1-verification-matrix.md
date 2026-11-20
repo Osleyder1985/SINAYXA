@@ -596,7 +596,6 @@ La primera ejecución de la suite (133 pruebas) reveló tres interacciones entre
 
 El fixture compartido permanece sin referencias no resueltas por diseño; la prueba positiva añade la referencia de forma local para no contaminar los escenarios que verifican independencia demostrada.
 
-
 ## Estado vigente de aceptación — 2026-11-20
 
 Esta sección prevalece sobre estados históricos anteriores de la matriz.
