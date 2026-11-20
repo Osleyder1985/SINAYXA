@@ -1,6 +1,6 @@
 # Registro operativo de acontecimientos — Issue #2
 
-**Estado:** registro base (#106), concurrencia/inmutabilidad (#108) y conflictos/decisiones (#109) integrados en `main`; evaluaciones y manifiestos (#110) integrados; almacenamiento de artefactos y endurecimiento TRUNCATE en revisión por PR #111.  
+**Estado:** registro base (#106), concurrencia/inmutabilidad (#108), conflictos/decisiones (#109), evaluaciones/manifiestos (#110) y almacenamiento de artefactos/endurecimiento TRUNCATE (#111) integrados en `main`.  
 **Persistencia:** PostgreSQL local 18.7.  
 **Uso autorizado:** entrada explícita del operador; datos sintéticos y archivos reales solo cuando el operador disponga de autorización aplicable.  
 **Fuera de alcance:** obtención automática de fuentes reales, crawling, vigilancia, scraping y servicios externos.
@@ -297,6 +297,9 @@ Cada artefacto conserva el contenido byte por byte, SHA-256, longitud, media typ
 `usage_status` solo admite `SYNTHETIC` o `AUTHORIZED`. Los artefactos `AUTHORIZED` requieren `authorization_ref`; una evidencia vinculada a una fuente no puede ampliar ni contradecir su licencia ni su estado de autorización. `authorization_ref` es una referencia declarada por el operador, no una validación jurídica automática; el operador debe verificar la autorización y conservar su soporte. El contenido se guarda en PostgreSQL (`BYTEA`) y no se impone un límite de tamaño adicional en la aplicación.
 
 Los manifiestos incluyen los hashes y timestamps reales `inserted_at` de los artefactos disponibles antes del `assessment_cutoff`. Una referencia cuyo contenido no exista o haya sido incorporado después del corte se identifica en `missing_components`; no se incorpora retrospectivamente al resultado.
+
+
+La integración persistente del contrato lógico 0.2.1 (claims, componentes, versiones de fuente, procedencia y evaluaciones por afirmación) no está implementada por estas cinco migraciones. Su mapeo y evolución controlada se siguen en [Issue #153](https://github.com/Osleyder1985/SINAYXA/issues/153); no deben simularse con metadatos JSONB libres ni con una segunda base de eventos.
 
 ## 9. Límites conocidos de esta entrega
 
