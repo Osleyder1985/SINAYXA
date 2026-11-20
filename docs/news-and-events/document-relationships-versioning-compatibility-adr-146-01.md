@@ -70,7 +70,7 @@ La ausencia de una relación en un paquete 0.2.1 significa únicamente que no es
 2. Rechazar versiones desconocidas o no soportadas con un error identificable.
 3. Mantener validadores independientes o rutas explícitas por versión.
 4. En lectura heredada 0.2.1, no sintetizar relaciones documentales ni asignar estado “sin relaciones”.
-5. En migración 0.1/0.2.1→0.2.2 (si se implementa), conservar snapshot de origen, hash de entrada/salida, versión de migrador, reglas aplicadas, errores y pérdidas.
+5. En migración 0.2.1→0.2.2 (si se implementa), conservar snapshot de origen, hash de entrada/salida, versión de migrador, reglas aplicadas, errores y pérdidas.
 6. No afirmar migración sin pérdida semántica si relaciones candidatas sólo aparecen en texto narrativo.
 7. Exportar 0.2.2→0.2.1 sólo como derivado identificado, con inventario de campos y relaciones descartados.
 8. Probar IDs, referencias, alcance, atribución, evidencia favorable/contraria, timestamps, estados de revisión e historial.
