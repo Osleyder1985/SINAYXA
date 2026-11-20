@@ -3,8 +3,8 @@
 - **Issue:** #78
 - **Consumidor funcional:** #4
 - **Dependencias metodológicas:** #15 y #16 (cerrados)
-- **Versión de propuesta:** 0.2.0 (evolución de 0.1.0; pendiente de aprobación expresa)
-- **Estado:** PROPUESTA TÉCNICA 0.2.0 — PENDIENTE DE APROBACIÓN EXPRESA
+- **Versión vigente:** contrato lógico 0.2.1 (evolución de 0.2.0)
+- **Estado vigente:** 0.2.1 APROBADO POR EL PROPIETARIO; PR #85 OPEN / NOT MERGED
 - **Alcance:** contrato lógico neutral respecto al motor de persistencia; no es un esquema físico ni una autorización de captura.
 
 ## 1. Objetivo y límites
@@ -498,3 +498,17 @@ Documentos y artefactos de la propuesta:
 La matriz define criterios de aceptación; no es evidencia de cierre. Las cinco áreas permanecen ABIERTAS hasta que esquema, fixtures, validadores y CI demuestren sus escenarios positivos, negativos y fronterizos sobre el mismo HEAD revisado. La propuesta 0.2.1 continúa pendiente de aprobación expresa.
 
 Esta evolución no altera #15 ni #16, no selecciona motor de persistencia, no autoriza captura/crawling y no establece plazos legales universales de retención.
+
+
+## Estado vigente — 2026-11-20
+
+Esta sección prevalece sobre las menciones históricas de propuesta pendiente que permanecen en el registro de decisiones anterior.
+
+El propietario aprobó expresamente el contrato lógico 0.2.1 en Issue #78. La PR #85 contiene el esquema, fixture, validador, migrador y pruebas correctivas correspondientes, pero sigue OPEN / NOT MERGED hasta completar revisión de integración y gates sobre el HEAD final.
+
+La conformidad lógica no acredita operaciones reales:
+- C: los estados, inventarios y reglas de eliminación/restauración son parte del contrato; borrado físico, reconciliación de copias externas y bloqueo real de exposición permanecen en Issue #89.
+- D: WORM/Object Lock permanece NOT_VERIFIED en Issue #152 y no bloquea por sí solo la integración lógica.
+- E: el migrador sintético y sus invariantes forman parte del contrato; la migración productiva, rollback y durabilidad del destino permanecen en Issue #89.
+
+No se selecciona proveedor ni motor por esta aprobación. No se autoriza captura real, crawling, vigilancia, almacenamiento productivo ni promesa de borrado físico/WORM.
