@@ -22,7 +22,7 @@ Una fila representa **una aserción de relación documental**, no una verdad abs
 - `target_document_version_id`: documento/version sobre el que recae la relación.
 - La dirección es siempre desde el documento declarante hacia el documento objetivo.
 - Los dos extremos deben existir en el mismo expediente y ser distintos.
-- La aserción debe incluir evidencia que permita localizar la declaración o justificar explícitamente que se trata de una inferencia analítica.
+- La aserción debe incluir evidencia que permita localizar la declaración documental. Las hipótesis e inferencias analíticas se registran en el mecanismo de hipótesis/evaluación correspondiente, no como relaciones documentales.
 - Una declaración de un emisor prueba que el emisor declaró esa relación; no certifica automáticamente la verdad de todos los datos del documento declarante.
 
 Ejemplo: si el documento B declara que corrige A, B es el declarante y A el objetivo. No invertir la dirección para acomodar una consulta.
@@ -50,7 +50,7 @@ Colección: `document_relationship_assertions`.
 | `declaring_document_version_id` | ref, requerido | Debe existir |
 | `target_document_version_id` | ref, requerido | Debe existir y diferir del declarante |
 | `relationship_type` | enum, requerido | Uno de los seis tipos iniciales |
-| `attribution_kind` | enum, requerido | `ISSUER_STATEMENT`, `REGULATOR_STATEMENT`, `THIRD_PARTY_REPORT`, `ANALYST_INFERENCE`, `UNKNOWN` |
+| `attribution_kind` | enum, requerido | `ISSUER_STATEMENT`, `REGULATOR_STATEMENT`, `THIRD_PARTY_REPORT`, `UNKNOWN` |
 | `declaring_actor_ref` | ref/null | Actor que declara; no inferir identidad |
 | `declaring_actor_role` | string/null | Rol documentado, no texto libre con PII |
 | `affected_scope` | array, requerido | Uno o más identificadores de claims, secciones, notas, estados financieros o alcance textual verificable |
@@ -83,7 +83,7 @@ Atribución, tipo de relación y revisión son dimensiones independientes:
 
 - `ISSUER_STATEMENT` no equivale a corroboración independiente.
 - `THIRD_PARTY_REPORT` no se atribuye al emisor salvo evidencia.
-- `ANALYST_INFERENCE` debe declarar método, evidencia favorable/contraria y alternativas; no se presenta como declaración oficial.
+- No existe `ANALYST_INFERENCE` en esta colección: las hipótesis analíticas, sus métodos, evidencia favorable/contraria y alternativas permanecen en el mecanismo de hipótesis/evaluación, separadas de las relaciones declaradas por documentos.
 - `ACCEPTED_AS_DECLARED` significa que se acepta que el documento hizo esa declaración, no que el contenido sustantivo sea verdadero.
 - `REJECTED` conserva la aserción y su motivo; no la borra.
 
