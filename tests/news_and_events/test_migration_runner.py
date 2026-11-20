@@ -293,6 +293,38 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(["evidence-a"], entity_assessment["supporting_evidence_refs"])
 
+        # Simulate a malformed direct-SQL row whose evidence array has no
+        # corresponding availability record. The as-of query must fail closed.
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa.claim_assessments (
+                claim_assessment_id, package_id, claim_id, claim_component_id,
+                evidentiary_status, attribution_status, supporting_evidence_refs,
+                contrary_evidence_refs, independence_assessment_refs, alternatives,
+                uncertainty, limitations, assessment_cutoff, methodology_version,
+                human_review_status, supersedes_assessment_id, claim_version_id,
+                claim_component_version_id, reviewed_at, rationale, supported_scope,
+                unsupported_scope, corroboration_basis, assessed_at
+            )
+            SELECT
+                'assessment-unavailable-evidence', package_id, claim_id,
+                claim_component_id, evidentiary_status, attribution_status,
+                ARRAY['evidence-not-available']::text[], contrary_evidence_refs,
+                independence_assessment_refs, alternatives, uncertainty, limitations,
+                assessment_cutoff, methodology_version, human_review_status, NULL,
+                claim_version_id, claim_component_version_id, reviewed_at, rationale,
+                supported_scope, unsupported_scope, corroboration_basis, assessed_at
+            FROM sinayxa.claim_assessments
+            WHERE claim_assessment_id = 'assessment-entity-v1'
+            """
+        )
+        self.assertEqual(
+            2,
+            len(load_claim_assessments_as_of(
+                self.connection, package["package_id"], future_cutoff
+            )["assessments"]),
+        )
+
         past_cutoff = self.connection.execute(
             "SELECT clock_timestamp() - interval '1 minute'"
         ).fetchone()[0]
