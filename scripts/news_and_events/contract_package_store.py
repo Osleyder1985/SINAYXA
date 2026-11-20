@@ -128,7 +128,10 @@ def _contract_value(value: Any) -> Any:
     from datetime import date, datetime
 
     if isinstance(value, datetime):
-        return value.isoformat()
+        rendered = value.isoformat()
+        if value.utcoffset() is not None and value.utcoffset().total_seconds() == 0:
+            return rendered.removesuffix("+00:00") + "Z"
+        return rendered
     if isinstance(value, date):
         return value.isoformat()
     if isinstance(value, list):
