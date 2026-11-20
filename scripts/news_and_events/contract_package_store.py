@@ -225,10 +225,14 @@ def load_claim_assessments_as_of(
         if cursor.fetchone() is None:
             raise KeyError(f"contract package not found: {package_id}")
 
+        assessment_column_text = next(
+            columns
+            for collection, _table, columns, _json in MAPPINGS
+            if collection == "claim_assessments"
+        )
         assessment_columns = [
-            column for column in dict((table, columns) for collection, table, columns, _ in MAPPINGS)
-            .get("claim_assessments", "").split()
-            if column not in {"package_id"}
+            column for column in assessment_column_text.split()
+            if column != "package_id"
         ]
         cursor.execute(
             f"SELECT {', '.join(assessment_columns)} FROM sinayxa.claim_assessments "
