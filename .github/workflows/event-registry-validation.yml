@@ -59,6 +59,12 @@ jobs:
       - name: Validate temporal contract fixture and semantics
         run: python scripts/validation/validate_temporal_event_contract.py
 
+      - name: Install pinned Source & Evidence contract validation dependencies
+        run: python -m pip install --requirement requirements-contract-validation.txt
+
+      - name: Run Source & Evidence contract 0.2.1 validation tests
+        run: python -m unittest tests.news_and_events.test_contract_package_validator -v
+
       - name: Run temporal contract regression tests
         run: python -m unittest scripts.validation.test_temporal_event_contract -v
 
