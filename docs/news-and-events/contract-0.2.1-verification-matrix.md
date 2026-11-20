@@ -605,7 +605,7 @@ Esta sección prevalece sobre estados históricos anteriores de la matriz.
 | --- | --- | --- | --- |
 | A — Independencia | COMPLETADA para el alcance del contrato; trazabilidad IND-01–IND-08 y revisión C-01–C-03 | No requiere proveedor para integrar el contrato | #88 |
 | B — Corroboración | COMPLETADA para el alcance del contrato; trazabilidad COR-01–COR-10 y revisión C-01–C-03 | No requiere proveedor para integrar el contrato | #88 |
-| C — Retención/eliminación | Controles lógicos RET-01–RET-09 representados y probados en fixtures sintéticos; no equivale a borrado físico | PENDIENTE: copias, réplicas, cachés, backups, restauración y bloqueo de exposición en un entorno autorizado | #89 |
+| C — Retención/eliminación | RET-01–RET-08: reglas lógicas y pruebas sintéticas; RET-09: detección heurística de algunos identificadores, con riesgo residual de reidentificación contextual explícitamente no resuelto | PENDIENTE: borrado/reconciliación real, inventario de copias y bloqueo de exposición; la aceptación del riesgo lógico RET-09 sigue en #88 | #88 / #89 |
 | D — Archivo y procedencia temporal | Controles lógicos ARC-01–ARC-08: atestación ligada a evidencia/versión, integridad y timestamps diferenciados; no demuestra WORM físico | WORM/Object Lock operacional NOT_VERIFIED, fuera de las áreas A–E de #88 | #88 / #152 |
 | E — Migración | Migrador y preservación histórica 0.2.0→0.2.1 probados con paquetes sintéticos; no equivale a migración productiva | PENDIENTE: validación representativa/productiva, recuperación y rollback en entorno autorizado | #89 |
 
@@ -615,4 +615,4 @@ WORM/Object Lock no es el Área D (ARC) de esta matriz. Es una garantía física
 
 ### Decisión de integración
 
-Las pruebas operacionales de C y E no son precondiciones para integrar un contrato lógico neutral respecto a proveedor, siempre que la documentación y el producto no afirmen que las garantías operacionales ya existen. El merge de PR #85 sigue sujeto a revisión de integración, calidad CI sobre el HEAD exacto y resolución de cualquier defecto lógico reproducible. Issue #89 permanece abierta para C/E operacionales. Issue #152 permanece abierta para D/WORM.
+Las pruebas operacionales de C y E no son precondiciones para integrar un contrato lógico neutral respecto a proveedor, siempre que la documentación y el producto no afirmen que las garantías operacionales ya existen. El merge de PR #85 sigue sujeto a revisión de integración, calidad CI sobre el HEAD exacto y resolución de los defectos lógicos reproducibles. El riesgo residual de reidentificación RET-09 sí es un asunto del contrato lógico y requiere aceptación explícita o endurecimiento antes de cerrar #88. Issue #89 permanece abierta para C/E operacionales. Issue #152 permanece abierta para WORM/Object Lock.
