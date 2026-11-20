@@ -10,8 +10,8 @@ SCHEMA = ROOT / "schemas" / "source-evidence-contract-0.2.1.schema.json"
 
 # (package collection, SQL table, ordered SQL columns, JSONB columns)
 MAPPINGS = (
-("claims","claims","claim_id claim_version_id claim_version proposition scope valid_time_start valid_time_end recorded_at supersedes_claim_version_id",""),
-("claim_components","claim_components","claim_component_id claim_component_version_id claim_id claim_version_id component_key proposition_fragment scope version recorded_at supersedes_component_version_id",""),
+("claims","claims","claim_id claim_version_id package_id claim_version proposition scope valid_time_start valid_time_end recorded_at supersedes_claim_version_id",""),
+("claim_components","claim_components","claim_component_id claim_component_version_id package_id claim_id claim_version_id component_key proposition_fragment scope version recorded_at supersedes_component_version_id",""),
 ("sources","contract_sources","source_id package_id event_id registry_source_ref created_at recorded_at",""),
 ("source_versions","source_versions","source_version_id package_id source_id version_label version_sequence published_at first_detected_at first_publicly_observed_at original_timestamps retrieved_at canonical_reference content_reference content_hash hash_algorithm supersedes_source_version_id recorded_at artifact_source_ref","original_timestamps"),
 ("identity_assessments","identity_assessments","identity_assessment_id package_id source_id assessment_cutoff identity anonymous_to_public anonymous_to_publisher anonymous_to_sinayxa identity_verified_by_publisher identity_verified_by_sinayxa verification_evidence_refs limitations recorded_at",""),
