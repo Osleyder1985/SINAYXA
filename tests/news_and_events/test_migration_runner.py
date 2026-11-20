@@ -356,6 +356,68 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             ).fetchone()[0],
         )
 
+
+    def test_concurrent_package_writers_commit_exactly_one_complete_package(self) -> None:
+        apply_migrations(self.connection)
+        event_id = f"issue153-concurrent-{uuid4().hex}"
+        now = "2026-01-02T03:04:05+00:00"
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa.events
+                (event_id, description, affected_asset_refs, source_refs,
+                 created_at, contract_version, event_payload)
+            VALUES (%s, 'Synthetic concurrent package persistence test',
+                    '{}', '{}', %s, '1.0.0', '{"synthetic":true}'::jsonb)
+            """,
+            (event_id, now),
+        )
+        self.connection.commit()
+        fixture = (
+            Path(__file__).resolve().parents[1]
+            / "fixtures"
+            / "contracts"
+            / "source-evidence-contract-v0.2.1.json"
+        )
+        package = json.loads(fixture.read_text(encoding="utf-8"))
+        barrier = Barrier(2)
+
+        def persist_from_independent_connection() -> str:
+            with psycopg.connect(self.database_url) as connection:
+                barrier.wait(timeout=15)
+                try:
+                    persist_contract_package(connection, package, event_id=event_id)
+                except psycopg.errors.UniqueViolation:
+                    return "duplicate"
+                return "committed"
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            outcomes = list(executor.map(
+                lambda _index: persist_from_independent_connection(), range(2)
+            ))
+
+        self.assertCountEqual(["committed", "duplicate"], outcomes)
+        self.assertEqual(
+            1,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.contract_packages WHERE package_id = %s",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertEqual(
+            1,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.claims WHERE package_id = %s",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertEqual(
+            2,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.claim_components WHERE package_id = %s",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+
     def test_synthetic_historical_snapshots_upgrade_and_preserve_invariants(self) -> None:
         """Exercise synthetic snapshots at every migration boundary, then roll forward."""
         event_id = "issue-121-snapshot-event"
