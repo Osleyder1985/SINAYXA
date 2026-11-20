@@ -115,6 +115,25 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         }
         self.assertTrue(expected_tables.issubset(actual_tables))
 
+        foreign_key_catalog = self.connection.execute(
+            """
+            SELECT
+                count(*) AS foreign_key_count,
+                count(DISTINCT relation.relname) AS constrained_table_count,
+                count(*) FILTER (WHERE constraint_row.confdeltype = 'r') AS restrict_count
+            FROM pg_constraint AS constraint_row
+            JOIN pg_class AS relation ON relation.oid = constraint_row.conrelid
+            JOIN pg_namespace AS namespace ON namespace.oid = relation.relnamespace
+            WHERE namespace.nspname = 'sinayxa'
+              AND relation.relname = ANY(%s)
+              AND constraint_row.contype = 'f'
+            """,
+            (sorted(expected_tables),),
+        ).fetchone()
+        self.assertGreaterEqual(foreign_key_catalog[0], 50)
+        self.assertEqual(len(expected_tables), foreign_key_catalog[1])
+        self.assertEqual(foreign_key_catalog[0], foreign_key_catalog[2])
+
         event_id = "issue153-synthetic-event"
         now = "2026-01-02T03:04:05+00:00"
         self.connection.execute(
