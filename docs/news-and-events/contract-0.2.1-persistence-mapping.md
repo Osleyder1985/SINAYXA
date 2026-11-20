@@ -1,6 +1,6 @@
 # Contract 0.2.1 persistence mapping
 
-**Status:** migration 0006 adds the typed relational storage layer. The package validator, persistence adapter, full round-trip tests and cutoff query API are not implemented by this migration alone.
+**Status:** migration 0006, the JSON Schema/cross-entity validator, atomic PostgreSQL persistence adapter and package read-back serializer are implemented on the Issue #153 branch. PostgreSQL integration tests exercise fixture persistence and read-back. Knowledge-time/as-of query semantics remain open and are not claimed by this document.
 
 ## Integration boundary
 
@@ -46,6 +46,6 @@ Existing content-addressed bytes remain in source_artifacts and evidence_artifac
 
 ## Not established by migration 0006
 
-This migration does not implement the JSON Schema package validator, an atomic package persistence adapter, a complete read/round-trip serializer, the as-of query API, real operational deletion/backup reconciliation, physical WORM/Object Lock, source collection, crawling, scraping or automatic credibility/causality scoring. These remain separate work and must not be inferred from successful DDL application.
+The current branch now implements the JSON Schema package validator, cross-entity reference checks, atomic package persistence and package reconstruction from PostgreSQL. The read-back path validates the reconstructed contract before returning it. It does not yet implement a knowledge-time/as-of query API. That requires an explicit policy for database insertion timestamps versus transaction commit/visibility time; inserted_at alone must not be represented as an exact commit-time observation. Real operational deletion/backup reconciliation, physical WORM/Object Lock, source collection, crawling, scraping and automatic credibility/causality scoring remain outside this implementation.
 
 The migration is additive and applies only through the existing fresh-database migration runner. It does not adopt or alter legacy databases.
