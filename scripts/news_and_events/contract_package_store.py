@@ -123,3 +123,64 @@ def persist_contract_package(
         "inserted_counts":counts,
         "total_entities":sum(counts.values()),
     }
+
+def _contract_value(value: Any) -> Any:
+    from datetime import date, datetime
+
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, list):
+        return [_contract_value(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _contract_value(item) for key, item in value.items()}
+    return value
+
+
+def load_contract_package(connection: Any, package_id: str) -> dict[str, Any]:
+    """Reconstruct and validate a persisted 0.2.1 package by its package ID.
+
+    Registry-only columns (event binding, artifact references and inserted_at)
+    are deliberately excluded from the contract representation.
+    """
+    result: dict[str, Any] = {}
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT package_id, contract_version, created_at
+            FROM sinayxa.contract_packages
+            WHERE package_id = %s
+            """,
+            (package_id,),
+        )
+        root = cursor.fetchone()
+        if root is None:
+            raise KeyError(f"contract package not found: {package_id}")
+        result.update(
+            package_id=root[0],
+            contract_version=root[1],
+            created_at=_contract_value(root[2]),
+        )
+
+        for collection, table, column_text, _json_text in MAPPINGS:
+            columns = column_text.split()
+            excluded = {"package_id", "event_id", "registry_source_ref",
+                        "artifact_source_ref", "artifact_evidence_ref"}
+            selected = [column for column in columns if column not in excluded]
+            query_columns = ", ".join(selected)
+            cursor.execute(
+                f"SELECT {query_columns} FROM sinayxa.{table} "
+                f"WHERE package_id = %s ORDER BY inserted_at",
+                (package_id,),
+            )
+            names = [description.name for description in cursor.description]
+            result[collection] = [
+                {
+                    name: _contract_value(value)
+                    for name, value in zip(names, row, strict=True)
+                }
+                for row in cursor.fetchall()
+            ]
+
+    return validate_contract_package(result)
