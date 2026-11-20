@@ -242,6 +242,11 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                 ),
             )
 
+        # Commit the independently prepared registry/artifact rows before the
+        # adapter opens its package transaction; the duplicate-package rollback
+        # below must not undo these setup rows or the already committed package.
+        self.connection.commit()
+
         result = persist_contract_package(
             self.connection,
             package,
