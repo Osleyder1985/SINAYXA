@@ -202,7 +202,6 @@ Until that dependency is resolved:
 
 The concrete contract-to-registry persistence gap was inspected and is tracked in Issue #153. Do not add ad-hoc persistence in this PR; implement the reviewed mapping in #153 after the 0.2.1 contract base is stabilized.
 
-
 ### Contract-to-registry mapping audit — 2026-11-20
 
 A direct comparison of the 0.2.1 schema with the five current PostgreSQL migrations establishes the following boundary:
