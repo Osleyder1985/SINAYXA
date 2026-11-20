@@ -178,12 +178,17 @@ def load_contract_package(connection: Any, package_id: str) -> dict[str, Any]:
                 (package_id,),
             )
             names = [description.name for description in cursor.description]
-            result[collection] = [
-                {
-                    name: _contract_value(value)
-                    for name, value in zip(names, row, strict=True)
-                }
-                for row in cursor.fetchall()
-            ]
+            omit_null = {
+                ("audit_events", "retention_id"),
+                ("independence_assessments", "unresolved_provenance_edge_refs"),
+            }
+            result[collection] = []
+            for row in cursor.fetchall():
+                item = {}
+                for name, value in zip(names, row, strict=True):
+                    if value is None and (collection, name) in omit_null:
+                        continue
+                    item[name] = _contract_value(value)
+                result[collection].append(item)
 
     return validate_contract_package(result)
