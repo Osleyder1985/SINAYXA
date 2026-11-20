@@ -499,7 +499,6 @@ La matriz define criterios de aceptación; no es evidencia de cierre. Las cinco 
 
 Esta evolución no altera #15 ni #16, no selecciona motor de persistencia, no autoriza captura/crawling y no establece plazos legales universales de retención.
 
-
 ## Estado vigente — 2026-11-20
 
 Esta sección prevalece sobre las menciones históricas de propuesta pendiente que permanecen en el registro de decisiones anterior.
@@ -507,6 +506,7 @@ Esta sección prevalece sobre las menciones históricas de propuesta pendiente q
 El propietario aprobó expresamente el contrato lógico 0.2.1 en Issue #78. La PR #85 contiene el esquema, fixture, validador, migrador y pruebas correctivas correspondientes, pero sigue OPEN / NOT MERGED hasta completar revisión de integración y gates sobre el HEAD final.
 
 La conformidad lógica no acredita operaciones reales:
+
 - C: los estados, inventarios y reglas de eliminación/restauración son parte del contrato; borrado físico, reconciliación de copias externas y bloqueo real de exposición permanecen en Issue #89.
 - D: WORM/Object Lock permanece NOT_VERIFIED en Issue #152 y no bloquea por sí solo la integración lógica.
 - E: el migrador sintético y sus invariantes forman parte del contrato; la migración productiva, rollback y durabilidad del destino permanecen en Issue #89.
