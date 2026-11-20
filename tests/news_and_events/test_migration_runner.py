@@ -18,7 +18,10 @@ from psycopg import sql
 from psycopg.conninfo import conninfo_to_dict, make_conninfo
 
 from scripts.news_and_events import migration_runner
-from scripts.news_and_events.contract_package_store import persist_contract_package
+from scripts.news_and_events.contract_package_store import (
+    load_contract_package,
+    persist_contract_package,
+)
 from scripts.news_and_events.migration_runner import (
     BOOTSTRAP_SHA256,
     MigrationRunnerError,
@@ -184,6 +187,15 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         )
 
         self.assertEqual(package["package_id"], result["package_id"])
+        loaded = load_contract_package(self.connection, package["package_id"])
+        self.assertEqual(package["package_id"], loaded["package_id"])
+        self.assertEqual(package["contract_version"], loaded["contract_version"])
+        self.assertEqual(1, len(loaded["claims"]))
+        self.assertEqual(2, len(loaded["claim_components"]))
+        self.assertEqual(
+            package["source_versions"][0]["original_timestamps"],
+            loaded["source_versions"][0]["original_timestamps"],
+        )
         self.assertEqual(1, result["inserted_counts"]["claims"])
         self.assertEqual(2, result["inserted_counts"]["claim_components"])
         self.assertEqual(40, result["inserted_counts"]["factor_assessments"])
