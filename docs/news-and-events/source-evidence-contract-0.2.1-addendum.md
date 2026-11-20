@@ -1,8 +1,8 @@
-# Addendum lógico propuesto — contrato de evidencia y procedencia 0.2.1
+# Addendum lógico — contrato de evidencia y procedencia 0.2.1
 
 - Base: contrato lógico 0.2.0 de la PR #85.
 - Issue: #78.
-- Estado: PROPUESTA TÉCNICA CORRECTIVA — PENDIENTE DE VALIDACIÓN Y APROBACIÓN.
+- Estado vigente: APROBADO POR EL PROPIETARIO (2026-11-16); integración en PR #85 pendiente.
 - Compatibilidad: no modifica los catálogos ni los significados aprobados en #15 y #16.
 
 ## 1. Objetivo
@@ -149,3 +149,17 @@ Se incorpora la propiedad opcional `independenceAssessment.unresolved_provenance
 - una arista no resuelta no puede reutilizarse como dependencia demostrada ni como ruta independiente.
 
 La propiedad es opcional para preservar compatibilidad con paquetes 0.2.1 existentes. Los estados aprobados no cambian: `INDEPENDIENTE`, `DEPENDIENTE` y `DESCONOCIDA`. Un estado `INDEPENDIENTE` no puede contener referencias no resueltas. Un estado `DEPENDIENTE` puede conservarlas adicionalmente cuando otras aristas sí demuestran dependencias concretas; la incertidumbre no se convierte en evidencia positiva. No se añade un estado `DISPUTADA`, score ni inferencia automática.
+
+
+## 25. Estado vigente y separación de conformidad lógica/operacional — 2026-11-20
+
+Esta sección prevalece sobre cualquier estado histórico de propuesta pendiente que permanezca en el documento.
+
+- El propietario aprobó expresamente el contrato lógico 0.2.1 en Issue #78. La aprobación metodológica no equivale a merge ni a autorización de captura, crawling, persistencia productiva o despliegue.
+- **Conformidad lógica C:** el contrato representa copias/derivados, inventario, transiciones auditadas, DELETE_PENDING, DELETED, verificación por alcance y reglas de restauración/reconciliación. El validador y las pruebas sintéticas verifican estas invariantes. Esto no demuestra que un proveedor haya borrado físicamente cada copia ni que un consumidor real bloquee todas las lecturas.
+- **Conformidad lógica E:** el migrador 0.2.0→0.2.1 valida el origen y destino, preserva el historial modelado, produce hashes canónicos/manifiesto y resuelve referencias a snapshots en el contexto de validación. Las pruebas demuestran determinismo y rechazo de mutaciones en paquetes sintéticos. Esto no demuestra despliegue, rollback ni durabilidad de snapshots en un entorno productivo.
+- **Validación operacional C/E:** permanece en Issue #89 y no es criterio para integrar el contrato neutral respecto a proveedor. Requiere decisión/entorno autorizado antes de ejecutar operaciones reales. No se afirma que C/E operacional estén cerradas.
+- **D — WORM/Object Lock:** separada en Issue #152, estado NOT_VERIFIED. No bloquea por sí sola el contrato lógico y no se afirma inmutabilidad física.
+- **A/B:** revisión humana y técnica completada para el alcance 0.2.1; evidencias y límites en Issue #88, comentario #7042887749.
+
+El contrato lógico define lo que debe representarse y rechazarse. La prueba operacional acredita que una implementación concreta respeta esas reglas en un proveedor y entorno determinados. Son capas distintas y no deben usarse como bloqueos mutuos.
