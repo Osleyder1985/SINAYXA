@@ -595,3 +595,20 @@ La prueba positiva vincula `edge-a-unknown` con la evaluación DESCONOCIDA del c
 La primera ejecución de la suite (133 pruebas) reveló tres interacciones entre el nuevo campo y pruebas existentes que transforman temporalmente el estado a `INDEPENDIENTE`. El rechazo del esquema era correcto: el fixture base no debe llevar una relación no resuelta en escenarios que prueban independencia demostrada. Se retiró esa referencia del fixture base; la prueba positiva añade explícitamente `edge-a-unknown` solo en el escenario DESCONOCIDO. No se relajó ninguna regla de validación. La siguiente ejecución debe confirmar que las 133 pruebas pasan sobre un único HEAD.
 
 El fixture compartido permanece sin referencias no resueltas por diseño; la prueba positiva añade la referencia de forma local para no contaminar los escenarios que verifican independencia demostrada.
+
+
+## Estado vigente de aceptación — 2026-11-20
+
+Esta sección prevalece sobre estados históricos anteriores de la matriz.
+
+| Área | Conformidad lógica 0.2.1 | Validación operacional | Seguimiento |
+| --- | --- | --- | --- |
+| A — Independencia | COMPLETADA para el alcance del contrato; trazabilidad IND-01–IND-08 y revisión C-01–C-03 | No requiere proveedor para integrar el contrato | #88 |
+| B — Corroboración | COMPLETADA para el alcance del contrato; trazabilidad COR-01–COR-10 y revisión C-01–C-03 | No requiere proveedor para integrar el contrato | #88 |
+| C — Retención/eliminación | Controles lógicos RET-01–RET-09 representados y probados en fixtures sintéticos; no equivale a borrado físico | PENDIENTE: copias, réplicas, cachés, backups, restauración y bloqueo de exposición en un entorno autorizado | #89 |
+| D — Archivo WORM | Integridad/atestación de captura modelada; no equivale a Object Lock | NOT_VERIFIED, separado del contrato lógico | #152 |
+| E — Migración | Migrador y preservación histórica 0.2.0→0.2.1 probados con paquetes sintéticos; no equivale a migración productiva | PENDIENTE: validación representativa/productiva, recuperación y rollback en entorno autorizado | #89 |
+
+### Decisión de integración
+
+Las pruebas operacionales de C y E no son precondiciones para integrar un contrato lógico neutral respecto a proveedor, siempre que la documentación y el producto no afirmen que las garantías operacionales ya existen. El merge de PR #85 sigue sujeto a revisión de integración, calidad CI sobre el HEAD exacto y resolución de cualquier defecto lógico reproducible. Issue #89 permanece abierta para C/E operacionales. Issue #152 permanece abierta para D/WORM.
