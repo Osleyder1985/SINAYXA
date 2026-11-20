@@ -222,7 +222,7 @@ def validate_contract_package(
             _require_ref(claim_assessments, previous, "claim_assessment_id")
 
     for row in package["audit_events"]:
-        if row["retention_id"] is not None:
+        if row.get("retention_id") is not None:
             _require_ref(retention, row["retention_id"], "retention_id")
 
     for row in package["archive_attestations"]:
