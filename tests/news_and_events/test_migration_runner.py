@@ -18,6 +18,7 @@ from psycopg import sql
 from psycopg.conninfo import conninfo_to_dict, make_conninfo
 
 from scripts.news_and_events import migration_runner
+from scripts.news_and_events.contract_package_store import persist_contract_package
 from scripts.news_and_events.migration_runner import (
     BOOTSTRAP_SHA256,
     MigrationRunnerError,
@@ -151,6 +152,72 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                 (now, "a" * 64),
             )
         self.connection.rollback()
+
+
+    def test_contract_package_store_persists_fixture_atomically(self) -> None:
+        apply_migrations(self.connection)
+        event_id = f"issue153-store-{uuid4().hex}"
+        now = "2026-01-02T03:04:05+00:00"
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa.events
+                (event_id, description, affected_asset_refs, source_refs,
+                 created_at, contract_version, event_payload)
+            VALUES (%s, 'Synthetic package persistence integration test',
+                    '{}', '{}', %s, '1.0.0', '{"synthetic":true}'::jsonb)
+            """,
+            (event_id, now),
+        )
+        self.connection.commit()
+
+        fixture = (
+            Path(__file__).resolve().parents[1]
+            / "fixtures"
+            / "contracts"
+            / "source-evidence-contract-v0.2.1.json"
+        )
+        package = json.loads(fixture.read_text(encoding="utf-8"))
+        result = persist_contract_package(
+            self.connection,
+            package,
+            event_id=event_id,
+        )
+
+        self.assertEqual(package["package_id"], result["package_id"])
+        self.assertEqual(1, result["inserted_counts"]["claims"])
+        self.assertEqual(2, result["inserted_counts"]["claim_components"])
+        self.assertEqual(40, result["inserted_counts"]["factor_assessments"])
+        self.assertEqual(
+            1,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.contract_packages WHERE package_id = %s",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertEqual(
+            2,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.source_versions WHERE package_id = %s",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertIsNotNone(
+            self.connection.execute(
+                "SELECT inserted_at FROM sinayxa.claims WHERE claim_version_id = %s",
+                (package["claims"][0]["claim_version_id"],),
+            ).fetchone()[0]
+        )
+
+        with self.assertRaises(psycopg.errors.UniqueViolation):
+            persist_contract_package(self.connection, package, event_id=event_id)
+        self.connection.rollback()
+        self.assertEqual(
+            1,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.contract_packages WHERE package_id = %s",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
 
     def test_synthetic_historical_snapshots_upgrade_and_preserve_invariants(self) -> None:
         """Exercise synthetic snapshots at every migration boundary, then roll forward."""
