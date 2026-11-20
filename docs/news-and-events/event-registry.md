@@ -298,7 +298,6 @@ Cada artefacto conserva el contenido byte por byte, SHA-256, longitud, media typ
 
 Los manifiestos incluyen los hashes y timestamps reales `inserted_at` de los artefactos disponibles antes del `assessment_cutoff`. Una referencia cuyo contenido no exista o haya sido incorporado después del corte se identifica en `missing_components`; no se incorpora retrospectivamente al resultado.
 
-
 La integración persistente del contrato lógico 0.2.1 (claims, componentes, versiones de fuente, procedencia y evaluaciones por afirmación) no está implementada por estas cinco migraciones. Su mapeo y evolución controlada se siguen en [Issue #153](https://github.com/Osleyder1985/SINAYXA/issues/153); no deben simularse con metadatos JSONB libres ni con una segunda base de eventos.
 
 ## 9. Límites conocidos de esta entrega
