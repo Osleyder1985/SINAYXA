@@ -155,8 +155,8 @@ class MigrationManifestTests(unittest.TestCase):
             repository_root / "database" / "migrations" / "manifest.json",
             repository_root / "database" / "migrations",
         )
-        self.assertEqual([1, 2, 3, 4, 5], [record.version for record in records])
-        self.assertEqual(5, len(records))
+        self.assertEqual([1, 2, 3, 4, 5, 6], [record.version for record in records])
+        self.assertEqual(6, len(records))
 
 
     def _git_repository(self) -> tuple[Path, str, str]:
