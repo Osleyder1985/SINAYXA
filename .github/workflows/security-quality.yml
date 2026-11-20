@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - test/issue-121-migration-manifest-integrity
+      - feature/issue-78-contract-v0.2.0
     paths:
       - "**"
       - ".github/workflows/security-quality.yml"
@@ -149,6 +150,10 @@ jobs:
           python3 -m venv "${RUNNER_TEMP}/contract-schema-venv"
           "${RUNNER_TEMP}/contract-schema-venv/bin/python" -m pip install --disable-pip-version-check --no-input -r requirements-contract-validation.txt
           "${RUNNER_TEMP}/contract-schema-venv/bin/python" scripts/validation/validate_source_evidence_contract_schema.py
+          "${RUNNER_TEMP}/contract-schema-venv/bin/python" scripts/validation/validate_source_evidence_contract_0_2_2.py
+          "${RUNNER_TEMP}/contract-schema-venv/bin/python" -m unittest discover -s scripts/validation -p 'test_source_evidence_contract_0_2_2.py' -v
+          "${RUNNER_TEMP}/contract-schema-venv/bin/python" -m unittest discover -s scripts/validation -p 'test_migrate_source_evidence_contract_0_2_1_to_0_2_2.py' -v
+          "${RUNNER_TEMP}/contract-schema-venv/bin/python" -m unittest discover -s scripts/validation -p 'test_opaque_identifier.py' -v
       # Retain dependency audit results for traceability and later review.
       - name: Upload dependency audit evidence
         if: always()

@@ -1,0 +1,28 @@
+{
+  "catalog_id": "sinayxa.audit.actor_roles",
+  "catalog_version": "1.0.0",
+  "status": "PROPOSED_FOR_CONTRACT_0.2.2",
+  "generation_policy": "Codes are stable identifiers; labels are documentation only and must not be copied into audit events.",
+  "roles": [
+    {
+      "code": "SYSTEM",
+      "description": "Proceso automatizado del sistema, sin atribución a una persona."
+    },
+    {
+      "code": "DATA_CUSTODIAN",
+      "description": "Responsable operativo de custodia de datos."
+    },
+    {
+      "code": "PRIVACY_OFFICER",
+      "description": "Responsable de revisión de privacidad y minimización."
+    },
+    {
+      "code": "SECURITY_OPERATOR",
+      "description": "Responsable de operaciones de seguridad."
+    },
+    {
+      "code": "LEGAL_REVIEWER",
+      "description": "Responsable de revisión jurídica."
+    }
+  ]
+}

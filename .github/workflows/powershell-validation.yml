@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - main
+      - test/issue-121-migration-manifest-integrity
       - quality/powershell-analyzer-hardening
+      - feature/issue-98-contract-0.2.2-on-0.2.1
   pull_request:
     branches:
       - main
-      - test/issue-121-migration-manifest-integrity
+      - feature/issue-78-contract-v0.2.0
     paths:
       - "**.ps1"
       - "**.psm1"
@@ -34,16 +36,23 @@ on:
       - "scripts/validation/migrate_source_evidence_contract_0_2_0_to_0_2_1.py"
       - "scripts/validation/test_contract_0_2_1_extensions.py"
       - "schemas/source-evidence-contract-0.2.1.schema.json"
+      - "schemas/source-evidence-contract-0.2.2.schema.json"
+      - "schemas/catalogs/audit-actor-roles-1.0.0.json"
+      - "schemas/catalogs/audit-reason-codes-1.0.0.json"
+      - "tests/fixtures/contracts/source-evidence-contract-v0.2.2.json"
+      - "scripts/validation/validate_source_evidence_contract_0_2_2.py"
+      - "scripts/validation/opaque_identifier.py"
+      - "scripts/validation/test_opaque_identifier.py"
+      - "scripts/validation/test_source_evidence_contract_0_2_2.py"
+      - "scripts/validation/migrate_source_evidence_contract_0_2_1_to_0_2_2.py"
+      - "scripts/validation/test_migrate_source_evidence_contract_0_2_1_to_0_2_2.py"
+      - "docs/news-and-events/contract-0.2.2-audit-minimization.md"
       - "tests/fixtures/contracts/source-evidence-contract-v0.2.1.json"
       - "scripts/validation/validate_source_evidence_contract_0_2_1.py"
       - "docs/news-and-events/source-evidence-contract-0.2.1-addendum.md"
       - "docs/news-and-events/contract-0.2.1-verification-matrix.md"
       - "requirements-contract-validation.txt"
       - "scripts/validation/test_source_evidence_contract.ps1"
-      - "database/migrations/**"
-      - "scripts/news_and_events/**"
-      - "tests/news_and_events/**"
-      - "docs/news-and-events/event-registry.md"
       - "scripts/validation/validate_source_independence_fixture.ps1"
       - "scripts/validation/test_source_independence_fixture.ps1"
       - "scripts/validation/validate_alert_fixture.ps1"
@@ -353,6 +362,38 @@ jobs:
           $ErrorActionPreference = 'Stop'
           & $env:SINAYXA_PWSH_PATH -NoLogo -NoProfile -File 'scripts/validation/Invoke-SyntheticValidationLab.ps1'
           if ($LASTEXITCODE -ne 0) { throw 'Issue #93 synthetic validation lab failed.' }
+
+      - name: Run Issue #98 contract 0.2.2 audit catalog and mutation tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m unittest discover -s scripts/validation -p 'test_source_evidence_contract_0_2_2.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'The contract 0.2.2 audit mutation tests failed.' }
+
+      - name: Validate Issue #98 contract 0.2.2 schema, catalogs and synthetic fixture
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python 'scripts/validation/validate_source_evidence_contract_0_2_2.py'
+          if ($LASTEXITCODE -ne 0) { throw 'The contract 0.2.2 schema or audit fixture validation failed.' }
+
+      - name: Run Issue #98 CSPRNG opaque identifier tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m unittest discover -s scripts/validation -p 'test_opaque_identifier.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'The CSPRNG opaque identifier tests failed.' }
+
+      - name: Run Issue #98 fail-closed contract 0.2.1 to 0.2.2 migration tests
+        shell: pwsh
+        working-directory: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python -m unittest discover -s scripts/validation -p 'test_migrate_source_evidence_contract_0_2_1_to_0_2_2.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'The contract 0.2.1 to 0.2.2 migration tests failed.' }
 
       - name: Record source and fixture provenance
         shell: pwsh

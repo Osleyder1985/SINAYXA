@@ -1,0 +1,99 @@
+{
+  "catalog_id": "sinayxa.audit.reason_codes",
+  "catalog_version": "1.0.0",
+  "status": "PROPOSED_FOR_CONTRACT_0.2.2",
+  "evolution_policy": "Codes are immutable and never reused. Retired codes remain recognizable for historical validation but cannot be emitted by new events.",
+  "reasons": [
+    {
+      "code": "RECORD_CREATED",
+      "description": "Registro creado por proceso autorizado.",
+      "allowed_actions": [
+        "CREATED"
+      ]
+    },
+    {
+      "code": "RECORD_UPDATED",
+      "description": "Registro actualizado por proceso autorizado.",
+      "allowed_actions": [
+        "UPDATED"
+      ]
+    },
+    {
+      "code": "RECORD_SUPERSEDED",
+      "description": "Registro sustituido por una nueva versión.",
+      "allowed_actions": [
+        "SUPERSEDED"
+      ]
+    },
+    {
+      "code": "RETENTION_POLICY_APPLIED",
+      "description": "Política de retención aplicada.",
+      "allowed_actions": [
+        "RETENTION_SET"
+      ]
+    },
+    {
+      "code": "REFERENCE_ONLY_SELECTED",
+      "description": "Se conserva únicamente una referencia, sin contenido.",
+      "allowed_actions": [
+        "REFERENCE_ONLY"
+      ]
+    },
+    {
+      "code": "ACCESS_RESTRICTION_APPLIED",
+      "description": "Restricción de acceso aplicada.",
+      "allowed_actions": [
+        "RESTRICTED"
+      ]
+    },
+    {
+      "code": "RETENTION_REVIEW_COMPLETED",
+      "description": "Revisión de retención completada.",
+      "allowed_actions": [
+        "RETENTION_REVIEWED"
+      ]
+    },
+    {
+      "code": "DELETION_REQUESTED",
+      "description": "Eliminación solicitada y pendiente de verificación.",
+      "allowed_actions": [
+        "DELETION_REQUESTED"
+      ]
+    },
+    {
+      "code": "DELETION_VERIFIED",
+      "description": "Eliminación verificada para el alcance declarado.",
+      "allowed_actions": [
+        "DELETED"
+      ]
+    },
+    {
+      "code": "ACCESS_POLICY_DENIED",
+      "description": "Acceso denegado por política.",
+      "allowed_actions": [
+        "ACCESS_DENIED"
+      ]
+    },
+    {
+      "code": "COPY_INVENTORIED",
+      "description": "Copia o derivado incorporado al inventario.",
+      "allowed_actions": [
+        "COPY_DISCOVERED"
+      ]
+    },
+    {
+      "code": "COPY_DELETION_REQUESTED",
+      "description": "Eliminación de copia solicitada.",
+      "allowed_actions": [
+        "COPY_DELETION_REQUESTED"
+      ]
+    },
+    {
+      "code": "COPY_DELETION_VERIFIED",
+      "description": "Eliminación de copia verificada.",
+      "allowed_actions": [
+        "COPY_DELETED"
+      ]
+    }
+  ]
+}
