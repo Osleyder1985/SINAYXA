@@ -270,8 +270,8 @@ For each case, future automated tests must assert both the allowed result and th
 
 ## 7. Implementation sequence and gates
 
-1. **Gate 1 — contract integration:** resolve Issue #88 and review/merge PR #85 only when its explicit acceptance criteria are met. Current CI success alone does not close the outstanding semantic and operational gaps.
-2. **Gate 2 — workflow mapping:** map the investigation checklist and ES-01–ES-12 to the approved contract entities and existing Issue #2 registry; document any genuine schema gap before proposing a change.
+1. **Gate 1 — logical contract stabilization:** complete the integration review of PR #85 and resolve its logical acceptance items, including the documented RET-09 boundary. Do not treat external C/E operations (#89) or WORM/Object Lock (#152) as prerequisites for a provider-neutral logical contract. CI success alone is not human approval.
+2. **Gate 2 — persistence mapping:** Issue #153 now tracks the verified gap between contract 0.2.1 and the existing #2 PostgreSQL registry. Complete its field-level mapping and typed persistence design before implementing Issue #3; do not create a parallel registry or store contract entities as unvalidated free-form JSONB.
 3. **Gate 3 — synthetic conformance:** implement only deterministic validations supported by the approved standards, with positive, negative and boundary cases. Human judgments (truth, semantic scope, authenticity and real-world source independence) remain review decisions.
 4. **Gate 4 — operator-assisted pilot:** use a small set of public, lawfully accessible historical cases with provenance and authorization records. Report coverage and limitations; do not call the sample statistically representative.
 5. **Gate 5 — optional acquisition automation:** consider a provider/API/feed integration only after separate review of terms, lawful access, privacy, rate limits, retention and operational cost. No default crawling or scraping.
