@@ -70,16 +70,16 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         first = apply_migrations(self.connection)
         second = apply_migrations(self.connection)
 
-        self.assertEqual(5, len(first))
+        self.assertEqual(6, len(first))
         self.assertEqual((), second)
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa_control.migration_integrity"
             ).fetchone()[0],
         )
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa.schema_migrations"
             ).fetchone()[0],
@@ -90,6 +90,67 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                 "SELECT bootstrap_sha256::text FROM sinayxa_control.bootstrap_state"
             ).fetchone()[0].strip(),
         )
+
+
+    def test_contract_0_2_1_migration_creates_typed_append_only_relations(self) -> None:
+        apply_migrations(self.connection)
+        expected_tables = {
+            "contract_packages", "claims", "claim_components", "contract_sources",
+            "source_versions", "identity_assessments", "evaluation_units",
+            "contract_evidence_items", "evidence_availability", "claim_evidence_links",
+            "provenance_nodes", "provenance_edges", "factor_assessments",
+            "independence_assessments", "claim_assessments", "retention_records",
+            "audit_events", "archive_attestations", "retention_copy_records",
+            "contract_migration_records", "analysis_processes",
+        }
+        actual_tables = {
+            row[0] for row in self.connection.execute(
+                "SELECT tablename FROM pg_tables WHERE schemaname = 'sinayxa'"
+            ).fetchall()
+        }
+        self.assertTrue(expected_tables.issubset(actual_tables))
+
+        event_id = "issue153-synthetic-event"
+        now = "2026-01-02T03:04:05+00:00"
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa.events
+                (event_id, description, affected_asset_refs, source_refs,
+                 created_at, contract_version, event_payload)
+            VALUES (%s, 'Synthetic event for contract persistence test',
+                    '{}', '{}', %s, '1.0.0', '{"synthetic":true}'::jsonb)
+            """,
+            (event_id, now),
+        )
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa.contract_packages
+                (package_id, event_id, contract_version, created_at, schema_sha256)
+            VALUES (%s, %s, '0.2.1', %s, %s)
+            """,
+            ("issue153-synthetic-package", event_id, now, "a" * 64),
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(
+            psycopg.errors.ObjectNotInPrerequisiteState, "append-only"
+        ):
+            self.connection.execute(
+                "UPDATE sinayxa.contract_packages SET contract_version = '0.2.1' "
+                "WHERE package_id = 'issue153-synthetic-package'"
+            )
+        self.connection.rollback()
+
+        with self.assertRaises(psycopg.errors.ForeignKeyViolation):
+            self.connection.execute(
+                """
+                INSERT INTO sinayxa.contract_packages
+                    (package_id, event_id, contract_version, created_at, schema_sha256)
+                VALUES ('issue153-orphan-package', 'missing-event', '0.2.1', %s, %s)
+                """,
+                (now, "a" * 64),
+            )
+        self.connection.rollback()
 
     def test_synthetic_historical_snapshots_upgrade_and_preserve_invariants(self) -> None:
         """Exercise synthetic snapshots at every migration boundary, then roll forward."""
@@ -128,7 +189,7 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             )
 
             # Each prefix is a separate, inventory-consistent synthetic snapshot.
-            for boundary in range(1, 6):
+            for boundary in range(1, 7):
                 snapshot_dir = Path(temporary) / f"snapshot-{boundary}"
                 snapshot_dir.mkdir()
                 snapshot_manifest = dict(complete_manifest)
@@ -408,13 +469,13 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             ).fetchone(),
         )
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa_control.migration_integrity"
             ).fetchone()[0],
         )
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa.schema_migrations"
             ).fetchone()[0],
@@ -459,7 +520,7 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             self.connection.commit()
 
             restored = psycopg.connect(target_url)
-            self.assertEqual(5, len(apply_migrations(restored)))
+            self.assertEqual(6, len(apply_migrations(restored)))
             for table in tables:
                 backup_bytes = (backup_dir / f"{table}.copy").read_bytes()
                 with restored.cursor().copy(
@@ -527,7 +588,7 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             ).fetchone()[0]
         )
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa_control.migration_integrity"
             ).fetchone()[0],
@@ -543,20 +604,20 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                 manifest_path=manifest,
                 migrations_dir=migrations,
             )
-            self.assertEqual(5, len(first_run))
+            self.assertEqual(6, len(first_run))
 
             document = json.loads(manifest.read_text(encoding="utf-8"))
             new_sql = (
                 "CREATE TABLE sinayxa.runner_extension_marker (id integer PRIMARY KEY);\n"
                 "INSERT INTO sinayxa.schema_migrations (migration_id) "
-                "VALUES ('issue-121-runner-extension-0006');\n"
+                "VALUES ('issue-121-runner-extension-0007');\n"
             )
-            filename = "0006_runner_extension.sql"
+            filename = "0007_runner_extension.sql"
             (migrations / filename).write_text(new_sql, encoding="utf-8")
             document["migrations"].append(
                 {
-                    "version": 6,
-                    "migration_id": "issue-121-runner-extension-0006",
+                    "version": 7,
+                    "migration_id": "issue-121-runner-extension-0007",
                     "path": filename,
                     "sha256": hashlib.sha256(new_sql.encode("utf-8")).hexdigest(),
                     "execution_mode": "transactional",
@@ -574,20 +635,20 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                 migrations_dir=migrations,
             )
 
-        self.assertEqual(("issue-121-runner-extension-0006",), second_run)
+        self.assertEqual(("issue-121-runner-extension-0007",), second_run)
         self.assertIsNotNone(
             self.connection.execute(
                 "SELECT to_regclass('sinayxa.runner_extension_marker')"
             ).fetchone()[0]
         )
         self.assertEqual(
-            6,
+            7,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa_control.migration_integrity"
             ).fetchone()[0],
         )
         self.assertEqual(
-            6,
+            7,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa.schema_migrations"
             ).fetchone()[0],
@@ -941,15 +1002,15 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=2) as executor:
             results = list(executor.map(lambda _: run_initializer(), range(2)))
 
-        self.assertEqual(5, sum(len(result) for result in results))
+        self.assertEqual(6, sum(len(result) for result in results))
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa_control.migration_integrity"
             ).fetchone()[0],
         )
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa.schema_migrations"
             ).fetchone()[0],
