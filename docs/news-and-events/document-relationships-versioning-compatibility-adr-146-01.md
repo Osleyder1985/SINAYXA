@@ -24,7 +24,7 @@ La inspección del contrato 0.2.1 propuesto en #85 encontró:
 ### 1.1 Inventario acotado de consumidores
 
 | Componente | Papel observado | Compatibilidad con 0.2.2 |
-|---|---|---|
+| --- | --- | --- |
 | JSON Schema 0.2.1 | Validador estructural estricto | No compatible; debe rechazar versión/campos nuevos |
 | Validador Python 0.2.1 | Validador semántico específico | No compatible salvo evolución explícita y pruebas separadas |
 | Extensiones/pruebas Python 0.2.1 | Invariantes y regresiones | No validan 0.2.2 |
@@ -54,7 +54,7 @@ La numeración 0.2.2 es una recomendación condicionada a que el proyecto confir
 ## 3. Matriz de compatibilidad propuesta
 
 | Productor → consumidor | Resultado requerido | Regla |
-|---|---|---|
+| --- | --- | --- |
 | 0.2.1 → consumidor 0.2.1 | Compatible | Validación con esquema y validador 0.2.1 exactos |
 | 0.2.2 → consumidor 0.2.1 | No compatible; rechazo explícito | Prohibido ignorar propiedades o degradar silenciosamente |
 | 0.2.1 → consumidor 0.2.2 | Lectura heredada explícita | Ruta 0.2.1 separada; no inferir relaciones ausentes |
