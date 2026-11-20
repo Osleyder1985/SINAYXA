@@ -3,8 +3,8 @@
 - **Issue:** #78
 - **Consumidor funcional:** #4
 - **Dependencias metodológicas:** #15 y #16 (cerrados)
-- **Versión de propuesta:** 0.1.0
-- **Estado:** PROPUESTA TÉCNICA NO APROBADA
+- **Versión vigente:** contrato lógico 0.2.1 (evolución de 0.2.0)
+- **Estado vigente:** 0.2.1 APROBADO POR EL PROPIETARIO; PR #85 OPEN / NOT MERGED
 - **Alcance:** contrato lógico neutral respecto al motor de persistencia; no es un esquema físico ni una autorización de captura.
 
 ## 1. Objetivo y límites
@@ -72,15 +72,15 @@ Representa una publicación, documento, registro, versión o pieza concreta atri
 Campos mínimos:
 
 - `source_version_id`, `source_id`.
-- `version_label` o identificador de versión.
+- `version_label` o identificador de versión y `version_sequence`: entero positivo, único y creciente dentro de la misma fuente.
 - `canonical_reference`: URI solo cuando su conservación y acceso sean legítimos.
 - `published_at`, `first_detected_at`, `retrieved_at`: instantes distintos; cada uno puede ser UNKNOWN.
 - `content_reference`: referencia a copia preservada únicamente cuando esté permitido.
 - `content_hash` y `hash_algorithm`: integridad de la copia, no autenticidad ni veracidad.
-- `supersedes_source_version_id`: versión anterior, si existe.
+- `supersedes_source_version_id`: versión anterior, si existe; debe pertenecer a la misma fuente y tener `version_sequence` estrictamente menor.
 - `recorded_at`.
 
-Las versiones son inmutables. Una rectificación crea otra versión y se vincula al componente corregido; no elimina la anterior.
+Las versiones son inmutables. Una fuente no puede reutilizar el mismo `version_sequence`; la relación de supersession no puede apuntar a sí misma, a una versión futura ni formar ciclos. Una rectificación crea otra versión y se vincula al componente corregido; no elimina la anterior.
 
 ### 3.4.1 Source identity assessment
 
@@ -120,6 +120,7 @@ La base legítima de acceso se conserva aparte con los estados de #15: PÚBLICO_
 Evidence item:
 
 - `evidence_id`, `source_version_id` cuando exista.
+- `factor_dimensions`: dimensiones de #16 a las que esta pieza puede aportar evidencia; cada referencia usada por un factor debe coincidir con la dimensión evaluada.
 - `evidence_kind`: documento, registro, declaración, observación, dataset, análisis u otro tipo tipado.
 - `information_nature`: AFIRMACIÓN, INDICIO, RUMOR, POSIBLE_FILTRACIÓN, PUBLICACIÓN_OFICIAL o HECHO_OBSERVADO, según #15. Describe la naturaleza de la pieza/señal, no su estado probatorio.
 - `content_reference` o referencia externa, si su uso es legítimo.
@@ -136,6 +137,10 @@ Claim-evidence link:
 
 Una pieza puede relacionarse con varios componentes mediante enlaces separados. La autenticidad de una pieza no demuestra automáticamente la verdad de todo su contenido. Un hash solo acredita estabilidad/integridad de la copia examinada.
 
+### 3.6.1 Evidence availability
+
+Cada disponibilidad probatoria se registra por pieza, unidad de evaluación y versión exacta de afirmación/componente. El registro contiene `available_at`, `availability_basis` (SINAYXA_OBSERVATION, INDEPENDENT_ARCHIVE, SOURCE_STATED o UNKNOWN), una referencia trazable y `recorded_at`. Si la disponibilidad es desconocida, `available_at` y la referencia quedan nulos y la base es UNKNOWN. Una pieza solo puede sustentar un factor o una evaluación si existe un registro de disponibilidad para la unidad exacta y `available_at` no supera `assessment_cutoff`. Solo `SINAYXA_OBSERVATION` o `INDEPENDENT_ARCHIVE` acreditan disponibilidad temporal para una evaluación histórica; `SOURCE_STATED` conserva una fecha declarada, pero no prueba por sí sola que la pieza estuviera disponible en ese corte. La mera fecha de publicación declarada no sustituye una observación sustentada.
+
 ### 3.7 Provenance node y provenance edge
 
 El grafo debe permitir nodos de tipo SOURCE_VERSION, EVIDENCE_ITEM, DOCUMENT, DATASET, INTERMEDIARY, INFORMANT o UNKNOWN_ORIGIN. Los identificadores de informantes son pseudónimos no reversibles y no almacenan identidad confidencial. `UNKNOWN_ORIGIN` es un nodo marcador sin identidad ni contenido atribuido; permite representar una procedencia no reconstruida sin crear aristas huérfanas.
@@ -143,7 +148,7 @@ El grafo debe permitir nodos de tipo SOURCE_VERSION, EVIDENCE_ITEM, DOCUMENT, DA
 Cada arista se orienta **desde el nodo dependiente hacia su antecedente/origen** y contiene:
 
 - `edge_id`.
-- `from_node_id`, `to_node_id`.
+- `dependent_node_id`, `origin_node_id`. La arista se interpreta como `dependent_node_id → origin_node_id`; no se admiten alias alternativos en el paquete JSON.
 - `relation_type`: ORIGEN_DIRECTO, CITA_DE, SINDICADA_DE, DERIVADA_DE, DOCUMENTO_COMÚN, CONTACTO_COMÚN, ORIGEN_NO_DETERMINADO o ANÁLISIS_SEPARADO_SOBRE_DATOS_COMUNES.
   - `ORIGEN_NO_DETERMINADO` debe apuntar a un nodo `UNKNOWN_ORIGIN`; no representa evidencia de que exista una fuente concreta ni autoriza inferir independencia.
 - `claim_component_id`: alcance concreto.
@@ -239,7 +244,7 @@ La matriz no crea estados nuevos. Cada valor se interpreta únicamente en la dim
 9. Todos los timestamps de auditoría y corte se almacenan como instantes UTC; la zona original puede conservarse como metadato separado.
 10. No existe una propiedad agregada de credibilidad global.
 
-## 5. Privacidad, acceso y conservación
+### 5.1 Privacidad, acceso y conservación
 
 - `source_id` debe ser opaco y no permitir inferir la identidad de una fuente confidencial.
 - No almacenar nombres reales, datos de contacto, claves de identidad ni detalles reidentificadores de fuentes protegidas.
@@ -280,3 +285,230 @@ La matriz no crea estados nuevos. Cada valor se interpreta únicamente en la dim
 - Decisión expresa del propietario registrada en #78.
 
 Hasta entonces, #4 está desbloqueado metodológicamente, pero no se implementan persistencia, captura ni automatización.
+
+## 9. Especificación temporal normativa (v0.2.0)
+
+Los campos temporales no son intercambiables. Todos los instantes normalizados se expresan en ISO 8601 UTC con sufijo Z. Cuando la fuente aporta una fecha con zona u offset distinto, se conserva además la representación original en original_timestamps; la normalización no debe destruir el texto, zona ni precisión originales.
+
+| Campo | Significado normativo | No significa |
+| --- | --- | --- |
+| valid_time_start / valid_time_end | Intervalo del mundo real al que se refiere la proposición o componente. | Fecha de publicación o fecha de registro. |
+| published_at | Instante declarado o verificable de publicación de esa versión. | Primera vez que SINAYXA la vio. |
+| first_publicly_observed_at | Primera observación pública sustentada por una referencia/archivo independiente identificable. | Fecha necesariamente conocida por SINAYXA en ese momento. |
+| first_detected_at | Primer instante en que SINAYXA detectó esa versión; exige evidencia de observación o registro de captura. | Fecha de publicación si no existe evidencia de publicación. |
+| retrieved_at | Instante en que SINAYXA obtuvo la pieza mediante una vía legítima. | Primera detección ni fecha del acontecimiento. |
+| recorded_at | Instante en que el registro/versionado se incorporó al sistema. | Fecha del hecho o de la publicación. |
+| available_at | Instante en que una pieza estuvo disponible por la vía de acceso de la unidad, sustentado por una referencia de observación. | Fecha de publicación no verificada ni fecha de recuperación posterior. |
+| availability_basis | Base de conocimiento de esa disponibilidad: observación SINAYXA, archivo independiente, declaración de fuente o desconocida. | Prueba automática de autenticidad o legalidad. |
+| assessment_cutoff | Límite temporal de la información que podía utilizarse en una evaluación concreta. | Fecha de ejecución actual ni fecha de la fuente. |
+| valid_from / valid_to | Vigencia atribuida a una relación de procedencia, si puede establecerse. | Momento de registro de la arista. |
+
+Reglas:
+
+1. Un valor temporal desconocido se representa como null únicamente en campos declarados opcionales; se conserva el motivo de desconocimiento en limitations o en la observación temporal aplicable. No se inventa una fecha.
+2. Una fecha parcial no se transforma en un instante exacto. original_timestamps.precision conserva YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, MILLISECOND o UNKNOWN; el validador rechaza que el valor original tenga menos precisión que la declarada.
+3. first_detected_at y first_publicly_observed_at son distintos. Una publicación anticipada puede ser detectada por SINAYXA antes de un anuncio oficial posterior; el anuncio posterior no modifica el corte histórico anterior.
+4. No se exige que published_at preceda siempre a first_detected_at: puede haber timestamps de publicación corregidos, contenido republicado o evidencias de primera observación distintas. La discrepancia debe conservarse y explicarse, no normalizarse silenciosamente.
+5. Cuando ambos son conocidos, retrieved_at no puede preceder a first_detected_at para la misma adquisición. Una excepción exige modelar una captura/importación histórica distinta, no alterar el timestamp.
+6. El corte de evaluación es inclusivo: solo puede utilizar evidencia disponible en o antes de assessment_cutoff. Evidencia posterior crea una nueva evaluación; nunca reescribe la anterior.
+7. La correlación temporal no demuestra causalidad. El contrato solo registra secuencia y límites de conocimiento.
+
+## 10. Contrato formal e integridad semántica (v0.2.0)
+
+El esquema normativo se encuentra en schemas/source-evidence-contract-0.2.0.schema.json y usa JSON Schema Draft 2020-12. El paquete raíz contiene colecciones tipadas para afirmaciones, componentes, fuentes, versiones, evaluaciones, evidencias, enlaces, nodos/aristas de procedencia, factores, independencia, evaluaciones probatorias, retención y auditoría.
+
+El esquema define tipos, campos requeridos, catálogos cerrados, límites básicos y rechazo de propiedades adicionales. El validador semántico complementario comprueba las relaciones que JSON Schema no puede expresar por sí solo:
+
+- unicidad de identificadores dentro de cada colección;
+- integridad referencial y coherencia claim/componente;
+- correspondencia entre fuente y versión en la unidad de evaluación;
+- referencias de evidencia, factores y evaluaciones;
+- orientación dependiente → origen y destino UNKNOWN_ORIGIN para ORIGEN_NO_DETERMINADO;
+- reglas positivas para INDEPENDIENTE y DEPENDIENTE;
+- igualdad de digests para MATCH y desigualdad para MISMATCH;
+- secuencia de detección/adquisición y validez de intervalos;
+- disponibilidad de cada pieza por unidad y exclusión de evidencia posterior al corte;
+- correspondencia de evidencia de factores con su dimensión exacta;
+- restricciones de retención y autorización;
+- prohibición de campos de score, weight, probability, rank e identidad confidencial.
+
+Los ciclos entre nodos diferentes se conservan. La detección de ciclos no elimina aristas ni añade orígenes; todo ciclo debe quedar disponible para revisión. Una arista no puede apuntarse a sí misma.
+
+### 10.1 Reglas de evaluación probatoria y no herencia
+
+1. Claim component assessment es la única entidad que contiene evidentiary_status; los estados de factor de #16 y de independencia no pueden sustituirlo.
+2. CONTRADICHA requiere líneas de evidencia materialmente incompatibles y trazables en ambos sentidos; dos relatos no autenticados o dos etiquetas incompatibles no bastan.
+3. REFUTADA requiere evidencia contraria directa y pertinente respecto al componente exacto. Refutar autenticidad de un documento no refuta automáticamente el hecho subyacente.
+4. CORROBORADA exige evidencia favorable suficiente para el alcance del componente. Cuando entre las fuentes que sustentan el componente haya al menos una fuente no primaria (SECUNDARIA, TERCIARIA o DESCONOCIDA), la independencia debe estar demostrada y revisada para todas las unidades de fuente que sustentan ese mismo componente y corte; la cantidad de publicaciones no sustituye esa prueba. Una fuente de tipo DESCONOCIDA no se presume primaria. Una fuente primaria auténtica y directamente pertinente puede corroborar por sí sola el acto que realizó o publicó, dentro de ese alcance, conforme al estándar #15; no necesita una evaluación positiva de independencia para ese uso directo.
+5. PARCIALMENTE_CORROBORADA exige identificar el alcance respaldado y no respaldado. No eleva automáticamente otros componentes.
+6. NO_CORROBORADA y NO_RESUELTA no significan falsedad. La ausencia de evidencia no se transforma en evidencia contraria.
+7. Una evaluación nueva es un registro nuevo que referencia la anterior mediante supersedes_assessment_id; no se modifica la evaluación histórica.
+8. Los estados finales no se derivan automáticamente de una regla numérica. Se conserva la justificación humana, evidencia favorable/contraria, alternativas, incertidumbre, limitaciones y corte temporal.
+
+## 11. Política de conservación y ciclo de vida (v0.2.0)
+
+La política predeterminada es **no conservar copias del contenido**. Se conserva una referencia y metadatos mínimos solo cuando su registro sea legítimo y no exponga material protegido.
+
+La conservación de contenido requiere conjuntamente:
+
+- base de acceso/conservación verificada (legal_basis_status=VERIFIED);
+- propósito concreto y necesario;
+- responsable funcional identificable por rol, no por datos personales innecesarios;
+- fecha de revisión y vencimiento revisable;
+- alcance de contenido autorizado y controles de acceso adecuados;
+- registro de auditoría de la decisión.
+
+No se fija un plazo universal. El vencimiento se determina por la base jurídica, jurisdicción, licencia, autorización y propósito aplicables. Una autorización pendiente, sospechosa o no establecida no permite iniciar o mantener una conservación ordinaria.
+
+Los estados de disposición tienen semántica explícita: RETAIN exige copia conservada, base verificada, autorización trazable y vencimiento futuro; REFERENCE_ONLY significa que solo se mantiene la referencia; RESTRICTED limita el uso/acceso; DELETE_PENDING registra una copia pendiente de eliminación y exige fecha/deadline; DELETED exige que la copia ya no se conserve. Cada cambio registra `previous_disposition`, nueva disposición y exactamente un evento de auditoría correlacionado por `retention_id`, con actor por rol, fecha y motivo. DELETE_PENDING solo puede seguir a RETAIN/RESTRICTED; DELETED es terminal. Una copia en DELETE_PENDING no se trata como material disponible para análisis nuevo.
+
+Al vencer o perderse la base legítima:
+
+1. restringir la copia cuando sea necesario para impedir uso adicional;
+2. evaluar si corresponde eliminarla;
+3. eliminar el contenido cuando la obligación/condición aplicable lo exija;
+4. registrar un evento no identificativo de eliminación, sin conservar una copia del contenido ni datos que permitan reconstruir una fuente protegida;
+5. mantener solo referencias/metadatos que sigan siendo legítimos.
+
+Un hash, una URL, un identificador o un log también pueden revelar información protegida; no se consideran automáticamente inocuos. La política de retención no autoriza adquirir, descargar ni conservar material privado o ilícitamente obtenido.
+
+## 12. Interoperabilidad y evolución
+
+- El formato canónico de intercambio es JSON UTF-8 validable con JSON Schema Draft 2020-12.
+- contract_version identifica la versión semántica del contrato; no se reutiliza para versionar metodología #15/#16.
+- Los identificadores son opacos, estables y no contienen datos personales ni secretos.
+- Las versiones de afirmaciones, componentes y piezas son inmutables; cada secuencia numérica es única dentro de su objeto lógico y una corrección crea una versión nueva que referencia explícitamente a la anterior.
+- Las propiedades no declaradas se rechazan en el esquema 0.2.0. La evolución compatible añade una versión nueva del esquema o una migración explícita; no se amplía silenciosamente un catálogo cerrado.
+- Las fechas se serializan como strings ISO 8601 UTC; los valores originales y su precisión se preservan en observaciones separadas.
+- No se prescribe base de datos, motor de grafo, almacenamiento de objetos ni arquitectura de despliegue.
+
+## 13. Evidencia de conformidad y límites
+
+Esquema formal: schemas/source-evidence-contract-0.2.0.schema.json.  
+Fixture sintético: tests/fixtures/contracts/source-evidence-contract-v0.2.0.json.  
+Validador de integridad semántica: scripts/validation/validate_source_evidence_contract.ps1.  
+Pruebas de mutación negativa y ciclo positivo: scripts/validation/test_source_evidence_contract.ps1.  
+Validación Draft 2020-12 y compatibilidad #15/#16: scripts/validation/validate_source_evidence_contract_schema.py.  
+Dependencias de validación fijadas: requirements-contract-validation.txt.
+
+La conformidad estructural y semántica demuestra que el paquete cumple el contrato y sus invariantes. No demuestra que las afirmaciones sintéticas sean verdaderas, que una fuente real sea creíble, que el acceso a una fuente concreta sea legal ni que una evaluación automatizada pueda sustituir revisión humana.
+
+La aprobación de esta versión requiere que CI valide el esquema formal, ejecute el validador y rechace todas las mutaciones negativas. El estado metodológico de #15 y #16 permanece inalterado; la propuesta 0.2.0 sigue pendiente de aprobación expresa.
+
+## 14. Resolución propuesta de las decisiones de §7
+
+| Pregunta de decisión | Resolución técnica propuesta en v0.2.0 | Estado |
+| --- | --- | --- |
+| Entidades y límites | Mantener las entidades separadas tal como se especifican en §§3 y 10; Evaluation unit, Source identity assessment y Evidence availability son estructuras explícitas, no duplicados de Source o Evidence item. | PROPUESTA |
+| Orientación del grafo | dependent_node_id → origin_node_id; el nodo dependiente apunta a su antecedente. | PROPUESTA |
+| Versionado | Inmutable para formulaciones, piezas y evaluaciones; toda corrección crea una versión/registro nuevo y enlaza el anterior. | PROPUESTA |
+| Separación de evidencia | Evidence item, claim-evidence link y Claim component assessment permanecen separados. | PROPUESTA |
+| Neutralidad tecnológica | JSON Schema define intercambio lógico; no se selecciona motor ni esquema físico. | PROPUESTA |
+| Retención | No conservar contenido por defecto; conservar solo con base verificada, propósito necesario, responsable por rol, revisión y vencimiento. No fijar duración universal. | PROPUESTA |
+| Naturaleza de la pieza | Reutilizar exactamente los valores de #15, separados del estado probatorio. | PROPUESTA |
+| Origen desconocido | Usar UNKNOWN_ORIGIN como nodo marcador no identificativo para evitar aristas huérfanas; no inferir independencia. | PROPUESTA |
+
+Estas resoluciones son parte de la propuesta 0.2.0 y no constituyen aprobación metodológica ni autorización para tratar datos reales. La aprobación expresa del propietario sigue siendo un criterio de salida de #78.
+
+## 15. Identidad de versiones y alcance exacto de las evaluaciones (v0.2.0)
+
+Los identificadores estables de una afirmación o componente no bastan para reconstruir qué formulación exacta fue evaluada. Por ello, cada versión posee un identificador opaco propio:
+
+- claim_id identifica la afirmación a lo largo de su historia;
+- claim_version_id identifica una formulación inmutable concreta;
+- claim_component_id identifica el componente a lo largo de su historia;
+- claim_component_version_id identifica una formulación inmutable concreta del componente.
+- source_id identifica el origen mediante un UUID opaco con prefijo src_; no admite nombres, correos ni datos de contacto.
+
+Cada componente versionado referencia exactamente a una versión de la afirmación. La unidad de evaluación aprobada en #16 conserva sus seis elementos originales y añade referencias explícitas a claim_version_id y claim_component_version_id para impedir que una evaluación histórica se interprete contra una formulación posterior.
+
+Los enlaces de evidencia, aristas de procedencia, evaluaciones de independencia y evaluaciones probatorias también quedan vinculados a esas versiones exactas. La relación supersedes debe apuntar a una versión anterior del mismo objeto lógico; nunca puede apuntar a sí misma ni a otra afirmación/componente.
+
+Una modificación material crea una nueva versión. Una corrección de un componente no altera los demás componentes ni invalida automáticamente sus evaluaciones.
+
+## 16. Cobertura obligatoria de factores y revisión humana
+
+Cada evaluation_unit debe contener exactamente una evaluación para cada una de las diez dimensiones aprobadas en #16. No se permite omitir una dimensión, duplicarla ni sustituirla por un factor nuevo. NO_APLICA y DESCONOCIDA se utilizan cuando corresponda, con justificación y límites.
+
+Cada factor conserva human_review_status y reviewed_at. Un estado PENDING no puede presentarse como evaluación revisada. Las conclusiones INDEPENDIENTE o DEPENDIENTE requieren revisión humana registrada; DESCONOCIDA puede permanecer pendiente.
+
+Las conclusiones probatorias CORROBORADA, PARCIALMENTE_CORROBORADA, CONTRADICHA y REFUTADA requieren revisión humana registrada. Una evaluación pendiente no puede consumirse como conclusión final.
+
+Para CORROBORADA basada en una o más fuentes no primarias (SECUNDARIA, TERCIARIA o DESCONOCIDA), todas las unidades de fuente que sustentan el componente —incluidas las primarias que participen en esa misma corroboración— deben quedar cubiertas por una evaluación de independencia INDEPENDIENTE revisada, vinculada a la misma versión de afirmación y componente. Una fuente de tipo DESCONOCIDA se trata conservadoramente como no primaria. Cuando el alcance corroborado se apoya directamente en una fuente primaria auténtica y pertinente, no se exige una evaluación positiva de independencia adicional. Una evaluación de independencia de otro componente no puede reutilizarse.
+
+Estas restricciones son validaciones de integridad y flujo de revisión; no son una puntuación, regla probabilística ni automatización de la verdad.
+
+## 17. Correcciones de conformance v0.2.0 — revisión posterior
+
+La auditoría de la primera implementación identificó dos invariantes que debían probarse expresamente:
+
+- Los identificadores estables claim_id y claim_component_id se repiten legítimamente a través de versiones; la unicidad se aplica a claim_version_id y claim_component_version_id. El validador debe aceptar versiones sucesivas del mismo objeto lógico y rechazar solo duplicados de versión.
+- INDEPENDIENTE requiere al menos dos identidades de fuente distintas y evidencia positiva vinculada a esas fuentes; dos versiones de una misma fuente no constituyen independencia. DEPENDIENTE requiere una arista material, sustentada y aplicable a la versión exacta del componente; UNKNOWN_ORIGIN por sí solo no demuestra dependencia.
+
+La batería amplía sus pruebas positivas y negativas para proteger ambos invariantes. Estas reglas no modifican la metodología aprobada en #15/#16; hacen ejecutables sus restricciones dentro del contrato 0.2.0.
+
+## 18. Secuencia explícita de versiones de fuente
+
+Cada Source version contiene `version_sequence`, entero positivo y único dentro de su `source_id`. La primera versión usa la secuencia inicial; una versión que sustituye otra debe tener una secuencia estrictamente superior. El identificador `source_version_id` sigue siendo la clave inmutable de la pieza. Esta secuencia no sustituye `published_at`, `first_detected_at` ni `recorded_at` y no expresa orden causal entre fuentes distintas.
+
+La propiedad se declara en JSON Schema y se valida también semánticamente; el fixture y las mutaciones negativas comprueban su obligatoriedad y unicidad por fuente.
+
+## 19. Justificación probatoria, alcance parcial y disponibilidad verificada
+
+Cada evaluación de componente debe incluir una `rationale` no vacía que explique por qué la evidencia y sus límites sostienen el estado elegido. `PARCIALMENTE_CORROBORADA` exige delimitar por separado `supported_scope` y `unsupported_scope`; no basta una etiqueta de parcialidad.
+
+Los registros de disponibilidad son únicos por pareja `(evidence_id, assessment_unit_id)`. Una fecha declarada por la propia fuente (`SOURCE_STATED`) se conserva como declaración temporal, pero no prueba por sí sola que la pieza estuviera disponible en el corte histórico. Solo `SINAYXA_OBSERVATION` o `INDEPENDENT_ARCHIVE`, con referencia trazable, pueden aportar un `available_at` verificado para una evaluación. La evidencia de independencia debe corresponder a todas las identidades de fuente que integran la evaluación, no a publicaciones ajenas al conjunto evaluado.
+
+## 20. Unicidad de unidades y estabilidad de identidades
+
+La tupla metodológica `(claim_id, claim_component_id, source_id, source_version_id, access_path, assessment_cutoff)` identifica una única unidad de evaluación. No se permite duplicarla con otro `assessment_unit_id`, porque eso podría duplicar el peso aparente de una misma observación. Una identidad estable de componente no puede cambiar de afirmación propietaria ni de `component_key` entre versiones. Las evaluaciones de identidad también son únicas por fuente y corte temporal.
+
+## 21. Evidencia explícita de vías independientes
+
+El estado `INDEPENDIENTE` requiere `independent_path_edge_refs`: al menos una arista `ORIGEN_DIRECTO` por cada `source_version_id` evaluado, con evidencia disponible al corte, origen terminal identificado mediante un Evidence item y distinto para cada vía. Las aristas deben pertenecer a la versión exacta del componente y su evidencia debe formar parte de la evaluación. Si el origen es `UNKNOWN_ORIGIN`, si el nodo de origen carece de una referencia a evidencia o si las vías convergen en un mismo nodo o si no se cubre alguna versión de fuente, el contrato no permite afirmar independencia; el estado debe permanecer `DESCONOCIDA` hasta reconstruir evidencia suficiente.
+
+El estado `DEPENDIENTE` requiere aristas materiales y evidenciadas (`CITA_DE`, `SINDICADA_DE`, `DERIVADA_DE`, `DOCUMENTO_COMÚN`, `CONTACTO_COMÚN` o `ANÁLISIS_SEPARADO_SOBRE_DATOS_COMUNES`) que conecten dos versiones de fuente distintas incluidas en la misma evaluación. `ORIGEN_DIRECTO` no se interpreta como dependencia. Estas reglas son deliberadamente conservadoras: las cadenas complejas aún no reconstruidas no se convierten automáticamente en independencia ni dependencia.
+
+## 22. Evidencia de factores de fuente
+
+La evidencia utilizada para evaluar un factor de credibilidad de una fuente no tiene que ser también evidencia a favor o en contra de la afirmación. Un registro de historial de correcciones, conflictos de interés, competencia o transparencia puede ser pertinente para el factor aunque no pruebe el hecho investigado. Su vínculo normativo es `factor_assessment.supporting_evidence_refs` o `contrary_evidence_refs`, con `factor_dimensions` explícito y disponibilidad demostrada para la unidad y corte exactos. No se exige un `claim_evidence_link` para este tipo de evidencia; exigirlo mezclaría la calidad de la fuente con el estado probatorio de la afirmación.
+
+## 23. Base explícita de la corroboración
+
+Cada `Claim component assessment` registra `corroboration_basis`: `EVIDENCIA_PRIMARIA_DIRECTA`, `CORROBORACION_INDEPENDIENTE`, `AMBAS` o `NO_APLICA`. Para `CORROBORADA`, una fuente primaria puede bastar solo si la evidencia es `AUTENTICADA`, el acceso es legítimo, el vínculo documenta el alcance directo y la base de conocimiento es `OBSERVACIÓN_DIRECTA` o `REGISTRO_ORIGINAL`. Si participa cualquier unidad no primaria, la base debe ser `CORROBORACION_INDEPENDIENTE` o `AMBAS`, y una evaluación `INDEPENDIENTE` revisada debe cubrir todas las unidades que sustentan el componente y corte. `AMBAS` exige cumplir simultáneamente los dos caminos. Los demás estados probatorios usan `NO_APLICA`.
+
+## 24. Evolución correctiva propuesta 0.2.1
+
+La versión 0.2.1 conserva el contrato 0.2.0 como base y añade reglas explícitas para cinco áreas cuya cobertura requiere escenarios adicionales:
+
+1. Independencia en escenarios complejos, separando observación, origen de datos y replicación analítica.
+2. Alcance de corroboración primaria, sin inferir que autenticidad documental demuestra todo el contenido.
+3. Inventario de copias y derivados, transiciones auditables y eliminación verificable del alcance declarado.
+4. Atestación de capturas archivísticas concretas, sin convertir archivo independiente en autenticidad o veracidad.
+5. Manifiesto de migración con hashes de entrada/salida y preservación de los datos históricos y sus versiones.
+
+Documentos y artefactos de la propuesta:
+
+- Addendum normativo: `docs/news-and-events/source-evidence-contract-0.2.1-addendum.md`.
+- Matriz de verificación: `docs/news-and-events/contract-0.2.1-verification-matrix.md`.
+- JSON Schema Draft 2020-12: `schemas/source-evidence-contract-0.2.1.schema.json`.
+- Fixture sintético: `tests/fixtures/contracts/source-evidence-contract-v0.2.1.json`.
+- Validadores y pruebas: `scripts/validation/contract_0_2_1_extensions.py`, `scripts/validation/test_contract_0_2_1_extensions.py` y `scripts/validation/validate_source_evidence_contract_0_2_1.py`.
+
+La matriz define criterios de aceptación; no es evidencia de cierre. Las cinco áreas permanecen ABIERTAS hasta que esquema, fixtures, validadores y CI demuestren sus escenarios positivos, negativos y fronterizos sobre el mismo HEAD revisado. La propuesta 0.2.1 continúa pendiente de aprobación expresa.
+
+Esta evolución no altera #15 ni #16, no selecciona motor de persistencia, no autoriza captura/crawling y no establece plazos legales universales de retención.
+
+## Estado vigente — 2026-11-20
+
+Esta sección prevalece sobre las menciones históricas de propuesta pendiente que permanecen en el registro de decisiones anterior.
+
+El propietario aprobó expresamente el contrato lógico 0.2.1 en Issue #78. La PR #85 contiene el esquema, fixture, validador, migrador y pruebas correctivas correspondientes, pero sigue OPEN / NOT MERGED hasta completar revisión de integración y gates sobre el HEAD final.
+
+La conformidad lógica no acredita operaciones reales:
+
+- C: los estados, inventarios y reglas de eliminación/restauración son parte del contrato; borrado físico, reconciliación de copias externas y bloqueo real de exposición permanecen en Issue #89.
+- D: WORM/Object Lock permanece NOT_VERIFIED en Issue #152 y no bloquea por sí solo la integración lógica.
+- E: el migrador sintético y sus invariantes forman parte del contrato; la migración productiva, rollback y durabilidad del destino permanecen en Issue #89.
+
+No se selecciona proveedor ni motor por esta aprobación. No se autoriza captura real, crawling, vigilancia, almacenamiento productivo ni promesa de borrado físico/WORM.
