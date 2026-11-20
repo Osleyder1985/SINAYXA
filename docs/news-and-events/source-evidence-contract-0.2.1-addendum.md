@@ -150,7 +150,6 @@ Se incorpora la propiedad opcional `independenceAssessment.unresolved_provenance
 
 La propiedad es opcional para preservar compatibilidad con paquetes 0.2.1 existentes. Los estados aprobados no cambian: `INDEPENDIENTE`, `DEPENDIENTE` y `DESCONOCIDA`. Un estado `INDEPENDIENTE` no puede contener referencias no resueltas. Un estado `DEPENDIENTE` puede conservarlas adicionalmente cuando otras aristas sí demuestran dependencias concretas; la incertidumbre no se convierte en evidencia positiva. No se añade un estado `DISPUTADA`, score ni inferencia automática.
 
-
 ## 25. Estado vigente y separación de conformidad lógica/operacional — 2026-11-20
 
 Esta sección prevalece sobre cualquier estado histórico de propuesta pendiente que permanezca en el documento.
