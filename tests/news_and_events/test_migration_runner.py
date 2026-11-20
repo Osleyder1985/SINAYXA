@@ -18,6 +18,11 @@ from psycopg import sql
 from psycopg.conninfo import conninfo_to_dict, make_conninfo
 
 from scripts.news_and_events import migration_runner
+from scripts.news_and_events.contract_package_store import (
+    load_claim_assessments_as_of,
+    load_contract_package,
+    persist_contract_package,
+)
 from scripts.news_and_events.migration_runner import (
     BOOTSTRAP_SHA256,
     MigrationRunnerError,
@@ -70,16 +75,16 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         first = apply_migrations(self.connection)
         second = apply_migrations(self.connection)
 
-        self.assertEqual(5, len(first))
+        self.assertEqual(6, len(first))
         self.assertEqual((), second)
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa_control.migration_integrity"
             ).fetchone()[0],
         )
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa.schema_migrations"
             ).fetchone()[0],
@@ -89,6 +94,379 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             self.connection.execute(
                 "SELECT bootstrap_sha256::text FROM sinayxa_control.bootstrap_state"
             ).fetchone()[0].strip(),
+        )
+
+
+    def test_contract_0_2_1_migration_creates_typed_append_only_relations(self) -> None:
+        apply_migrations(self.connection)
+        expected_tables = {
+            "contract_packages", "claims", "claim_components", "contract_sources",
+            "source_versions", "identity_assessments", "evaluation_units",
+            "contract_evidence_items", "evidence_availability", "claim_evidence_links",
+            "provenance_nodes", "provenance_edges", "factor_assessments",
+            "independence_assessments", "claim_assessments", "retention_records",
+            "audit_events", "archive_attestations", "retention_copy_records",
+            "contract_migration_records", "analysis_processes",
+        }
+        actual_tables = {
+            row[0] for row in self.connection.execute(
+                "SELECT tablename FROM pg_tables WHERE schemaname = 'sinayxa'"
+            ).fetchall()
+        }
+        self.assertTrue(expected_tables.issubset(actual_tables))
+
+        foreign_key_catalog = self.connection.execute(
+            """
+            SELECT
+                count(*) AS foreign_key_count,
+                count(DISTINCT relation.relname) AS constrained_table_count,
+                count(*) FILTER (WHERE constraint_row.confdeltype = 'r') AS restrict_count
+            FROM pg_constraint AS constraint_row
+            JOIN pg_class AS relation ON relation.oid = constraint_row.conrelid
+            JOIN pg_namespace AS namespace ON namespace.oid = relation.relnamespace
+            WHERE namespace.nspname = 'sinayxa'
+              AND relation.relname = ANY(%s)
+              AND constraint_row.contype = 'f'
+            """,
+            (sorted(expected_tables),),
+        ).fetchone()
+        self.assertGreaterEqual(foreign_key_catalog[0], 50)
+        self.assertEqual(len(expected_tables), foreign_key_catalog[1])
+        self.assertEqual(foreign_key_catalog[0], foreign_key_catalog[2])
+
+        event_id = "issue153-synthetic-event"
+        now = "2026-01-02T03:04:05+00:00"
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa.events
+                (event_id, description, affected_asset_refs, source_refs,
+                 created_at, contract_version, event_payload)
+            VALUES (%s, 'Synthetic event for contract persistence test',
+                    '{}', '{}', %s, '1.0.0', '{"synthetic":true}'::jsonb)
+            """,
+            (event_id, now),
+        )
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa.contract_packages
+                (package_id, event_id, contract_version, created_at, schema_sha256)
+            VALUES (%s, %s, '0.2.1', %s, %s)
+            """,
+            ("issue153-synthetic-package", event_id, now, "a" * 64),
+        )
+        self.connection.commit()
+
+        with self.assertRaisesRegex(
+            psycopg.errors.ObjectNotInPrerequisiteState, "append-only"
+        ):
+            self.connection.execute(
+                "UPDATE sinayxa.contract_packages SET contract_version = '0.2.1' "
+                "WHERE package_id = 'issue153-synthetic-package'"
+            )
+        self.connection.rollback()
+
+        with self.assertRaises(psycopg.errors.ForeignKeyViolation):
+            self.connection.execute(
+                """
+                INSERT INTO sinayxa.contract_packages
+                    (package_id, event_id, contract_version, created_at, schema_sha256)
+                VALUES ('issue153-orphan-package', 'missing-event', '0.2.1', %s, %s)
+                """,
+                (now, "a" * 64),
+            )
+        self.connection.rollback()
+
+
+    def test_contract_package_store_persists_fixture_atomically(self) -> None:
+        apply_migrations(self.connection)
+        event_id = f"issue153-store-{uuid4().hex}"
+        now = "2026-01-02T03:04:05+00:00"
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa.events
+                (event_id, description, affected_asset_refs, source_refs,
+                 created_at, contract_version, event_payload)
+            VALUES (%s, 'Synthetic package persistence integration test',
+                    '{}', '{}', %s, '1.0.0', '{"synthetic":true}'::jsonb)
+            """,
+            (event_id, now),
+        )
+        self.connection.commit()
+
+        fixture = (
+            Path(__file__).resolve().parents[1]
+            / "fixtures"
+            / "contracts"
+            / "source-evidence-contract-v0.2.1.json"
+        )
+        package = json.loads(fixture.read_text(encoding="utf-8"))
+        registry_source_refs: dict[str, str] = {}
+        artifact_source_refs: dict[str, str] = {}
+        artifact_evidence_refs: dict[str, str] = {}
+        source_artifact_bytes = {
+            "version-a1": b"synthetic source artifact A",
+            "version-b1": b"synthetic source artifact B",
+        }
+        evidence_artifact_bytes = {
+            "evidence-a": b"synthetic evidence artifact A",
+            "evidence-b": b"synthetic evidence artifact B",
+        }
+        source_ref_by_version: dict[str, str] = {}
+        for index, source_version in enumerate(package["source_versions"], start=1):
+            source_id = source_version["source_id"]
+            registry_ref = f"https://registry.example.test/source-{index}"
+            source_ref = f"sha256://source-artifact-{index}"
+            registry_source_refs[source_id] = registry_ref
+            artifact_source_refs[source_version["source_version_id"]] = source_ref
+            source_ref_by_version[source_version["source_version_id"]] = source_ref
+            self.connection.execute(
+                "INSERT INTO sinayxa.event_sources (event_id, source_ref) VALUES (%s, %s)",
+                (event_id, registry_ref),
+            )
+            content = source_artifact_bytes[source_version["source_version_id"]]
+            self.connection.execute(
+                """
+                INSERT INTO sinayxa.source_artifacts
+                    (source_ref, media_type, content_sha256, content_length,
+                     content_bytes, license_ref, usage_status, captured_at,
+                     recorded_at, metadata)
+                VALUES (%s, 'text/plain', %s, %s, %s, 'SYNTHETIC_TEST',
+                        'SYNTHETIC', %s, %s, '{}'::jsonb)
+                """,
+                (
+                    source_ref, hashlib.sha256(content).hexdigest(), len(content),
+                    content, now, now,
+                ),
+            )
+
+        for evidence in package["evidence_items"]:
+            evidence_ref = f"sha256://evidence-artifact-{evidence['evidence_id']}"
+            artifact_evidence_refs[evidence["evidence_id"]] = evidence_ref
+            content = evidence_artifact_bytes[evidence["evidence_id"]]
+            self.connection.execute(
+                """
+                INSERT INTO sinayxa.evidence_artifacts
+                    (evidence_ref, source_ref, evidence_type, media_type,
+                     content_sha256, content_length, content_bytes,
+                     extraction_method, extraction_version, license_ref,
+                     usage_status, captured_at, recorded_at, metadata)
+                VALUES (%s, %s, 'SYNTHETIC_TEST', 'text/plain', %s, %s, %s,
+                        'SYNTHETIC_TEST', '1', 'SYNTHETIC_TEST', 'SYNTHETIC',
+                        %s, %s, '{}'::jsonb)
+                """,
+                (
+                    evidence_ref, source_ref_by_version[evidence["source_version_id"]],
+                    hashlib.sha256(content).hexdigest(), len(content), content,
+                    now, now,
+                ),
+            )
+
+        # Commit the independently prepared registry/artifact rows before the
+        # adapter opens its package transaction; the duplicate-package rollback
+        # below must not undo these setup rows or the already committed package.
+        self.connection.commit()
+
+        result = persist_contract_package(
+            self.connection,
+            package,
+            event_id=event_id,
+            registry_source_refs=registry_source_refs,
+            artifact_source_refs=artifact_source_refs,
+            artifact_evidence_refs=artifact_evidence_refs,
+        )
+
+        self.assertEqual(package["package_id"], result["package_id"])
+        loaded = load_contract_package(self.connection, package["package_id"])
+        self.assertEqual(package["package_id"], loaded["package_id"])
+        self.assertEqual(package["contract_version"], loaded["contract_version"])
+
+        future_cutoff = self.connection.execute(
+            "SELECT clock_timestamp() + interval '1 minute'"
+        ).fetchone()[0]
+        as_of_result = load_claim_assessments_as_of(
+            self.connection, package["package_id"], future_cutoff
+        )
+        self.assertEqual(2, len(as_of_result["assessments"]))
+        entity_assessment = next(
+            item for item in as_of_result["assessments"]
+            if item["claim_assessment_id"] == "assessment-entity-v1"
+        )
+        self.assertEqual(["evidence-a"], entity_assessment["supporting_evidence_refs"])
+
+        # Simulate a malformed direct-SQL row whose evidence array has no
+        # corresponding availability record. The as-of query must fail closed.
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa.claim_assessments (
+                claim_assessment_id, package_id, claim_id, claim_component_id,
+                evidentiary_status, attribution_status, supporting_evidence_refs,
+                contrary_evidence_refs, independence_assessment_refs, alternatives,
+                uncertainty, limitations, assessment_cutoff, methodology_version,
+                human_review_status, supersedes_assessment_id, claim_version_id,
+                claim_component_version_id, reviewed_at, rationale, supported_scope,
+                unsupported_scope, corroboration_basis, assessed_at
+            )
+            SELECT
+                'assessment-unavailable-evidence', package_id, claim_id,
+                claim_component_id, evidentiary_status, attribution_status,
+                ARRAY['evidence-not-available']::text[], contrary_evidence_refs,
+                independence_assessment_refs, alternatives, uncertainty, limitations,
+                assessment_cutoff, methodology_version, human_review_status, NULL,
+                claim_version_id, claim_component_version_id, reviewed_at, rationale,
+                supported_scope, unsupported_scope, corroboration_basis, assessed_at
+            FROM sinayxa.claim_assessments
+            WHERE claim_assessment_id = 'assessment-entity-v1'
+            """
+        )
+        self.assertEqual(
+            2,
+            len(load_claim_assessments_as_of(
+                self.connection, package["package_id"], future_cutoff
+            )["assessments"]),
+        )
+
+        past_cutoff = self.connection.execute(
+            "SELECT clock_timestamp() - interval '1 minute'"
+        ).fetchone()[0]
+        self.assertEqual(
+            [],
+            load_claim_assessments_as_of(
+                self.connection, package["package_id"], past_cutoff
+            )["assessments"],
+        )
+        self.assertEqual(1, len(loaded["claims"]))
+        self.assertEqual(2, len(loaded["claim_components"]))
+        self.assertEqual(
+            package["source_versions"][0]["original_timestamps"],
+            loaded["source_versions"][0]["original_timestamps"],
+        )
+        self.assertEqual(1, result["inserted_counts"]["claims"])
+        self.assertEqual(2, result["inserted_counts"]["claim_components"])
+        self.assertEqual(
+            2,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.contract_sources "
+                "WHERE package_id = %s AND registry_source_ref IS NOT NULL",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertEqual(
+            2,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.source_versions "
+                "WHERE package_id = %s AND artifact_source_ref IS NOT NULL",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertEqual(
+            2,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.contract_evidence_items "
+                "WHERE package_id = %s AND artifact_evidence_ref IS NOT NULL",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertEqual(2, self.connection.execute(
+            "SELECT count(*) FROM sinayxa.source_artifacts WHERE source_ref = ANY(%s)",
+            (list(artifact_source_refs.values()),),
+        ).fetchone()[0])
+        self.assertEqual(2, self.connection.execute(
+            "SELECT count(*) FROM sinayxa.evidence_artifacts WHERE evidence_ref = ANY(%s)",
+            (list(artifact_evidence_refs.values()),),
+        ).fetchone()[0])
+        self.assertEqual(40, result["inserted_counts"]["factor_assessments"])
+        self.assertEqual(
+            1,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.contract_packages WHERE package_id = %s",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertEqual(
+            2,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.source_versions WHERE package_id = %s",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertIsNotNone(
+            self.connection.execute(
+                "SELECT inserted_at FROM sinayxa.claims WHERE claim_version_id = %s",
+                (package["claims"][0]["claim_version_id"],),
+            ).fetchone()[0]
+        )
+
+        with self.assertRaises(psycopg.errors.UniqueViolation):
+            persist_contract_package(self.connection, package, event_id=event_id)
+        self.connection.rollback()
+        self.assertEqual(
+            1,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.contract_packages WHERE package_id = %s",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+
+
+    def test_concurrent_package_writers_commit_exactly_one_complete_package(self) -> None:
+        apply_migrations(self.connection)
+        event_id = f"issue153-concurrent-{uuid4().hex}"
+        now = "2026-01-02T03:04:05+00:00"
+        self.connection.execute(
+            """
+            INSERT INTO sinayxa.events
+                (event_id, description, affected_asset_refs, source_refs,
+                 created_at, contract_version, event_payload)
+            VALUES (%s, 'Synthetic concurrent package persistence test',
+                    '{}', '{}', %s, '1.0.0', '{"synthetic":true}'::jsonb)
+            """,
+            (event_id, now),
+        )
+        self.connection.commit()
+        fixture = (
+            Path(__file__).resolve().parents[1]
+            / "fixtures"
+            / "contracts"
+            / "source-evidence-contract-v0.2.1.json"
+        )
+        package = json.loads(fixture.read_text(encoding="utf-8"))
+        barrier = Barrier(2)
+
+        def persist_from_independent_connection() -> str:
+            with psycopg.connect(self.database_url) as connection:
+                barrier.wait(timeout=15)
+                try:
+                    persist_contract_package(connection, package, event_id=event_id)
+                except psycopg.errors.UniqueViolation:
+                    return "duplicate"
+                return "committed"
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            outcomes = list(executor.map(
+                lambda _index: persist_from_independent_connection(), range(2)
+            ))
+
+        self.assertCountEqual(["committed", "duplicate"], outcomes)
+        self.assertEqual(
+            1,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.contract_packages WHERE package_id = %s",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertEqual(
+            1,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.claims WHERE package_id = %s",
+                (package["package_id"],),
+            ).fetchone()[0],
+        )
+        self.assertEqual(
+            2,
+            self.connection.execute(
+                "SELECT count(*) FROM sinayxa.claim_components WHERE package_id = %s",
+                (package["package_id"],),
+            ).fetchone()[0],
         )
 
     def test_synthetic_historical_snapshots_upgrade_and_preserve_invariants(self) -> None:
@@ -128,7 +506,7 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             )
 
             # Each prefix is a separate, inventory-consistent synthetic snapshot.
-            for boundary in range(1, 6):
+            for boundary in range(1, 7):
                 snapshot_dir = Path(temporary) / f"snapshot-{boundary}"
                 snapshot_dir.mkdir()
                 snapshot_manifest = dict(complete_manifest)
@@ -408,13 +786,13 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             ).fetchone(),
         )
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa_control.migration_integrity"
             ).fetchone()[0],
         )
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa.schema_migrations"
             ).fetchone()[0],
@@ -459,7 +837,7 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             self.connection.commit()
 
             restored = psycopg.connect(target_url)
-            self.assertEqual(5, len(apply_migrations(restored)))
+            self.assertEqual(6, len(apply_migrations(restored)))
             for table in tables:
                 backup_bytes = (backup_dir / f"{table}.copy").read_bytes()
                 with restored.cursor().copy(
@@ -527,7 +905,7 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
             ).fetchone()[0]
         )
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa_control.migration_integrity"
             ).fetchone()[0],
@@ -543,20 +921,20 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                 manifest_path=manifest,
                 migrations_dir=migrations,
             )
-            self.assertEqual(5, len(first_run))
+            self.assertEqual(6, len(first_run))
 
             document = json.loads(manifest.read_text(encoding="utf-8"))
             new_sql = (
                 "CREATE TABLE sinayxa.runner_extension_marker (id integer PRIMARY KEY);\n"
                 "INSERT INTO sinayxa.schema_migrations (migration_id) "
-                "VALUES ('issue-121-runner-extension-0006');\n"
+                "VALUES ('issue-121-runner-extension-0007');\n"
             )
-            filename = "0006_runner_extension.sql"
+            filename = "0007_runner_extension.sql"
             (migrations / filename).write_text(new_sql, encoding="utf-8")
             document["migrations"].append(
                 {
-                    "version": 6,
-                    "migration_id": "issue-121-runner-extension-0006",
+                    "version": 7,
+                    "migration_id": "issue-121-runner-extension-0007",
                     "path": filename,
                     "sha256": hashlib.sha256(new_sql.encode("utf-8")).hexdigest(),
                     "execution_mode": "transactional",
@@ -574,20 +952,20 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
                 migrations_dir=migrations,
             )
 
-        self.assertEqual(("issue-121-runner-extension-0006",), second_run)
+        self.assertEqual(("issue-121-runner-extension-0007",), second_run)
         self.assertIsNotNone(
             self.connection.execute(
                 "SELECT to_regclass('sinayxa.runner_extension_marker')"
             ).fetchone()[0]
         )
         self.assertEqual(
-            6,
+            7,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa_control.migration_integrity"
             ).fetchone()[0],
         )
         self.assertEqual(
-            6,
+            7,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa.schema_migrations"
             ).fetchone()[0],
@@ -941,15 +1319,15 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=2) as executor:
             results = list(executor.map(lambda _: run_initializer(), range(2)))
 
-        self.assertEqual(5, sum(len(result) for result in results))
+        self.assertEqual(6, sum(len(result) for result in results))
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa_control.migration_integrity"
             ).fetchone()[0],
         )
         self.assertEqual(
-            5,
+            6,
             self.connection.execute(
                 "SELECT count(*) FROM sinayxa.schema_migrations"
             ).fetchone()[0],

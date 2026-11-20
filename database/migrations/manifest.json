@@ -1,6 +1,6 @@
 {
   "manifest_version": 1,
-  "baseline_revision": "73de7b25c79ca4b65d91903606b704554959d286",
+  "baseline_revision": "ca1328115ecaa41f9b3a88439e8c50c818cfc9c9",
   "migrations": [
     {
       "version": 1,
@@ -41,6 +41,14 @@
       "sha256": "f20691eed9fea875cc387c2a6f36ced5a52f3974188f335117ecc3ad2a422755",
       "execution_mode": "transactional",
       "source_revision": "3e6c764ed8fb72d190351aa99ebb856f5933e2d3"
+    },
+    {
+      "version": 6,
+      "migration_id": "issue-153-contract-0.2.1-persistence-0006",
+      "path": "0006_contract_0_2_1_persistence.sql",
+      "sha256": "910de283662c22836b89ebc3cacbe905b1e0978f8e66ad2476c9572038f9ab16",
+      "execution_mode": "transactional",
+      "source_revision": "ca1328115ecaa41f9b3a88439e8c50c818cfc9c9"
     }
   ]
 }
