@@ -19,6 +19,7 @@ from psycopg.conninfo import conninfo_to_dict, make_conninfo
 
 from scripts.news_and_events import migration_runner
 from scripts.news_and_events.contract_package_store import (
+    load_claim_assessments_as_of,
     load_contract_package,
     persist_contract_package,
 )
@@ -190,6 +191,29 @@ class MigrationRunnerIntegrationTests(unittest.TestCase):
         loaded = load_contract_package(self.connection, package["package_id"])
         self.assertEqual(package["package_id"], loaded["package_id"])
         self.assertEqual(package["contract_version"], loaded["contract_version"])
+
+        future_cutoff = self.connection.execute(
+            "SELECT clock_timestamp() + interval '1 minute'"
+        ).fetchone()[0]
+        as_of_result = load_claim_assessments_as_of(
+            self.connection, package["package_id"], future_cutoff
+        )
+        self.assertEqual(2, len(as_of_result["assessments"]))
+        entity_assessment = next(
+            item for item in as_of_result["assessments"]
+            if item["claim_assessment_id"] == "assessment-entity-v1"
+        )
+        self.assertEqual(["evidence-a"], entity_assessment["supporting_evidence_refs"])
+
+        past_cutoff = self.connection.execute(
+            "SELECT clock_timestamp() - interval '1 minute'"
+        ).fetchone()[0]
+        self.assertEqual(
+            [],
+            load_claim_assessments_as_of(
+                self.connection, package["package_id"], past_cutoff
+            )["assessments"],
+        )
         self.assertEqual(1, len(loaded["claims"]))
         self.assertEqual(2, len(loaded["claim_components"]))
         self.assertEqual(

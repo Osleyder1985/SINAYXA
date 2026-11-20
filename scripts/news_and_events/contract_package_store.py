@@ -192,3 +192,112 @@ def load_contract_package(connection: Any, package_id: str) -> dict[str, Any]:
                 result[collection].append(item)
 
     return validate_contract_package(result)
+
+
+def load_claim_assessments_as_of(
+    connection: Any,
+    package_id: str,
+    as_of: Any,
+) -> dict[str, Any]:
+    """Return assessments demonstrably recorded and evidence-available by an aware cutoff.
+
+    The database insertion timestamp is the system-recorded time; contract
+    assessment_cutoff/assessed_at are separate analytical times. Evidence is
+    included only when its availability record and any referenced archive
+    verification were also recorded and effective by the requested cutoff.
+    """
+    from datetime import datetime, timezone
+
+    if isinstance(as_of, str):
+        try:
+            as_of = datetime.fromisoformat(as_of.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ValueError("as_of must be an ISO-8601 timestamp with timezone") from exc
+    if not isinstance(as_of, datetime) or as_of.tzinfo is None or as_of.utcoffset() is None:
+        raise ValueError("as_of must be a timezone-aware datetime")
+    cutoff = as_of.astimezone(timezone.utc)
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT 1 FROM sinayxa.contract_packages WHERE package_id = %s",
+            (package_id,),
+        )
+        if cursor.fetchone() is None:
+            raise KeyError(f"contract package not found: {package_id}")
+
+        assessment_columns = [
+            column for column in dict((table, columns) for collection, table, columns, _ in MAPPINGS)
+            .get("claim_assessments", "").split()
+            if column not in {"package_id"}
+        ]
+        cursor.execute(
+            f"SELECT {', '.join(assessment_columns)} FROM sinayxa.claim_assessments "
+            "WHERE package_id = %s AND assessment_cutoff <= %s "
+            "AND assessed_at IS NOT NULL AND assessed_at <= %s "
+            "AND inserted_at <= %s "
+            "AND (reviewed_at IS NULL OR reviewed_at <= %s) "
+            "ORDER BY assessment_cutoff, assessed_at, inserted_at, claim_assessment_id",
+            (package_id, cutoff, cutoff, cutoff, cutoff),
+        )
+        names = [description.name for description in cursor.description]
+        candidates = [
+            {name: _contract_value(value) for name, value in zip(names, row, strict=True)}
+            for row in cursor.fetchall()
+        ]
+
+        evidence_refs = sorted({
+            ref
+            for assessment in candidates
+            for ref in (
+                assessment.get("supporting_evidence_refs", [])
+                + assessment.get("contrary_evidence_refs", [])
+            )
+        })
+        available: set[str] = set()
+        if evidence_refs:
+            cursor.execute(
+                """
+                SELECT DISTINCT ea.evidence_id
+                FROM sinayxa.evidence_availability AS ea
+                LEFT JOIN sinayxa.archive_attestations AS aa
+                  ON aa.archive_attestation_id = ea.archive_attestation_id
+                WHERE ea.package_id = %s
+                  AND ea.evidence_id = ANY(%s)
+                  AND ea.available_at <= %s
+                  AND ea.recorded_at <= %s
+                  AND ea.inserted_at <= %s
+                  AND (
+                    ea.archive_attestation_id IS NULL
+                    OR (
+                      aa.verified_at IS NOT NULL
+                      AND aa.verified_at <= %s
+                      AND aa.recorded_at <= %s
+                      AND aa.inserted_at <= %s
+                    )
+                  )
+                """,
+                (package_id, evidence_refs, cutoff, cutoff, cutoff, cutoff, cutoff, cutoff),
+            )
+            available = {row[0] for row in cursor.fetchall()}
+
+    eligible = []
+    for assessment in candidates:
+        required = set(
+            assessment.get("supporting_evidence_refs", [])
+            + assessment.get("contrary_evidence_refs", [])
+        )
+        if required.issubset(available):
+            eligible.append(assessment)
+
+    return {
+        "package_id": package_id,
+        "as_of": _contract_value(cutoff),
+        "time_semantics": {
+            "assessment_cutoff": "analytical evidence cutoff",
+            "assessed_at": "assessment execution time",
+            "inserted_at": "database system-recorded time",
+            "evidence_available_at": "recorded evidence availability time",
+            "archive_verified_at": "archive verification time when an attestation is linked",
+        },
+        "assessments": eligible,
+    }
