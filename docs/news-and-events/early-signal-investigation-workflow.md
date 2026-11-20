@@ -4,7 +4,7 @@
 - **Status:** implementation design proposal; not an approved change to the evidentiary methodology.
 - **Normative basis:** approved Issue #15 standard and approved Issue #16 source-credibility/independence rubric.
 - **Existing capability:** Issue #2 event registry and operator-supplied source/evidence artifacts.
-- **Contract dependency:** Issue #78 / PR #85 (logical claim, source-version, evidence and provenance contract 0.2.1); PR #85 is not merged and Issue #88 remains open.
+- **Contract dependency:** Issue #78 / PR #85 (logical claim, source-version, evidence and provenance contract 0.2.1); PR #85 is OPEN / NOT MERGED. The current persistence-mapping gap is tracked separately in Issue #153.
 - **Scope of this document:** define a reproducible, operator-led investigation workflow using public and lawfully accessible information. It does not implement a crawler, source monitor, automated classification, prediction or trading signal.
 
 ## 1. Product objective
@@ -190,7 +190,7 @@ Use only data the operator is authorized to supply. For real artifacts, the oper
 
 ### Contract boundary
 
-The current event registry is not, by itself, a complete claim/source-version/provenance assessment engine. The approved logical contract 0.2.1 is in PR #85 but has not been merged; Issue #88 explicitly blocks its integration pending the listed acceptance evidence.
+The current event registry is not, by itself, a complete claim/source-version/provenance assessment engine. PR #85 contains the logical contract 0.2.1 and remains OPEN / NOT MERGED. Issue #88 separates logical contract review from operational C/E and external WORM validation; those operational validations do not by themselves block a provider-neutral logical contract. RET-09's approved 0.2.2 hardening is in PR #99 and remains pending integration.
 
 Until that dependency is resolved:
 
@@ -200,7 +200,34 @@ Until that dependency is resolved:
 - do not activate crawling, scraping, continuous monitoring or automated classification;
 - keep this workflow as an operator-led investigation procedure and synthetic conformance design.
 
-Once #85/#88 are resolved, map the workflow to the approved contract before adding new persistence or APIs.
+The concrete contract-to-registry persistence gap was inspected and is tracked in Issue #153. Do not add ad-hoc persistence in this PR; implement the reviewed mapping in #153 after the 0.2.1 contract base is stabilized.
+
+
+### Contract-to-registry mapping audit — 2026-11-20
+
+A direct comparison of the 0.2.1 schema with the five current PostgreSQL migrations establishes the following boundary:
+
+| 0.2.1 contract entity | Existing #2 registry representation | Mapping status |
+| --- | --- | --- |
+| Event | `events` | DIRECT for event identity/payload |
+| Source identity | `event_sources`, `source_artifacts` | PARTIAL; no typed source-version history |
+| Source version and timestamp observations | source artifact metadata plus `temporal_assertions` fields | PARTIAL; these do not preserve the complete versioned source contract |
+| Claim and claim component versions | None | MISSING |
+| Identity assessment and evaluation unit | None | MISSING |
+| Evidence bytes | `evidence_artifacts` | DIRECT for bytes/hash/length; not the full evidence contract |
+| Evidence availability by claim/version/cutoff | `temporal_assertions` only partially overlaps | MISSING as a typed relation |
+| Claim-evidence links | None | MISSING |
+| Provenance nodes and edges | None | MISSING |
+| Factor, independence and claim assessments | `temporal_assessments` only derives event chronology | MISSING; semantics are not interchangeable |
+| Archive attestations | Source/evidence hashes and capture timestamps only | PARTIAL; no explicit attestation record |
+
+This is a persistence/integration gap, not a reason to create another event registry. Issue #153 defines the required field-level mapping, reuse boundaries, append-only migrations and regression tests. The temporal event assertion is not an analytical claim; the event's derived temporal assessment is not an evidentiary or source-credibility assessment.
+
+### Current operational boundary
+
+- The artifact-storage and TRUNCATE-guard work in PR #111 is already merged into `main` (merge commit `3e6c764ed8fb72d190351aa99ebb856f5933e2d3`). The registry documentation must not describe it as still under review.
+- C/E operational validation remains in #89. WORM/Object Lock remains separate in #152. Neither should be conflated with the logical mapping in #153.
+- PR #85 remains OPEN / NOT MERGED. Do not implement against an unstable contract SHA or merge by assuming that successful CI alone is a human approval.
 
 ## 5. Minimum investigation record
 
