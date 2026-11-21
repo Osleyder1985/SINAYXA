@@ -9,7 +9,10 @@ on:
       - "database/migrations/**"
       - "database/control-plane/**"
       - "scripts/news_and_events/**"
+      - "scripts/validation/retention_copy_reconciliation_lab.py"
+      - "tests/validation/test_retention_copy_reconciliation_lab.py"
       - "docs/news-and-events/event-registry.md"
+      - "docs/validation/retention-copy-reconciliation-lab.md"
       - "scripts/validation/validate_temporal_event_contract.py"
       - "schemas/temporal-event-contract-1.0.0.schema.json"
       - "tests/**"
@@ -68,6 +71,14 @@ jobs:
       - name: Verify the local CLI entry point
         run: python -m scripts.news_and_events.register_event --help
 
+      - name: Run Issue #137 local synthetic retention copy reconciliation tests
+        run: python -m unittest tests.validation.test_retention_copy_reconciliation_lab -v
+
+      - name: Execute Issue #137 local synthetic retention copy laboratory
+        env:
+          SINAYXA_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python -m scripts.validation.retention_copy_reconciliation_lab --report artifacts/retention-copy-lab/retention-copy-lab-report.json
+
       - name: Run pure migration manifest integrity tests
         run: python -m unittest tests.news_and_events.test_migration_manifest -v
 
@@ -76,3 +87,12 @@ jobs:
 
       - name: Run PostgreSQL event registry integration tests
         run: python -m unittest tests.news_and_events.test_event_registry -v
+
+      - name: Upload Issue #137 retention laboratory report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: retention-copy-lab-${{ github.run_id }}
+          path: artifacts/retention-copy-lab/retention-copy-lab-report.json
+          if-no-files-found: warn
+          retention-days: 14
