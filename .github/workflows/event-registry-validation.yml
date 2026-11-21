@@ -9,7 +9,10 @@ on:
       - "database/migrations/**"
       - "database/control-plane/**"
       - "scripts/news_and_events/**"
+      - "scripts/validation/**"
+      - "docs/validation/**"
       - "docs/news-and-events/event-registry.md"
+      - "requirements-contract-validation.txt"
       - "scripts/validation/validate_temporal_event_contract.py"
       - "schemas/temporal-event-contract-1.0.0.schema.json"
       - "tests/**"
@@ -46,6 +49,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Checkout canonical contract migrator from PR #85 (pinned commit)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Osleyder1985/SINAYXA
+          ref: 6335771309d55e3cc948ba28b008310c3b1b4d4c
+          path: contract-source
+          fetch-depth: 1
+          persist-credentials: false
+
       - name: Set up Python 3.12
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
@@ -55,6 +67,29 @@ jobs:
 
       - name: Install pinned validation and database dependencies
         run: python -m pip install --requirement requirements-temporal-contract-validation.txt
+      - name: Install pinned contract migration validation dependencies
+        run: python -m pip install --requirement contract-source/requirements-contract-validation.txt
+
+      - name: Run Issue #138 persisted contract snapshot migration tests
+        env:
+          SINAYXA_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          SINAYXA_CONTRACT_SOURCE_COMMIT: 6335771309d55e3cc948ba28b008310c3b1b4d4c
+        run: python -m unittest tests.validation.test_contract_snapshot_migration_lab -v
+
+      - name: Execute Issue #138 persisted contract migration laboratory
+        env:
+          SINAYXA_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          SINAYXA_CONTRACT_SOURCE_COMMIT: 6335771309d55e3cc948ba28b008310c3b1b4d4c
+        run: python -m scripts.validation.contract_snapshot_migration_lab --contract-source ./contract-source --report artifacts/contract-migration-lab/report.json
+
+      - name: Upload Issue #138 migration laboratory report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: contract-migration-lab-${{ github.run_id }}
+          path: artifacts/contract-migration-lab/report.json
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Validate temporal contract fixture and semantics
         run: python scripts/validation/validate_temporal_event_contract.py
