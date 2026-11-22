@@ -9,7 +9,7 @@
     "lint:markdown": "node scripts/validation/lint-markdown.mjs"
   },
   "devDependencies": {
-    "markdownlint": "0.42.1"
+    "markdownlint": "0.42.2"
   },
   "overrides": {
     "katex": "0.18.2"
